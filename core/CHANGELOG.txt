@@ -1,0 +1,5 @@
+POSN Practice Judge - changes
+
+1.0  C2 Practice: 11 topics x 20 problems (easy to hard: 1-7 easy, 8-16 medium, 17-20 hard). Same judge as the
+     Camp 1 practice and the Camp 2 mock exams; big tests are built on your computer the first time a problem is
+     judged (small download). Memory limit 256 MB.

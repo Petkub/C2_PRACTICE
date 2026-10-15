@@ -1,0 +1,148 @@
+# C2_PRACTICE — POSN Camp 2 Topic Practice (teacher's guide)
+
+This repo is the source of the judge and test data that students run on their own computers for Camp 2
+topic practice (11 topics × 20 problems, easy to hard, folders `Topic_1` ... `Topic_11`). Students never clone it: they download `C2_Practice.zip` once from
+[Releases](https://github.com/Petkub/C2_PRACTICE/releases/latest), and from then on their judge **updates itself from
+this repo** every time you push to `main`.
+
+The Camp 2 mock exams live in [C2_MOCK](https://github.com/Petkub/C2_MOCK) and the Camp 1 practice in
+[C1_PRACTICE](https://github.com/Petkub/C1_PRACTICE); all of them share this judge (C2_MOCK's README lists the differences). `CLAUDE.md` has the rules for working on the code with Claude Code.
+
+**Solutions are not in this repo** (it is public). Statements (Typst), official solutions, brute-force
+checkers, generators and the solution book are in the teacher-only folder `C2_PRACTICE_SRC/`:
+`python3 build.py check T3/5` rebuilds one problem's tests and checks sol against brute;
+`python3 build.py all` exports all test data, `problems.json`, `sets.json` and `Topic_K.pdf` into this repo
+and writes `build/C2_Practice_Solutions.pdf`. Never type an expected output by hand.
+
+---
+
+## 1. What is where
+
+```
+core/                  what students get inside Judge/   (judge.py, updater.py, include/, README.txt, CHANGELOG.txt)
+problems/batch/        test data: Topic_K/N/01.in, 01.out, ..., manifest.json (hashes), gen.py (rebuilds tests > 64 KB
+                       on the student's computer)   + problems.json (problem bank) + sets.json (topics)
+student/               the rest of the student package: README.txt, .vscode/, Topic_K/Topic_K.pdf,
+                       set_files/ (Makefile, judge.bat, template.cpp -> 1.cpp ... 20.cpp)
+samples/               known-verdict programs used by the tests (expected.json says which verdict each must get)
+tests/run_regression.py   the test suite: run before every push
+tools/build_manifest.py   writes manifest.json (hashes of everything students get)
+tools/build_dist.py       builds dist/C2_Practice.zip for new students
+VERSION                   the version students see ("Judge v1.0")
+manifest.json             generated, served to students by GitHub; never edit by hand
+bundles/                  generated zips of each problem folder (fast updates); commit them with manifest.json
+```
+
+What a student has: `C2_Practice/Judge/` (= `core/` + `problems/` + `manifest.json`) and `C2_Practice/Topic_K/1.cpp ... 20.cpp`
+(their code, which the updater never touches).
+
+## 2. One-time setup on a new computer
+
+```bash
+git clone https://github.com/Petkub/C2_PRACTICE.git
+cd C2_PRACTICE
+python3 tests/run_regression.py        # needs python3 and g++; ~20 s; must end with "All regression tests passed."
+```
+Optional: `gh auth login` (GitHub CLI) if you want to publish releases from the terminal.
+
+## 3. The release routine (every change students should get)
+
+```bash
+cd ~/stupidGrader/C2_PRACTICE            # or wherever your clone is
+# ... make the change (see section 4) ...
+python3 tests/run_regression.py       # 1. tests pass
+cat VERSION                           # 2. bump the version: one higher than this
+echo 1.5 > VERSION
+python3 tools/build_manifest.py       # 3. rebuild manifest.json (ALWAYS after the change, never before)
+git add -A
+git commit -m "Topic_3/5: add test 17"  # 4. commit ...
+git push                              #    ... and push
+```
+Then check that CI is green: <https://github.com/Petkub/C2_PRACTICE/actions> (it runs the tests on Windows, macOS,
+Linux and Python 3.7, and fails if `manifest.json` is stale).
+
+Students receive it automatically: their judge checks GitHub at most every 10 minutes, GitHub caches files for
+up to 5 minutes, so everyone who is judging gets the new version within ~15 minutes; a student who opens the judge
+later gets it on that first run. To see it immediately on any installed copy:
+`python3 ../Judge/judge.py --update` (inside a `Topic_K` folder).
+
+Add one line to `core/CHANGELOG.txt` for each version; students can read it.
+
+## 4. Common changes
+
+### 4a. Fix or extend a problem (tests, statement)
+Work in `C2_PRACTICE_SRC/topics/T<K>/<N>/` (statement.typ, gen.py, sol.cpp, brute.cpp), then
+`python3 build.py check T<K>/<N>` (until `ok`) and `python3 build.py all`, and release (section 3).
+Add new tests at the end of gen.py so existing test numbers keep their content (the updater never deletes a test
+that students already have). Outputs always come from sol.cpp.
+
+### 4b. Fix a bug in the judge
+1. Edit `core/judge.py` (or `core/updater.py`).
+2. Add a sample program that shows the bug under `samples/batch/` and its expected verdict in
+   `samples/expected.json`, so the bug cannot come back.
+3. Run the tests, release. If it cannot be tested on Linux (a Windows-only problem), rely on CI's Windows job.
+
+### 4c. Add a new topic (e.g. topic 12)
+1. Add it to `C2_PRACTICE_SRC/topics.json` and write `topics/T12/1..20/`; check each problem.
+2. `python3 build.py all` writes `problems/batch/Topic_12/`, the new entries of `problems.json` / `sets.json`
+   and `student/Topic_12/Topic_12.pdf`.
+3. Release. Existing students get the test data, `Topic_12/Topic_12.pdf`, `Makefile`, `judge.bat`, and the
+   updater **creates** `Topic_12/1.cpp ... 20.cpp` (templates are only ever created, never overwritten).
+
+### 4d. Change something students see outside Judge/ (README, Makefile, judge.bat, template)
+Edit it under `student/` and release. These are *managed* files: the updater replaces them on every student's
+computer when they change (the old copy goes to `Judge/.backup/_package/`), because students do not edit them.
+The only files that are never replaced are the `Topic_K/N.cpp` templates (created once, then the student's own)
+and `Judge/progress.json`.
+
+### 4e. A new zip for new students
+```bash
+python3 tools/build_dist.py                              # -> dist/C2_Practice.zip
+gh release create v1.5 dist/C2_Practice.zip --title "C2_Practice v1.5"
+```
+The link <https://github.com/Petkub/C2_PRACTICE/releases/latest/download/C2_Practice.zip> always gives the newest
+release. You only need a new release for new students (or new sets); existing students update themselves.
+
+## 5. How the self-update works (so you can trust it)
+
+- `Judge/updater.py` fetches `manifest.json` from `raw.githubusercontent.com/Petkub/C2_PRACTICE/main/`, compares the
+  SHA-256 of every file in `Judge/`, downloads the changed ones to a temp folder, verifies each hash, compiles
+  the new `.py` files and test-runs the new `judge.py --help`, and only then swaps them in. The old file is kept
+  in `Judge/.backup/`.
+- Outside `Judge/` it only replaces the managed files above and creates missing `Topic_K/N.cpp` templates; it
+  never deletes anything and never touches an existing `Topic_K/N.cpp`.
+- No network, a slow network (> 2 s), a bad hash, a strange path: it keeps the current version and says nothing.
+  A failed update never stops a student from judging.
+- Students with a zip from **before** the updater existed (before v1.2) must download the zip once; nothing can
+  reach them otherwise.
+
+## 6. Checking a student's problem report
+
+- "The judge says I have the old version": ask them to run `python3 ../Judge/judge.py --update`. Its message says
+  why it cannot update (e.g. a school firewall, or a macOS Python without certificates:
+  `CERTIFICATE_VERIFY_FAILED` → run "Install Certificates.command" from the Python folder).
+- "My correct code gets Runtime Error / Wrong Answer": ask for the problem, the test number and the lines printed
+  under *First failure* (e.g. `your program crashed (signal 11 SIGSEGV: invalid memory access)` and the program's
+  own stderr below it, such as `terminate called after throwing ... out_of_range`), plus any g++ warnings printed
+  after "Compiled". Then run their
+  file here: `python3 core/judge.py their.cpp K-N`. The judge compiles with `-O2`, which exposes uninitialised
+  variables and out-of-bounds reads that pass on the student's own compile.
+- To check the judge itself, run every official solution: they must all score 100
+  (`python3 core/judge.py solution.cpp K-N`).
+
+## 7. Things that go wrong, and the fix
+
+| Symptom | Fix |
+|---|---|
+| CI red: "manifest.json is stale" | `python3 tools/build_manifest.py`, commit, push. |
+| CI red: "every .in has an .out" | you added `NN.in` without `NN.out` (section 4a). |
+| A pushed version is broken | `git revert HEAD`, bump `VERSION`, rebuild the manifest, push. Students roll forward to the fixed version; their `Judge/.backup/` also still has the previous files. |
+| `build_dist.py` refuses to overwrite | it only replaces a `dist/C2_Practice` folder it made itself, so a student folder is never wiped; delete `dist/` by hand if you are sure. |
+| Students on Windows see `?` boxes | they can use `--ascii`; the judge output must stay ASCII-safe. |
+
+## 8. Never
+
+- Edit `manifest.json` by hand, or commit without rebuilding it.
+- Delete or rename a test that students already have (the updater never deletes; add a new one instead).
+- Type an expected output by hand.
+- Change the judge's exit codes, the manifest format or the updater's safety rules without updating the tests.

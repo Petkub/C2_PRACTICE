@@ -1,0 +1,142 @@
+{
+ "101": {
+  "title": "กำไรรอบปี",
+  "en": "Profit Around the Year",
+  "tier": 1,
+  "dir": "Topic_1/1",
+  "samples": 5
+ },
+ "102": {
+  "title": "สวนผลไม้",
+  "en": "Orchard Squares",
+  "tier": 1,
+  "dir": "Topic_1/2",
+  "samples": 5
+ },
+ "103": {
+  "title": "ทาสีหลายชั้น",
+  "en": "Paint Layers",
+  "tier": 1,
+  "dir": "Topic_1/3",
+  "samples": 5
+ },
+ "104": {
+  "title": "ช่วง K วันที่ดีที่สุด",
+  "en": "Best K Days",
+  "tier": 1,
+  "dir": "Topic_1/4",
+  "samples": 6
+ },
+ "105": {
+  "title": "คู่ที่ใกล้กัน",
+  "en": "Close Pairs",
+  "tier": 1,
+  "dir": "Topic_1/5",
+  "samples": 5
+ },
+ "106": {
+  "title": "ตัดออกหนึ่งวัน",
+  "en": "Remove One Day",
+  "tier": 1,
+  "dir": "Topic_1/6",
+  "samples": 6
+ },
+ "107": {
+  "title": "เที่ยวในงบ",
+  "en": "Trips Within Budget",
+  "tier": 1,
+  "dir": "Topic_1/7",
+  "samples": 6
+ },
+ "108": {
+  "title": "นั่งติดกัน",
+  "en": "Seating Friends Together",
+  "tier": 2,
+  "dir": "Topic_1/8",
+  "samples": 6
+ },
+ "109": {
+  "title": "ผ้าใบซ้อนกัน",
+  "en": "Overlapping Tarps",
+  "tier": 2,
+  "dir": "Topic_1/9",
+  "samples": 5
+ },
+ "110": {
+  "title": "สะสมแสตมป์",
+  "en": "Collect All Stamps",
+  "tier": 2,
+  "dir": "Topic_1/10",
+  "samples": 6
+ },
+ "111": {
+  "title": "เสมอกันสามทาง",
+  "en": "Three-way Tie",
+  "tier": 2,
+  "dir": "Topic_1/11",
+  "samples": 6
+ },
+ "112": {
+  "title": "ยกพื้นให้ได้ระดับ",
+  "en": "Raising Platforms",
+  "tier": 2,
+  "dir": "Topic_1/12",
+  "samples": 6
+ },
+ "113": {
+  "title": "บันไดบล็อก",
+  "en": "Staircase Blocks",
+  "tier": 2,
+  "dir": "Topic_1/13",
+  "samples": 5
+ },
+ "114": {
+  "title": "รถเมล์วงแหวน",
+  "en": "Ring Bus Route",
+  "tier": 2,
+  "dir": "Topic_1/14",
+  "samples": 6
+ },
+ "115": {
+  "title": "ที่ดินสี่เหลี่ยมจัตุรัส",
+  "en": "Largest Affordable Square",
+  "tier": 2,
+  "dir": "Topic_1/15",
+  "samples": 6
+ },
+ "116": {
+  "title": "เรียงใหม่เป็น palindrome",
+  "en": "Rearrangeable Palindromes",
+  "tier": 2,
+  "dir": "Topic_1/16",
+  "samples": 6
+ },
+ "117": {
+  "title": "หันหน้าเข้าหากัน",
+  "en": "Facing Pairs",
+  "tier": 3,
+  "dir": "Topic_1/17",
+  "samples": 5
+ },
+ "118": {
+  "title": "ช่วงที่กำไรเฉลี่ยถึงเป้า",
+  "en": "Longest Profitable Period",
+  "tier": 3,
+  "dir": "Topic_1/18",
+  "samples": 6
+ },
+ "119": {
+  "title": "สี่เหลี่ยมผลรวมพอดี",
+  "en": "Target-Sum Rectangles",
+  "tier": 3,
+  "dir": "Topic_1/19",
+  "samples": 6
+ },
+ "120": {
+  "title": "ชุดคำสั่งไฟประดับ",
+  "en": "Batches of Light Commands",
+  "tier": 3,
+  "dir": "Topic_1/20",
+  "samples": 5
+ }
+}
