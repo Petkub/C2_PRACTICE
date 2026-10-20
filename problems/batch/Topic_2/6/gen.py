@@ -1,57 +1,76 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20206)
-MAXN = 200_000
-MAXM = 10**9
-MAXT = 10**9
+random.seed(1106)
+MAXN, MAXA = 200_000, 10**9
 tests = []
 
+def add(a):
+    n = len(a)
+    assert 1 <= n <= MAXN
+    assert all(1 <= x <= MAXA for x in a)
+    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def rnd(n, lo, hi):
+    return [random.randint(lo, hi) for _ in range(n)]
 
-
-def add(m, t):
-    n = len(t)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(1 <= x <= MAXT for x in t)
-    tests.append(f"{n} {m}\n" + " ".join(map(str, t)) + "\n")
-
+def runs(n, runlen, kind):
+    """increasing runs of about runlen days; between runs one 'bad' day.
+    kind 'high': the bad day is too high (delete it to join), 'low': too low,
+    'nojoin': the next run starts below the end of the previous one, 'mix': any."""
+    a = []
+    base = random.randint(1, 1000)
+    while len(a) < n:
+        ln = random.randint(max(1, runlen // 2), runlen)
+        for _ in range(ln):
+            base += random.randint(1, 3)
+            a.append(base)
+        k = kind if kind != "mix" else random.choice(["high", "low", "nojoin", "eq"])
+        if k == "high":
+            a.append(base + random.randint(10**6, 2 * 10**6))
+        elif k == "low":
+            a.append(max(1, base - random.randint(10**5, 2 * 10**5)))
+        elif k == "eq":
+            a.append(base)
+        else:
+            base -= random.randint(10**5, 2 * 10**5)
+            a.append(base + random.randint(10**6, 2 * 10**6))
+        if base < 10**6:
+            base += 3 * 10**6
+    a = a[:n]
+    assert all(x <= MAXA for x in a)
+    return a
 
 # samples
-add(7, [3, 2, 5])
-add(MAXM, [MAXT])
-add(5, [2, 2])
-add(1, [5, 3, 9])
-add(20, [4, 7, 6, 10])
-add(MAXM, [1, 1, 1, MAXT])
-# hidden: small (M small enough for an item-by-item check)
-add(1, [1])
-add(1, [MAXT])
-add(10**6, [MAXT])
-add(10**6, [ri(1, 100) for _ in range(10)])
-add(500_000, [ri(1, MAXT) for _ in range(1000)])
-add(300_000, [7] * 3000)
-add(10**6, [1] * 999 + [MAXT])
-add(777_777, [ri(1, 1000) * 1000 for _ in range(5000)])
-# hidden: maximum size, M up to 10^9
-N = MAXN
-add(MAXM, [MAXT] * N)
-add(MAXM, [ri(1, MAXT) for _ in range(N)])
-add(MAXM, [1] * (N - 1) + [MAXT])               # a huge upper bound makes the sum overflow
-add(MAXM, [1] * N)
-add(MAXM, [ri(1, 10) for _ in range(N)])
-add(MAXM, [MAXT] * (N - 1) + [1])
-add(MAXM - 1, [ri(MAXT // 2, MAXT) for _ in range(N)])
-add(ri(MAXM // 2, MAXM), [ri(1, MAXT) for _ in range(N)])
-add(MAXM, [ri(1, 1000) for _ in range(N // 2)] + [ri(10**8, MAXT) for _ in range(N // 2)])
-add(N, [MAXT - i for i in range(N)])
+add([1, 2, 5, 3, 4, 6, 2])
+add([5, 4, 3, 2, 1])
+add([7])
+add([1, 2, 3, 3, 4, 5])
+add([4, 4, 4, 4])
+add([3, 8, 4, 5, 1, 6, 7, 9])
+# hidden: small
+add([2, 1])
+add([1, 2])
+add([5, 1, 2, 3])                       # deleting the first day does not help
+add([1, 2, 3, 5, 2, 3, 4])              # cannot join
+add([1, 2, 3, 4, 1, 5, 6])              # delete the low day
+add(rnd(10, 1, 5))
+add(rnd(200, 1, 30))
+add(runs(1000, 15, "mix"))
+add(runs(5000, 40, "high"))
+add(runs(5000, 40, "low"))
+add(runs(15000, 100, "mix"))
+# hidden: maximum size
+add(list(range(1, MAXN + 1)))                                   # already increasing
+a = list(range(1, MAXN + 1)); a[MAXN // 2] = MAXA; add(a)       # one spike in the middle
+a = list(range(10, MAXN + 10)); a[MAXN // 3] = 1; add(a)        # one dip
+add(runs(MAXN, 2000, "mix"))
+add(runs(MAXN, 30000, "nojoin"))
+add(runs(MAXN, 50000, "high"))
+add([MAXA - (i % 2) for i in range(MAXN)])                       # zigzag, answer 2
+add(rnd(MAXN, 1, MAXA))
+add(list(range(MAXN, 0, -1)))
 
-for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
-print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

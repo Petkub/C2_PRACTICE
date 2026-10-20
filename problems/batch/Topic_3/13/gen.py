@@ -1,11 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30113)
-MAXN = 100_000
-MAXT = 10**6
-MAXD = 10**11
-MAXW = 1000
+random.seed(20213)
+MAXN, MAXA, MAXC, MAXB = 200_000, 10**9, 10**9, 10**18
 tests = []
 
 
@@ -14,76 +11,72 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(jobs):
-    n = len(jobs)
-    assert 1 <= n <= MAXN
-    assert all(1 <= t <= MAXT and 1 <= d <= MAXD and 1 <= w <= MAXW for t, d, w in jobs)
-    tests.append(f"{n}\n" + "".join(f"{t} {d} {w}\n" for t, d, w in jobs))
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
-def rnd(n, tmax, slack, wmax=MAXW):
-    """durations 1..tmax, deadlines spread over [1, total * slack], weights 1..wmax"""
-    ts = [ri(1, tmax) for _ in range(n)]
-    hi = max(1, min(MAXD, int(sum(ts) * slack)))
-    return [(t, ri(1, hi), ri(1, wmax)) for t in ts]
+def add(B, a, c):
+    n = len(a)
+    assert 1 <= n <= MAXN and len(c) == n
+    assert 0 <= B <= MAXB
+    assert all(1 <= x <= MAXA for x in a)
+    assert all(1 <= x <= MAXC for x in c)
+    tests.append(f"{n} {B}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, c)) + "\n")
 
 
-def tight(n, tmax, extra, wmax=MAXW):
-    """a schedule with no fine exists: deadlines = finish times in a random order + a little"""
-    ts = [ri(1, tmax) for _ in range(n)]
-    now, res = 0, []
-    for t in ts:
-        now += t
-        res.append((t, min(MAXD, now + ri(0, extra)), ri(1, wmax)))
-    random.shuffle(res)
-    return res
+def cost(m, a, c):
+    return sum(ci * (m - ai) for ai, ci in zip(a, c) if ai < m)
 
 
 # samples
-add([(2, 2, 1), (2, 3, 5), (3, 10, 2)])
-add([(5, 5, 3), (1, 10, 7)])
-add([(MAXT, 1, MAXW)])
-add([(2, 6, 1), (3, 6, 4), (1, 6, 2), (4, 3, 3)])
-add([(1, 2, 1), (10, 13, 2), (5, 9, 3)])
-add([(4, 7, 2), (2, 15, 1), (6, 9, 5), (3, 4, 1), (5, 20, 3), (1, 11, 4)])
-# hidden: small (every order is tried)
-add([(1, 1, 1)])
-add([(2, 1, 1), (1, 3, 9)])
-for n, wmax in ((5, 3), (10, 1000), (14, 1000), (16, 50)):
-    add(rnd(n, 10, 0.8, wmax))
-add(tight(16, 20, 2))
-add([(ri(1, MAXT), ri(1, 10**7), ri(1, MAXW)) for _ in range(16)])
-add([(ri(1, 5), 7, ri(1, 9)) for _ in range(12)])               # equal deadlines
-add(rnd(16, 10, 0.6, 1))                                        # all weights 1
-add(rnd(3000, 1000, 0.5))
-# hidden: large
+add(10, [3, 5, 4], [2, 1, 3])
+add(MAXB, [1, 1], [1, 1])
+add(0, [7, 2, 9], [5, 5, 5])
+add(MAXB, [MAXA], [MAXC])
+add(6, [4, 1, 1, 8], [1, 3, 2, 1])
+add(25, [6, 2, 9, 3, 5], [2, 1, 4, 3, 1])
+# hidden: small (the brute raises one level at a time, so answers stay small here)
+add(0, [5], [3])
+add(2, [5], [3])                               # not enough for even one level
+add(1000, [1, MAXA], [1, 1])
+add(7, [2, 2, 2], [1, 2, 4])                   # exactly 7 coins for one level of all
+a, c = rnd(10, 1, 20), rnd(10, 1, 5)
+add(cost(25, a, c), a, c)                      # the budget is exactly enough for 25
+a, c = rnd(50, 1, 1000), rnd(50, 1, 100)
+add(cost(700, a, c) - 1, a, c)                 # one coin short of 700
+a, c = rnd(200, 1, 10**5), rnd(200, 1, 10**4)
+add(ri(0, 10**10), a, c)
+a, c = rnd(1000, 999_000, 10**6), rnd(1000, 1, MAXC)
+add(ri(10**12, 10**14), a, c)
+# hidden: overflow traps with few characters
+add(MAXB, [1, 2], [MAXC, MAXC])
+add(MAXB, [MAXA, 1, 7], [MAXC, MAXC - 1, MAXC])
+# hidden: maximum size (most answers are far above min a_i)
 N = MAXN
-add(rnd(N, MAXT, 1.0))
-add(rnd(N, MAXT, 0.3))
-add(tight(N, MAXT, 0))                                          # answer 0, only one good order up to ties
-add(tight(N, 10**4, 3))
-add([(ri(1, 10**4), 10**8, ri(1, MAXW)) for _ in range(N)])     # all deadlines equal
-add([(MAXT, ri(1, 10**6), MAXW) for _ in range(N)])             # the largest fines
-add(rnd(N, MAXT, 0.7, 1))                                       # all weights 1
-jobs = [(N - i, i + 1, ri(1, MAXW)) for i in range(N)]          # long jobs have early deadlines
-add(jobs)
-jobs = []
-for i in range(N):                                              # costly jobs with later deadlines
-    t = ri(1, 10**4)
-    if i % 10 == 0:
-        jobs.append((t, ri(10**7, 10**8), MAXW))
-    else:
-        jobs.append((t, ri(1, 10**8), 1))
-random.shuffle(jobs)
-add(jobs)
-jobs = []
-for i in range(N):                                              # weights 1 or 1000
-    t = ri(1, 10**5)
-    jobs.append((t, ri(1, 4 * 10**9), random.choice((1, MAXW))))
-add(jobs)
-add(tight(N, MAXT, 10**6))
-add(rnd(N, 999, 0.7))
-add([(MAXT, MAXD, MAXW)] * N)                                   # everything finishes exactly on time
+H = 150_000                                     # smaller tests keep the total size under 40 MB
+add(MAXB, rnd(H, 1, 3 * 10**5), [MAXC] * H)     # c * (m - a) overflows during the search
+add(MAXB, rnd(H, 1, 10**5), [MAXC] * H)
+add(MAXB, rnd(H, 1, MAXA), rnd(H, 1, 10))
+a = list(range(1, N + 1))
+random.shuffle(a)
+add(MAXB, a, [1] * N)                           # answer about 5 * 10^12
+add(MAXB, [MAXA] * H, rnd(H, 1, 100))
+add(ri(10**17, MAXB), rnd(N, 1, MAXA), rnd(N, 1, 100))
+add(ri(10**16, 10**17), rnd(H, 1, MAXA), rnd(H, 1, 10))
+a, c = rnd(N, 1, MAXA), rnd(N, 1, 10)
+add(cost(3 * 10**10, a, c), a, c)               # exactly enough for 3 * 10^10
+a, c = rnd(N, 1, MAXA), rnd(N, 1, 3)
+add(cost(5 * 10**10, a, c) - 1, a, c)           # one coin short of 5 * 10^10
+a = [1] + rnd(H - 1, MAXA // 2, MAXA)
+c = [1] + rnd(H - 1, 2, 1000)
+add(MAXB // 3, a, c)                            # one cheap low character
+a = sorted(rnd(N, 1, MAXA))
+add(MAXB, a, sorted(rnd(N, 1, 1000), reverse=True))
+add(MAXB, rnd(H, 1, MAXA), rnd(H, 1, 50))
+add(MAXC - 1, [5] * N, [MAXC] * N)              # cannot afford a single level
+add(MAXB, rnd(H, MAXA - 10**6, MAXA), [1] * H)
+add(10**17, rnd(N, 1, 10**6), rnd(N, 1, 10))
+add(MAXB, sorted(rnd(N, 1, 10**6), reverse=True), rnd(N, 1, 5))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

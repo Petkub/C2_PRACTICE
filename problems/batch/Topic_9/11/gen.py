@@ -1,62 +1,61 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(91101)
-MAXN, MAXM = 400_000, 400_000
+random.seed(131101)
+MAXN = 200000
+MAXA = 10**9
+MAXLR = 10**15
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(a, lo, hi):
+    assert 1 <= len(a) <= MAXN and all(-MAXA <= x <= MAXA for x in a)
+    assert -MAXLR <= lo <= hi <= MAXLR
+    tests.append(f"{len(a)} {lo} {hi}\n" + " ".join(map(str, a)) + "\n")
 
 
-def add(n, ps):
-    m = len(ps)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(1 <= p <= n for p in ps)
-    tests.append(f"{n} {m}\n" + " ".join(map(str, ps)) + "\n")
+def rnd(n, lo, hi):
+    return [random.randint(lo, hi) for _ in range(n)]
 
 
-def block_then_middle(n, m, filled):
-    """first a long run of taken spots (cheap), then every car wants the middle of that run"""
-    start = ri(1, n)
-    ps = [(start - 1 + i) % n + 1 for i in range(filled)]
-    mid = (start - 1 + filled // 2) % n + 1
-    return ps + [mid] * (m - filled)
+def walk(n, drift, step):
+    """values around drift: prefix sums wander like a random walk"""
+    return [max(-MAXA, min(MAXA, drift + random.randint(-step, step))) for _ in range(n)]
 
 
 # samples
-add(6, [3, 3, 3, 4, 1, 6, 2])
-add(5, [5, 5, 5, 1])
-add(1, [1, 1])
-add(8, [4, 5, 3, 4, 4, 8, 2])
-add(10, [10, 1, 10, 9, 2, 1, 10, 5, 6])
-# hidden: small
-add(1, [1])
-add(2, [2, 2, 1, 2])
-add(7, [ri(1, 7) for _ in range(10)])
-add(30, [ri(1, 30) for _ in range(40)])
-add(100, [50] * 100)
-add(500, [1] * 600)
-add(1000, block_then_middle(1000, 1200, 700))
-add(3000, [ri(1, 3000) for _ in range(3000)])
-add(5000, [ri(1, 10) for _ in range(5000)])
-# hidden: maximum size
-N, M = MAXN, MAXM
-add(N, [N // 2] * M)                                         # one run grows to both sides
-add(N, [1] * M)                                              # ... across the end of the ring
-add(N, block_then_middle(N, M, N * 3 // 4))
-add(N, block_then_middle(N, M, N // 2))
-add(N // 2, block_then_middle(N // 2, M, N // 2 - 20000))     # the lot fills up, then many cars get 0
-add(N, [ri(1, N) for _ in range(M)])
-add(N, [ri(1, 100) for _ in range(M)])
-add(N // 4, [ri(N // 8 - 50, N // 8 + 50) for _ in range(M)])  # the lot fills up, M = 4N
-add(N, [ri(1, N) if i % 2 else N // 3 for i in range(M)])
-ps = [i for i in range(1, N + 1, 2)]                         # every other spot first
-random.shuffle(ps)
-add(N, ps + [ri(1, N) for _ in range(M - len(ps))])
-add(N, [N - (i % 7) for i in range(M)])
-add(3, [ri(1, 3) for _ in range(M)])
+add([3, -1, 2, -4, 5], 2, 3)
+add([-5, 2, -5], -4, -1)
+add([0, 0, 0, 0], 0, 0)
+add([1, 2, 3], 7, 100)
+add([MAXA] * 3, 2 * MAXA, 3 * MAXA)
+add([4, -7, 1, 0, 6, -2, -3, 5], -2, 2)
+# hidden: small and medium (the brute force checks these)
+add([5], 5, 5)
+add([-MAXA], -MAXLR, MAXLR)
+add(rnd(10, -5, 5), -3, 3)
+add(rnd(300, -10, 10), 0, 0)
+add(rnd(2000, -MAXA, MAXA), -10**10, 10**10)
+add(rnd(3000, -3, 3), -5, 2)
+add(rnd(20000, -MAXA, MAXA), 0, 10**11)
+add(rnd(20000, 1, 100), 500, 1000)
+# hidden: large
+N = MAXN
+add(rnd(N, -MAXA, MAXA), -10**12, 10**12)
+add(rnd(N, -MAXA, MAXA), 3 * 10**11, 2 * 10**12)
+add(rnd(N, -MAXA, MAXA), 777, 777)
+add(rnd(N, -3, 3), -1, 1)
+add(rnd(N, -1, 1), 0, 0)
+add([0] * N, 0, 0)                                                  # every period counts
+add([MAXA] * N, 5 * 10**13, 5 * 10**13)                             # periods of one exact length
+add([-MAXA] * N, -MAXLR, -10**14)
+add(rnd(N, -MAXA, MAXA), -MAXLR, MAXLR)
+add(rnd(N, 0, MAXA), 10**13, 10**14)
+add(walk(N, 3, 1000), -10**5, 10**6)
+add(walk(N, -50, 100), -10**6, -10**4)
+add([MAXA if i % 2 == 0 else -MAXA for i in range(N)], 0, MAXA)
+add(rnd(N, -MAXA, MAXA), 10**15 - 1, MAXLR)                         # nothing
+add([random.choice((-MAXA, MAXA)) for _ in range(N)], -2 * MAXA, 2 * MAXA)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

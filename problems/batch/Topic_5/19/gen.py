@@ -1,9 +1,9 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(10519)
-MAXN = 200_000
-MAXX = 10**9
+random.seed(41900)
+MAXN = 5000
+MAXC = 10**9
 tests = []
 
 
@@ -12,69 +12,122 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(T, gigs):
-    n = len(gigs)
-    assert 1 <= n <= MAXN and 0 <= T <= MAXX
-    for c, s, e, p in gigs:
-        assert c in (1, 2) and 0 <= s < e <= MAXX and 1 <= p <= MAXX
-    tests.append(f"{n} {T}\n" + "".join(f"{c} {s} {e} {p}\n" for c, s, e, p in gigs))
+def add(rs):
+    n = len(rs)
+    assert 1 <= n <= MAXN
+    for x1, y1, x2, y2 in rs:
+        assert 0 <= x1 < x2 <= MAXC and 0 <= y1 < y2 <= MAXC
+    tests.append(f"{n}\n" + "".join(f"{a} {b} {c} {d}\n" for a, b, c, d in rs))
 
 
-def rnd(n, span, maxlen, maxp, minp=1):
-    g = []
-    for _ in range(n):
-        s = ri(0, span - 1)
-        e = min(span, s + ri(1, maxlen))
-        g.append((ri(1, 2), s, e, ri(minp, maxp)))
-    return g
+def shuffled(rs):
+    rs = list(rs)
+    random.shuffle(rs)
+    return rs
 
 
-def chain(n, T, maxp):
-    """gigs packed so that switching city exactly fits or misses by one"""
-    g = []
-    t = 0
-    for _ in range(n):
-        ln = ri(1, 3 * T + 3)
-        c = ri(1, 2)
-        g.append((c, t, t + ln, ri(1, maxp)))
-        t += ln + random.choice([0, 0, T, T - 1 if T > 0 else 0, ri(0, T)])
-    return g
+def rnd_rect(cmax, maxside=None):
+    if maxside is None:
+        x1, x2 = sorted(random.sample(range(cmax + 1), 2))
+        y1, y2 = sorted(random.sample(range(cmax + 1), 2))
+    else:
+        x1, y1 = ri(0, cmax - 1), ri(0, cmax - 1)
+        x2, y2 = min(cmax, x1 + ri(1, maxside)), min(cmax, y1 + ri(1, maxside))
+    return (x1, y1, x2, y2)
+
+
+def cuts(k, lo, hi):
+    """k + 1 strictly increasing cut positions from lo to hi"""
+    return [lo] + sorted(random.sample(range(lo + 1, hi), k - 1)) + [hi]
+
+
+def tiling(a, b, lo, hi):
+    """a x b posters that exactly tile the square [lo, hi]^2 (neighbours share whole sides)"""
+    xc, yc = cuts(a, lo, hi), cuts(b, lo, hi)
+    return [(xc[i], yc[j], xc[i + 1], yc[j + 1]) for i in range(a) for j in range(b)]
+
+
+def frames(k, size, gap):
+    """k x k square frames (4 posters each) around holes; neighbouring frames touch"""
+    rs = []
+    t = size // 4                                   # frame thickness
+    for i in range(k):
+        for j in range(k):
+            x, y = i * (size + gap), j * (size + gap)
+            rs += [(x, y, x + size, y + t), (x, y + size - t, x + size, y + size),
+                   (x, y + t, x + t, y + size - t), (x + size - t, y + t, x + size, y + size - t)]
+    return rs
 
 
 # samples
-add(2, [(1, 1, 3, 5), (2, 5, 8, 6), (1, 4, 9, 5), (2, 2, 4, 3), (2, 8, 10, 2)])
-add(5, [(1, 0, 4, 6), (2, 6, 9, 6), (2, 4, 7, 5)])
-add(0, [(2, 3, 9, 4)])
-add(0, [(1, 0, 5, 3), (2, 5, 7, 3), (1, 6, 9, 3), (2, 7, 8, 1)])
-add(10, [(1, 0, 1, MAXX), (1, 1, 2, MAXX), (1, 2, 3, MAXX)])
-add(3, [(1, 0, 2, 4), (2, 0, 3, 5), (2, 4, 6, 4), (1, 5, 8, 6), (2, 9, 12, 5), (1, 11, 12, 2)])
-# hidden: small (checked against trying every set)
-add(MAXX, [(1, 0, MAXX, MAXX)])
-add(1, [(2, 0, 1, 1), (1, 1, 2, 1), (2, 2, 3, 1), (1, 3, 4, 1)])   # switching needs 1 extra
-add(4, rnd(12, 40, 8, 20))
-add(0, rnd(14, 30, 6, 10))
-add(7, chain(15, 7, 9))
-add(MAXX, rnd(15, 50, 10, 30))                 # switching is never possible
-add(2, rnd(15, 25, 3, 5))
-add(1, [(ri(1, 2), 0, 10, ri(1, 9)) for _ in range(10)])           # all at the same time
-add(3, chain(16, 3, MAXX))
-# hidden: large (numbers kept short so that the inputs stay near 3 MB)
-add(10, rnd(MAXN, 10**5, 50, 99))
-add(0, rnd(150_000, 10**6, 100, 999))
-add(MAXX, rnd(150_000, 10**5, 30, 999))       # switching is never possible
-add(30, chain(140_000, 30, 99))
-add(1, chain(150_000, 1, 999))
-add(10**4, [(c, s, e, p if random.random() < 0.9 else ri(MAXX - 1000, MAXX))
-            for c, s, e, p in rnd(140_000, 10**6, 1000, 99)])   # the total needs 64 bits
-add(50, [(1 + i % 2, 2 * i, 2 * i + 1, ri(1, 99)) for i in range(150_000)])   # alternate cities, gaps too short
-add(1, [(1 + i % 2, 2 * i, 2 * i + 1, ri(1, 99)) for i in range(150_000)])    # gaps just enough: every gig
-add(500, [(ri(1, 2), 0, MAXX, ri(1, MAXX)) for _ in range(50_000)])           # every pair overlaps
-add(20, [(ri(1, 2), i, MAXX - i, ri(1, MAXX)) for i in range(50_000)])        # nested
-add(7, rnd(180_000, 10**6, 20, 99))
-add(3 * 10**4, [(c, s, e, p if random.random() < 0.8 else ri(1, MAXX))
-                for c, s, e, p in rnd(140_000, 10**7, 10**4, 999)])
-add(200, [(1, s, e, p) for _, s, e, p in rnd(75_000, 10**6, 500, 999)]
-    + [(2, s, e, p) for _, s, e, p in rnd(75_000, 10**6, 500, 999)])
+add([(0, 0, 4, 3), (2, 1, 6, 5)])
+add([(0, 0, 2, 2), (2, 0, 5, 2)])
+add([(0, 0, 3, 1), (0, 2, 3, 3), (0, 1, 1, 2), (2, 1, 3, 2)])
+add([(0, 0, 10, 10), (2, 2, 5, 5)])
+add([(0, 0, 1, 1), (1, 1, 2, 2)])
+add([(1, 1, 4, 3), (3, 0, 5, 2), (4, 2, 6, 4), (0, 3, 2, 5)])
+# hidden: small
+add([(0, 0, MAXC, MAXC)])
+add([(5, 5, 6, 6)] * 3)
+add([rnd_rect(8) for _ in range(6)])
+add([rnd_rect(30) for _ in range(40)])
+add([rnd_rect(100, 10) for _ in range(300)])
+add(shuffled(tiling(12, 15, 0, 1000)))
+add(shuffled(frames(6, 40, 0)))                     # frames touching each other, every hole kept
+add([rnd_rect(MAXC) for _ in range(200)])
+# large (N = 5000)
+N = MAXN
+S = 45 * 10**7                                      # touching structures live in [0, S]^2 ...
+
+
+def big_layer(k):
+    """... and k big posters that all overlap each other live in [5.5e8, 1e9]^2 (painting cells is slow)"""
+    return [(ri(55 * 10**7, 62 * 10**7), ri(55 * 10**7, 62 * 10**7), ri(93 * 10**7, MAXC), ri(93 * 10**7, MAXC))
+            for _ in range(k)]
+
+
+add([(ri(0, MAXC // 2 - 1), ri(0, MAXC // 2 - 1), ri(MAXC // 2, MAXC), ri(MAXC // 2, MAXC)) for _ in range(N)])
+add([rnd_rect(MAXC) for _ in range(N)])
+add([rnd_rect(MAXC, 10**7) for _ in range(N)])      # mostly separate small posters
+add(shuffled([(0, 2 * i, MAXC, 2 * i + 1) for i in range(N)]))   # long thin strips: the answer needs 64 bits
+add(shuffled(tiling(50, 60, 0, S) + big_layer(N - 3000)))   # a square cut into touching pieces
+add(shuffled(tiling(50, 100, 10**8, 9 * 10**8)))
+s = 10**5                                           # checkerboard: pieces touch only at corners
+add(shuffled([(i * s, j * s, (i + 1) * s, (j + 1) * s) for i in range(70) for j in range(70) if (i + j) % 2 == 0]
+             + big_layer(N - 2450)))
+add(shuffled([(i * 10**5, i * 10**5, MAXC - i * 10**5, MAXC - i * 10**5) for i in range(N)]))   # nested
+add(shuffled(frames(25, 16 * 10**6, 0) + big_layer(N - 2500)))
+xs = cuts(N // 4, 0, S)
+ys = cuts(N // 4, 0, S)
+mesh = [(xs[i], 0, xs[i] + 1, S) for i in range(N // 4) if xs[i] + 1 < xs[i + 1]] + \
+       [(0, ys[j], S, ys[j] + 1) for j in range(N // 4) if ys[j] + 1 < ys[j + 1]]
+add(shuffled(mesh + big_layer(N - len(mesh))))                                 # thin bars both ways: a net with very many holes
+rs = []                                             # brick wall: rows of bricks, each row shifted
+h = S // 30
+for j in range(30):
+    xc = cuts(99, 0, S)
+    rs += [(xc[i], j * h, xc[i + 1], (j + 1) * h) for i in range(99)]
+add(shuffled(rs + big_layer(N - len(rs))))
+rs = []                                             # a chain: each poster starts where the previous one ends
+x = 0
+for i in range(3000):
+    w = ri(1, 10**5)
+    y1 = ri(0, S - 10**6)
+    rs.append((x, y1, x + w, y1 + ri(1, 10**6)))
+    x += w
+add(shuffled(rs + big_layer(N - 3000)))
+add([(ri(0, 10**8), ri(0, 10**8), ri(9 * 10**8, MAXC), ri(9 * 10**8, MAXC)) for _ in range(N)])   # huge, all overlap
+rs = []                                             # wide bars and tall bars, every one thick
+for i in range(N // 2):
+    a = ri(0, 7 * 10**8)
+    rs.append((ri(0, 10**7), a, ri(MAXC - 10**7, MAXC), a + ri(10**8, 3 * 10**8)))
+    a = ri(0, 7 * 10**8)
+    rs.append((a, ri(0, 10**7), a + ri(10**8, 3 * 10**8), ri(MAXC - 10**7, MAXC)))
+add(shuffled(rs))
+rs = tiling(40, 50, 0, 4 * 10**8)                   # touching pieces in one corner, big overlapping posters elsewhere
+rs += [(ri(5 * 10**8, 7 * 10**8), ri(5 * 10**8, 7 * 10**8), ri(8 * 10**8, MAXC), ri(8 * 10**8, MAXC))
+       for _ in range(N - len(rs))]
+add(shuffled(rs))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

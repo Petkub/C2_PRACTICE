@@ -1,61 +1,83 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20215)
-MAXN, MAXA = 500_000, 10**9
+random.seed(11501)
+MAXN = 1500
+MAXS = 10**8
+DIG = "0123456789"
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(s, g):
+    r, c = len(g), len(g[0])
+    assert 1 <= r <= MAXN and 1 <= c <= MAXN
+    assert 0 <= s <= MAXS
+    assert all(len(row) == c and all(ch in DIG for ch in row) for row in g)
+    tests.append(f"{r} {c} {s}\n" + "\n".join(g) + "\n")
 
 
-def add(a):
-    n = len(a)
-    assert 1 <= n <= MAXN
-    assert all(1 <= x <= MAXA for x in a)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
+def rnd(r, c, digits=DIG):
+    return ["".join(random.choices(digits, k=c)) for _ in range(r)]
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def const(r, c, d):
+    return [d * c] * r
+
+
+def plant(g, r, c, k, d):
+    """overwrite the k x k square with top-left (r, c) (0-based) by digit d"""
+    for i in range(r, r + k):
+        g[i] = g[i][:c] + d * k + g[i][c + k:]
 
 
 # samples
-add([5, 2, 8, 3, 3, 9, 1])
-add([6, 6, 6, 6])
-add([9, 7, 4, 2, 1])
-add([MAXA])
-add([3, 1, 4, 1, 5, 9, 2, 6])
-add([2, 5, 2, 5, 2, 5])
-# hidden: small
-add([1, 1])
-add([2, 1])
-add(rnd(10, 1, 5))
-add(rnd(60, 1, 20))
-add(rnd(300, 1, 3))
-add(rnd(2000, 1, MAXA))
-add(sorted(rnd(3000, 1, 50)))
-add(rnd(30000, 1, 9))
-# hidden: large (the number of tracks is large in most of them)
-N = MAXN
-add([7] * N)                                          # every wagon needs a new track
-add(sorted(rnd(N, 1, 99)))                            # non-decreasing: N tracks
-a = sorted(rnd(N, 1, 9))
-for _ in range(2000):                                 # almost sorted
-    i, j = ri(0, N - 1), ri(0, N - 1)
-    a[i], a[j] = a[j], a[i]
-add(a)
-add([i // 2 * 2 + 2 - i % 2 for i in range(450_000)])     # 2 1 4 3 6 5 ...: N / 2 tracks
-add([ri(1, 9) + i // 50 for i in range(N)])           # noisy staircase
-add([max(1, 100_000 - i // 5) if i % 3 else 1 + i // 5 for i in range(N)])
-add(rnd(N, 1, 9))                                     # random small values: many tracks
-add([MAXA - i for i in range(300_000)])               # strictly decreasing: 1 track
-add(rnd(300_000, 1, MAXA))                            # random: few tracks
-add(rnd(N, 1, 16))
-add([i // 2 + (i % 2) * 250_000 + 1 for i in range(N)])  # two interleaved rising runs
-add([N - i // 3 if i % 3 == 0 else i + 1 for i in range(N)])
-add([MAXA - (i % 2) * ri(0, 9) for i in range(280_000)])
+add(13, ["31415", "92653", "58979", "32384"])
+add(0, ["123", "456"])
+add(4, ["9119", "1111", "9119"])
+add(5, ["000", "000", "000", "000"])
+add(7, ["7"])
+add(20, ["5555", "5555", "5555"])
+# hidden (small)
+add(0, ["0"])
+add(8, ["9"])
+add(0, rnd(1, 30, "0123"))
+g = rnd(12, 9, "01")
+add(6, g)
+g = const(8, 8, "9")
+plant(g, 5, 0, 3, "1")
+plant(g, 0, 5, 3, "1")
+plant(g, 4, 4, 3, "1")
+add(9, g)                                   # three cheap squares, the first in reading order wins
+add(35, rnd(40, 50))
+add(400, rnd(60, 45, "0123"))
+add(25, rnd(100, 100, "0000000009"))
+add(0, rnd(150, 120, "0000000000001"))
+# large
+add(0, const(MAXN, MAXN, "0"))              # everything free
+add(8, const(MAXN, MAXN, "9"))              # nothing affordable
+add(9 * MAXN * MAXN, const(MAXN, MAXN, "9"))   # exactly the whole field
+add(9 * 1000 * 1000 - 1, const(MAXN, MAXN, "9"))
+add(MAXS, rnd(MAXN, MAXN))
+add(900_000, rnd(MAXN, MAXN))               # medium answer
+add(200_000, rnd(MAXN, MAXN, "01"))         # every corner reaches far
+add(3, rnd(MAXN, MAXN, "0000000123456789"))  # tiny answer
+g = const(MAXN, MAXN, "9")
+plant(g, 1100, 10, 100, "1")
+plant(g, 799, 1090, 100, "1")
+plant(g, 799, 300, 100, "1")
+plant(g, 799, 299, 1, "8")                  # cell left of the winner: a shifted square is too expensive
+add(10_000, g)                              # ties: row 800, column 301
+add(300_000, rnd(MAXN, MAXN, "0001"))      # answer about 1000, reached late
+add(50, rnd(MAXN, MAXN, "0000000001"))
+g = rnd(MAXN - 1, MAXN, "0123456789")
+add(5_000, g)
+add(0, rnd(MAXN, MAXN, "0" + "123456789" * 2))   # largest all-zero square, small answer
+g = const(MAXN, MAXN, "0")
+for i in range(MAXN):
+    g[i] = g[i][:i] + "1" + g[i][i + 1:]
+add(0, g)                                   # diagonal of 1s, zero budget
+add(10, ["".join(random.choices(DIG, k=MAXN))])
+add(10, ["".join(random.choices(DIG, k=1)) for _ in range(MAXN)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

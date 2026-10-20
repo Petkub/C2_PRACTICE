@@ -1,154 +1,171 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(81313)
-MAXN, MAXM, MAXQ, MAXW = 300, 50_000, 100_000, 10**9
+random.seed(7013)
+MAXR = MAXC = 1000
+MAXK, MAXT = 100_000, 10**6
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, edges, qs, shuffle=True):
-    edges = list(edges)
-    if shuffle:
-        random.shuffle(edges)
-    m, q = len(edges), len(qs)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM and 1 <= q <= MAXQ
-    assert all(1 <= a <= n and 1 <= b <= n and -MAXW <= w <= MAXW for a, b, w in edges)
-    assert all(1 <= u <= n and 1 <= v <= n for u, v in qs)
-    tests.append(f"{n} {m} {q}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in edges)
-                 + "".join(f"{u} {v}\n" for u, v in qs))
+def add(rows, fires):
+    r, c, k = len(rows), len(rows[0]), len(fires)
+    assert 1 <= r <= MAXR and 1 <= c <= MAXC and 1 <= k <= MAXK
+    assert all(len(x) == c and set(x) <= set(".#S") for x in rows)
+    assert sum(x.count("S") for x in rows) == 1
+    for a, b, t in fires:
+        assert 1 <= a <= r and 1 <= b <= c and rows[a - 1][b - 1] != "#" and 1 <= t <= MAXT
+    tests.append(f"{r} {c} {k}\n" + "".join(x + "\n" for x in rows)
+                 + "".join(f"{a} {b} {t}\n" for a, b, t in fires))
 
 
-def rq(n, q):
-    return [(ri(1, n), ri(1, n)) if random.random() < 0.97 else (x, x) for x in [ri(1, n) for _ in range(q)]]
+def grid(r, c, dens):
+    return [["#" if random.random() < dens else "." for _ in range(c)] for _ in range(r)]
 
 
-def potential(n, m, pmax, cmax, verts=None):
-    """roads w = p(b) - p(a) + c with c >= 0: many negative roads but no negative cycle"""
-    verts = verts or list(range(1, n + 1))
-    p = {v: ri(0, pmax) for v in verts}
-    res = []
-    for _ in range(m):
-        a, b = random.choice(verts), random.choice(verts)
-        res.append((a, b, max(-MAXW, min(MAXW, p[b] - p[a] + ri(0, cmax)))))
-    return res
+def free_cell(g, inner=False):
+    r, c = len(g), len(g[0])
+    while True:
+        i, j = ri(0, r - 1), ri(0, c - 1)
+        if g[i][j] == "." and (not inner or 0 < i < r - 1 and 0 < j < c - 1):
+            return i, j
 
 
-def chain_potential(n, extra, pmax, cmax):
-    """a long cheap route through all towns plus random roads, no negative cycle"""
-    order = list(range(1, n + 1))
-    random.shuffle(order)
-    p = {v: ri(0, pmax) for v in order}
-    res = [(order[i], order[i + 1], p[order[i + 1]] - p[order[i]] + ri(0, 3)) for i in range(n - 1)]
-    for _ in range(extra):
-        a, b = random.choice(order), random.choice(order)
-        res.append((a, b, min(MAXW, p[b] - p[a] + ri(cmax // 2, cmax))))
-    return res
+def finish(g, s, fires):
+    """g: list of lists, s = (i, j) 0-based, fires = [(i, j, t)] 0-based cells"""
+    g[s[0]][s[1]] = "S"
+    rows = ["".join(x) for x in g]
+    add(rows, [(i + 1, j + 1, t) for i, j, t in fires])
 
 
-def plant_cycles(n, k, length, wmin):
-    """k small cycles of negative total length"""
+def random_fires(g, k, tlo, thi):
     res = []
     for _ in range(k):
-        cyc = random.sample(range(1, n + 1), length)
-        ws = [ri(-MAXW // 2, MAXW // 2) for _ in range(length - 1)]
-        last = -sum(ws) - ri(1, wmin)
-        if not -MAXW <= last <= MAXW:
-            continue
-        ws.append(last)
-        res += [(cyc[i], cyc[(i + 1) % length], ws[i]) for i in range(length)]
+        i, j = free_cell(g)
+        res.append((i, j, ri(tlo, thi)))
     return res
 
 
-def groups(n, sizes):
-    """split the towns into groups (random order)"""
-    order = list(range(1, n + 1))
-    random.shuffle(order)
-    res, at = [], 0
-    for s in sizes:
-        res.append(order[at:at + s])
-        at += s
-    return res
-
-
-def scc_dag(n, k, m, pbad, pmax, cmax, cyc=1):
-    """k groups; inside a group roads both ways without negative cycles, between groups only forward;
-    a fraction pbad of the groups get one negative cycle"""
-    cuts = sorted(random.sample(range(1, n), k - 1))
-    sizes = [b - a for a, b in zip([0] + cuts, cuts + [n])]
-    gs = groups(n, sizes)
-    inner = m * 3 // 4
-    e = []
-    for g in gs:
-        e += potential(n, max(1, inner * len(g) // n), pmax, cmax, g)
-        if random.random() < pbad:
-            if len(g) == 1:
-                e.append((g[0], g[0], -ri(1, cyc)))
-            else:
-                a, b = random.sample(g, 2)
-                w = ri(-MAXW + cyc, MAXW - cyc)
-                e += [(a, b, w), (b, a, -w - ri(1, cyc))]
-    while len(e) < m:
-        i, j = sorted(random.sample(range(k), 2)) if k > 1 else (0, 0)
-        e.append((random.choice(gs[i]), random.choice(gs[j]), ri(-MAXW // 10, MAXW)))
-    return e[:m]
+def serpentine(r, c):
+    """border of walls, corridors on odd rows joined at alternating ends, the exit gap at the end;
+    returns the grid, the start cell and the number of steps from the start to the exit gap"""
+    g = [["#"] * c for _ in range(r)]
+    rows = list(range(1, r - 1, 2))
+    for k, i in enumerate(rows):
+        for j in range(1, c - 1):
+            g[i][j] = "."
+        if k + 1 < len(rows):
+            g[i + 1][c - 2 if k % 2 == 0 else 1] = "."
+    last = rows[-1]
+    end_j = c - 2 if (len(rows) - 1) % 2 == 0 else 1
+    exit_j = end_j + 1 if end_j == c - 2 else 0
+    g[last][exit_j] = "."
+    steps = len(rows) * (c - 3) + 2 * (len(rows) - 1) + 1
+    return g, (1, 1), (last, exit_j), steps
 
 
 # samples
-add(4, [(1, 2, 4), (2, 3, -2), (1, 3, 3), (3, 4, 1), (4, 2, 5)], [(1, 3), (4, 1)], False)
-add(4, [(1, 2, 1), (2, 3, -3), (3, 2, 1), (3, 4, 2)], [(1, 4), (1, 1)], False)
-add(3, [(2, 2, -1), (1, 3, 7)], [(1, 3), (2, 2), (3, 1)], False)
-add(4, [(1, 2, -MAXW), (2, 3, -MAXW), (3, 4, -MAXW)], [(1, 4), (4, 1)], False)
-add(2, [(1, 2, -5), (2, 1, 5)], [(1, 2), (2, 2)], False)
-# hidden: small
-add(5, [(1, 2, 2), (2, 3, 2), (3, 1, -5), (4, 5, -1), (5, 4, 1), (3, 4, 10), (1, 1, 0)],
-    [(1, 5), (4, 4), (5, 1), (4, 5), (5, 5), (2, 2)])
-add(1, [(1, 1, -5)], [(1, 1)])
-add(1, [(1, 1, 3)], [(1, 1)])
-add(2, [(1, 2, -MAXW), (2, 1, MAXW)], [(1, 2), (2, 1), (1, 1), (2, 2)])
-for n, m, wneg, wpos in ((5, 8, 3, 5), (6, 12, 2, 6), (8, 15, 1, 10), (10, 25, 5, 20), (15, 40, 3, 30)):
-    add(n, [(ri(1, n), ri(1, n), ri(-wneg, wpos)) for _ in range(m)], rq(n, 100))
-add(30, potential(30, 120, 1000, 50), rq(30, 300))
-add(30, potential(30, 100, 1000, 50) + plant_cycles(30, 2, 3, 5), rq(30, 300))
-add(60, chain_potential(60, 200, 10**6, 10**6) + plant_cycles(60, 1, 4, 1), rq(60, 500))
-gs = groups(80, [30, 30, 20])
-e = potential(80, 300, 10**4, 100, gs[0]) + potential(80, 300, 10**4, 100, gs[1]) + potential(80, 200, 10**4, 100, gs[2])
-e += [(gs[1][0], gs[1][1], -10**5), (gs[1][1], gs[1][0], 0)] + [(gs[0][0], gs[1][2], 7), (gs[1][3], gs[2][0], 9)]
-add(80, e, rq(80, 800))
-add(100, [(ri(1, 100), ri(1, 100), ri(-10, 10**4)) for _ in range(1500)], rq(100, 1000))
-# hidden: maximum size
-N, M, Q = MAXN, MAXM, MAXQ
-add(N, potential(N, M, 5 * 10**8, 10**8), rq(N, Q))
-add(N, chain_potential(N, M - N, 5 * 10**8, MAXW // 2), rq(N, Q))
-add(N, scc_dag(N, 12, M, 0.3, 10**6, 10**7), rq(N, Q))
-gs = groups(N, [100, 100, 100])                       # three parts; only the middle one has a negative cycle
-e = []
-for g in gs:
-    e += potential(N, M // 3 - 50, 4 * 10**8, 10**8, g)
-x, y = gs[1][0], gs[1][1]
-e += [(x, y, -MAXW), (y, x, MAXW - 1)]
-for _ in range(20):
-    e += [(random.choice(gs[0]), random.choice(gs[1]), ri(1, MAXW)), (random.choice(gs[1]), random.choice(gs[2]), ri(1, MAXW))]
-add(N, e, rq(N, Q))
-add(N, scc_dag(N, 6, M, 0.5, 10**8, 10**8, MAXW), rq(N, Q))                    # very negative cycles: watch overflow
-add(N, [(ri(1, N), ri(1, N), ri(-MAXW, -MAXW + 10)) for _ in range(M)], rq(N, Q))  # everything is -INF
-e = [(i, i + 1, -MAXW) for i in range(1, N)] + [(i, i, 0) for i in range(1, N + 1)]
-e += [(i, j, ri(-MAXW, MAXW)) for i, j in (sorted(random.sample(range(1, N + 1), 2)) for _ in range(M - len(e)))]
-add(N, e, rq(N, Q))                                   # long, very negative routes, no cycle
-add(N, scc_dag(N, 20, M - 1, 0.0, 10**8, 10**6) + [(150, 150, -1)], rq(N, Q))   # one negative loop
-gs = groups(N, [150, 150])                            # no road from the second half to the first
-e = potential(N, M // 2, 10**8, 10**6, gs[0]) + potential(N, M // 2 - 50, 10**8, 10**6, gs[1])
-e += [(random.choice(gs[0]), random.choice(gs[1]), ri(-MAXW, MAXW)) for _ in range(50)]
-add(N, e, rq(N, Q))
-order = list(range(1, N + 1))
-random.shuffle(order)
-e = [(order[i], order[j], ri(-MAXW, MAXW)) for i, j in (sorted(random.sample(range(N), 2)) for _ in range(M))]
-add(N, e, rq(N, Q))                                   # no cycle at all, any signs
-add(N, scc_dag(N, 40, M, 0.3, 4 * 10**8, MAXW // 2), rq(N, Q))
-add(N, scc_dag(N, 3, M, 0.4, 10**4, 10), rq(N, Q))
+add(["#####",
+     "#...#",
+     "#.S..",
+     "#...#",
+     "##.##"], [(3, 4, 1)])
+add(["######",
+     "#S....",
+     "######"], [(2, 5, 3)])
+add(["######",
+     "#S....",
+     "######"], [(2, 5, 4)])
+add(["..S..",
+     "....."], [(1, 3, 1), (2, 1, 2)])
+add(["#.####",
+     "#....#",
+     "#.##S#",
+     "####.#"], [(4, 5, 1), (1, 2, 6)])
+add(["#####",
+     "#.S.#",
+     "#####"], [(2, 2, 5)])
+# hidden: small (checked by simulation)
+add(["S"], [(1, 1, 1)])
+add(["...", ".S.", "..."], [(2, 2, 1)])
+add(["#.#", "#S#", "#.#"], [(1, 2, 1), (3, 2, 1)])
+add(["#.#", "#S#", "#.#"], [(1, 2, 2), (3, 2, 1)])
+for r, c, d, k, thi in ((6, 6, 0.2, 2, 5), (8, 9, 0.3, 3, 10), (10, 10, 0.25, 5, 8), (12, 15, 0.3, 4, 20),
+                        (15, 15, 0.2, 10, 15), (20, 20, 0.35, 6, 30), (25, 30, 0.3, 30, 40), (40, 40, 0.25, 50, 60)):
+    g = grid(r, c, d)
+    s = free_cell(g, True)
+    finish(g, s, random_fires(g, k, 1, thi))
+g, s, ex, L = serpentine(21, 15)
+finish(g, s, [(ex[0], ex[1], L + 1)])                            # just in time
+g, s, ex, L = serpentine(21, 15)
+finish(g, s, [(ex[0], ex[1], L)])                                # one minute late
+g = grid(60, 60, 0.3)
+s = free_cell(g, True)
+finish(g, s, random_fires(g, 400, 1, 100))
+# hidden: large
+R, C = MAXR, MAXC
+g = [["."] * C for _ in range(R)]                                 # open field, fires near the middle of each side
+finish(g, (R // 2, C // 2), [(0, C // 2, 1), (R - 1, C // 2, 1), (R // 2, 0, 1), (R // 2, C - 1, 1)])
+g = [["."] * C for _ in range(R)]                                 # fires at the corners a bit later
+finish(g, (R // 2 - 3, C // 2 + 10), [(0, 0, 20), (R - 1, C - 1, 1), (0, C - 1, 5), (R - 1, 0, 12)])
+g = grid(R, C, 0.3)
+s = free_cell(g, True)
+finish(g, s, random_fires(g, MAXK, 1, MAXT))                      # many fires, most of them too late to matter
+g = grid(R, C, 0.25)
+s = (R // 2, C // 2)
+g[s[0]][s[1]] = "."
+f = random_fires(g, MAXK, 600, 5000)                              # many fires at close times, listed latest first
+f.sort(key=lambda x: -x[2])
+finish(g, s, f)
+g = grid(R, C, 0.2)
+s = (R // 2, C // 2)
+g[s[0]][s[1]] = "."
+finish(g, s, random_fires(g, 2000, 400, 900))
+g, s, ex, L = serpentine(R - 1, C)
+finish(g, s, [(ex[0], ex[1], L + 1)] + [(ex[0], ex[1], MAXT)] * 10)   # just in time along the long corridor
+g, s, ex, L = serpentine(R - 1, C)
+finish(g, s, [(ex[0], ex[1], L)])                                 # one minute late
+g, s, ex, L = serpentine(R - 1, C)
+mid = (R // 2 | 1, C // 2)                                        # a fire in the middle of the way, late enough
+finish(g, s, [(mid[0], mid[1], L - 3000)] + random_fires(g, 1000, L, MAXT))
+g = grid(R, C, 0.3)                                               # the person is walled in: no way out, no fire
+s = (R // 2, C // 2)
+for i in range(s[0] - 2, s[0] + 3):
+    for j in range(s[1] - 2, s[1] + 3):
+        g[i][j] = "#" if max(abs(i - s[0]), abs(j - s[1])) == 2 else "."
+fires = [(i, j, t) for i, j, t in random_fires(g, 100, 1, 10) if max(abs(i - s[0]), abs(j - s[1])) > 2]
+finish(g, s, fires)
+g = [["."] * C for _ in range(R)]                                 # the fire starts under the person's feet
+finish(g, (R // 2, 3), [(R // 2, 3, 1)] + [(ri(0, R - 1), ri(10, C - 1), ri(1, 50)) for _ in range(500)])
+g = grid(R, C, 0.15)
+s = (R // 2, C // 2)
+g[s[0]][s[1]] = "."
+fires = []
+for _ in range(MAXK):                                             # a ring of fires around the person
+    i, j = free_cell(g)
+    d = abs(i - s[0]) + abs(j - s[1])
+    fires.append((i, j, max(1, d + ri(20, 300))))
+finish(g, s, fires)
+for dens, k, thi in ((0.2, 1000, 1500), (0.1, MAXK, 3000)):     # fires at very different times all over the map
+    g = grid(R, C, dens)
+    s = (R // 2, C // 2)
+    g[s[0]][s[1]] = "."
+    finish(g, s, random_fires(g, k, 1, thi))
+g = [["#"] * C for _ in range(R)]                                # two corridors; a late fire sits where an early one arrives
+for j in range(601):
+    g[499][j] = g[520][j] = "."
+for i in range(499, 521):
+    g[i][600] = "."
+for i in range(450, 499):
+    g[i][300] = "."
+cells = [(i, j) for i in range(R) for j in range(C) if g[i][j] == "." and (i, j) != (499, 600)]
+fires = [(450, 300, 1), (499, 300, MAXT)] + [(*cells[ri(0, len(cells) - 1)], ri(900, MAXT)) for _ in range(1000)]
+finish(g, (499, 600), fires)
+
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)

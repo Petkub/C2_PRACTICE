@@ -1,8 +1,8 @@
 [
  {
   "set": 1,
-  "level_th": "ผลรวมสะสมและ two pointers",
-  "level_en": "Prefix Sums and Two Pointers",
+  "level_th": "brute force และ implementation",
+  "level_en": "Brute Force and Implementation",
   "problems": [
    101,
    102,
@@ -28,8 +28,8 @@
  },
  {
   "set": 2,
-  "level_th": "binary search",
-  "level_en": "Binary Search",
+  "level_th": "ผลรวมสะสมและ two pointers",
+  "level_en": "Prefix Sums and Two Pointers",
   "problems": [
    201,
    202,
@@ -55,8 +55,8 @@
  },
  {
   "set": 3,
-  "level_th": "greedy",
-  "level_en": "Greedy",
+  "level_th": "binary search",
+  "level_en": "Binary Search",
   "problems": [
    301,
    302,
@@ -82,8 +82,8 @@
  },
  {
   "set": 4,
-  "level_th": "sweep line",
-  "level_en": "Sweep Line",
+  "level_th": "greedy",
+  "level_en": "Greedy",
   "problems": [
    401,
    402,
@@ -109,8 +109,8 @@
  },
  {
   "set": 5,
-  "level_th": "dynamic programming 1",
-  "level_en": "Dynamic Programming I",
+  "level_th": "sweep line",
+  "level_en": "Sweep Line",
   "problems": [
    501,
    502,
@@ -136,8 +136,8 @@
  },
  {
   "set": 6,
-  "level_th": "dynamic programming 2",
-  "level_en": "Dynamic Programming II",
+  "level_th": "dynamic programming 1",
+  "level_en": "Dynamic Programming I",
   "problems": [
    601,
    602,
@@ -163,8 +163,8 @@
  },
  {
   "set": 7,
-  "level_th": "graph",
-  "level_en": "Graphs",
+  "level_th": "dynamic programming 2",
+  "level_en": "Dynamic Programming II",
   "problems": [
    701,
    702,
@@ -190,8 +190,8 @@
  },
  {
   "set": 8,
-  "level_th": "เส้นทางสั้นที่สุด",
-  "level_en": "Shortest Paths",
+  "level_th": "graph",
+  "level_en": "Graphs",
   "problems": [
    801,
    802,
@@ -217,8 +217,8 @@
  },
  {
   "set": 9,
-  "level_th": "DSU และ MST",
-  "level_en": "DSU and Minimum Spanning Trees",
+  "level_th": "divide and conquer",
+  "level_en": "Divide and Conquer",
   "problems": [
    901,
    902,
@@ -244,8 +244,8 @@
  },
  {
   "set": 10,
-  "level_th": "tree",
-  "level_en": "Trees",
+  "level_th": "เส้นทางสั้นที่สุด",
+  "level_en": "Shortest Paths",
   "problems": [
    1001,
    1002,
@@ -271,8 +271,8 @@
  },
  {
   "set": 11,
-  "level_th": "segment tree และ Fenwick tree",
-  "level_en": "Segment Trees and Fenwick Trees",
+  "level_th": "DSU และ MST",
+  "level_en": "DSU and Minimum Spanning Trees",
   "problems": [
    1101,
    1102,
@@ -298,8 +298,8 @@
  },
  {
   "set": 12,
-  "level_th": "brute force และ implementation",
-  "level_en": "Brute Force and Implementation",
+  "level_th": "tree",
+  "level_en": "Trees",
   "problems": [
    1201,
    1202,
@@ -325,8 +325,8 @@
  },
  {
   "set": 13,
-  "level_th": "divide and conquer",
-  "level_en": "Divide and Conquer",
+  "level_th": "segment tree และ Fenwick tree",
+  "level_en": "Segment Trees and Fenwick Trees",
   "problems": [
    1301,
    1302,

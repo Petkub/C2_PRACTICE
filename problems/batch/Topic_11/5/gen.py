@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110005)
-MAXN, MAXQ, MAXV = 200_000, 200_000, 10**6
+random.seed(90505)
+MAXN, MAXM = 200_000, 200_000
 tests = []
 
 
@@ -10,98 +10,92 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(init, ops):
-    n, q = len(init), len(ops)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= v <= MAXV for v in init)
-    cnt = {}
-    for v in init:
-        cnt[v] = cnt.get(v, 0) + 1
-    size = n
-    for t, x in ops:                        # replay: every delete removes a present card, every k is valid
-        if t == 1:
-            assert 1 <= x <= MAXV
-            cnt[x] = cnt.get(x, 0) + 1
-            size += 1
-        elif t == 2:
-            assert cnt.get(x, 0) > 0
-            cnt[x] -= 1
-            size -= 1
-        else:
-            assert t == 3 and 1 <= x <= size
-    assert any(t == 3 for t, _ in ops)
-    tests.append(f"{n} {q}\n" + " ".join(map(str, init)) + "\n" + "".join(f"{t} {x}\n" for t, x in ops))
+def add(n, edges):
+    m = len(edges)
+    assert 1 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n for a, b in edges)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in edges))
 
 
-def rnd_ops(init, q, p_ins, p_del, new_val, k_kind="any"):
-    """new_val() gives inserted numbers; deletes pick a card inserted earlier (or an initial one)"""
-    pool = list(init)                       # cards that may be deleted (random order)
-    random.shuffle(pool)
-    pool_extra = []                         # inserted cards, deleted first (the small ones)
-    size = len(init)
-    ops = []
-    for _ in range(q):
-        r = random.random()
-        if r < p_ins:
-            v = new_val()
-            ops.append((1, v))
-            pool_extra.append(v)
-            size += 1
-        elif r < p_ins + p_del and size > 1:
-            if pool_extra:
-                v = pool_extra.pop(ri(0, len(pool_extra) - 1))
-            else:
-                v = pool.pop()
-            ops.append((2, v))
-            size -= 1
+def flip(a, b):
+    return (a, b) if random.random() < 0.5 else (b, a)
+
+
+def grow(vs, shape="random"):
+    """tree edges over the vertex list vs, each new vertex attached to an earlier one (BFS-like order)"""
+    res = []
+    for i in range(1, len(vs)):
+        if shape == "path":
+            j = i - 1
+        elif shape == "deep":
+            j = max(0, i - ri(1, 4))
         else:
-            if k_kind == "high":
-                k = ri(max(1, size - 99), size)
-            elif k_kind == "mid":
-                k = ri(size // 3, size)
-                k = max(k, 1)
-            else:
-                k = ri(1, size)
-            ops.append((3, k))
-    if all(t != 3 for t, _ in ops):
-        ops[-1] = (3, 1)
-    return ops
+            j = ri(0, i - 1)
+        res.append(flip(vs[i], vs[j]))
+    return res
+
+
+def labels(n):
+    p = list(range(1, n + 1))
+    random.shuffle(p)
+    return p
+
+
+def rnd_tail(n, k):
+    return [(ri(1, n), ri(1, n)) for _ in range(k)]
 
 
 # samples
-add([5, 1, 4, 1, 3], [(3, 2), (1, 2), (3, 3), (2, 1), (3, 1)])
-add([7, 7, 7], [(2, 7), (3, 2), (1, 9), (3, 3)])
-add([MAXV], [(2, MAXV), (1, 1), (3, 1)])
-add([6, 2, 9, 2, 5], [(3, 5), (2, 9), (1, 2), (3, 4)])
-add([10, 20, 30], [(1, 15), (2, 10), (3, 1), (3, 3)])
+add(5, [(1, 2), (2, 3), (4, 5), (3, 1), (1, 4)])
+add(4, [(1, 2), (3, 4), (2, 3)])
+add(3, [(1, 2), (2, 2), (1, 3)])
+add(3, [(2, 3), (1, 2), (3, 2)])
+add(6, [(1, 2), (3, 4), (5, 6), (2, 3), (4, 5), (6, 1), (1, 3)])
 # hidden: small
-add([1], [(1, 1), (3, 2), (2, 1), (3, 1)])
-for n, q, vmax in ((5, 10, 5), (10, 40, 3), (50, 100, 100), (300, 600, MAXV), (2000, 3000, 10), (6000, 6000, MAXV)):
-    init = [ri(1, vmax) for _ in range(n)]
-    add(init, rnd_ops(init, q, 0.35, 0.3, lambda: ri(1, vmax)))
-init = [ri(1, MAXV) for _ in range(20_000)]
-add(init, rnd_ops(init, 20_000, 0.4, 0.4, lambda: ri(1, 50), "high"))
-# hidden: maximum size (many cards in the box; new cards go to the front, questions ask for big numbers)
-N, Q = MAXN, MAXQ
-init = [ri(1, MAXV) for _ in range(N)]
-add(init, rnd_ops(init, Q, 0.45, 0.45, lambda: ri(1, 99), "high"))
-init = [ri(1, MAXV) for _ in range(N)]
-add(init, rnd_ops(init, Q, 0.48, 0.47, lambda: ri(1, 9), "mid"))
-init = [ri(1, MAXV) for _ in range(N)]
-add(init, rnd_ops(init, Q, 0.7, 0.25, lambda: ri(1, 99), "high"))
-init = [ri(MAXV - 999, MAXV) for _ in range(N)]
-add(init, rnd_ops(init, Q, 0.5, 0.4, lambda: ri(1, 999), "high"))
-init = [ri(1, MAXV) for _ in range(N)]
-add(init, rnd_ops(init, Q, 0.3, 0.3, lambda: ri(1, MAXV)))
-init = [MAXV] * N                                                # all the same number
-add(init, rnd_ops(init, Q, 0.45, 0.45, lambda: random.choice((1, 1, 1, MAXV)), "mid"))
-init = list(range(MAXV - N + 1, MAXV + 1))                       # all different
-random.shuffle(init)
-add(init, [(1, 1) if k % 2 == 0 else (3, N + k // 2 + 1) for k in range(Q)])
-init = [ri(1, 3) for _ in range(N)]                              # many equal small numbers
-add(init, rnd_ops(init, Q, 0.4, 0.4, lambda: ri(1, 3)))
-init = [1]                                                       # the box grows from one card
-add(init, rnd_ops(init, Q, 0.6, 0.1, lambda: ri(1, MAXV)))
+add(1, [(1, 1)])
+add(2, [(1, 2)])
+add(8, [(1, 2), (3, 4), (5, 6), (7, 8), (2, 3), (6, 7), (4, 5), (8, 1), (1, 5)])
+p = labels(20)
+add(20, grow(p) + [flip(p[3], p[17])] + rnd_tail(20, 5))
+add(100, [(ri(1, 100), ri(1, 100)) for _ in range(100)])
+p = labels(500)
+add(500, grow(p[:250]) + grow(p[250:]))                         # forest: NONE
+p = labels(2000)
+add(2000, grow(p, "deep") + [flip(p[0], p[-1])])
+p = labels(5000)
+e = grow(p)
+add(5000, e[:3000] + [flip(p[100], p[100])] + e[3000:])          # a self-loop closes the first cycle
+# hidden: maximum size
+N, M = MAXN, MAXM
+p = labels(N)
+add(N, grow(p, "path") + [flip(p[0], p[-1])])                    # the longest possible cycle
+p = labels(N)
+add(N, grow(p))                                                  # a tree: NONE
+p = labels(N)
+e = grow(p, "deep")
+add(N, e + [flip(p[ri(0, N - 1)], p[ri(0, N - 1)])])
+p = labels(N)
+e = grow(p, "path")
+add(N, e[:N - 2] + [e[N // 2]] + e[N - 2:])                      # a repeated cable, late
+p = labels(N)
+add(N, grow(p) + [(p[N - 1], p[N - 1])])                         # the last cable is a self-loop
+p = labels(N)
+add(N, [flip(p[0], p[k]) for k in range(1, N)] + [flip(p[N // 3], p[N // 2])])   # a star
+add(N, [(1, k) for k in range(2, N + 1)] + [(N, 2)])
+add(N, [(k, 1) for k in range(2, N + 1)] + [(2, N)])
+add(N, [(k, k + 1) for k in range(1, N)] + [(N, 1)])
+p = labels(N)
+half = N // 2
+add(N, grow(p[:half], "deep") + grow(p[half:], "deep") + [flip(p[0], p[half])] + [flip(p[1], p[half + 1])])
+p = labels(N)
+e = grow(p[:100_000]) + grow(p[100_000:])
+random.shuffle(e)
+add(N, e)                                                        # a forest given in random order: NONE
+e = []
+for _ in range(M):                                               # random cables without self-loops
+    a = ri(1, N)
+    e.append((a, (a + ri(1, N - 1) - 1) % N + 1))
+add(N, e)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

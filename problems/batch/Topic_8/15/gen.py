@@ -1,145 +1,101 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
-import heapq, os, random
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+import os, random
 
-random.seed(80150)
-MAXN, MAXM, MAXK, MAXW, MAXC = 100_000, 100_000, 100_000, 10**6, 10**12
+random.seed(70015)
+MAXN = 200_000
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, roads, shel):
-    m, k = len(roads), len(shel)
-    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= k <= MAXK
-    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in roads)
-    assert all(1 <= s <= n and 0 <= c <= MAXC for s, c in shel)
-    tests.append(f"{n} {m} {k}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads)
-                 + "".join(f"{s} {c}\n" for s, c in shel))
+def add(a):
+    n = len(a)
+    assert 1 <= n <= MAXN
+    assert all(1 <= x <= n for x in a)
+    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
 
 
-def dist_to(n, roads, s):
-    """shortest time from every town to town s (Dijkstra on reversed roads)"""
-    rev = [[] for _ in range(n + 1)]
-    for u, v, w in roads:
-        rev[v].append((u, w))
-    d = [None] * (n + 1)
-    d[s] = 0
-    pq = [(0, s)]
-    while pq:
-        x, v = heapq.heappop(pq)
-        if x != d[v]:
-            continue
-        for u, w in rev[v]:
-            if d[u] is None or x + w < d[u]:
-                d[u] = x + w
-                heapq.heappush(pq, (d[u], u))
-    return d
+def relabel(a):
+    """same graph shape with the students renumbered at random"""
+    n = len(a)
+    p = list(range(1, n + 1))
+    random.shuffle(p)
+    b = [0] * n
+    for i in range(n):
+        b[p[i] - 1] = p[a[i] - 1]
+    return b
 
 
-def rnd_roads(n, m, wmax, conn=True):
-    roads = []
-    if conn:                                   # a random spanning structure towards random earlier towns
-        perm = list(range(1, n + 1))
-        random.shuffle(perm)
-        for i in range(1, n):
-            a, b = perm[i], perm[ri(0, i - 1)]
-            roads.append((a, b, ri(1, wmax)) if random.random() < 0.8 else (b, a, ri(1, wmax)))
-    while len(roads) < m:
-        u, v = ri(1, n), ri(1, n)
-        if u != v:
-            roads.append((u, v, ri(1, wmax)))
-    random.shuffle(roads)
-    return roads[:m]
+def rnd(n):
+    return [ri(1, n) for _ in range(n)]
 
 
-def cyc_roads(n, m, wmax):
-    """one big directed cycle through all towns in random order plus random chords (strongly connected)"""
-    perm = list(range(1, n + 1))
-    random.shuffle(perm)
-    roads = [(perm[i], perm[(i + 1) % n], ri(1, wmax)) for i in range(n)]
-    while len(roads) < m:
-        u, v = ri(1, n), ri(1, n)
-        if u != v:
-            roads.append((u, v, ri(1, wmax)))
-    random.shuffle(roads)
-    return roads
+def broom(tail, cyc):
+    """a path of `tail` students leading into a cycle of `cyc` students"""
+    n = tail + cyc
+    a = [0] * n
+    for i in range(1, cyc + 1):
+        a[i - 1] = i % cyc + 1
+    for i in range(cyc + 1, n + 1):
+        a[i - 1] = i - 1
+    return a
 
 
-def rnd_shel(n, k, clo, chi):
-    return [(ri(1, n), ri(clo, chi)) for _ in range(k)]
+def deep_forest(n, cyc, back):
+    """a cycle of `cyc` students; every other student i sends to one of the `back` students just before it"""
+    a = broom(0, cyc) + [0] * (n - cyc)
+    for i in range(cyc + 1, n + 1):
+        a[i - 1] = ri(max(1, i - back), i - 1)
+    return a
+
+
+def caterpillar(n, spine, cyc):
+    """a long path (the spine) into a cycle; everybody else sends to a random spine student"""
+    a = broom(spine, cyc) + [0] * (n - spine - cyc)
+    for i in range(spine + cyc + 1, n + 1):
+        a[i - 1] = ri(1, spine + cyc)
+    return a
 
 
 # samples
-add(6, [(1, 2, 3), (2, 5, 4), (1, 3, 2), (3, 4, 6), (4, 5, 1)], [(5, 20), (4, 9)])
-add(4, [(1, 2, 5), (2, 3, 4), (4, 3, 8)], [(3, 8), (4, 0)])
-add(3, [(1, 2, 7), (1, 2, 3), (3, 1, 5)], [(2, 10), (2, 4)])
-add(4, [(1, 2, 5), (2, 1, 5), (3, 4, 1)], [(2, 100)])
-add(1, [], [(1, MAXC)])
+add([2, 3, 1, 1, 4])
+add([1, 1, 4, 3])
+add([1])
+add([2, 3, 4, 5, 6, 1])
+add([3, 3, 5, 2, 6, 7, 5, 7])
+add([2, 1, 2, 3, 4, 10, 6, 6, 9, 8])
 # hidden: small
-add(2, [(1, 2, 1)], [(2, 0)])                                    # town 1 is one minute too late
-add(2, [(2, 1, MAXW)], [(1, MAXW)])                              # exactly on time: 0
-for n, m, k, wmax in ((8, 14, 2, 9), (30, 60, 5, 20), (200, 500, 20, 100), (1000, 3000, 50, 1000)):
-    roads = rnd_roads(n, m, wmax, conn=(n != 30))
-    add(n, roads, rnd_shel(n, k, 0, wmax * 6))
-n = 2000                                                          # answers exactly 0 or -1 for many towns
-roads = rnd_roads(n, 5000, 1000)
-d = dist_to(n, roads, 1)
-far = max(x for x in d[1:] if x is not None)
-add(n, roads, [(1, far // 2)])
-roads = [(i, i + 1, ri(1, MAXW)) for i in range(1, 1000)]       # town 1 has exactly 0 minutes to spare
-add(1000, roads, [(1000, sum(w for _, _, w in roads)), (500, 1)])
-n = 3000
-roads = rnd_roads(n, 6000, 10**4)
-add(n, roads, rnd_shel(n, 1500, 0, 4 * 10**4))                  # many shelters, also several in one town
+add([2, 1])
+add([1, 2, 3, 4, 5, 6, 7])                     # everybody keeps the letter
+for n in (5, 9, 12, 20, 50):
+    add(rnd(n))
+add(relabel(broom(15, 4)))
+add(relabel(deep_forest(300, 7, 3)))
+add(relabel(caterpillar(2000, 600, 50)))
 # hidden: large
 N = MAXN
-roads = [(i, i + 1, MAXW) for i in range(1, N)]                  # one long chain, largest times
-add(N, roads, [(N, MAXC)])
-roads = [(i, i + 1, ri(1, 10)) for i in range(1, N)]             # chain, a shelter in every town:
-c, shel = 0, []                                                  # each new one beats the earlier ones
-for i in range(1, N + 1):
-    c += 20
-    shel.append((i, c))
-add(N, roads, shel)
-roads = [(i + 1, i, ri(1, MAXW)) for i in range(1, N)]           # chain the other way, decreasing times
-shel = [(i, MAXC - (i - 1) * 9 * 10**6) for i in range(1, N + 1, 2)]
-add(N, roads, shel)
-roads = [(i, i + 1, 10) for i in range(1, N)]                   # chain, shelters listed by decreasing time:
-add(N, roads, [(i, 5 * i) for i in range(N, 0, -1)])             # every town is best served by its own shelter
-roads = cyc_roads(70_000, MAXM, MAXW)
-add(70_000, roads, rnd_shel(70_000, 35_000, 0, 3 * 10**9))
-roads = cyc_roads(N, MAXM, 1000)
-add(N, roads, rnd_shel(N, 20_000, 0, 10**6))
-roads = cyc_roads(80_000, MAXM, MAXW)
-add(80_000, roads, rnd_shel(80_000, 60_000, MAXC - 10**10, MAXC))
-roads = cyc_roads(N, MAXM, MAXW)
-add(N, roads, rnd_shel(N, 1, 2 * 10**10, 4 * 10**10))
-roads = [(i, 1, ri(1, MAXW)) for i in range(2, N + 1)]           # star into town 1
-roads += [(1, ri(2, N), ri(1, MAXW)) for _ in range(MAXM - len(roads))]
-random.shuffle(roads)
-add(N, roads, [(1, ri(0, MAXW))] + rnd_shel(N, 999, 0, 2 * MAXW))
-# near shelters close early, far shelters close late
-roads = cyc_roads(N, MAXM, 100)
-shel = [(v, ri(0, 50)) for v in random.sample(range(1, N + 1), 30_000)]
-shel += [(v, ri(10**6, 2 * 10**6)) for v in random.sample(range(1, N + 1), 30)]
-random.shuffle(shel)
-add(N, roads, shel)
-# layered graph: every town of a layer goes to several towns of the next one
-L, W = 200, N // 200
-roads = []
-for a in range(L - 1):
-    for b in range(W):
-        u = a * W + b + 1
-        for _ in range(2):
-            roads.append((u, (a + 1) * W + ri(0, W - 1) + 1, ri(1, 10**4)))
-roads = roads[:MAXM]
-shel = [((L - 1) * W + b + 1, ri(0, 3 * 10**6)) for b in range(W)]
-shel += rnd_shel(N, 20_000, 0, 10**6)
-add(N, roads, shel)
-roads = rnd_roads(N, MAXM, MAXW, conn=False)                    # many towns reach nothing
-add(N, roads, rnd_shel(N, 50_000, 0, MAXC))
+add(broom(N - 1, 1))                           # one long chain ending at a student who keeps the letter
+add(relabel(broom(N - 1, 1)))
+add(relabel(broom(0, N)))                      # one cycle through everybody
+add(relabel(broom(N // 4 * 3, N // 4)))
+add(relabel(broom(N - 2, 2)))
+y = broom(N // 2, 1)                           # two long chains joining at the end
+m = len(y)
+y += [1] + [m + j for j in range(1, N - m)]
+add(relabel(y))
+add(relabel(deep_forest(N, 3, 4)))
+add(relabel(deep_forest(N, 1000, 20)))
+add(relabel(caterpillar(N, N // 2, 7)))
+add(relabel(caterpillar(N, 3000, 50000)))
+add(relabel(deep_forest(N, 50000, 2)))
+add(broom(N // 2, N // 2))
+add(rnd(N))
+a = [1] * N                                    # everybody sends to a 2-cycle
+a[0], a[1] = 2, 1
+add(relabel(a))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

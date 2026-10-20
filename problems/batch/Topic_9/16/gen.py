@@ -1,134 +1,101 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(90116)
-MAXN, MAXM, MAXW = 50_000, 150_000, 10**6
+random.seed(131602)
+MAXN = 18
+MAXT = 10_000
+MAXTOTAL = 300_000
+LET = "abcdefghijklmnopqrstuvwxyz"
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(cases):
+    assert 1 <= len(cases) <= MAXT
+    total = 0
+    for n, s in cases:
+        assert 0 <= n <= MAXN and len(s) == 1 << n and set(s) <= set(LET)
+        total += len(s)
+    assert total <= MAXTOTAL
+    tests.append(f"{len(cases)}\n" + "".join(f"{n} {s}\n" for n, s in cases))
 
 
-def add(n, edges, shuffle=True):
-    m = len(edges)
-    assert 2 <= n <= MAXN and n - 1 <= m <= MAXM
-    par = list(range(n + 1))                     # all cables together connect every city
-    comps = n
-    for u, v, w in edges:
-        assert 1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW
-        while par[u] != u:
-            par[u] = par[par[u]]
-            u = par[u]
-        while par[v] != v:
-            par[v] = par[par[v]]
-            v = par[v]
-        if u != v:
-            par[u] = v
-            comps -= 1
-    assert comps == 1
-    if shuffle:
-        edges = edges[:]
-        random.shuffle(edges)
-    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges))
+def rnd(n, letters):
+    return "".join(random.choice(letters) for _ in range(1 << n))
 
 
-def tree(n, kind):
-    """(parent, depth) arrays of a tree on 1..n before relabelling"""
-    p, d = [0, 0], [0, 0]
-    for i in range(2, n + 1):
-        if kind == "path":
-            p.append(i - 1)
-        elif kind == "deep":
-            p.append(ri(max(1, i - 4), i - 1))
-        elif kind == "star":
-            p.append(1)
+def good(n, c=0):
+    """a random c-good string of length 2^n (as a list of letters)"""
+    if n == 0:
+        return [LET[c]]
+    half = 1 << (n - 1)
+    rest = good(n - 1, c + 1)
+    if random.random() < 0.5:
+        return [LET[c]] * half + rest
+    return rest + [LET[c]] * half
+
+
+def noisy(n, p, letters=LET[:20]):
+    """an a-good string with each letter replaced with probability p"""
+    g = good(n)
+    for i in range(len(g)):
+        if random.random() < p:
+            g[i] = random.choice(letters)
+    return "".join(g)
+
+
+def decoy(n, p):
+    """a noisy good string whose other halves are filled with many copies of their letter
+    (choosing the half that already looks right is not always best)"""
+    g = good(n)
+    l, r, c = 0, len(g), 0
+    while r - l > 1:
+        mid = (l + r) // 2
+        side_all_c = all(x == LET[c] for x in g[l:mid])
+        # put c into about 40-70% of the half that is c-good below this level
+        lo, hi = (mid, r) if side_all_c else (l, mid)
+        for i in range(lo, hi):
+            if random.random() < random.uniform(0.4, 0.7):
+                g[i] = LET[c]
+        if side_all_c:
+            l = mid
         else:
-            p.append(ri(1, i - 1))
-        d.append(d[p[i]] + 1)
-    return p, d
-
-
-def layered(n, m, kind, step, lo, extra, needles=0):
-    """the cable from a city to its parent costs g(depth), g never decreasing; any other cable
-    between x and y costs g(max depth) + delta: delta >= 1 keeps the cheapest network unique,
-    delta = 0 (a needle) gives a second one. The first needle runs from the deepest city to the
-    root; it and the network cable of the deepest city are the last two lines"""
-    p, d = tree(n, kind)
-    g = [lo + dd // step for dd in range(n + 1)]
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    lab = [0] + lab
-    deepest = max(range(1, n + 1), key=lambda v: d[v])
-    edges, last = [], []
-    for i in range(2, n + 1):
-        e = (lab[i], lab[p[i]], g[d[i]])
-        (last if needles and i == deepest else edges).append(e)
-    r = random.random
-    for k in range(m - (n - 1)):
-        x = 1 + int(r() * n)
-        y = 1 + int(r() * (n - 1))
-        y += y >= x
-        if k == 0 and needles:
-            x, y = deepest, 1
-        e = (lab[x], lab[y], g[max(d[x], d[y])] + (0 if k < needles else ri(1, extra)))
-        (last if k == 0 and needles else edges).append(e)
-    if n < 1000:
-        random.shuffle(edges)
-    random.shuffle(last)
-    return edges + last
-
-
-def rnd_graph(n, m, wlo, whi):
-    p, d = tree(n, "rnd")
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    lab = [0] + lab
-    edges = [(lab[i], lab[p[i]], ri(wlo, whi)) for i in range(2, n + 1)]
-    while len(edges) < m:
-        x = ri(1, n)
-        y = ri(1, n - 1)
-        edges.append((x, y + (y >= x), ri(wlo, whi)))
-    return edges
+            r = mid
+        c += 1
+    for i in range(len(g)):
+        if random.random() < p:
+            g[i] = random.choice(LET[:6])
+    return "".join(g)
 
 
 # samples
-add(4, [(1, 2, 1), (2, 3, 2), (3, 4, 2), (1, 4, 3), (2, 4, 2)], False)
-add(3, [(1, 2, 5), (2, 3, 5), (1, 3, 6)], False)
-add(2, [(1, 2, 4), (2, 1, 4)], False)
-add(2, [(1, 2, 1000000)], False)
-add(5, [(1, 2, 3), (2, 3, 3), (3, 1, 4), (3, 4, 1), (4, 5, 3), (4, 3, 3), (1, 5, 5)], False)
-# hidden: small
-add(2, [(1, 2, 1)])
-add(3, [(1, 2, 2), (2, 3, 2), (1, 3, 2)])                        # a triangle of equal cables
-add(4, [(1, 2, 1), (1, 2, 1), (2, 3, 5), (3, 4, 2)])             # equal parallel cables
-add(4, [(1, 2, 1), (1, 2, 2), (2, 3, 5), (3, 4, 5), (2, 4, 6)])  # different parallel cables
-for n, m, wmax in ((5, 8, 3), (6, 10, 2), (7, 12, 4), (8, 14, 3), (9, 16, 5), (10, 18, 3)):
-    add(n, rnd_graph(n, m, 1, wmax))
-add(9, layered(9, 18, "rnd", 2, 1, 2), False)
-add(10, layered(10, 18, "deep", 1, 5, 1), False)
-add(10, layered(10, 18, "rnd", 3, 1, 3, 1), False)
-add(300, rnd_graph(300, 900, 1, 1000))
-add(500, layered(500, 1500, "deep", 3, 1, 2), False)
-add(500, layered(500, 1500, "rnd", 1, 1, 2, 1), False)
-add(1000, layered(1000, 3000, "deep", 1, 1, 2, 20), False)  # a few needles
-# hidden: maximum size
-N, M = MAXN, MAXM
-add(N, layered(N, M, "path", 7, 1, 3), False)                   # unique, many equal costs
-add(N, layered(N, M, "deep", 1, 1, 2), False)
-add(N, layered(N, M, "deep", 50, 1, 1), False)
-add(N, layered(N, M, "path", 1, 1, 2, 1), False)                # exactly one needle
-add(N, layered(N, M, "deep", 1, 1, 5, 1), False)
-add(N, layered(N, M, "deep", 5, 1, 3), False)
-add(N, layered(N, M, "star", 1, MAXW - 2, 1), False)            # all network cables cost the same
-add(N, rnd_graph(N, M, 1, MAXW), False)                         # random costs
-add(N, rnd_graph(N, M, 1, 20), False)                           # many equal costs
-add(N, rnd_graph(N, N - 1, MAXW, MAXW), False)                  # only a tree: unique, largest total
-add(N, rnd_graph(N, N, MAXW, MAXW), False)                      # one more cable of the same cost
-add(N, layered(N, M, "path", 1, MAXW - N, 1), False)
-add(N, layered(N, M, "deep", 3, 1, 1), False)
-add(N, layered(N, M, "path", 20, MAXW - N, 1), False)
-add(N, layered(N, M, "path", 2, 1, 1), False)
+add([(3, "abaabbdd"), (2, "bcaa")])
+add([(1, "ba"), (0, "z")])
+add([(3, "dcbbaaba")])
+add([(4, "aaaaaaaabbbbccde"), (4, "bbbbbbbbaaaaaaaa")])
+add([(0, "a"), (1, "aa"), (2, "cbaa"), (2, "abcd"), (3, "zzzzzzzz"), (3, "abababab"), (3, "aaaaaaab")])
+# hidden: small (the brute force tries every a-good string)
+add([(n, rnd(n, "ab")) for n in range(0, 5) for _ in range(40)])
+add([(n, rnd(n, "abc")) for n in range(1, 8) for _ in range(30)])
+add([(n, rnd(n, "abcdefg")) for n in range(3, 10) for _ in range(10)])
+add([(n, noisy(n, 0.2)) for n in range(1, 11) for _ in range(8)])
+add([(n, decoy(n, 0.05)) for n in range(2, 12) for _ in range(5)])
+add([(n, "".join(good(n))) for n in range(0, 12)])
+add([(12, rnd(12, LET)), (12, "a" * 4096), (12, "z" * 4096), (12, noisy(12, 0.5)), (12, decoy(12, 0.1))])
+add([(13, decoy(13, 0.02)), (13, noisy(13, 0.1)), (12, rnd(12, "ab"))])
+# hidden: large
+add([(MAXN, rnd(MAXN, LET))])
+add([(MAXN, rnd(MAXN, "ab"))])
+add([(MAXN, noisy(MAXN, 0.1))])
+add([(MAXN, noisy(MAXN, 0.4))])
+add([(MAXN, decoy(MAXN, 0.01))])
+add([(MAXN, decoy(MAXN, 0.05))])
+add([(MAXN, "".join(good(MAXN)))])
+add([(MAXN, "z" * (1 << MAXN))])
+add([(MAXN, "a" * (1 << MAXN))])
+add([(MAXN, decoy(MAXN, 0.0))] + [(n, decoy(n, 0.03)) for n in range(1, 15)])
+add([(MAXN, noisy(MAXN, 0.02))] + [(15, noisy(15, 0.2)) for _ in range(1)])
+add([(17, decoy(17, 0.02)), (17, rnd(17, "abcd"))] + [(n, rnd(n, "abc")) for n in range(15)])
+add([(MAXN, rnd(MAXN, "abcdefghijklmnopqrs"))])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

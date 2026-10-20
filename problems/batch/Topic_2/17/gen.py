@@ -1,74 +1,93 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(20217)
-MAXN, MAXA = 200_000, 10**9
+random.seed(11703)
+MAXN = 200_000
+MAXQ = 100_000
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(s, qs):
+    n, q = len(s), len(qs)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(ch in "<>." for ch in s)
+    assert all(1 <= l <= r <= n for l, r in qs)
+    tests.append(f"{n} {q}\n{s}\n" + "".join(f"{l} {r}\n" for l, r in qs))
 
 
-def total(n, L):
-    m = n - L + 1
-    return m * (m + 1) // 2
+def rnd_str(n, w=(1, 1, 1)):
+    return "".join(random.choices("><.", weights=w, k=n))
 
 
-def add(L, K, a):
-    n = len(a)
-    assert 1 <= L <= n <= MAXN
-    assert all(1 <= x <= MAXA for x in a)
-    assert 1 <= K <= total(n, L)
-    if len(tests) >= 6:                       # brute.cpp lists every route: keep small inputs small
-        assert n <= 5000 or n * 7 > 300_000
-    tests.append(f"{n} {L} {K}\n" + " ".join(map(str, a)) + "\n")
+def rnd_q(n, q):
+    out = []
+    for _ in range(q):
+        l = random.randint(1, n)
+        r = random.randint(1, n)
+        out.append((min(l, r), max(l, r)))
+    return out
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def wide_q(n, q):
+    """long ranges: l near the start, r near the end"""
+    out = []
+    for _ in range(q):
+        l = random.randint(1, max(1, n // 20))
+        r = random.randint(min(n, n - n // 20), n)
+        out.append((l, r))
+    return out
 
 
-def rk(n, L, lo_frac=0.0, hi_frac=1.0):
-    t = total(n, L)
-    return max(1, min(t, int(t * lo_frac) + ri(0, max(0, int(t * (hi_frac - lo_frac))))))
+def all_q(n):
+    return [(l, r) for l in range(1, n + 1) for r in range(l, n + 1)]
 
 
 # samples
-add(2, 4, [3, 1, 4, 1, 5])
-add(1, 5, [2, 2, 2])
-add(1, 1, [MAXA])
-add(4, 1, [6, 1, 8, 2])
-add(3, 7, [5, 9, 2, 6, 5, 3])
-add(1, 21, [4, 7, 1, 1, 9, 2])
-# hidden: small
-add(1, 1, [1])
-add(2, 1, [1, 2])
-add(1, 3, [5, 5])
-for n in (8, 30, 200, 1000, 3000):
-    L = ri(1, n)
-    add(L, rk(n, L), rnd(n, 1, 10 if n < 100 else MAXA))
-add(1, total(5000, 1) // 2, [7] * 5000)
-add(2500, total(5000, 2500), rnd(5000, 1, MAXA))
-# hidden: large (K is large in most of them)
-N = MAXN
-add(1, rk(N, 1, 0.3, 0.7), rnd(N, 1, MAXA))
-add(1, total(N, 1), [MAXA] * N)                      # the whole array: 2 * 10^14
-add(1, total(N, 1) - 1, [MAXA] * N)
-add(1, total(N, 1) // 2 + 1, [1] * N)                # many equal lengths
-add(ri(1, 1000), rk(N, 1000, 0.5, 1.0), rnd(N, 1, MAXA))
-L = ri(50_000, 150_000)
-add(L, rk(N, L), rnd(N, 1, MAXA))
-add(N, 1, rnd(N, 1, MAXA))                           # only one route
-add(N // 2, rk(N, N // 2, 0.98, 1.0), rnd(N, 1, MAXA))
-add(1, total(N, 1), rnd(N, 1, MAXA))
-add(10, 1, rnd(N, 1, MAXA))                          # the cheapest window of length 10
-a = [MAXA if i % 2 else 1 for i in range(N)]
-add(2, rk(N, 2, 0.1, 0.9), a)
-a = rnd(N - N // 10, 1, 3) + rnd(N // 10, MAXA - 10, MAXA)   # cheap prefix, expensive tail
-add(1, rk(len(a), 1, 0.4, 0.6), a)
-add(5, rk(N, 5, 0.9, 1.0), rnd(N, 1, 100))
-add(3, rk(N, 3, 0.0, 0.05), sorted(rnd(N, 1, MAXA), reverse=True))
+add(">.<><<", [(1, 6), (2, 5), (4, 6), (3, 3), (1, 3)])
+add("<<>>", [(1, 4), (2, 3)])
+add(">>><<<", [(1, 6), (2, 5), (3, 4), (4, 6)])
+add(".>.<.", [(1, 5), (2, 4), (1, 1)])
+add("><><><", [(1, 6), (2, 6), (2, 5), (3, 6)])
+# hidden (small)
+add(">", [(1, 1)])
+add("<", [(1, 1)])
+s = rnd_str(10)
+add(s, all_q(10))
+s = rnd_str(30, (3, 3, 1))
+add(s, all_q(30))
+s = ">" * 20 + "<" * 20
+add(s, all_q(40))
+s = rnd_str(1000)
+add(s, rnd_q(1000, 1000))
+s = rnd_str(3000, (5, 5, 1))
+add(s, wide_q(3000, 3000))
+# large
+n = MAXN
+s = ">" * (n // 2) + "<" * (n // 2)
+add(s, [(1, n)] * MAXQ)                                  # answer 10^10 every time
+qs = [(random.randint(2, n // 2), random.randint(n // 2 + 1, n)) for _ in range(MAXQ)]
+add(s, qs)                                               # many '>' before l
+add("><" * (n // 2), wide_q(n, MAXQ))
+add(rnd_str(n), rnd_q(n, MAXQ))
+add(rnd_str(n, (10, 10, 1)), wide_q(n, MAXQ))
+add(rnd_str(n, (1, 1, 20)), rnd_q(n, MAXQ))
+add("." * n, wide_q(n, MAXQ))
+add("<" * (n // 2) + ">" * (n // 2), wide_q(n, MAXQ))   # nobody faces anybody in the full range
+s = "".join(random.choice("><") * random.randint(1, 3000) for _ in range(400))[:n]
+s += ">" * (n - len(s))
+qs = rnd_q(n, MAXQ // 2) + [(l, l) for l in random.sample(range(1, n + 1), MAXQ // 2)]
+random.shuffle(qs)
+add(s, qs)
+s = rnd_str(n, (2, 1, 0))
+qs = []
+for _ in range(MAXQ):                                    # l right after a '>' and r on a '<'
+    l = random.randint(2, n // 3)
+    r = random.randint(2 * n // 3, n)
+    qs.append((l, r))
+add(s, qs)
+s = rnd_str(n, (1, 2, 0))
+add(s, [(1, r) for r in random.sample(range(1, n + 1), MAXQ)])
+add(rnd_str(n), [(l, n) for l in random.sample(range(1, n + 1), MAXQ)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

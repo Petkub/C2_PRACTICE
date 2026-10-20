@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100120)
-MAXN, MAXQ, MAXW, MAXT = 60_000, 60_000, 10**5, 10**10
+random.seed(80200)
+MAXN, MAXM, MAXQ, MAXW, MAXH = 400, 40_000, 100_000, 10**9, 10**6
 tests = []
 
 
@@ -10,197 +10,122 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def pick(seq):
-    return seq[int(random.random() * len(seq))]
+def add(n, h, roads, qs):
+    m, q = len(roads), len(qs)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= q <= MAXQ and len(h) == n
+    assert all(1 <= x <= MAXH for x in h)
+    assert all(1 <= a <= n and 1 <= b <= n and a != b and 1 <= w <= MAXW for a, b, w in roads)
+    assert all(1 <= u <= n and 1 <= v <= n and 0 <= k <= MAXH for u, v, k in qs)
+    tests.append(f"{n} {m} {q}\n" + " ".join(map(str, h)) + "\n"
+                 + "".join(f"{a} {b} {w}\n" for a, b, w in roads)
+                 + "".join(f"{u} {v} {k}\n" for u, v, k in qs))
 
 
-def add(n, edges, qs):
-    q = len(qs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ and len(edges) == n - 1
-    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in edges)
-    assert all(1 <= u <= n and 1 <= v <= n and 0 <= t <= MAXT for u, v, t in qs)
-    root = list(range(n + 1))
-
-    def find(x):
-        while root[x] != x:
-            root[x] = root[root[x]]
-            x = root[x]
-        return x
-    for u, v, w in edges:
-        a, b = find(u), find(v)
-        assert a != b
-        root[a] = b
-    tests.append(f"{n} {q}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges)
-                 + "".join(f"{u} {v} {t}\n" for u, v, t in qs))
+def rnd_roads(n, m, wlo, whi, conn=True):
+    roads = []
+    if conn:
+        perm = list(range(1, n + 1))
+        random.shuffle(perm)
+        roads = [(perm[i], perm[ri(0, i - 1)], ri(wlo, whi)) for i in range(1, n)]
+    while len(roads) < m:
+        a, b = ri(1, n), ri(1, n)
+        if a != b:
+            roads.append((a, b, ri(wlo, whi)))
+    random.shuffle(roads)
+    return roads
 
 
-def shape(n, kind):
-    """parent of point i (2..n) is par[i] < i, in creation order"""
-    par = [0, 0]
-    for i in range(2, n + 1):
-        if kind == "random":
-            p = ri(1, i - 1)
-        elif kind == "path":
-            p = i - 1
-        elif kind == "twoarms":                    # a path with point 1 in the middle
-            p = 1 if i <= 3 else i - 2
-        elif kind == "star":
-            p = 1
-        elif kind == "deep":
-            p = ri(max(1, i - 4), i - 1)
-        elif kind == "binary":
-            p = i // 2
-        elif kind == "cater":
-            p = i - 1 if i <= n // 2 else ri(1, n // 2)
-        elif kind == "spider":
-            p = 1 if i <= 6 else i - 5
-        else:
-            raise ValueError(kind)
-        par.append(p)
-    return par
-
-
-class Tree:
-    """a tree in creation order (par[i] < i, root 1) with jump tables, to build queries quickly"""
-
-    def __init__(self, n, kind, wgen):
-        self.n = n
-        self.par = shape(n, kind)
-        self.w = [0, 0] + [wgen() for _ in range(n - 1)]
-        D = [0] * (n + 1)
-        for i in range(2, n + 1):
-            D[i] = D[self.par[i]] + self.w[i]
-        self.D = D
-        p0 = self.par[:]
-        p0[1] = 1
-        self.jump = [p0]                           # jump[k][x] = 2^k-th ancestor (1 if none)
-        for _ in range(16):
-            j = self.jump[-1]
-            self.jump.append([j[j[x]] for x in range(n + 1)])
-        self.kids = [[] for _ in range(n + 1)]
-        for i in range(2, n + 1):
-            self.kids[self.par[i]].append(i)
-
-    def ancestor(self, x, k):
-        b = 0
-        while k:
-            if k & 1:
-                x = self.jump[b][x]
-            k >>= 1
-            b += 1
-        return x
-
-    def down(self, x, steps):
-        for _ in range(steps):
-            if not self.kids[x]:
-                break
-            x = pick(self.kids[x])
-        return x
-
-
-def q_random(T):
-    """any two points; t anywhere up to D[u] + D[v] (at least the distance, often more)"""
-    u, v = ri(1, T.n), ri(1, T.n)
-    hi = T.D[u] + T.D[v]
-    r = random.random()
-    t = ri(0, hi) if r < 0.85 else (hi + ri(0, 10**6) if r < 0.95 else MAXT)
-    return u, v, min(t, MAXT)
-
-
-def q_line(T):
-    """v is an ancestor of u (or the other way round); t hits points exactly or just misses them"""
-    u = ri(1, T.n)
-    v = T.ancestor(u, ri(0, T.n))
-    a = T.ancestor(u, ri(0, T.n))
-    if T.D[a] < T.D[v]:
-        a = v
-    d = T.D[u] - T.D[v]
-    if random.random() < 0.5:                      # walking up from u
-        t = T.D[u] - T.D[a]
-        t = max(0, min(d, t + pick((0, 0, -1, 1))))
-        return u, v, t
-    t = T.D[a] - T.D[v]                            # walking down from v to u
-    t = max(0, min(d + 1, t + pick((0, 0, -1, 1))))
-    return v, u, t
-
-
-def q_fork(T):
-    """u and v in different branches below l, t near points on the way, including l itself"""
-    l = ri(1, T.n)
-    ks = T.kids[l]
-    u = T.down(pick(ks), ri(0, 12)) if ks else l
-    v = T.down(pick(ks), ri(0, 12)) if len(ks) >= 2 else l
-    du, dv = T.D[u] - T.D[l], T.D[v] - T.D[l]
-    r = random.random()
-    if r < 0.3:
-        t = du
-    elif r < 0.5:
-        a = T.ancestor(u, ri(0, 12))
-        t = T.D[u] - T.D[a] if T.D[a] >= T.D[l] else du
-    elif r < 0.7:
-        b = T.ancestor(v, ri(0, 12))
-        t = du + T.D[b] - T.D[l] if T.D[b] >= T.D[l] else du
-    else:
-        t = ri(0, du + dv)
-    t = max(0, t + pick((0, 0, 0, -1, 1)))
-    if random.random() < 0.5:
-        return v, u, t if t <= du + dv + 1 else 0
-    return u, v, t
-
-
-def q_mix(T):
-    r = random.random()
-    if r < 0.4:
-        return q_random(T)
-    if r < 0.7:
-        return q_line(T)
-    return q_fork(T)
-
-
-def build(n, kind, wgen, q, qgen):
-    T = Tree(n, kind, wgen)
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    lab = [0] + lab
-    edges = []
-    for i in range(2, n + 1):
-        u, v = lab[i], lab[T.par[i]]
-        if random.random() < 0.5:
-            u, v = v, u
-        edges.append((u, v, T.w[i]))
-    random.shuffle(edges)
+def rnd_q(n, q, h, mode="mix"):
+    """thresholds: around the levels of the towns (each value of k makes a different set of towns usable)"""
+    lv = sorted(h)
     qs = []
     for _ in range(q):
-        u, v, t = qgen(T)
-        qs.append((lab[u], lab[v], t))
-    add(n, edges, qs)
+        u, v = ri(1, n), ri(1, n)
+        r = random.random()
+        if mode == "mix" and r < 0.1:
+            k = ri(0, MAXH)
+        elif mode == "mix" and r < 0.15:
+            k = 0
+        else:
+            k = max(0, random.choice(lv) - ri(0, 1))
+        qs.append((u, v, k))
+    return qs
 
 
 # samples
-add(6, [(1, 2, 3), (2, 3, 2), (2, 4, 4), (1, 5, 5), (5, 6, 1)], [(3, 6, 4), (3, 6, 9), (6, 3, 3)])
-add(3, [(1, 2, 10), (2, 3, 10)], [(1, 3, 15), (3, 1, 20), (1, 3, 99)])
-add(1, [], [(1, 1, 0), (1, 1, 5)])
-add(4, [(2, 1, 1), (3, 2, 1), (4, 3, 1)], [(4, 1, 2), (1, 4, 0), (2, 4, 1)])
-add(4, [(1, 2, 100000), (1, 3, 100000), (1, 4, 100000)], [(2, 3, 150000), (3, 4, 1)])
+add(4, [5, 1, 3, 2], [(1, 2, 4), (2, 4, 4), (1, 3, 1), (3, 4, 2)], [(1, 4, 0), (1, 4, 1), (1, 4, 3)])
+add(3, [1, 9, 1], [(1, 2, 3), (2, 3, 3)], [(1, 3, 8), (1, 3, 9), (1, 2, 0)])
+add(1, [7], [], [(1, 1, 0)])
+add(3, [3, 3, 3], [(1, 2, 2), (2, 3, 2), (3, 1, 5)], [(3, 1, 3)])
+add(2, [9, 9], [(1, 2, 5)], [(2, 2, 0), (2, 1, 0)])
 # hidden: small
-add(2, [(2, 1, 7)], [(1, 2, t) for t in range(0, 9)] + [(2, 1, t) for t in range(0, 9)] + [(1, 1, 3), (2, 2, 0)])
-build(10, "random", lambda: ri(1, 5), 100, q_mix)
-build(50, "path", lambda: ri(1, 3), 200, q_mix)
-build(300, "random", lambda: ri(1, MAXW), 300, q_mix)
-build(1000, "cater", lambda: ri(1, 20), 1000, q_mix)
-build(2000, "spider", lambda: ri(1, MAXW), 1000, q_mix)
-build(3000, "binary", lambda: 1, 2000, q_mix)
-# hidden: maximum size
-N, Q = MAXN, MAXQ
-build(N, "path", lambda: MAXW, Q, q_mix)
-build(N, "twoarms", lambda: ri(1, MAXW), Q, q_random)
-build(N, "random", lambda: ri(1, MAXW), Q, q_mix)
-build(N, "star", lambda: ri(1, MAXW), Q, q_mix)
-build(N, "deep", lambda: ri(1, MAXW), Q, q_mix)
-build(N, "deep", lambda: 1, Q, q_line)
-build(N, "cater", lambda: ri(1, MAXW), Q, q_mix)
-build(N, "spider", lambda: ri(MAXW - 5, MAXW), Q, q_mix)
-build(N, "binary", lambda: ri(1, MAXW), Q, q_fork)
+add(4, [5, 1, 3, 2], [(1, 2, 4), (2, 4, 4), (1, 3, 1), (3, 4, 2), (1, 4, 10)],
+    [(1, 4, 0), (1, 4, 1), (1, 4, 3), (4, 1, 2), (2, 3, 5), (2, 3, 4)])
+add(5, [2, 4, 6, 8, 10], [(1, 2, 1), (2, 3, 1), (3, 4, 1), (4, 5, 1), (1, 5, 9), (2, 4, 3)],
+    [(1, 5, 8), (1, 5, 7), (5, 2, 8), (5, 2, 6), (3, 1, 3)])
+add(4, [3, 3, 3, 3], [(1, 2, 2), (2, 3, 2), (3, 1, 5), (1, 2, 1)], [(3, 1, 2), (3, 1, 3), (4, 1, 3), (2, 2, 1)])
+add(2, [MAXH, MAXH], [(1, 2, MAXW), (2, 1, MAXW - 1)], [(1, 2, 0), (2, 1, MAXH), (2, 2, 5)])
+for n, m, q, wmax, hmax in ((6, 9, 30, 10, 5), (10, 20, 60, 20, 10), (20, 40, 100, 100, 1000), (50, 120, 300, 10**4, 50)):
+    h = [ri(1, hmax) for _ in range(n)]
+    add(n, h, rnd_roads(n, m, 1, wmax), rnd_q(n, q, h))
+n = 30                                                            # a path: the order of levels matters
+h = [ri(1, 100) for _ in range(n)]
+add(n, h, [(i, i + 1, ri(1, 9)) for i in range(1, n)], rnd_q(n, 200, h))
+n = 120
+h = [ri(1, MAXH) for _ in range(n)]
+add(n, h, rnd_roads(n, 500, 1, MAXW), rnd_q(n, 2000, h))
+n = 200
+h = [ri(1, MAXH) for _ in range(n)]
+add(n, h, rnd_roads(n, 300, 1, 1000, conn=False), rnd_q(n, 1500, h))
+# hidden: largest
+N, M, Q = MAXN, MAXM, MAXQ
+h = [ri(1, MAXH) for _ in range(N)]
+add(N, h, rnd_roads(N, M, 1, MAXW), rnd_q(N, Q, h))
+h = [ri(1, MAXH) for _ in range(N)]
+add(N, h, rnd_roads(N, 30_000, 1, MAXW), rnd_q(N, Q, h))
+h = [ri(1, 20) for _ in range(N)]                                 # many equal levels
+add(N, h, rnd_roads(N, M, 1, 1000), rnd_q(N, Q, h))
+h = [ri(1, MAXH) for _ in range(N)]                               # a path with the largest lengths
+add(N, h, [(i, i + 1, MAXW) for i in range(1, N)], [(1, N, MAXH)] * 10 + rnd_q(N, Q - 10, h))
+h = list(range(1, N + 1))                                         # a path, levels rise along it
+qs = []
+for _ in range(Q):
+    u = ri(1, 200)
+    v = ri(u, N)
+    qs.append((u, v, max(0, v - ri(0, 3))) if random.random() < 0.8 else (v, u, ri(0, N)))
+roads = [(i, i + 1, ri(1, 1000)) for i in range(1, N)] + [(1, N, MAXW)] + rnd_roads(N, 25_000, 10**8, MAXW, conn=False)
+random.shuffle(roads)
+add(N, h, roads, qs)
+h = [ri(1, MAXH) for _ in range(N)]                               # only roads from a hub to everybody
+hub = ri(1, N)
+h[hub - 1] = MAXH
+roads = [(hub, v, ri(1, MAXW)) for v in range(1, N + 1) if v != hub] + rnd_roads(N, 300, MAXW // 2, MAXW, conn=False)
+add(N, h, roads, rnd_q(N, Q // 2, h) + [(ri(1, N), ri(1, N), MAXH - ri(0, 1)) for _ in range(Q // 2)])
+h = [ri(1, MAXH) for _ in range(N)]                               # complete graph, lengths almost equal
+roads = [(a, b, ri(10**8, 10**8 + 1000)) for a in range(1, N + 1) for b in range(a + 1, N + 1)]
+random.shuffle(roads)
+add(N, h, roads[:M], rnd_q(N, Q, h))
+h = [ri(1, MAXH) for _ in range(N)]                               # two groups of towns joined by few roads
+roads = rnd_roads(N // 2, M // 2 - 5, 1, 10**6) + [(a + N // 2, b + N // 2, w) for a, b, w in rnd_roads(N // 2, M // 2 - 5, 1, 10**6)]
+roads += [(ri(1, N // 2), ri(N // 2 + 1, N), ri(1, 10**6)) for _ in range(10)]
+add(N, h, roads, rnd_q(N, Q, h))
+h = [ri(1, MAXH) for _ in range(N)]
+add(N, h, rnd_roads(N, M, 1, 10), rnd_q(N, Q, h, "levels"))
+h = [ri(1, MAXH) for _ in range(N)]                               # every k below all levels: direct roads only
+add(N, h, rnd_roads(N, M, 1, MAXW), [(ri(1, N), ri(1, N), ri(0, min(h) - 1)) for _ in range(Q)])
+h = [ri(1, MAXH) for _ in range(N)]                               # every k above all levels: plain shortest paths
+add(N, h, rnd_roads(N, 1000, 1, MAXW), [(ri(1, N), ri(1, N), ri(max(h), MAXH)) for _ in range(Q)])
+# a grid of 20 x 20 towns
+h = [ri(1, MAXH) for _ in range(N)]
+roads = []
+for r in range(20):
+    for c in range(20):
+        v = r * 20 + c + 1
+        if c + 1 < 20:
+            roads.append((v, v + 1, ri(1, 10**6)))
+        if r + 1 < 20:
+            roads.append((v, v + 20, ri(1, 10**6)))
+add(N, h, roads, [(1, N, ri(0, MAXH)) for _ in range(Q // 2)] + rnd_q(N, Q // 2, h))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

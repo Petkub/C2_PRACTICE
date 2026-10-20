@@ -1,122 +1,122 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100303)
-MAXN, MAXW = 100_000, 10**9
+random.seed(8003)
+MAXN, MAXM, MAXW = 100_000, 100_000, 10**6
 tests = []
 
 
-_rnd = random.random
-
-
 def ri(lo, hi):
-    return lo + int(_rnd() * (hi - lo + 1))
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def shuf(a):
-    for i in range(len(a) - 1, 0, -1):
-        j = int(_rnd() * (i + 1))                                # = ri(0, i)
-        a[i], a[j] = a[j], a[i]
+def add(n, st, roads):
+    m, k = len(roads), len(st)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= k <= n
+    assert len(set(st)) == k and all(1 <= s <= n for s in st)
+    assert all(1 <= u <= n and 1 <= v <= n and 1 <= w <= MAXW for u, v, w in roads)
+    tests.append(f"{n} {m} {k}\n" + " ".join(map(str, st)) + "\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads))
 
 
-def shape(n, kind):
-    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is the root"""
-    par = [-1] * n
-    h = max(1, n // 2)
-    for i in range(1, n):
-        if kind == "random":
-            par[i] = int(_rnd() * i)                            # = ri(0, i - 1)
-        elif kind == "path":
-            par[i] = i - 1
-        elif kind == "star":
-            par[i] = 0
-        elif kind == "deep":                    # depth about n / 2, a few short side branches
-            par[i] = ri(max(0, i - 3), i - 1)
-        elif kind == "binary":
-            par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
-            par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
-            par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "twopaths":                # two long chains below the root
-            par[i] = 0 if i <= 2 else i - 2
-        else:
-            raise ValueError(kind)
-    return par
+def relabel(n, st, roads):
+    """random intersection numbers, random order and direction of roads, random order of stations"""
+    p = list(range(1, n + 1))
+    random.shuffle(p)
+    p = [0] + p
+    res = [(p[u], p[v], w) if random.random() < 0.5 else (p[v], p[u], w) for u, v, w in roads]
+    random.shuffle(res)
+    s = [p[x] for x in st]
+    random.shuffle(s)
+    return n, s, res
 
 
-def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1; node 0 gets the number root if given"""
-    lab = list(range(1, n + 1))
-    shuf(lab)
-    if root is not None:
-        j = lab.index(root)
-        lab[0], lab[j] = lab[j], lab[0]
-    return lab
+def stations(n, k):
+    return random.sample(range(1, n + 1), k)
 
 
-def add(edges):
-    n = len(edges) + 1
-    assert 2 <= n <= MAXN
-    assert all(1 <= a <= n and 1 <= b <= n and a != b and 1 <= w <= MAXW for a, b, w in edges)
-    adj = [[] for _ in range(n + 1)]                            # n - 1 edges connecting everything: a tree
-    for e in edges:
-        adj[e[0]].append(e[1])
-        adj[e[1]].append(e[0])
-    seen, order = [False] * (n + 1), [1]
-    seen[1] = True
-    for v in order:
-        for u in adj[v]:
-            if not seen[u]:
-                seen[u] = True
-                order.append(u)
-    assert len(order) == n
-    t = f"{n}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in edges)
-    assert len(t) <= 3_000_000
-    tests.append(t)
+def rnd_roads(n, m, wmax=MAXW):
+    return [(ri(1, n), ri(1, n), ri(1, wmax)) for _ in range(m)]
 
 
-def tree(n, kind, wfun):
-    """wfun(i, par) gives the weight of the edge from node i to its parent"""
-    par, lab = shape(n, kind), labels(n)
-    edges = []
-    for i in range(1, n):
-        a, b = lab[par[i]], lab[i]
-        if ri(0, 1):
-            a, b = b, a
-        edges.append((a, b, wfun(i, par)))
-    shuf(edges)
-    add(edges)
+def connected(n, m, wmax=MAXW, depth=0):
+    """a random tree (thin when depth > 0) plus random extra roads"""
+    if depth:
+        roads = [(i, ri(max(1, i - depth), i - 1), ri(1, wmax)) for i in range(2, n + 1)]
+    else:
+        roads = [(i, ri(1, i - 1), ri(1, wmax)) for i in range(2, n + 1)]
+    return roads + rnd_roads(n, m - (n - 1), wmax)
 
 
-rnd = lambda lo, hi: (lambda i, par: ri(lo, hi))
+def grid(r, c, wmax):
+    roads = []
+    for i in range(r):
+        for j in range(c):
+            v = i * c + j + 1
+            if j + 1 < c:
+                roads.append((v, v + 1, ri(1, wmax)))
+            if i + 1 < r:
+                roads.append((v, v + c, ri(1, wmax)))
+    return roads
+
+
+def broom(n, m, k, rest):
+    """stations 1..k all joined to one centre, a larger station number is closer to it; the town hangs off the centre"""
+    c = k + 1
+    roads = [(i, c, k - i + 1) for i in range(1, k + 1)]
+    sub = rest(n - k, m - k)                     # roads among c..n (renumbered from 1..n-k)
+    roads += [(u + k, v + k, w) for u, v, w in sub]
+    p = list(range(c + 1, n + 1))                # shuffle the town, keep the station numbers
+    random.shuffle(p)
+    p = list(range(0, c + 1)) + p
+    roads = [(p[u], p[v], w) for u, v, w in roads]
+    random.shuffle(roads)
+    st = list(range(1, k + 1))
+    return n, st, roads
+
 
 # samples
-add([(1, 2, 3), (2, 3, 4), (2, 4, 2), (4, 5, 6)])
-add([(1, 2, 1), (2, 3, 1), (3, 4, 1), (5, 2, 9)])
-add([(2, 1, MAXW)])
-add([(1, 2, MAXW), (3, 2, MAXW), (3, 4, MAXW)])
-add([(4, 7, 5), (1, 4, 2), (7, 3, 8), (6, 1, 3), (2, 4, 7), (8, 1, 4), (5, 6, 6)])
+add(6, [5, 2], [(1, 2, 4), (2, 3, 3), (3, 4, 2), (4, 5, 3), (5, 6, 1), (1, 6, 3)])
+add(5, [4], [(4, 3, 7), (3, 4, 2), (1, 2, 5)])
+add(7, [7, 1], [(i, i + 1, 2) for i in range(1, 7)])
+add(5, [3, 1, 5], [(1, 2, 6), (2, 3, 4), (2, 4, 1), (4, 5, 3), (3, 5, 9), (2, 2, 1)])
+add(1, [1], [])
 # hidden: small
-add([(1, 2, 1)])
-add([(1, 2, 5), (1, 3, 5), (1, 4, 5)])
-for n, kind, f in ((6, "random", rnd(1, 10)), (9, "binary", rnd(1, 10)), (12, "random", rnd(1, 100)),
-                   (20, "cater", rnd(1, 5)), (60, "deep", rnd(1, MAXW)), (300, "random", rnd(1, 1000)),
-                   (2000, "broom", rnd(1, MAXW)), (5000, "random", rnd(1, MAXW))):
-    tree(n, kind, f)
-# hidden: maximum size
-N = MAXN
-tree(N, "path", lambda i, par: MAXW)                             # answer (N - 1) * 10^9
-tree(N, "path", rnd(1, MAXW))
-tree(N, "star", rnd(1, MAXW))
-tree(N, "random", rnd(1, MAXW))
-tree(N, "deep", rnd(1, MAXW))
-# a long light spine and heavy leaves: the longest trail joins two leaves, not the spine ends
-tree(N, "cater", lambda i, par: 1 if i < N // 2 else ri(MAXW // 2, MAXW))
-# a broom: the handle is light, the bristles heavy
-tree(N, "broom", lambda i, par: ri(1, 100) if i <= N // 2 else ri(1, MAXW))
-tree(N, "twopaths", rnd(MAXW - 10, MAXW))
-tree(N, "binary", rnd(1, MAXW))
+add(2, [2], [(1, 2, MAXW), (1, 2, MAXW)])
+add(3, [1, 2, 3], [(1, 2, 1), (2, 3, 1)])
+add(10, stations(10, 3), rnd_roads(10, 12, 3))
+add(40, stations(40, 5), connected(40, 60, 4))
+add(60, stations(60, 8), grid(6, 10, 1))
+add(300, stations(300, 20), rnd_roads(300, 400, 10))
+add(*relabel(1000, list(range(1, 11)), [(i, i + 1, 1) for i in range(1, 1000)]))
+add(2000, stations(2000, 50), connected(2000, 3000, 1000, 3))
+# hidden: large
+N, M = MAXN, MAXM
+add(N, stations(N, 1), connected(N, M))
+add(N, stations(N, 1000), connected(N, M, 10, 3))
+add(N, stations(N, N // 2), connected(N, M, 3))                       # many ties
+add(N, list(range(1, N + 1)), rnd_roads(N, M))                      # every intersection has a station
+add(N, list(range(1, N // 2 + 1)), [(i, i + 1, 1) for i in range(1, N)])   # chain, stations on the left half
+add(N, list(range(N // 2, 0, -1)), [(i, i + 1, 1) for i in range(N - 1, 0, -1)])
+add(*relabel(N, list(range(1, N // 2 + 1)), [(i, i + 1, ri(1, 3)) for i in range(1, N)]))
+add(*relabel(N, stations(N, 2000), grid(250, 400, 1)[:M]))          # grid, equal roads: ties everywhere
+add(N, stations(N, 5000), grid(250, 400, MAXW)[:M])
+add(N, stations(N, 300), rnd_roads(N, M))                           # many intersections unreachable
+add(*broom(N, M, 1000, lambda n, m: connected(n, m, 100, 3)))
+add(*broom(N, M, 300, lambda n, m: connected(n, m, 1000)))
+add(*broom(N, M, 3000, lambda n, m: grid(97, n // 97, 5)[:m] + rnd_roads(n, max(0, m - len(grid(97, n // 97, 5))), 5)))
+roads = [(i, i + 1, MAXW) for i in range(1, N)]                      # one station at the end: largest distances
+add(N, [N], roads)
+n = N - 1                                                            # exact tie in the middle (n odd); the
+path = [1] + list(range(n - 1, 1, -1)) + [n]                         # side of station 1 has the large numbers
+add(n, [n, 1], [(path[i], path[i + 1], MAXW) for i in range(n - 1)])
+k, leaves = 30_000, M - 60_000                                       # one hub improved many times
+roads = []
+for i in range(2, k + 2):
+    roads.append((1, i, i))
+    roads.append((i, N, 3 * k + 10 - 2 * i))
+roads += [(N, x, ri(1, 5)) for x in range(k + 2, k + 2 + leaves)]
+add(N, [1] + list(range(N - 99, N)), roads)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

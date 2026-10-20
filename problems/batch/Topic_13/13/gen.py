@@ -1,182 +1,82 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
-import os, random, re, sys
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+import os, random
 
-random.seed(131301)
-sys.setrecursionlimit(20000)
-MAXLEN = 500000
-MAXDEPTH = 1000
-MAXNUM = 10**9
-MAXEXP = 10**18
+random.seed(110013)
+MAXN, MAXQ = 500_000, 200_000
 tests = []
 
 
-TOKEN = re.compile(r"[0-9]+|[-+*^()]")
+def ri(lo, hi):
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def check(s):
-    """the expression follows the grammar of the statement, return its nesting depth"""
-    assert 1 <= len(s) <= MAXLEN and set(s) <= set("0123456789+-*^()")
-    toks = TOKEN.findall(s)
-    assert sum(map(len, toks)) == len(s)
-    depth = best = 0
-    want_operand = True         # True: a number or "(" must come next
-    can_pow = False             # the last thing is a number or ")" without an exponent yet
-    i = 0
-    while i < len(toks):
-        t = toks[i]
-        if want_operand:
-            if t == "(":
-                depth += 1
-                best = max(best, depth)
-            else:
-                assert t[0].isdigit() and (t[0] != "0" or len(t) == 1) and int(t) <= MAXNUM, t
-                want_operand, can_pow = False, True
-        elif t == ")":
-            depth -= 1
-            assert depth >= 0
-            can_pow = True
-        elif t == "^":
-            assert can_pow and i + 1 < len(toks)
-            e = toks[i + 1]
-            assert e[0].isdigit() and (e[0] != "0" or len(e) == 1) and int(e) <= MAXEXP, e
-            i += 1
-            can_pow = False
+def add(s, ops):
+    n, q = len(s), len(ops)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert set(s) <= set("()")
+    for op in ops:
+        if op[0] == 1:
+            assert len(op) == 2 and 1 <= op[1] <= n
         else:
-            assert t in "+-*"
-            want_operand, can_pow = True, False
-        i += 1
-    assert not want_operand and depth == 0
-    return best
+            assert op[0] == 2 and len(op) == 3 and 1 <= op[1] <= op[2] <= n
+    assert any(op[0] == 2 for op in ops)
+    t = f"{n} {q}\n{s}\n" + "".join(" ".join(map(str, op)) + "\n" for op in ops)
+    assert len(t) <= 3_100_000
+    tests.append(t)
 
 
-def add(s):
-    assert check(s) <= MAXDEPTH
-    tests.append(s + "\n")
+def rnd_str(n, p_open=0.5):
+    return "".join("(" if random.random() < p_open else ")" for _ in range(n))
 
 
-class Gen:
-    def __init__(self, maxd, p_paren, p_pow, exp_hi, num_hi=MAXNUM, ops="++--**", wrap=0.0):
-        self.maxd, self.pp, self.ppow, self.exp_hi, self.num_hi, self.ops = maxd, p_paren, p_pow, exp_hi, num_hi, ops
-        self.wrap = wrap
-
-    def num(self):
-        r = random.random()
-        if r < 0.1:
-            return str(random.choice((0, 1, self.num_hi)))
-        if r < 0.5:
-            return str(random.randint(0, 9))
-        return str(random.randint(0, self.num_hi))
-
-    def exp(self):
-        r = random.random()
-        if r < 0.15:
-            return str(random.choice((0, 1, self.exp_hi)))
-        return str(random.randint(0, self.exp_hi))
-
-    def factor(self, b, d):
-        if b >= 5 and d < self.maxd and random.random() < self.pp:
-            s = "(" + self.expr(b - 2, d + 1) + ")"
+def mix(n, q, flip_frac, long_frac=0.9):
+    ops = []
+    for _ in range(q):
+        if random.random() < flip_frac:
+            ops.append((1, ri(1, n)))
+        elif random.random() < long_frac:
+            l = ri(1, max(1, n // 20))
+            ops.append((2, l, ri(max(l, n - n // 20), n)))
         else:
-            s = self.num()
-        extra = 0
-        while d + extra < self.maxd and random.random() < self.wrap:   # redundant brackets
-            s = "(" + s + ")"
-            extra += 1
-        if random.random() < self.ppow:
-            s += "^" + self.exp()
-        return s
-
-    def expr(self, b, d=0):
-        if b <= 8 or (b <= 30 and random.random() < 0.1):
-            return self.factor(b, d)
-        k = random.randint(2, min(6, b // 4))
-        cuts = sorted(random.sample(range(1, b), k - 1))
-        sizes = [y - x for x, y in zip([0] + cuts, cuts + [b])]
-        out = [self.factor(sizes[0], d) if sizes[0] < 8 else self.expr(sizes[0], d)]
-        for sz in sizes[1:]:
-            out.append(random.choice(self.ops))
-            out.append(self.factor(sz, d) if sz < 8 else self.expr(sz, d))
-        return "".join(out)
-
-
-def chains(total, depth, g, side=1.0):
-    """several towers of `depth` nested parentheses joined by operators
-    (each level has an operand before / after its brackets with probability side)"""
-    parts = []
-    length = 0
-    while length < total:
-        left, right = [], []
-        for _ in range(depth):
-            left.append(g.num() + random.choice(g.ops) + "(" if random.random() < side else "(")
-            r = ")"
-            if random.random() < g.ppow:
-                r += "^" + g.exp()
-            if random.random() < 0.5 * side:
-                r += random.choice(g.ops) + g.num()
-            right.append(r)
-        s = "".join(left) + g.expr(20, g.maxd) + "".join(reversed(right))
-        parts.append(s)
-        length += len(s) + 1
-    while length > total and len(parts) > 1:
-        length -= len(parts.pop()) + 1
-    return "+".join(parts)
-
-
-def fit(s):
-    assert len(s) <= MAXLEN, len(s)
-    return s
-
-
-def sized(g, target):
-    """an expression from generator g whose length is close to (and at most) target"""
-    b = target
-    while True:
-        s = g.expr(b)
-        if 0.8 * target <= len(s) <= target:
-            return s
-        if len(s) < 0.8 * target:
-            b = int(b * target * 0.9 / max(len(s), 1)) + 1
-            continue
-        b = int(b * target * 0.97 / len(s))
+            l = ri(1, n)
+            ops.append((2, l, ri(l, n)))
+    if not any(op[0] == 2 for op in ops):
+        ops.append((2, 1, n))
+    return ops
 
 
 # samples
-add("2+3*4^2-(5-7)*3")
-add("(1-2)^3")
-add("0^0*5+0^3")
-add("10-4-3+2*3*4-1^5")
-add("2^1000000000000000000")
-add("((((1000000000))))*1000000000")
-# hidden: small (the brute force checks these; exponents stay small)
-add("7")
-add("1000000000^2")
-add("0-1000000000*1000000000")
-add(sized(Gen(5, 0.3, 0.2, 30), 60))
-add(sized(Gen(20, 0.4, 0.2, 50), 3000))
-add(sized(Gen(3, 0.2, 0.5, 200), 5000))
-add(sized(Gen(60, 0.5, 0.1, 10, ops="-"), 8000))
-add(fit(chains(15000, MAXDEPTH, Gen(5, 0.3, 0.2, 20))))
-add("(" * MAXDEPTH + "2" + ")^2" * MAXDEPTH)
-add(sized(Gen(1000, 0.6, 0.15, 40), 20000))
-# hidden: large
-add(sized(Gen(40, 0.35, 0.3, MAXEXP, wrap=0.85), 475000))
-add(sized(Gen(400, 0.45, 0.3, MAXEXP, wrap=0.9), 475000))
-add(sized(Gen(8, 0.25, 0.6, MAXEXP, wrap=0.8), 475000))
-add(fit(chains(485000, MAXDEPTH, Gen(5, 0.3, 0.1, MAXEXP), side=0.1)))
-add(fit(chains(485000, 700, Gen(5, 0.3, 0.15, MAXEXP, ops="-*"), side=0.2)))
-add(fit("+".join("(" + str(random.randint(0, 9)) + ")" for _ in range(122000))))           # many short brackets
-add(fit("*".join("((" + str(random.randint(1, 9)) + ")-(" + str(random.randint(0, 9)) + "))^" + str(random.randint(1, 9))
-                 for _ in range(35000))))
-add(fit("*".join(str(random.randint(2, MAXNUM)) + "^" + str(random.randint(MAXEXP // 2, MAXEXP)) for _ in range(16500))))
-add(fit("+".join(f"{MAXNUM}*{MAXNUM}" for _ in range(22500))))
-add(fit("-".join(str(MAXNUM) for _ in range(45000))))
-add(fit("(" * (MAXDEPTH - 1) + "+".join(["(1000000000-999999999)^999999999999999999"] * 11500) + ")" * (MAXDEPTH - 1)))
-add(sized(Gen(1000, 0.7, 0.25, MAXEXP, num_hi=9, wrap=0.75), 485000))
-add(fit("-".join("(" * 999 + str(random.randint(0, 9)) + ")" * 999 for _ in range(250))))   # tall towers
-add(fit("(" * 999 + ")^1000000000000000000*(".join(["0^0+1"] * 15000) + ")" * 999))
+add("(()(", [(2, 1, 4), (1, 4), (2, 1, 4), (1, 2), (2, 1, 4)])
+add(")(", [(2, 1, 2), (1, 1), (2, 1, 2), (1, 2), (2, 1, 2)])
+add("(", [(2, 1, 1)])
+add("())(()))((", [(2, 1, 10), (2, 3, 8), (1, 9), (1, 10), (2, 1, 10)])
+add(")()(()(", [(2, 1, 7), (1, 1), (2, 1, 7), (2, 2, 6)])
+# hidden: small
+add(")", [(2, 1, 1), (1, 1), (2, 1, 1)])
+s = rnd_str(10)
+add(s, [(2, l, r) for l in range(1, 11) for r in range(l, 11)] + [(1, 3), (2, 1, 10), (1, 7), (2, 2, 9)])
+add(rnd_str(100), mix(100, 300, 0.3, 0.3))
+add(rnd_str(1000, 0.6), mix(1000, 2000, 0.2, 0.4))
+add("(" * 5000 + ")" * 5000, mix(10000, 5000, 0.1, 0.5))
+add(rnd_str(30000), mix(30000, 10000, 0.3, 0.4))
+add(")" * 3000 + "(" * 3000, mix(6000, 4000, 0.2, 0.5))
+# hidden: maximum size
+N = MAXN
+add(rnd_str(N), mix(N, 150_000, 0.2))
+add(rnd_str(N), mix(N, 160_000, 0.5))
+add(rnd_str(N, 0.55), mix(N, 150_000, 0.3))
+add("(" * N, mix(N, 150_000, 0.3))                                     # flips create the only pairs
+add(")" * N, mix(N, 150_000, 0.3))
+add("(" * (N // 2) + ")" * (N // 2), mix(N, 150_000, 0.2))            # one deep nest
+add("()" * (N // 2), mix(N, 150_000, 0.2))
+add(")" * (N // 2) + "(" * (N // 2), mix(N, 150_000, 0.2))            # nothing matches at first
+s = "".join("(" * 3 + ")" * 2 if i % 2 else "(" + ")" * 2 for i in range(N // 4))[:N]
+add(s, mix(len(s), 150_000, 0.3))
+add(rnd_str(N), [(2, 1, N) if j % 2 else (1, ri(1, N)) for j in range(170_000)])
+add(rnd_str(N, 0.45), mix(N, 150_000, 0.1, 1.0))
 
 for t in tests:
-    assert t.endswith("\n") and " " not in t
+    assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

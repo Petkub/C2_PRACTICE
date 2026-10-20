@@ -1,15 +1,13 @@
 แบบฝึกหัดภาคปฏิบัติรายเรื่อง สอวน. คอมพิวเตอร์ ค่าย 2 — 13 เรื่อง เรื่องละ 20 ข้อ (เรียงจากง่ายไปยาก)
 =====================================================================================
 
-เรื่องที่ 1  ผลรวมสะสมและ two pointers    เรื่องที่ 7   graph
-เรื่องที่ 2  binary search               เรื่องที่ 8   เส้นทางสั้นที่สุด
-เรื่องที่ 3  greedy                      เรื่องที่ 9   DSU และ MST
-เรื่องที่ 4  sweep line                  เรื่องที่ 10  tree
-เรื่องที่ 5  dynamic programming 1       เรื่องที่ 11  segment tree และ Fenwick tree
-เรื่องที่ 6  dynamic programming 2       เรื่องที่ 12  brute force และ implementation
-                                         เรื่องที่ 13  divide and conquer
-ลำดับที่แนะนำ: 12 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 13 → 8 → 9 → 10 → 11
-(หมายเลขเรื่องไม่เปลี่ยน เรื่องที่ 12 และ 13 เพิ่มภายหลังจึงอยู่ท้าย)
+เรื่องที่ 1  brute force และ implementation   เรื่องที่ 8   graph
+เรื่องที่ 2  ผลรวมสะสมและ two pointers       เรื่องที่ 9   divide and conquer
+เรื่องที่ 3  binary search                  เรื่องที่ 10  เส้นทางสั้นที่สุด
+เรื่องที่ 4  greedy                         เรื่องที่ 11  DSU และ MST
+เรื่องที่ 5  sweep line                     เรื่องที่ 12  tree
+เรื่องที่ 6  dynamic programming 1          เรื่องที่ 13  segment tree และ Fenwick tree
+เรื่องที่ 7  dynamic programming 2
 
 โครงสร้างโฟลเดอร์
   Topic_1 ... Topic_13

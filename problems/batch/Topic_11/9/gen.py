@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110009)
-MAXN, MAXQ, MAXV = 300_000, 200_000, 10**9
+random.seed(90901)
+MAXN, MAXM, MAXQ, MAXC = 100_000, 100_000, 100_000, 10**6
 tests = []
 
 
@@ -10,66 +10,100 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, qs):
-    n, q = len(a), len(qs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= v <= MAXV for v in a)
-    assert all(1 <= l <= r <= n for (l, r) in qs)
-    t = f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{l} {r}\n" for (l, r) in qs)
-    assert len(t) <= 3_100_000
-    tests.append(t)
+def add(n, roads, qs):
+    m, q = len(roads), len(qs)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= q <= MAXQ
+    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= c <= MAXC for (u, v, c) in roads)
+    assert all(1 <= v <= n and 1 <= w <= MAXC for (v, w) in qs)
+    tests.append(f"{n} {m} {q}\n" + "".join(f"{u} {v} {c}\n" for (u, v, c) in roads)
+                 + "".join(f"{v} {w}\n" for (v, w) in qs))
 
 
-def queries(n, q, long_frac=0.9):
+def relabel(n, roads):
+    p = list(range(1, n + 1))
+    random.shuffle(p)
+    res = [(p[u - 1], p[v - 1], c) if random.random() < 0.5 else (p[v - 1], p[u - 1], c) for (u, v, c) in roads]
+    random.shuffle(res)
+    return res
+
+
+def tree(n, cmax=MAXC, cmin=1):
+    return [(ri(1, v - 1), v, ri(cmin, cmax)) for v in range(2, n + 1)]
+
+
+def extra(n, k, cmax=MAXC, cmin=1):
+    res = []
+    while len(res) < k:
+        u, v = ri(1, n), ri(1, n)
+        if u != v:
+            res.append((u, v, ri(cmin, cmax)))
+    return res
+
+
+def queries(n, q, roads, low=1, high=MAXC, near=0.3):
+    cs = [c for (_, _, c) in roads] or [1]
     res = []
     for _ in range(q):
-        if random.random() < long_frac:
-            l = ri(1, max(1, n // 20))
-            res.append((l, ri(max(l, n - n // 20), n)))
+        if random.random() < near:
+            w = min(MAXC, max(1, random.choice(cs) + ri(0, 1)))   # exactly a limit or one more
         else:
-            l = ri(1, n)
-            res.append((l, ri(l, n)))
+            w = ri(low, high)
+        res.append((ri(1, n), w))
     return res
 
 
 # samples
-add([1, 2, 1, 3, 2, 2], [(1, 3), (2, 5), (6, 6), (1, 6)])
-add([5, 5, 5, 5], [(1, 4), (2, 3)])
-add([42], [(1, 1)])
-add([9, 30, 9, 70000, 30], [(1, 5), (2, 3), (3, 4), (1, 2)])
-add([4, 1, 4, 4, 2, 1, 3, 2], [(1, 8), (3, 4), (2, 6), (5, 8), (4, 7)])
+add(5, [(1, 2, 5), (2, 3, 3), (3, 4, 8), (4, 5, 2), (2, 5, 6)], [(1, 4), (1, 3), (4, 9)])
+add(3, [(1, 2, 2), (1, 2, 7), (3, 2, 4)], [(1, 7), (3, 5), (3, 4)])
+add(4, [], [(2, 1), (4, 1000000)])
+add(4, [(1, 2, 10), (2, 3, 20), (3, 4, 10), (4, 1, 30)], [(1, 30), (3, 11), (4, 10)])
+add(3, [(1, 3, 5), (3, 2, 5)], [(2, 5), (2, 6)])
 # hidden: small
-add([ri(1, 3) for _ in range(10)], [(l, r) for l in range(1, 11) for r in range(l, 11)])
-add([ri(1, 20) for _ in range(100)], queries(100, 300, 0.3))
-add(list(range(1, 501)), queries(500, 500, 0.3))                       # all different
-add([MAXV] * 1000, queries(1000, 1000, 0.3))                            # all equal
-add([ri(1, MAXV) if random.random() < 0.5 else ri(1, 50) for _ in range(5000)], queries(5000, 5000, 0.4))
-add([ri(1, 2000) for _ in range(20000)], queries(20000, 10000, 0.3))
-add([(i % 37) + 1 for i in range(10000)], queries(10000, 10000, 0.3))  # periodic
+add(1, [], [(1, 1)])
+add(2, [(1, 2, 1000000)], [(1, 1000000), (2, 1), (1, 999999)])
+n = 8
+r = relabel(n, tree(n, 10) + extra(n, 6, 10))
+add(n, r, queries(n, 30, r, 1, 11))
+n = 50
+r = relabel(n, tree(n, 100) + extra(n, 40, 100))
+add(n, r, queries(n, 200, r, 1, 101))
+n = 300
+r = relabel(n, extra(n, 250, 1000))
+add(n, r, queries(n, 1000, r, 1, 1000))
+n = 2000
+r = relabel(n, [(i, i + 1, ri(1, MAXC)) for i in range(1, n)])
+add(n, r, queries(n, 3000, r))
+n = 3000
+r = relabel(n, tree(n, 5) + extra(n, 3000, 5))                 # many equal limits
+add(n, r, queries(n, 5000, r, 1, 6, 0.5))
 # hidden: maximum size
-N = MAXN
-add([ri(1, 9999) for _ in range(N)], queries(N, 100_000))
-add([ri(1, 10) for _ in range(N)], queries(N, 160_000, 0.8))
-add([ri(1, 999) for _ in range(N)], queries(N, 100_000))
-p = list(range(1, N + 1))
-random.shuffle(p)
-add(p, queries(N, 50_000))                                              # all different
-add([1] * N, queries(N, 120_000))                                       # all equal
-add([(i % 5000) + 1 for i in range(N)], queries(N, 100_000))           # periodic
-a = [ri(1, 9999) for _ in range(N // 2)]
-add(a + a[::-1], queries(N, 100_000))                                   # mirrored halves
-pool = [ri(1, MAXV) for _ in range(1000)]
-add([random.choice(pool) for _ in range(200_000)], queries(200_000, 60_000))   # big values
-add([ri(MAXV - 10**5, MAXV) for _ in range(200_000)], queries(200_000, 60_000))
-a = []
-while len(a) < N:                                                       # long runs of one value
-    v, k = ri(1, 9999), ri(1, 100)
-    a.extend([v] * k)
-add(a[:N], queries(N, 100_000))
-add([ri(1, 9999) for _ in range(N)], [(1, N)] * 20_000 + queries(N, 50_000, 0.0))
-# the most queries on (almost) the whole street: short numbers keep the file under 3 MB
-add([ri(1, 99) for _ in range(N)], [(ri(1, 99), ri(N - 99, N)) for _ in range(MAXQ)])
-add([(i * 7919) % 300 + 1 for i in range(N)], [(ri(1, 99), ri(N - 99, N)) for _ in range(MAXQ)])
+N, M, Q = MAXN, MAXM, MAXQ
+r = relabel(N, tree(N) + extra(N, M - N + 1))
+add(N, r, queries(N, Q, r, 1, 10**5))                          # light trucks: huge reachable areas
+r = relabel(N, [(i, i + 1, ri(1, MAXC)) for i in range(1, N)])
+add(N, r, queries(N, Q, r, 1, 2000, 0.1))
+r = relabel(N, [(i, i + 1, MAXC - i) for i in range(1, N)])    # limits fall along a path
+add(N, r, queries(N, Q, r, MAXC - N, MAXC))
+r = relabel(N, [(1, v, ri(1, MAXC)) for v in range(2, N + 1)])  # star
+add(N, r, queries(N, Q, r, 1, 3000, 0.2))
+r = relabel(N, tree(N, 1, 1))                                  # every limit 1
+add(N, r + [(1, 2, 1)], [(ri(1, N), ri(1, 2)) for _ in range(Q)])
+r = relabel(N, tree(N, 10) + extra(N, M - N + 1, 10))          # limits 1..10
+add(N, r, queries(N, Q, r, 1, 11))
+r = relabel(N, tree(N) + extra(N, M - N + 1))
+add(N, r, queries(N, Q, r))
+r = []
+for k in range(0, N, 1000):                                    # 100 separate groups
+    for v in range(k + 2, k + 1001):
+        r.append((ri(k + 1, v - 1), v, ri(1, MAXC)))
+r = relabel(N, r)
+add(N, r, queries(N, Q, r, 1, 10**5))
+r = relabel(N, tree(N, MAXC, MAXC - 1000))                     # the largest limits
+add(N, r, queries(N, Q, r, MAXC - 1100, MAXC, 0.5))
+r = relabel(N, [(i, i + 1, ri(1, 10)) for i in range(1, N)])   # long path with few distinct limits
+add(N, r, [(ri(1, N), 1) for _ in range(Q // 2)] + queries(N, Q // 2, r, 1, 11))
+r = relabel(N, [(ri(1, 10), ri(11, N), ri(1, MAXC)) for _ in range(M)])   # parallel roads to few hubs
+add(N, r, queries(N, Q, r, 1, 10**5))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,100 +1,70 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40108)
-MAXN, MAXC = 3000, 10**9
+random.seed(30108)
+MAXN = 200_000
+MAXSUM = 10**9
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(rs):
-    n = len(rs)
+def add(jobs):
+    n = len(jobs)
     assert 1 <= n <= MAXN
-    for (x1, y1, x2, y2) in rs:
-        assert 0 <= x1 < x2 <= MAXC and 0 <= y1 < y2 <= MAXC
-    tests.append(f"{n}\n" + "".join(f"{a} {b} {c} {d}\n" for (a, b, c, d) in rs))
+    assert all(t >= 1 and w >= 1 for t, w in jobs)
+    assert sum(t for t, _ in jobs) <= MAXSUM
+    assert sum(w for _, w in jobs) <= MAXSUM
+    tests.append(f"{n}\n" + "".join(f"{t} {w}\n" for t, w in jobs))
 
 
-def rnd_rect(lo, hi, minside=1):
-    x1 = ri(lo, hi - minside)
-    x2 = ri(x1 + minside, hi)
-    y1 = ri(lo, hi - minside)
-    y2 = ri(y1 + minside, hi)
-    return (x1, y1, x2, y2)
+def rnd(n, tlo, thi, wlo, whi):
+    return [(ri(tlo, thi), ri(wlo, whi)) for _ in range(n)]
 
 
-def big_rect():
-    """a carpet that spans most of the hall (the worst case for marking cells)"""
-    return (ri(0, MAXC // 3), ri(0, MAXC // 3), ri(2 * MAXC // 3, MAXC), ri(2 * MAXC // 3, MAXC))
+def mixed(n, nbig, big_lo, big_hi, small_hi):
+    """a few jobs with large times and weights (products beyond 32 bits) among many small ones"""
+    jobs = [(ri(big_lo, big_hi), ri(big_lo, big_hi)) for _ in range(nbig)]
+    jobs += [(ri(1, small_hi), ri(1, small_hi)) for _ in range(n - nbig)]
+    random.shuffle(jobs)
+    return jobs
 
 
 # samples
-add([(0, 0, 4, 3), (2, 1, 6, 5)])
-add([(0, 0, 10, 10), (2, 2, 5, 5), (10, 0, 12, 1)])
-add([(0, 0, MAXC, MAXC)])
-add([(1, 0, 3, 6), (0, 2, 4, 4), (1, 0, 3, 6)])
-add([(0, 0, 2, 2), (5, 5, 7, 6), (2, 2, 3, 3), (6, 0, 9, 1)])
-# hidden: small
-add([(3, 4, 5, 9)])
-add([(0, 0, 1, 1), (1, 0, 2, 1), (0, 1, 1, 2), (1, 1, 2, 2)])          # four touching unit squares
-add([rnd_rect(0, 10) for _ in range(8)])
-add([rnd_rect(0, 20) for _ in range(30)])
-add([rnd_rect(0, 100) for _ in range(120)])
-add([rnd_rect(0, MAXC) for _ in range(200)])
-add([(i, i, 1000 - i, 1000 - i) for i in range(0, 500, 3)])             # nested squares
-# hidden: maximum size
-add([rnd_rect(0, MAXC) for _ in range(MAXN)])
-add([big_rect() for _ in range(MAXN)])
-add([big_rect() for _ in range(MAXN)])
-add([(0, 0, MAXC, MAXC)] * MAXN)                                         # all identical, area 10^18
-h = [(0, ri(0, MAXC - 10**5), MAXC, 0) for _ in range(MAXN // 2)]       # horizontal and vertical strips
-h = [(0, y, MAXC, y + ri(1, 10**5)) for (_, y, _, _) in h]
-v = [(x, 0, x + ri(1, 10**5), MAXC) for x in (ri(0, MAXC - 10**5) for _ in range(MAXN // 2))]
-s = h + v
-random.shuffle(s)
-add(s)
-s = [(ri(0, 5 * 10**8), 0, 0, MAXC) for _ in range(MAXN)]               # wide strips, heavy overlaps
-s = [(x, ri(0, 4 * 10**8), x + ri(10**8, 5 * 10**8), 0) for (x, _, _, _) in s]
-s = [(a, b, c, b + ri(10**8, 6 * 10**8)) for (a, b, c, _) in s]
-add(s)
-s = [(i * 150_000, i * 150_000, MAXC - i * 150_000, MAXC - i * 150_000) for i in range(MAXN)]
-random.shuffle(s)
-add(s)                                                                   # nested: the answer is the outer one
-s = []
-for i in range(MAXN):                                                    # staircase of overlapping squares
-    x = i * 250_000
-    s.append((x, x, x + 2 * 10**8, x + 2 * 10**8))
-add(s)
-add([rnd_rect(0, 1000) for _ in range(MAXN)])                            # many equal coordinates
-add([rnd_rect(0, MAXC, 4 * 10**8) for _ in range(MAXN)])
-s = [(ri(0, MAXC - 1), ri(0, MAXC - 1)) for _ in range(MAXN)]           # tiny disjoint-ish squares
-add([(x, y, x + 1, y + 1) for (x, y) in s])
-add([big_rect() for _ in range(MAXN - 1)] + [(0, 0, MAXC, MAXC)])
-s = []                                                                   # wide and tall carpets crossing
-for i in range(MAXN):
-    a, b = ri(0, MAXC // 10), ri(9 * MAXC // 10, MAXC)
-    c = ri(0, MAXC // 2)
-    d = c + ri(MAXC // 3, MAXC // 2)
-    s.append((a, c, b, d) if i % 2 else (c, a, d, b))
-add(s)
-add([big_rect() for _ in range(MAXN // 2)] + [rnd_rect(0, MAXC) for _ in range(MAXN // 2)])
-# more maximum tests where marking every compressed cell is expensive
-s = [(i * 100_000 + ri(0, 50_000), i * 120_000 + ri(0, 50_000), 0, 0) for i in range(MAXN)]
-s = [(a, b, MAXC - (a // 2) - ri(0, 1000), MAXC - (b // 3) - ri(0, 1000)) for (a, b, _, _) in s]
-random.shuffle(s)
-add(s)                                                                   # nearly nested, every side distinct
-add([rnd_rect(0, MAXC, 6 * 10**8) for _ in range(MAXN)])
-s = []                                                                   # crossing bands, all edges distinct
-for i in range(MAXN):
-    a, b = ri(0, MAXC // 5), ri(4 * MAXC // 5, MAXC)
-    c = ri(0, 2 * MAXC // 5)
-    d = c + ri(MAXC // 2, 3 * MAXC // 5)
-    s.append((a, c, b, d) if i % 2 else (c, a, d, b))
-add(s)
-add([(ri(0, MAXC // 2), ri(0, MAXC // 2), ri(MAXC // 2 + 1, MAXC), ri(MAXC // 2 + 1, MAXC)) for _ in range(MAXN)])
+add([(3, 1), (1, 3), (2, 2)])
+add([(1, 1), (4, 10)])
+add([(10**9, 10**9)])
+add([(2, 1), (6, 3), (4, 2)])
+add([(5, 2), (3, 7), (8, 8), (1, 1), (6, 4), (2, 9)])
+add([(4, 1), (4, 5), (4, 3), (4, 2), (4, 4)])
+# hidden: small (checked exactly over all orders)
+add([(1, 2), (2, 1)])
+for n in (6, 10, 14, 18, 20):
+    add(rnd(n, 1, 20, 1, 20))
+add(rnd(20, 1, 10**7, 1, 10**7))
+add([(ri(1, 3), ri(1, 3)) for _ in range(20)])          # many equal ratios
+add([(400_000_000, 399_999_999), (400_000_001, 400_000_000), (199_999_999, 199_999_998)])  # ratios too close for double
+add(rnd(2000, 1, 1000, 1, 1000))
+# hidden: large
+N = MAXN
+add(rnd(N, 1, 5000, 1, 5000))
+add(rnd(N, 1, 9000, 1, 9000))
+add([(5000, 5000)] * N)                                 # the largest answer for equal jobs
+add([(5000, 1)] * (N // 2) + [(1, 5000)] * (N // 2))    # short and important at the end of the input
+add([((N - i) // 40 + 1, i // 40 + 1) for i in range(N)])  # the best order is the reverse of the input
+add(rnd(N, 1, 10, 1, 9000))
+add(rnd(N, 1, 9000, 1, 10))
+add(mixed(N, 1000, 100_000, 400_000, 2000))             # int overflow in t_a * w_b
+add(mixed(N, 1500, 200_000, 300_000, 1000))
+add(mixed(N, 2, 100_000_000, 400_000_000, 1000))
+jobs = [(ri(1, 4000), 0) for _ in range(N)]
+jobs = [(t, max(1, t + ri(-3, 3))) for t, _ in jobs]  # ratios all close to 1
+add(jobs)
+k = 499_000_000                                       # two huge jobs with almost equal ratios
+add([(k + 1, k), (k, k - 1)] + rnd(N - 2, 1, 4, 1, 4))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

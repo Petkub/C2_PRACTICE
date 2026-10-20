@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(11018)
-MAXN, MAXC = 100_000, 10**9
+random.seed(90118)
+MAXN, MAXM, MAXW = 5000, 150_000, 10**6
 tests = []
 
 
@@ -10,82 +10,138 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(rects):
-    n = len(rects)
-    assert 1 <= n <= MAXN
-    assert all(0 <= x1 < x2 <= MAXC and 0 <= y1 < y2 <= MAXC for x1, y1, x2, y2 in rects)
-    t = f"{n}\n" + "".join(f"{x1} {y1} {x2} {y2}\n" for x1, y1, x2, y2 in rects)
-    assert len(t) <= 3_300_000
-    tests.append(t)
+def add(n, edges, shuffle=True):
+    m = len(edges)
+    assert 2 <= n <= MAXN and n - 1 <= m <= MAXM
+    par = list(range(n + 1))                     # all roads together connect every city
+    comps = n
+    for u, v, w in edges:
+        assert 1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW
+        while par[u] != u:
+            par[u] = par[par[u]]
+            u = par[u]
+        while par[v] != v:
+            par[v] = par[par[v]]
+            v = par[v]
+        if u != v:
+            par[u] = v
+            comps -= 1
+    assert comps == 1
+    if shuffle:
+        edges = edges[:]
+        random.shuffle(edges)
+    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges))
 
 
-def rnd_rect(c, maxside):
-    x1, y1 = ri(0, c - 1), ri(0, c - 1)
-    return (x1, y1, min(c, x1 + ri(1, maxside)), min(c, y1 + ri(1, maxside)))
+def tree(n, kind):
+    """(parent, depth) of a tree on 1..n before relabelling"""
+    p, d = [0, 0], [0, 0]
+    for i in range(2, n + 1):
+        if kind == "path":
+            p.append(i - 1)
+        elif kind == "deep":
+            p.append(ri(max(1, i - 3), i - 1))
+        elif kind == "broom":                    # a long handle, then a star
+            p.append(i - 1 if i <= n // 2 else n // 2)
+        elif kind == "star":
+            p.append(1)
+        else:
+            p.append(ri(1, i - 1))
+        d.append(d[p[i]] + 1)
+    return p, d
 
 
-def big_square(c, margin):
-    """a rectangle that spans most of [0, c] in both directions"""
-    return (ri(0, margin), ri(0, margin), ri(c - margin, c), ri(c - margin, c))
+def layered(n, m, kind, g, dlo, dhi, far, ties=0):
+    """the road from a city to its parent costs g[depth] (g never decreasing), any other road between
+    x and y costs g[max depth] + delta with dlo <= delta <= dhi, so the tree is a cheapest network.
+    far: one end among the shallowest tenth of the cities, the other among the deepest tenth.
+    ties: extra short roads (2 to 5 levels up) that cost exactly as much as the dearest road they bypass"""
+    p, d = tree(n, kind)
+    lab = list(range(1, n + 1))
+    random.shuffle(lab)
+    lab = [0] + lab
+    edges = [(lab[i], lab[p[i]], g[d[i]]) for i in range(2, n + 1)]
+    order = sorted(range(1, n + 1), key=lambda v: d[v])
+    k = max(1, n // 10)
+    r = random.random
+    for _ in range(m - (n - 1) - ties):
+        if far:
+            x, y = order[int(r() * k)], order[n - 1 - int(r() * k)]
+            if x == y:
+                y = order[-1] if x != order[-1] else order[0]
+        else:
+            x = 1 + int(r() * n)
+            y = 1 + int(r() * (n - 1))
+            y += y >= x
+        edges.append((lab[x], lab[y], g[max(d[x], d[y])] + dlo + int(r() * (dhi - dlo + 1))))
+    deep = [v for v in range(1, n + 1) if d[v] >= 2]
+    for _ in range(ties):
+        y = random.choice(deep)
+        x = p[p[y]]
+        for _ in range(ri(0, 3)):
+            if p[x]:
+                x = p[x]
+        edges.append((lab[x], lab[y], g[d[y]]))
+    if n < 1000:
+        random.shuffle(edges)
+    return edges
 
 
-def tall(c, width, margin):
-    x1 = ri(0, c - width)
-    return (x1, ri(0, margin), x1 + ri(1, width), ri(c - margin, c))
+def steps(n, lo, every):
+    """never decreasing costs by depth: +1 after every 'every' levels"""
+    return [lo + dd // every for dd in range(n + 1)]
 
 
-def wide(c, height, margin):
-    y1 = ri(0, c - height)
-    return (ri(0, margin), y1, ri(c - margin, c), y1 + ri(1, height))
+def rnd_graph(n, m, wlo, whi):
+    p, d = tree(n, "rnd")
+    edges = [(i, p[i], ri(wlo, whi)) for i in range(2, n + 1)]
+    while len(edges) < m:
+        x = ri(1, n)
+        y = ri(1, n - 1)
+        edges.append((x, y + (y >= x), ri(wlo, whi)))
+    lab = list(range(1, n + 1))
+    random.shuffle(lab)
+    return [(lab[u - 1], lab[v - 1], w) for u, v, w in edges]
 
 
 # samples
-add([(1, 1, 5, 4), (3, 2, 7, 6)])
-add([(0, 0, 4, 4), (1, 1, 3, 3), (4, 0, 6, 2)])
-add([(0, 0, MAXC, MAXC)])
-add([(0, 0, 2, 2), (0, 0, 2, 2), (0, 0, 2, 2)])
-add([(0, 1, 6, 2), (2, 0, 3, 5), (1, 0, 4, 3), (5, 0, 6, 6)])
-# hidden: small
-add([(0, 0, 1, 1), (1, 0, 2, 1), (0, 1, 1, 2), (1, 1, 2, 2)])          # touching only
-add([rnd_rect(10, 5) for _ in range(8)])
-add([rnd_rect(30, 12) for _ in range(40)])
-add([rnd_rect(MAXC, MAXC) for _ in range(300)])
-add([rnd_rect(10**6, 10**5) for _ in range(1500)])
-add([(i, i, 2000 - i, 2000 - i) for i in range(1000)])                  # nested
-add([tall(10**5, 100, 10**4) if i % 2 else wide(10**5, 100, 10**4) for i in range(1500)])
+add(4, [(1, 2, 1), (2, 3, 2), (3, 4, 3), (1, 3, 2), (2, 4, 5)], False)
+add(3, [(1, 2, 4), (2, 3, 4), (1, 3, 4)], False)
+add(4, [(1, 2, 7), (1, 3, 1), (1, 4, 1000000)], False)
+add(3, [(1, 2, 2), (1, 2, 3), (2, 3, 2), (3, 1, 3)], False)
+add(5, [(1, 2, 3), (2, 3, 3), (3, 4, 5), (4, 5, 5), (5, 1, 5), (2, 4, 6), (1, 3, 3)], False)
+# hidden: small (every set of roads is tried)
+add(2, [(1, 2, 1)])
+add(2, [(1, 2, 5), (2, 1, 5), (1, 2, 6)])
+for n, m, wmax in ((4, 8, 2), (5, 10, 3), (6, 12, 1), (6, 14, 3), (7, 16, 4), (8, 18, 10)):
+    add(n, rnd_graph(n, m, 1, wmax))
+add(8, layered(8, 18, "path", [5] * 4 + [6] * 5, 0, 0, False))
+add(9, layered(9, 18, "rnd", steps(9, 1, 1), 0, 1, False))
+add(9, layered(9, 18, "path", steps(9, 1, 1), 2, 3, True, 3))
+# hidden: medium
+add(200, rnd_graph(200, 2000, 1, 3))
+add(500, layered(500, 5000, "deep", steps(500, 1, 40), 0, 1, True))
+add(600, layered(600, 6000, "path", steps(600, 1, 1), 2, 4, True, 20))
+add(1000, rnd_graph(1000, 20000, 1, MAXW))
 # hidden: maximum size
-N, C = MAXN, 999_999
-add([big_square(C, 10**5) for _ in range(N)])
-add([tall(C, 3000, 10**5) if i % 2 else wide(C, 3000, 10**5) for i in range(N)])
-add([rnd_rect(C, 10**5) for _ in range(N)])
-add([(i * 4 + ri(0, 3), i * 4 + ri(0, 3), C - i * 4 - ri(0, 3), C - i * 4 - ri(0, 3)) for i in range(N)])  # nested
-add([(0, 0, MAXC, MAXC)] * 65_000)                                       # the largest areas
-add([big_square(MAXC, 10**8) for _ in range(65_000)])
-tiles = []                                                              # a grid of tiles touching at the edges
-for i in range(316):
-    for j in range(316):
-        tiles.append((i * 3163, j * 3163, (i + 1) * 3163, (j + 1) * 3163))
-random.shuffle(tiles)
-add(tiles)
-add([tall(C, 20, 4 * 10**5) for _ in range(N)])                         # thin strips, many overlap
-xs = sorted(random.sample(range(C + 1), 40))
-rects = []
-for _ in range(N):                                                      # many posters start/end at the same x
-    a, b = sorted(random.sample(xs, 2))
-    y1 = ri(0, 2 * 10**5)
-    rects.append((a, y1, b, ri(8 * 10**5, C)))
-add(rects)
-rects = []
-for i in range(N):                                                      # a staircase: each overlaps the next
-    s = i * 9
-    rects.append((s, s // 2, s + 1 + ri(0, 2 * 10**5), min(C, s // 2 + 1 + ri(4 * 10**5, 6 * 10**5))))
-add(rects)
-add([big_square(C, 4 * 10**5) if i % 10 == 0 else rnd_rect(C, 2000) for i in range(N)])
-rects = []
-for i in range(N // 2):                                                 # crossing pairs: double cover only where they cross
-    rects.append(tall(C, 5, 2 * 10**5))
-    rects.append(wide(C, 5, 2 * 10**5))
-add(rects)
+N, M = MAXN, MAXM
+add(N, layered(N, M, "path", steps(N, 1, 1), 2, 5, True, 10), False)          # long cycles everywhere
+add(N, layered(N, M, "path", steps(N, MAXW - 3000, 2), 1, 3, True, 10), False)
+add(N, layered(N, M, "deep", steps(N, 1, 1), 2, 2, True, 10), False)
+add(N, layered(N, M, "broom", steps(N, 1000, 1), 3, 9, True, 5), False)
+add(N, layered(N, M, "path", steps(N, 1, 3), 1, 1, True, 3), False)
+add(N, layered(N, M, "path", steps(N, 1, 1), 2, 2, True, 0), False)          # equal swaps are not there
+add(N, layered(N, M, "path", [MAXW] * (N + 1), 0, 0, True), False)          # every network costs the same
+add(N, layered(N, M, "path", [7] * (N // 2) + [8] * (N - N // 2 + 1), 0, 0, True), False)
+add(N, layered(N, M, "deep", steps(N, 1, 100), 0, 0, True), False)
+add(N, layered(N, M, "rnd", steps(N, 1, 1), 0, 1, False), False)
+add(N, layered(N, M, "broom", steps(N, 1, 2), 1, 4, True, 10), False)
+add(N, layered(N, M, "deep", steps(N, MAXW - N, 1), 2, 3, True, 10), False)
+add(N, layered(N, M, "star", [MAXW - 1] * (N + 1), 0, 1, False), False)
+add(N, rnd_graph(N, M, 1, MAXW), False)
+add(N, rnd_graph(N, M, 1, 2), False)
+add(N, rnd_graph(N, N - 1, 1, MAXW), False)                                  # only one network
+add(N, layered(N, M, "path", steps(N, MAXW - N - 5, 1), 2, 5, True, 10), False)  # largest costs
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

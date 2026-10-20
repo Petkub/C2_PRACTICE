@@ -1,130 +1,97 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100116)
-MAXN, MAXQ, MAXW = 80_000, 80_000, 10**6
+random.seed(80160)
+MAXN = 500
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(n, res):
+    m = len(res)
+    assert 1 <= n <= MAXN and 0 <= m <= n * (n - 1) // 2
+    assert all(1 <= a <= n and 1 <= b <= n and a != b for a, b in res)
+    assert len({(min(a, b), max(a, b)) for a, b in res}) == m       # every pair plays at most once
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in res))
 
 
-def shape(n, kind):
-    """parent of point i (2..n) is par[i] < i, in creation order"""
-    par = [0, 0]
-    for i in range(2, n + 1):
-        if kind == "random":
-            p = ri(1, i - 1)
-        elif kind == "path":
-            p = i - 1
-        elif kind == "star":
-            p = 1
-        elif kind == "deep":                       # long random branches
-            p = ri(max(1, i - 4), i - 1)
-        elif kind == "binary":
-            p = i // 2
-        elif kind == "cater":                      # spine 1..n/2, the rest are legs
-            p = i - 1 if i <= n // 2 else ri(1, n // 2)
-        elif kind == "spider":                     # a few long legs from point 1
-            p = 1 if i <= 4 else i - 3
-        else:
-            raise ValueError(kind)
-        par.append(p)
-    return par
+def from_order(order, pairs):
+    """results of the given pairs (positions in order) when order[0] is the best player"""
+    return [(order[i], order[j]) if i < j else (order[j], order[i]) for i, j in pairs]
 
 
-def add(n, edges, qs):
-    q = len(qs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ and len(edges) == n - 1
-    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in edges)
-    assert all(1 <= x <= n for t in qs for x in t)
-    root = list(range(n + 1))
-
-    def find(x):
-        while root[x] != x:
-            root[x] = root[root[x]]
-            x = root[x]
-        return x
-    for u, v, w in edges:
-        a, b = find(u), find(v)
-        assert a != b
-        root[a] = b
-    tests.append(f"{n} {q}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges)
-                 + "".join(f"{a} {b} {c}\n" for a, b, c in qs))
+def rnd_dag(n, m, spread=None):
+    """m results consistent with a random hidden order; spread limits how far apart the two players are"""
+    order = list(range(1, n + 1))
+    random.shuffle(order)
+    chosen = set()
+    while len(chosen) < m:
+        i = random.randrange(n)
+        j = random.randrange(n) if spread is None else i + random.randint(1, spread)
+        if j < n and i != j:
+            chosen.add((min(i, j), max(i, j)))
+    res = from_order(order, sorted(chosen))
+    random.shuffle(res)
+    return res
 
 
-def build(n, kind, wgen, q, qgen):
-    """qgen(lab, n) returns one query (labels already shuffled)"""
-    par = shape(n, kind)
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    lab = [0] + lab
-    edges = []
-    for i in range(2, n + 1):
-        u, v = lab[i], lab[par[i]]
-        if random.random() < 0.5:
-            u, v = v, u
-        edges.append((u, v, wgen()))
-    random.shuffle(edges)
-    add(n, edges, [qgen(lab, n) for _ in range(q)])
+def all_pairs(n):
+    return [(i, j) for i in range(n) for j in range(i + 1, n)]
 
 
-def anyq(lab, n):
-    return (ri(1, n), ri(1, n), ri(1, n))
-
-
-def tail(frac):
-    """three points created late (deep in path-like shapes)"""
-    def g(lab, n):
-        lo = max(1, int(n * (1 - frac)))
-        return (lab[ri(lo, n)], lab[ri(lo, n)], lab[ri(lo, n)])
-    return g
-
-
-def repeat(lab, n):
-    a, b = ri(1, n), ri(1, n)
-    return random.choice([(a, a, a), (a, a, b), (a, b, a), (b, a, a), (a, b, b)])
-
-
-def mixq(lab, n):
-    r = random.random()
-    if r < 0.1:
-        return repeat(lab, n)
-    if r < 0.5:
-        return tail(0.3)(lab, n)
-    return anyq(lab, n)
+def flip(res, k):
+    """reverse k random results (usually creates a contradiction)"""
+    res = res[:]
+    for i in random.sample(range(len(res)), k):
+        res[i] = (res[i][1], res[i][0])
+    return res
 
 
 # samples
-add(7, [(1, 2, 2), (2, 3, 1), (2, 4, 5), (1, 5, 3), (5, 6, 4), (5, 7, 2)],
-    [(3, 4, 6), (6, 7, 1), (3, 3, 4)])
-add(4, [(1, 2, 10), (2, 3, 20), (3, 4, 30)], [(1, 4, 2), (4, 4, 4), (1, 3, 4)])
-add(1, [], [(1, 1, 1)])
-add(4, [(4, 1, 7), (4, 2, 1), (4, 3, 8)], [(1, 2, 3), (2, 2, 1)])
-add(3, [(1, 2, 1000000), (2, 3, 1000000)], [(1, 3, 3), (3, 1, 1)])
-# hidden: small
-add(2, [(1, 2, 3)], [(1, 1, 2), (2, 2, 1), (1, 2, 2), (2, 1, 1), (1, 1, 1), (2, 2, 2)])
-build(10, "random", lambda: ri(1, 10), 50, mixq)
-build(40, "path", lambda: ri(1, 100), 100, mixq)
-build(300, "random", lambda: ri(1, MAXW), 300, mixq)
-build(1000, "cater", lambda: ri(1, MAXW), 1000, mixq)
-build(2000, "spider", lambda: ri(1, 20), 1000, mixq)
-build(3000, "binary", lambda: ri(1, MAXW), 2000, mixq)
-# hidden: maximum size
-N, Q = MAXN, MAXQ
-build(N, "path", lambda: MAXW, Q, anyq)                 # the largest totals
-build(N, "path", lambda: ri(1, MAXW), Q, mixq)
-build(N, "random", lambda: ri(1, MAXW), Q, anyq)
-build(N, "random", lambda: ri(1, MAXW), Q, repeat)
-build(N, "star", lambda: ri(1, MAXW), Q, anyq)
-build(N, "cater", lambda: ri(1, MAXW), Q, mixq)
-build(N, "deep", lambda: ri(1, MAXW), Q, tail(0.5))
-build(N, "deep", lambda: MAXW, Q, mixq)
-build(N, "binary", lambda: ri(1, MAXW), Q, anyq)
-build(N, "spider", lambda: ri(1, MAXW), Q, tail(0.2))
-build(N, "spider", lambda: ri(1, MAXW), Q, anyq)
-build(N, "cater", lambda: MAXW, Q, tail(0.6))
+add(4, [(1, 2), (2, 3), (1, 4)])
+add(3, [(1, 2), (2, 3), (3, 1)])
+add(3, [])
+add(5, [(2, 4), (4, 1), (1, 5), (5, 3), (2, 5), (4, 3)])
+add(6, [(3, 1), (3, 2), (1, 4), (2, 4), (4, 5), (6, 5)])
+# hidden: small (every order is tried)
+add(1, [])
+add(2, [(2, 1)])
+add(8, rnd_dag(8, 9))
+add(8, flip(rnd_dag(8, 12), 1))
+add(7, rnd_dag(7, 5))
+add(8, [(1, 5), (5, 2), (2, 7), (7, 1), (3, 4), (4, 6), (8, 3)])         # a cycle of four
+add(8, [(1, 2), (3, 4), (5, 6), (7, 8), (2, 3), (6, 7)])
+# hidden: medium
+add(60, rnd_dag(60, 300))
+add(100, rnd_dag(100, 250, spread=3))
+# hidden: largest
+N = MAXN
+order = list(range(1, N + 1))
+random.shuffle(order)
+res = from_order(order, all_pairs(N))
+random.shuffle(res)
+add(N, res)                                                      # complete: every rank known
+res2 = [r for r in res if not (r == (order[200], order[201]) or r == (order[201], order[200]))]
+add(N, res2)                                                     # one missing result: two players swap
+res3 = [(b, a) if (a, b) == (order[10], order[300]) else (a, b) for a, b in res]
+add(N, res3)                                                     # one wrong result: a cycle of three
+chain = from_order(order, [(i, i + 1) for i in range(N - 1)])
+random.shuffle(chain)
+add(N, chain)                                                    # only neighbours: still all known
+add(N, rnd_dag(N, 20000))
+add(N, rnd_dag(N, 1700, spread=4))
+add(N, from_order(order, random.sample(all_pairs(N), 100000)))
+add(N, flip(chain, 1))                                           # one reversed result in a chain: no longer a chain
+long_cycle = [(order[i], order[(i + 1) % N]) for i in range(N)]
+add(N, long_cycle)
+add(N, flip(rnd_dag(N, 15000, spread=40), 1))                                                      # one reversed result among many
+add(N, [])
+add(N, [(1, b) for b in range(2, N + 1)])                        # player 1 beats everybody
+half = [(a, b) for a in range(1, 251) for b in range(251, N + 1)]
+random.shuffle(half)
+add(N, half[:N * (N - 1) // 2])                                  # two groups, every rank in a range of 250
+two = from_order(order, [(i, i + 2) for i in range(N - 2)])
+add(N, two)                                                      # two interleaved chains
+add(N, from_order(order, random.sample(all_pairs(N), 124000)))   # almost complete
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

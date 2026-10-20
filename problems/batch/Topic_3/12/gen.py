@@ -1,73 +1,68 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30112)
-MAXN = 100_000
-MAXL = 1_000_000
+random.seed(20212)
+MAXN, MAXA = 200_000, 10**9
 tests = []
 
 
-def add(strs):
-    n = len(strs)
-    assert 1 <= n <= MAXN
-    assert all(len(t) >= 1 and set(t) <= {"s", "h"} for t in strs)
-    assert sum(len(t) for t in strs) <= MAXL
-    tests.append(f"{n}\n" + "".join(t + "\n" for t in strs))
+def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def word(length, ps):
-    """random string of s/h where each letter is s with probability ps"""
-    return "".join("s" if random.random() < ps else "h" for _ in range(length))
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
-def rnd(n, lmax, total=None):
-    """n strings, each with its own share of s; lengths 1..lmax (scaled to fit total)"""
-    lens = [random.randint(1, lmax) for _ in range(n)]
-    if total is not None and sum(lens) > total:
-        f = total / sum(lens)
-        lens = [max(1, int(x * f)) for x in lens]
-    return [word(L, random.random()) for L in lens]
+def add(L, a):
+    n = len(a)
+    assert 1 <= L <= n <= MAXN
+    assert all(-MAXA <= x <= MAXA for x in a)
+    tests.append(f"{n} {L}\n" + " ".join(map(str, a)) + "\n")
+
+
+def bumpy(n, period):
+    """long-range waves: the best stretch is long and not of length exactly L"""
+    return [ri(-MAXA, MAXA) // 4 + (MAXA // 2 if (i // period) % 3 == 0 else -MAXA // 2) for i in range(n)]
 
 
 # samples
-add(["h", "ssh", "hhs"])
-add(["hhh", "s"])
-add(["shh", "h", "ss"])
-add(["hs", "hs", "sh", "s"])
-add(["hhss"])
-add(["shs", "hhh", "sssh", "hsh", "s", "hhsh"])
-# hidden: small (every order is tried)
-add(["s"])
-add(["h", "s"])
-for n in (5, 8, 10, 12, 14, 16, 16):
-    add(rnd(n, 8))
-add(["s" * 3 + "h", "s" * 6 + "h" * 2, "sh", "ssh", "hs", "h" * 3, "s" * 9 + "h" * 3, "hhhs"])   # equal ratios
-add(rnd(16, 2000))
-add(rnd(2000, 10))
-# hidden: large
-add(rnd(MAXN, 19, MAXL))                                         # many short strings
-add(rnd(MAXN, 10, MAXL))
-add([word(10, 0.5) for _ in range(MAXN)])
-add([word(MAXL // 20, random.random()) for _ in range(20)])      # long strings: s_a * h_b beyond 32 bits
-add([word(MAXL // 4, p) for p in (0.3, 0.7, 0.45, 0.55)])
-strs = []                                                        # many s or many h, not the best ratio
-for _ in range(MAXN // 2):
-    strs.append("s" * random.randint(5, 10) + "h" * random.randint(5, 10))
-    strs.append("s" * random.randint(1, 2) + "h" * random.randint(0, 1))
-add(strs)
-add(["h" * 5 + "s" * 5] * MAXN)                                  # all the same
-add(["s"] * (MAXN // 2) + ["h"] * (MAXN // 2))                   # all s first is the answer
-add(["h"] * (MAXN // 2) + ["s" * 18] * (MAXN // 2))              # the largest answer
-strs = [word(random.randint(1, 3), random.random()) for _ in range(MAXN - 8)]
-strs += [word(90000, random.random()) for _ in range(8)]
-random.shuffle(strs)
-add(strs)
-add(rnd(MAXN, 19, MAXL))
-strs = []
-for _ in range(MAXN):                                            # ratios very close to each other
-    k = random.randint(4, 5)
-    strs.append(word(2 * k + random.randint(-1, 1), 0.5))
-add(strs)
+add(2, [3, -1, 4, 1, 5])
+add(3, [-1, -2, -2])
+add(1, [2, 7, -3, 7])
+add(1, [-MAXA])
+add(2, [10, 0, 10])
+add(3, [-4, 6, -2, 5, 5, -9, 3])
+# hidden: small
+add(1, [MAXA])
+add(2, [-1, 0])                                # average -0.5: answer -1
+add(4, [-7, -7, -7, -7, -7])
+add(3, rnd(10, -10, 10))
+add(5, rnd(40, -100, 100))
+add(17, rnd(100, -MAXA, MAXA))
+add(60, rnd(300, -1000, 1000))
+add(100, [MAXA, -MAXA] * 100)
+add(250, rnd(800, -MAXA, -MAXA + 1000))        # all very negative
+add(1, rnd(500, -5, 5))
+# hidden: maximum size
+N = MAXN
+add(N // 2, rnd(N, -MAXA, MAXA))
+add(N // 3, rnd(N, -MAXA, MAXA))
+add(N // 10, bumpy(N, 30_000))
+add(15_000, bumpy(N, 6000))
+add(N // 8, bumpy(N, 10_000))
+add(N // 4, [MAXA] * N)
+add(N // 2 + 1, [-MAXA] * N)
+add(N, rnd(N, -MAXA, MAXA))                     # only the whole array
+add(N // 5, rnd(N, -3, 2))                      # many equal averages around 0
+add(N // 2, sorted(rnd(N, -MAXA, MAXA)))        # best stretch at the end
+add(N // 3, sorted(rnd(N, -MAXA, MAXA), reverse=True))
+a = rnd(N, -MAXA, -MAXA // 2)
+add(N // 6, a)                                  # every average negative
+add(7, rnd(N, -MAXA, MAXA))
+a = [ri(-10, 10) for _ in range(N)]
+add(N // 2 - 1, a)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

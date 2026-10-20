@@ -1,63 +1,64 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20208)
-MAXN, MAXP = 200_000, 10**9
+random.seed(10108)
+MAXN = 1_000_000
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def add(s):
+    n = len(s)
+    assert 1 <= n <= MAXN
+    assert set(s) <= {"0", "1"}
+    tests.append(f"{n}\n{s}\n")
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def rnd(n, p):
+    return "".join("1" if random.random() < p else "0" for _ in range(n))
 
 
-def add(k, p):
-    n = len(p)
-    assert 1 <= k <= n <= MAXN
-    assert all(1 <= x <= MAXP for x in p)
-    tests.append(f"{n} {k}\n" + " ".join(map(str, p)) + "\n")
+def rotate(s, k):
+    return s[k:] + s[:k]
 
 
 # samples
-add(2, [3, 1, 4, 1, 5])
-add(4, [2, 2, 2, 2, 2])
-add(6, [5, 1, 1, 3, 2, 5])
-add(1, [MAXP])
-add(1, [7, 7, 7, 7])
-add(3, [6, 2, 9, 4, 1, 8, 3])
-# hidden: small
-add(2, [1, 1])
-add(3, [10, 1, 1, 1, 1, 1, 1, 1, 1])          # one long chapter decides W, fewer days than K
-add(4, rnd(12, 1, 20))
-add(5, rnd(40, 1, 1000))
-add(7, [MAXP] * 30)
-add(13, rnd(80, 1, MAXP))
-add(40, rnd(150, 1, 10))
-add(60, rnd(120, 1, 3))                      # W is a small number, many equal splits
-# hidden: maximum size (the answer is far above max p_i and N K is huge)
-N = MAXN
-add(2, rnd(N, 1, MAXP))
-add(3, [MAXP] * N)                            # W about 6.7 * 10^13
-add(17, rnd(N, 1, MAXP))
-add(1000, rnd(N, 1, MAXP))
-add(N // 2, rnd(N, 1, MAXP))
-add(N // 3, rnd(N, 1, MAXP))
-add(N // 2 + 1, sorted(rnd(N, 1, MAXP)))
-add(N // 10, sorted(rnd(N, 1, MAXP), reverse=True))
-add(N - 1, rnd(N, 1, MAXP))
-p = rnd(N, 1, 1000)
-p[N // 2] = MAXP                              # one huge chapter, the rest tiny
-add(5000, p)
-add(N // 4, rnd(N, 999_000_000, MAXP))
-add(N, rnd(N, 1, MAXP))
-add(1, rnd(N, 1, MAXP))
+add("1001010")
+add("10101010")
+add("00000")
+add("110011")
+add("1")
+add("0110100110")
+# hidden (small)
+add("0")
+add("1111111")
+add("1000000001")
+add("0110110110110")
+for n in (8, 11, 13, 14):
+    add(rnd(n, 0.5))
+add(rnd(200, 0.4))
+add(rnd(3000, 0.6))
+add(rotate("1" * 6000 + "0" * 4000 + rnd(8000, 0.5), 9000))
+# large
+add(rnd(MAXN, 0.5))
+add(rnd(MAXN, 0.3))
+add(rnd(MAXN, 0.8))
+add("10" * (MAXN // 2))
+add("1" * MAXN)
+add("0" * MAXN)
+add(rotate("1" * 400_000 + "0" * 600_000, 750_000))           # already together across the end
+add(rotate("1" * 500_000 + "0" * 499_999 + "1", 123_456))       # one friend far away
+add("0" * (MAXN - 1) + "1")
+add("1" * (MAXN - 1) + "0")
+s = list("1" * 300_000 + "0" * 700_000)
+for i in random.sample(range(MAXN), 2000):
+    s[i] = "0" if s[i] == "1" else "1"
+add(rotate("".join(s), 654_321))
+add("100" * (MAXN // 3) + "1")
+add(rnd(MAXN - 7, 0.5))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("total bytes", sum(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

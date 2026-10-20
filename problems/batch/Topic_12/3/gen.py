@@ -1,118 +1,122 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(120303)
-MAXQ, MAXR = 10 ** 5, 10 ** 9
+random.seed(100303)
+MAXN, MAXW = 100_000, 10**9
 tests = []
 
 
+_rnd = random.random
+
+
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+    return lo + int(_rnd() * (hi - lo + 1))
 
 
-def add(qs):
-    assert 1 <= len(qs) <= MAXQ
-    assert all(1 <= l <= r <= MAXR for l, r in qs)
-    tests.append(f"{len(qs)}\n" + "".join(f"{l} {r}\n" for l, r in qs))
+def shuf(a):
+    for i in range(len(a) - 1, 0, -1):
+        j = int(_rnd() * (i + 1))                                # = ri(0, i)
+        a[i], a[j] = a[j], a[i]
 
 
-def is_prime(n):
-    """Miller-Rabin, exact for n < 3 * 10^9 with these bases"""
-    if n < 2:
-        return False
-    for p in (2, 3, 5, 7):
-        if n % p == 0:
-            return n == p
-    d, s = n - 1, 0
-    while d % 2 == 0:
-        d, s = d // 2, s + 1
-    for a in (2, 3, 5, 7):
-        x = pow(a, d, n)
-        if x in (1, n - 1):
-            continue
-        for _ in range(s - 1):
-            x = x * x % n
-            if x == n - 1:
-                break
+def shape(n, kind):
+    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is the root"""
+    par = [-1] * n
+    h = max(1, n // 2)
+    for i in range(1, n):
+        if kind == "random":
+            par[i] = int(_rnd() * i)                            # = ri(0, i - 1)
+        elif kind == "path":
+            par[i] = i - 1
+        elif kind == "star":
+            par[i] = 0
+        elif kind == "deep":                    # depth about n / 2, a few short side branches
+            par[i] = ri(max(0, i - 3), i - 1)
+        elif kind == "binary":
+            par[i] = (i - 1) // 2
+        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
+            par[i] = i - 1 if i <= h else h
+        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
+            par[i] = i - 1 if i < h else ri(0, h - 1)
+        elif kind == "twopaths":                # two long chains below the root
+            par[i] = 0 if i <= 2 else i - 2
         else:
-            return False
-    return True
+            raise ValueError(kind)
+    return par
 
 
-pal = []
-for length in range(1, 10):
-    h = (length + 1) // 2
-    for half in range(10 ** (h - 1), 10 ** h):
-        t = str(half)
-        pal.append(int(t + t[::-1][length % 2:]))
-pal.sort()
-palprime = [x for x in pal if (len(str(x)) % 2 == 1 or x == 11) and is_prime(x)]
+def labels(n, root=None):
+    """a random numbering 1..n of the nodes 0..n-1; node 0 gets the number root if given"""
+    lab = list(range(1, n + 1))
+    shuf(lab)
+    if root is not None:
+        j = lab.index(root)
+        lab[0], lab[j] = lab[j], lab[0]
+    return lab
 
 
-def q_uniform():
-    l, r = ri(1, MAXR), ri(1, MAXR)
-    return (min(l, r), max(l, r))
+def add(edges):
+    n = len(edges) + 1
+    assert 2 <= n <= MAXN
+    assert all(1 <= a <= n and 1 <= b <= n and a != b and 1 <= w <= MAXW for a, b, w in edges)
+    adj = [[] for _ in range(n + 1)]                            # n - 1 edges connecting everything: a tree
+    for e in edges:
+        adj[e[0]].append(e[1])
+        adj[e[1]].append(e[0])
+    seen, order = [False] * (n + 1), [1]
+    seen[1] = True
+    for v in order:
+        for u in adj[v]:
+            if not seen[u]:
+                seen[u] = True
+                order.append(u)
+    assert len(order) == n
+    t = f"{n}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in edges)
+    assert len(t) <= 3_000_000
+    tests.append(t)
 
 
-def q_log():
-    l, r = int(10 ** (random.random() * 9)), int(10 ** (random.random() * 9))
-    l, r = max(1, min(l, MAXR)), max(1, min(r, MAXR))
-    return (min(l, r), max(l, r))
+def tree(n, kind, wfun):
+    """wfun(i, par) gives the weight of the edge from node i to its parent"""
+    par, lab = shape(n, kind), labels(n)
+    edges = []
+    for i in range(1, n):
+        a, b = lab[par[i]], lab[i]
+        if ri(0, 1):
+            a, b = b, a
+        edges.append((a, b, wfun(i, par)))
+    shuf(edges)
+    add(edges)
 
 
-def q_point():
-    x = random.choice(palprime) + random.choice((0, 0, 0, -1, 1))
-    if random.random() < 0.3:
-        x = random.choice(pal)
-    x = max(1, min(x, MAXR))
-    return (x, x)
-
-
-def q_near():
-    """both ends on or next to palindromic primes"""
-    i, j = sorted((ri(0, len(palprime) - 1), ri(0, len(palprime) - 1)))
-    l = palprime[i] + random.choice((0, 1))
-    r = palprime[j] - random.choice((0, 1))
-    if l > r:
-        l, r = r, l
-    return (max(1, l), min(r, MAXR))
-
-
-def q_full():
-    return (ri(1, 20), MAXR - ri(0, 30))
-
-
-def mix(q, kinds):
-    return [random.choice(kinds)() for _ in range(q)]
-
+rnd = lambda lo, hi: (lambda i, par: ri(lo, hi))
 
 # samples
-add([(1, 20), (100, 160)])
-add([(1, 1), (11, 11), (200, 300)])
-add([(12345, 678901), (999000000, 1000000000)])
-add([(2, 2), (3, 5), (12, 100), (99999, 1000000)])
-add([(10301, 10301), (10302, 10500), (98689, 98689)])
-# hidden: small and medium (the brute force checks these)
-add([(1, 1)])
-add([(MAXR, MAXR), (999999999, MAXR), (999727999, MAXR), (999727998, 999727999)])
-add([(10 ** 7, 10 ** 8 - 1), (10 ** 5, 10 ** 6 - 1), (1000, 10 ** 4 - 1), (10, 99), (10 ** 8, MAXR)])
-add([(1, 10 ** k) for k in range(10)] + [(10 ** k, MAXR) for k in range(10)])
-add(mix(2000, (q_uniform, q_log, q_point, q_near, q_full)))
-add(mix(12000, (q_uniform, q_log)))
-add(mix(12000, (q_point, q_near)))
-add(mix(12000, (q_full,)))
-# hidden: large
-add(mix(MAXQ, (q_full,)))
-add([(1, MAXR)] * MAXQ)
-add(mix(MAXQ, (q_uniform,)))
-add(mix(MAXQ, (q_log,)))
-add(mix(MAXQ, (q_point,)))
-add(mix(MAXQ, (q_near,)))
-add(mix(MAXQ, (q_uniform, q_log, q_point, q_near, q_full)))
-add([(ri(1, 10 ** 8), ri(9 * 10 ** 8, MAXR)) for _ in range(MAXQ)])
-add([(ri(10 ** 8, 2 * 10 ** 8), ri(8 * 10 ** 8, MAXR)) for _ in range(MAXQ)])
-add(mix(MAXQ, (q_near, q_full)))
+add([(1, 2, 3), (2, 3, 4), (2, 4, 2), (4, 5, 6)])
+add([(1, 2, 1), (2, 3, 1), (3, 4, 1), (5, 2, 9)])
+add([(2, 1, MAXW)])
+add([(1, 2, MAXW), (3, 2, MAXW), (3, 4, MAXW)])
+add([(4, 7, 5), (1, 4, 2), (7, 3, 8), (6, 1, 3), (2, 4, 7), (8, 1, 4), (5, 6, 6)])
+# hidden: small
+add([(1, 2, 1)])
+add([(1, 2, 5), (1, 3, 5), (1, 4, 5)])
+for n, kind, f in ((6, "random", rnd(1, 10)), (9, "binary", rnd(1, 10)), (12, "random", rnd(1, 100)),
+                   (20, "cater", rnd(1, 5)), (60, "deep", rnd(1, MAXW)), (300, "random", rnd(1, 1000)),
+                   (2000, "broom", rnd(1, MAXW)), (5000, "random", rnd(1, MAXW))):
+    tree(n, kind, f)
+# hidden: maximum size
+N = MAXN
+tree(N, "path", lambda i, par: MAXW)                             # answer (N - 1) * 10^9
+tree(N, "path", rnd(1, MAXW))
+tree(N, "star", rnd(1, MAXW))
+tree(N, "random", rnd(1, MAXW))
+tree(N, "deep", rnd(1, MAXW))
+# a long light spine and heavy leaves: the longest trail joins two leaves, not the spine ends
+tree(N, "cater", lambda i, par: 1 if i < N // 2 else ri(MAXW // 2, MAXW))
+# a broom: the handle is light, the bristles heavy
+tree(N, "broom", lambda i, par: ri(1, 100) if i <= N // 2 else ri(1, MAXW))
+tree(N, "twopaths", rnd(MAXW - 10, MAXW))
+tree(N, "binary", rnd(1, MAXW))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

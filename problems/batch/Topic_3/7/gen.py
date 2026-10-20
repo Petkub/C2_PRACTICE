@@ -1,8 +1,10 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(3007)
-MAXN, MAXV = 100_000, 10**9
+random.seed(20207)
+MAXN = 200_000
+MAXA = 10**9
+MAXK = 10**9
 tests = []
 
 
@@ -11,57 +13,73 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, b):
-    m = len(a)
-    assert m == len(b) and m % 2 == 0 and 1 <= m // 2 <= MAXN
-    assert all(1 <= x <= MAXV for x in a + b)
-    tests.append(f"{m // 2}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, b)) + "\n")
+def add(a, ks):
+    n, q = len(a), len(ks)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXN
+    assert 1 <= a[0] and a[-1] <= MAXA
+    assert all(a[i] < a[i + 1] for i in range(n - 1))
+    assert all(1 <= k <= MAXK for k in ks)
+    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, ks)) + "\n")
 
 
-def rnd(m, lo, hi):
-    return [ri(lo, hi) for _ in range(m)]
+def spread(n, hi):
+    """n distinct sorted numbers in [1, hi]"""
+    return sorted(random.sample(range(1, hi + 1), n))
+
+
+def edge_ks(a, q):
+    """k equal to the count of unsold numbers before some a_i, or one more"""
+    res = []
+    for _ in range(q):
+        i = ri(0, len(a) - 1)
+        k = a[i] - (i + 1) + ri(0, 1)
+        res.append(max(1, min(MAXK, k)))
+    return res
 
 
 # samples
-add([15, 40, 300, 25], [30, 180, 60, 20])
-add([1, 2, 3, 4], [10, 10, 10, 10])
-add([5, 7], [6, 3])
-add([7] * 6, [7] * 6)
-add([4, 9, 2, 8, 5, 6], [3, 5, 7, 1, 9, 6])
-add([MAXV, MAXV], [MAXV, MAXV])
+add([2, 3, 7], [1, 2, 3, 4, 5])
+add([1, 2, 3], [1, MAXK])
+add([5], [4, 5, 1])
+add([MAXA], [MAXK, MAXK - 1])
+add([4, 6, 10, 11, 12], [3, 4, 5, 7, 6, 1])
+add([1, 3, 5, 7, 9], [1, 2, 3, 4, 5, 6])
 # hidden: small
-add([1, 1], [1, 1])
-add([1, 100], [2, 1000])                     # both prefer A by cost, the cheaper overall goes to B
-add([10, 10, 10, 10], [1, 2, 3, 4])
-add([5, 1, 9, 2, 8, 3], [1, 5, 2, 9, 3, 8])
-for m, v in [(4, 10), (6, 10), (8, 20), (10, 100), (12, 5), (20, 1000), (60, MAXV), (400, 10**6)]:
-    add(rnd(m, 1, v), rnd(m, 1, v))
-add(rnd(4000, 1, MAXV), rnd(4000, 1, MAXV))
-a = rnd(6000, 1, 1000)
-add(a, [x + ri(-3, 3) if x > 3 else x for x in a])
-# hidden: maximum size (values up to 10^5 keep the files near 3 MB)
-M, V = 2 * MAXN, 10**5
-add(rnd(M, 1, V), rnd(M, 1, V))
-add(rnd(M, 1, V), rnd(M, 1, V))
-add(rnd(M, 1, V // 2), rnd(M, V // 2, V))     # everyone prefers A
-add(rnd(M, V // 2, V), rnd(M, 1, V // 2))     # everyone prefers B
-add([V] * M, [V] * M)                        # all equal
-a = rnd(M, 1, V)
-add(a, a[:])                                 # every difference is 0
-a = rnd(M, 1, V)
-add(a, [V + 1 - x for x in a])
-a = sorted(rnd(M, 1, V))
-add(a, sorted(rnd(M, 1, V)))
-add(rnd(M, 1, 10), rnd(M, 1, 10))            # many ties
-# the largest values, at full size (a line of 2N ten-digit values would be too big, so mix in short ones)
-add([MAXV] * M, rnd(M, 1, 9))                 # everyone prefers B, but N of them must pay 10^9 in A
-add(rnd(M, 1, 9), [MAXV - ri(0, 9) for _ in range(M)])
-big = [ri(0, 2) == 0 for _ in range(M)]
-add([ri(1, MAXV) if x else ri(1, 99) for x in big], [ri(1, MAXV) if x else ri(1, 99) for x in big])
+add([1], [1])
+add(list(range(1, 51)), list(range(1, 11)))
+a = spread(30, 100)
+add(a, list(range(1, 80)))
+a = spread(500, 5000)
+add(a, edge_ks(a, 500) + [ri(1, 6000) for _ in range(500)])
+a = spread(3000, MAXA)
+add(a, edge_ks(a, 2000) + [ri(1, MAXK) for _ in range(1000)])
+a = list(range(MAXA - 1999, MAXA + 1))
+add(a, [ri(MAXA - 2100, MAXK) for _ in range(2000)])
+# hidden: maximum size
+N = MAXN
+N2 = 150_000
+a = list(range(1, N + 1))                              # every answer is after the last sold ticket
+add(a, [ri(1, MAXK) for _ in range(N)])
+a = list(range(2, 2 * N + 1, 2))
+add(a, [ri(N - 1000, MAXK) for _ in range(N)])
+a = spread(N, 10**6)
+add(a, edge_ks(a, N))
+a = spread(N, 10**6)
+add(a, [ri(700_000, MAXK) for _ in range(N)])
+a = list(range(MAXA - N2 + 1, MAXA + 1))              # a block at the very top
+add(a, [ri(MAXA - N2 - 1000, MAXK) for _ in range(N2)])
+a = list(range(1, N // 2 + 1)) + sorted(random.sample(range(N, 2 * 10**6), N // 2))
+add(a, [ri(1, MAXK) for _ in range(N)])
+a = spread(N, 10**7)
+add(a, edge_ks(a, N))
+a = spread(N, 10**7)
+add(a, [ri(5 * 10**6, 2 * 10**7) for _ in range(N)])
+a = spread(N2, MAXA)
+add(a, [MAXK] * N2)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
-print("largest test", max(len(t) for t in tests))
+print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

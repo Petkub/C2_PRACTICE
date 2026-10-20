@@ -1,8 +1,9 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(60019)
-MAXN, MAXA, MAXS = 200_000, 10**9, 10**15
+random.seed(10519)
+MAXN = 200_000
+MAXX = 10**9
 tests = []
 
 
@@ -11,80 +12,69 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(s, a):
-    n = len(a)
-    assert 1 <= n <= MAXN and 1 <= s <= MAXS
-    assert all(1 <= x <= MAXA for x in a)
-    tests.append(f"{n} {s}\n" + " ".join(map(str, a)) + "\n")
+def add(T, gigs):
+    n = len(gigs)
+    assert 1 <= n <= MAXN and 0 <= T <= MAXX
+    for c, s, e, p in gigs:
+        assert c in (1, 2) and 0 <= s < e <= MAXX and 1 <= p <= MAXX
+    tests.append(f"{n} {T}\n" + "".join(f"{c} {s} {e} {p}\n" for c, s, e, p in gigs))
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def rnd(n, span, maxlen, maxp, minp=1):
+    g = []
+    for _ in range(n):
+        s = ri(0, span - 1)
+        e = min(span, s + ri(1, maxlen))
+        g.append((ri(1, 2), s, e, ri(minp, maxp)))
+    return g
 
 
-def window(a, w):
-    """S such that a typical piece may hold about w elements"""
-    return max(max(a), sum(a) * w // len(a))
-
-
-def add_w(w, a):
-    add(window(a, w), a)
+def chain(n, T, maxp):
+    """gigs packed so that switching city exactly fits or misses by one"""
+    g = []
+    t = 0
+    for _ in range(n):
+        ln = ri(1, 3 * T + 3)
+        c = ri(1, 2)
+        g.append((c, t, t + ln, ri(1, maxp)))
+        t += ln + random.choice([0, 0, T, T - 1 if T > 0 else 0, ri(0, T)])
+    return g
 
 
 # samples
-add(10, [4, 6, 3, 5, 2])
-add(5, [1, 2, 3, 1, 1])
-add(7, [3, 8, 2])
-add(100, [5, 9, 2, 7])
-add(9, [9, 9, 9])
-add(12, [2, 3, 7, 1, 1, 4, 4, 3, 6, 2])
-# hidden: small (every set of cuts is tried)
-add(1, [1])
-add(MAXS, [MAXA])
-add(8, [2, 3, 7, 1, 1, 4, 4, 3])
-add(6, [5, 1, 1, 5, 1, 1, 5, 1])
-add(10, [1, 2] * 9)
-add(30, rnd(18, 1, 10))
-add(1000, sorted(rnd(18, 1, 300), reverse=True))
-add_w(4, rnd(18, 1, 5))
-add_w(3, rnd(17, 1, MAXA))
-add(4, rnd(18, 1, 3))
-add(13, rnd(18, 1, 12) + [14])                   # the last element does not fit
-# hidden: medium (the O(N^2) DP of brute.cpp checks these)
-add_w(50, rnd(3000, 1, 1000))
-add_w(300, rnd(3000, 1, 3))
-# hidden: maximum size
-N = MAXN
-add_w(20000, rnd(N, 1, MAXA))
-runs = []
-while len(runs) < N:                                     # decreasing runs longer than a piece
-    runs += sorted(rnd(ri(20000, 60000), 1, ri(MAXA // 2, MAXA)), reverse=True)
-add_w(30000, runs[:N])
-add_w(30000, sorted(rnd(N, 1, MAXA), reverse=True))    # many suffix maxima at once
-add_w(20000, sorted(rnd(N, 1, MAXA)))
-add_w(10000, rnd(N, 1, 3))                               # many ties
-add_w(50000, rnd(N, 1, 2))
-saw = []
-for b in range(200):
-    saw += sorted(rnd(1000, 1, MAXA), reverse=True)
-add(window(saw, 15000), saw)
-x = [N - i for i in range(N)]
-add(sum(x), x)                          # one piece holds everything
-add(MAXA, [MAXA] * N)                                                  # every piece has one element
-x = sorted(rnd(N, 1, MAXA), reverse=True)
-add(window(x, 30000), x[:-1] + [MAXA])             # the last one beats every earlier maximum
-x = rnd(N, 1, 10**6)
-add(window(x, 1000), x[:N // 2] + [MAXA] + x[N // 2 + 1:])           # the big one does not fit
-add_w(25000, [ri(1, 1000) if i % 100 else ri(10**8, MAXA) for i in range(N)])
-add(7, rnd(N, 1, 3))                                                   # short pieces, ties decide the count
-add(30, rnd(N, 1, 10))
-add(300, rnd(N, 1, 100))
-add(5, [random.choice((1, 1, 2, 3)) for _ in range(N)])         # many equal-cost splits
-saw = []
-for b in range(4):
-    saw += sorted(rnd(N // 4, 1, MAXA), reverse=True)
-add_w(30000, saw)
-add_w(40000, [MAXA - 4000 * i - ri(0, 20000) for i in range(N)])      # decreasing with small bumps
+add(2, [(1, 1, 3, 5), (2, 5, 8, 6), (1, 4, 9, 5), (2, 2, 4, 3), (2, 8, 10, 2)])
+add(5, [(1, 0, 4, 6), (2, 6, 9, 6), (2, 4, 7, 5)])
+add(0, [(2, 3, 9, 4)])
+add(0, [(1, 0, 5, 3), (2, 5, 7, 3), (1, 6, 9, 3), (2, 7, 8, 1)])
+add(10, [(1, 0, 1, MAXX), (1, 1, 2, MAXX), (1, 2, 3, MAXX)])
+add(3, [(1, 0, 2, 4), (2, 0, 3, 5), (2, 4, 6, 4), (1, 5, 8, 6), (2, 9, 12, 5), (1, 11, 12, 2)])
+# hidden: small (checked against trying every set)
+add(MAXX, [(1, 0, MAXX, MAXX)])
+add(1, [(2, 0, 1, 1), (1, 1, 2, 1), (2, 2, 3, 1), (1, 3, 4, 1)])   # switching needs 1 extra
+add(4, rnd(12, 40, 8, 20))
+add(0, rnd(14, 30, 6, 10))
+add(7, chain(15, 7, 9))
+add(MAXX, rnd(15, 50, 10, 30))                 # switching is never possible
+add(2, rnd(15, 25, 3, 5))
+add(1, [(ri(1, 2), 0, 10, ri(1, 9)) for _ in range(10)])           # all at the same time
+add(3, chain(16, 3, MAXX))
+# hidden: large (numbers kept short so that the inputs stay near 3 MB)
+add(10, rnd(MAXN, 10**5, 50, 99))
+add(0, rnd(150_000, 10**6, 100, 999))
+add(MAXX, rnd(150_000, 10**5, 30, 999))       # switching is never possible
+add(30, chain(140_000, 30, 99))
+add(1, chain(150_000, 1, 999))
+add(10**4, [(c, s, e, p if random.random() < 0.9 else ri(MAXX - 1000, MAXX))
+            for c, s, e, p in rnd(140_000, 10**6, 1000, 99)])   # the total needs 64 bits
+add(50, [(1 + i % 2, 2 * i, 2 * i + 1, ri(1, 99)) for i in range(150_000)])   # alternate cities, gaps too short
+add(1, [(1 + i % 2, 2 * i, 2 * i + 1, ri(1, 99)) for i in range(150_000)])    # gaps just enough: every gig
+add(500, [(ri(1, 2), 0, MAXX, ri(1, MAXX)) for _ in range(50_000)])           # every pair overlaps
+add(20, [(ri(1, 2), i, MAXX - i, ri(1, MAXX)) for i in range(50_000)])        # nested
+add(7, rnd(180_000, 10**6, 20, 99))
+add(3 * 10**4, [(c, s, e, p if random.random() < 0.8 else ri(1, MAXX))
+                for c, s, e, p in rnd(140_000, 10**7, 10**4, 999)])
+add(200, [(1, s, e, p) for _, s, e, p in rnd(75_000, 10**6, 500, 999)]
+    + [(2, s, e, p) for _, s, e, p in rnd(75_000, 10**6, 500, 999)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

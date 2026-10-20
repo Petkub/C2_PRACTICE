@@ -1,74 +1,73 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40112)
-MAXN, MAXT = 150_000, 10**9
+random.seed(30112)
+MAXN = 100_000
+MAXL = 1_000_000
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
-
-
-def add(segs):
-    n = len(segs)
+def add(strs):
+    n = len(strs)
     assert 1 <= n <= MAXN
-    assert all(1 <= l <= r <= MAXT for (l, r) in segs)
-    tests.append(f"{n}\n" + "".join(f"{l} {r}\n" for (l, r) in segs))
+    assert all(len(t) >= 1 and set(t) <= {"s", "h"} for t in strs)
+    assert sum(len(t) for t in strs) <= MAXL
+    tests.append(f"{n}\n" + "".join(t + "\n" for t in strs))
 
 
-def rnd(n, lo, hi, maxlen):
-    res = []
-    for _ in range(n):
-        l = ri(lo, hi)
-        res.append((l, min(hi, l + ri(0, maxlen))))
-    return res
+def word(length, ps):
+    """random string of s/h where each letter is s with probability ps"""
+    return "".join("s" if random.random() < ps else "h" for _ in range(length))
 
 
-def windows(n, step, length, jitter=0):
-    """bookings that slide to the right: no booking contains another (unless jitter breaks it)"""
-    res = [(1 + i * step + ri(0, jitter), 0) for i in range(n)]
-    res = [(l, min(MAXT, l + length + ri(0, jitter))) for (l, _) in res]
-    random.shuffle(res)
-    return res
+def rnd(n, lmax, total=None):
+    """n strings, each with its own share of s; lengths 1..lmax (scaled to fit total)"""
+    lens = [random.randint(1, lmax) for _ in range(n)]
+    if total is not None and sum(lens) > total:
+        f = total / sum(lens)
+        lens = [max(1, int(x * f)) for x in lens]
+    return [word(L, random.random()) for L in lens]
 
 
 # samples
-add([(1, 6), (2, 4), (3, 8), (5, 6)])
-add([(2, 5), (2, 5), (1, 3)])
-add([(7, 7)])
-add([(1, 5), (1, 3), (3, 5), (2, 9)])
-add([(1, 2), (2, 3), (3, 4)])
-add([(5, 5), (4, 6), (5, 5), (6, 6), (6, 9)])
-# hidden: small
-add([(1, 1), (1, 1)])
-add([(1, 10), (1, 9), (2, 10), (1, 10), (3, 3)])
-add(rnd(8, 1, 10, 5))
-add(rnd(30, 1, 20, 10))
-add(rnd(200, 1, 100, 30))
-add(rnd(2000, 1, MAXT, MAXT // 10))
-add(windows(3000, 100, 5000, 120))
-add(rnd(5000, 1, 50, 50))
-# hidden: maximum size
-N = MAXN
-add(rnd(N, 1, MAXT, MAXT))
-add(windows(N, 6000, 10**8))                                    # nothing is nested
-add(windows(N, 6000, 10**8, 6100))                              # a few nested pairs
-w = windows(N - 3, 6000, 10**8)
-add(w + [(1, MAXT), (5 * 10**8, 5 * 10**8 + 10**8), (3 * 10**8, 3 * 10**8)])   # one outer, one copy, one point
-add([(5 * 10**8, 5 * 10**8 + 7)] * N)                           # all identical
-s = [(i + 1, MAXT - i) for i in range(N)]                       # a chain of nested bookings
-random.shuffle(s)
-add(s)
-add(rnd(N, 1, 1000, 100))                                       # many identical ones
-s = [(ri(1, 50), ri(10**8, MAXT)) for _ in range(N)]            # many equal starts
-add(s)
-s = [(ri(1, 10**8), MAXT - ri(0, 50)) for _ in range(N)]        # many equal ends
-add(s)
-add(rnd(N, 1, MAXT, 10**4))
-x = windows(N // 2, 12000, 10**8)                               # sliding windows plus their exact copies
-add(x + x[:N // 2])
-add([(l, l) for l in (ri(1, MAXT) for _ in range(N))])          # single days only
+add(["h", "ssh", "hhs"])
+add(["hhh", "s"])
+add(["shh", "h", "ss"])
+add(["hs", "hs", "sh", "s"])
+add(["hhss"])
+add(["shs", "hhh", "sssh", "hsh", "s", "hhsh"])
+# hidden: small (every order is tried)
+add(["s"])
+add(["h", "s"])
+for n in (5, 8, 10, 12, 14, 16, 16):
+    add(rnd(n, 8))
+add(["s" * 3 + "h", "s" * 6 + "h" * 2, "sh", "ssh", "hs", "h" * 3, "s" * 9 + "h" * 3, "hhhs"])   # equal ratios
+add(rnd(16, 2000))
+add(rnd(2000, 10))
+# hidden: large
+add(rnd(MAXN, 19, MAXL))                                         # many short strings
+add(rnd(MAXN, 10, MAXL))
+add([word(10, 0.5) for _ in range(MAXN)])
+add([word(MAXL // 20, random.random()) for _ in range(20)])      # long strings: s_a * h_b beyond 32 bits
+add([word(MAXL // 4, p) for p in (0.3, 0.7, 0.45, 0.55)])
+strs = []                                                        # many s or many h, not the best ratio
+for _ in range(MAXN // 2):
+    strs.append("s" * random.randint(5, 10) + "h" * random.randint(5, 10))
+    strs.append("s" * random.randint(1, 2) + "h" * random.randint(0, 1))
+add(strs)
+add(["h" * 5 + "s" * 5] * MAXN)                                  # all the same
+add(["s"] * (MAXN // 2) + ["h"] * (MAXN // 2))                   # all s first is the answer
+add(["h"] * (MAXN // 2) + ["s" * 18] * (MAXN // 2))              # the largest answer
+strs = [word(random.randint(1, 3), random.random()) for _ in range(MAXN - 8)]
+strs += [word(90000, random.random()) for _ in range(8)]
+random.shuffle(strs)
+add(strs)
+add(rnd(MAXN, 19, MAXL))
+strs = []
+for _ in range(MAXN):                                            # ratios very close to each other
+    k = random.randint(4, 5)
+    strs.append(word(2 * k + random.randint(-1, 1), 0.5))
+add(strs)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

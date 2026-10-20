@@ -1,87 +1,68 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20211)
-MAXN, MAXT, MAXD = 200_000, 10**9, 10**9
+random.seed(10111)
+MAXN = 500_000
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
-
-
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
-
-
-def add(T, d):
-    n = len(d)
+def add(s):
+    n = len(s)
     assert 1 <= n <= MAXN
-    assert 1 <= T <= MAXT
-    assert all(1 <= x <= MAXD for x in d)
-    tests.append(f"{n} {T}\n" + " ".join(map(str, d)) + "\n")
+    assert set(s) <= set("ABC")
+    tests.append(f"{n}\n{s}\n")
 
 
-def arrival_minutes(v, d):
-    """exact arrival time in minutes as a fraction (num, den) at speed v"""
-    h = sum((x + v - 1) // v for x in d[:-1])
-    return 60 * h * v + 60 * d[-1], v
+def rnd(n, w=(1, 1, 1)):
+    return "".join(random.choices("ABC", weights=w, k=n))
 
 
-def exact_T(v, d):
-    """T equal to the arrival time at speed v (d[-1] chosen so that it is a whole number of minutes)"""
-    num, den = arrival_minutes(v, d)
-    assert num % den == 0
-    return num // den
+def perm_blocks(m):
+    """m blocks of 3 letters, each block a permutation of ABC"""
+    out = []
+    for _ in range(m):
+        b = list("ABC")
+        random.shuffle(b)
+        out.extend(b)
+    return "".join(out)
 
 
 # samples
-add(400, [10, 7, 12])
-add(120, [1, 1, 1])
-add(45, [90])
-add(105, [30, 45])
-add(61, [10**6, 10**6])
-add(600, [3, 9, 4, 7])
-# hidden: small
-add(1, [1])
-add(1, [MAXD])                                 # one leg: 60 * 10^9 km/h
-add(60, [1, 1])                                # exactly the waiting hour: impossible
-add(121, [5, 5, 5])
-add(10**6, rnd(1, 1, MAXD))
-d = rnd(30, 1, 100)
-add(60 * 29 + 17, d)
-d = rnd(50, 1, 10_000)
-add(60 * sum(d) // 70, d)
-d = rnd(80, 1, 1000) + [600]
-add(exact_T(120, d), d)                        # arrival exactly at T
-d = rnd(100, 1, 100_000) + [7 * 11 * 13]
-add(exact_T(1001, d), d)                       # arrival exactly at T
-add(MAXT, rnd(100, 1, 100_000))
-# hidden: maximum size
+add("ABCCAB")
+add("AABBAB")
+add("A")
+add("ABCABC")
+add("CBAACB")
+add("AAABBBCCC")
+# hidden (small)
+add("C")
+add("BCA")
+add("ABABCCBACC")
+add(perm_blocks(10))
+add(rnd(50))
+add(rnd(300))
+add(rnd(2000, (5, 4, 4)))
+add(perm_blocks(1000) + rnd(1000))
+add("A" * 1000 + "B" * 1000 + "C" * 1000)
+add(rnd(3000, (1, 1, 0)))                              # no C at all
+# large
 N = MAXN
-add(60 * (N - 1) + 1, rnd(N, 1, MAXD))        # one minute for the last leg
-add(60 * (N - 1) + 59, rnd(N, 1, MAXD))
-add(60 * (N - 1), rnd(N, 1, MAXD))            # impossible
-add(MAXT, rnd(N, 1, MAXD))                     # many hours of driving per leg
-add(MAXT, [MAXD] * N)
-add(MAXT // 3, rnd(N, 1, MAXD))
-add(70 * N, rnd(N, 1, MAXD))
-d = rnd(N - 1, 1, MAXD) + [MAXD]
-add(MAXT - 7, d)
-d = rnd(N - 1, 1, 10**6) + [6 * 10**5]
-add(exact_T(12_000, d), d)                     # arrival exactly at T
-d = rnd(N - 1, 10**8, MAXD) + [MAXD]
-add(60 * (N - 1) + 1, d)                       # answer 6 * 10^10
-add(ri(60 * N, MAXT), sorted(rnd(N, 1, MAXD)))
-add(ri(60 * N, MAXT), rnd(N, 1, 1000))
-add(90 * N, [1] * (N - 1) + [MAXD])
-add(MAXT, rnd(N, 999_000_000, MAXD))
-add(60 * (N - 1) + 30, rnd(N, 1, MAXD))
-add(120 * N, rnd(N, 1, MAXD))
+add(("ABC" * N)[:N])                                    # the largest answer
+add(perm_blocks(N // 3) + "AB")
+add(rnd(N))
+add(rnd(N, (10, 9, 9)))
+add("A" * N)
+add(("AB" * N)[:N])
+add("A" * (N // 3) + "B" * (N // 3) + "C" * (N // 3))
+add(rnd(N - 1))
+add("".join(random.choice(["ABC", "ACB", "BAC", "AABBCC", "CCBBAA", "A", "B", "C"]) for _ in range(N // 3))[:N])
+add(("CBA" * N)[:N - 2])
+add(rnd(N, (1, 1, 2)))
+add(("ABC" * N)[:N // 2] + ("BAC" * N)[:N // 2])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("total bytes", sum(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

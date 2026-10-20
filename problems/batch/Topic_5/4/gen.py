@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(50404)
-MAXM, MAXQ, MAXV = 100, 200_000, 10**6
+random.seed(40404)
+MAXN, MAXT = 150_000, 10**9
 tests = []
 
 
@@ -11,52 +11,58 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(c, x):
-    m, q = len(c), len(x)
-    assert 1 <= m <= MAXM and 1 <= q <= MAXQ
-    assert len(set(c)) == m and all(1 <= v <= MAXV for v in c)
-    assert all(1 <= v <= MAXV for v in x)
-    tests.append(f"{m} {q}\n" + " ".join(map(str, c)) + "\n" + "\n".join(map(str, x)) + "\n")
+def add(T, C, a, shuffle=True):
+    a = list(a)
+    if shuffle:
+        random.shuffle(a)
+    n = len(a)
+    assert 1 <= n <= MAXN and 1 <= T <= MAXT and 0 <= C <= n
+    assert all(1 <= l <= r <= T for l, r in a)
+    tests.append(f"{n} {T} {C}\n" + "".join(f"{l} {r}\n" for l, r in a))
 
 
-def coins(m, lo, hi):
-    return random.sample(range(lo, hi + 1), m)
-
-
-def queries(q, lo, hi):
-    return [ri(lo, hi) for _ in range(q)]
+def rnd(n, T, maxlen):
+    out = []
+    for _ in range(n):
+        l = ri(1, T)
+        out.append((l, min(T, l + ri(0, maxlen - 1))))
+    return out
 
 
 # samples
-add([1, 3, 4], [6, 7, 2])
-add([5, 7], [3, 12, 23, 24])
-add([2], [10, 7])
-add([10, 1, 25], [30, 40, 63])
-add([1000000], [1000000, 999999])
-add([4, 9, 6], [15, 1, 26, 13, 8])
-# hidden: small (the brute force checks these)
-add([1], [1, 5, 30])
-add([3, 5], list(range(1, 31)))
-add([2, 6, 9], list(range(1, 41)))
-add([1, 7, 10], list(range(1, 46)))
-add(coins(4, 2, 12), queries(30, 1, 60))
-add(coins(6, 3, 20), queries(30, 1, 80))
-add([6, 10, 15], list(range(1, 61)))
-add(coins(3, 40, 60), queries(20, 1, 200))
-# hidden: maximum size
-Q = MAXQ
-add(coins(MAXM, 1, MAXV), queries(Q, 1, MAXV))
-add(coins(MAXM, 1, 2000), queries(Q, 1, MAXV))
-add(coins(MAXM, 1000, 5000), queries(Q, MAXV - 100_000, MAXV))
-add([1], queries(Q - 1, 1, MAXV) + [MAXV])                     # largest answer
-add([2 * v for v in coins(MAXM, 1, 20000)], queries(Q, 1, MAXV))  # every odd total is impossible
-add(sorted(coins(MAXM, 100_000, MAXV)), queries(Q, 1, MAXV))    # mostly impossible
-add([1] + [v * 50 + 1 for v in range(1, MAXM)], queries(Q, 1, MAXV))
-add(list(range(MAXV, MAXV - MAXM, -1)), queries(Q, 1, MAXV))
-add([997, 1000, 1003, 1] + coins(MAXM - 4, 1004, 3000), queries(Q, 1, MAXV))
-add(coins(MAXM, 1, 100), list(range(MAXV, MAXV - Q, -1)))
-add([999_983, 999_979], queries(Q, 1, MAXV))
-add(coins(10, 1, 300), queries(Q, 1, MAXV))
+add(20, 0, [(3, 5), (4, 8), (12, 13)], False)
+add(9, 0, [(3, 4), (6, 7)], False)
+add(5, 0, [(1, 3), (2, 5)], False)
+add(10**9, 2, [(1, 10**9), (5, 6)], False)
+add(10, 1, [(1, 6), (2, 3), (5, 7), (9, 10), (9, 9)], False)
+add(8, 1, [(1, 4), (4, 6), (6, 8)], False)
+# hidden: small
+add(1, 0, [(1, 1)])
+add(1, 1, [(1, 1)])
+add(MAXT, 0, [(1, MAXT - 1)])                           # only the last minute is free
+add(MAXT, 0, [(2, MAXT)])                               # only the first minute is free
+add(30, 1, rnd(8, 30, 6))
+add(100, 2, rnd(40, 100, 10))
+add(1000, 0, rnd(200, 1000, 5))
+add(10**6, 5, rnd(1000, 10**6, 5000))
+add(MAXT, 3, rnd(2000, MAXT, 10**6))
+add(50, 4, [(1, 50)] * 4 + [(10, 20)])                   # load 4 everywhere, 5 on 10..20
+add(1000, 1, [(i, i + 1) for i in range(1, 999, 2)])     # touching pieces with load 1
+# hidden: large (T too big to walk minute by minute, N too big for O(N^2))
+N = MAXN
+add(MAXT, 0, rnd(N, MAXT, 2000))
+add(MAXT, 2, rnd(N, MAXT, 20_000))
+add(MAXT, 10, rnd(N, MAXT, 60_000))
+add(N * 6000, 0, [(i * 6000 + 1, i * 6000 + 3000 + (i % 3)) for i in range(N)])  # many equal gaps: tie rule
+add(MAXT, 1, [(ri(1, 1000), ri(MAXT - 1000, MAXT)) for _ in range(N)])        # load > 1 almost everywhere
+add(MAXT, N - 1, [(1, MAXT)] * N)                        # load N everywhere: answer 0
+add(MAXT, N // 2, [(i, MAXT - i + 1) for i in range(1, N + 1)])  # nested: the middle is the busiest
+x = [ri(1, 100) * 6000 for _ in range(N)]
+add(700_000, 3, [(v, v + 5999) for v in x])               # many equal event times
+a = rnd(N - 1, MAXT, 30_000) + [(1, MAXT)]
+add(MAXT, 1, a)                                          # one job covers everything
+add(MAXT, 1, [(2 * i + 1, 2 * i + 2) for i in range(N)], False)    # load 1 up to 2N, then 0
+add(200_000_000, 4, rnd(N, 200_000_000, 3000))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

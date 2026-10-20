@@ -1,9 +1,10 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(41700)
+random.seed(30317)
 MAXN = 200_000
-MAXC = 10**9
+MAXP = 10**9
+MAXF = 10**9
 tests = []
 
 
@@ -12,83 +13,76 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(pts):
-    n = len(pts)
-    assert 2 <= n <= MAXN
-    xs = [x for x, y in pts]
-    ys = [y for x, y in pts]
-    assert -MAXC <= min(xs) and max(xs) <= MAXC and -MAXC <= min(ys) and max(ys) <= MAXC
-    tests.append(f"{n}\n" + "".join(f"{x} {y}\n" for x, y in pts))
+def add(F, p):
+    n = len(p)
+    assert 1 <= n <= MAXN
+    assert 0 <= F <= MAXF
+    assert all(1 <= x <= MAXP for x in p)
+    tests.append(f"{n} {F}\n" + " ".join(map(str, p)) + "\n")
 
 
-def shuffled(p):
-    p = list(p)
-    random.shuffle(p)
-    return p
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
-def line(n, step, jitter, vertical, base=0, offset=0):
-    """n points along a line through the middle, consecutive ones about step apart"""
-    start = -(n * step) // 2 + offset
-    pts = []
-    for k in range(n):
-        a = start + k * step + ri(0, jitter)
-        b = base + ri(0, jitter)
-        pts.append((b, a) if vertical else (a, b))
-    return pts
+def walk(n, start, step, lo, hi):
+    """random walk clipped to [lo, hi]"""
+    res, x = [], start
+    for _ in range(n):
+        x = min(hi, max(lo, x + ri(-step, step)))
+        res.append(x)
+    return res
+
+
+def waves(n, period, lo, hi, jitter):
+    """prices going down and up again and again (many bars held at the bottoms)"""
+    res = []
+    for i in range(n):
+        t = i % period
+        frac = abs(2 * t - period) / period         # 1 -> 0 -> 1
+        v = lo + int((hi - lo) * frac) + ri(-jitter, jitter)
+        res.append(min(hi, max(lo, v)))
+    return res
 
 
 # samples
-add([(0, 0), (5, 5), (3, 4), (9, 1), (7, 7)])
-add([(2, 3), (-1, 4), (2, 3)])
-add([(1, 1), (4, 5)])
-add([(0, 10), (0, 0), (0, 3), (0, 7)])
-add([(-3, 2), (4, -1), (0, 0), (1, 5), (-2, -2), (3, 3)])
-# hidden: small
-add([(-MAXC, -MAXC), (MAXC, MAXC)])                           # the largest possible answer
-add([(-MAXC, MAXC), (MAXC, -MAXC), (MAXC, MAXC)])
-add([(ri(-5, 5), ri(-5, 5)) for _ in range(8)])
-add([(ri(-100, 100), ri(-100, 100)) for _ in range(50)])
-add([(ri(-MAXC, MAXC), ri(-MAXC, MAXC)) for _ in range(500)])
-add(shuffled(line(3000, 1000, 50, True) + line(3000, 1000, 50, False, base=10**6)))
-add([(ri(-10**6, 10**6), ri(-10**6, 10**6)) for _ in range(5000)])
-add([(7, 7)] * 4000)                                          # everybody at one place
-# large: N = MAXN with coordinates below about 10^6 (input near 3 MB), or N = 130 000 with full coordinates
+add(1, [2, 8, 8, 3, 9, 9])
+add(3, [5, 7, 4, 8])
+add(1, [9, 7, 7, 4, 2])
+add(0, [3, 1, 4, 1, 5, 9, 2, 6])
+add(2, [10, 1, 7, 3, 9, 4, 12])
+add(4, [6, 6, 6, 10, 10, 10])
+# hidden (small)
+add(0, [1])
+add(MAXF, [1, MAXP])
+add(MAXF - 2, [1, MAXP, 1, MAXP])               # each sale earns exactly 1
+add(0, rnd(10, 1, 10))
+add(3, rnd(12, 1, 10))
+add(5, waves(40, 10, 1, 30, 2))
+add(100, rnd(300, 1, 1000))
+add(10**6, walk(2000, 5 * 10**8, 10**7, 1, MAXP))
+add(50, waves(5000, 1000, 1, 10**4, 30))
+add(7, walk(20_000, 5000, 20, 1, 10**4))
+add(0, rnd(20_000, 1, MAXP))
+# large
 N = MAXN
-add([(ri(-10**6, 10**6), ri(-10**6, 10**6)) for _ in range(N)])
-add(shuffled(line(N, 9000, 100, True)))                       # one vertical line: sorting by x and stopping early fails
-add(shuffled(line(N, 9000, 100, False)))                      # one horizontal line
-N2 = 180_000
-add(shuffled(line(N2 // 2, 400, 10, True, base=-1000) + line(N2 // 2, 400, 10, False, base=1000)))
-p = line(N - 2, 10**4, 0, True)                               # the close pair is far apart in x order
-p += [(-1, 123_456), (1, 123_456)]
-add(shuffled(p))
-p = [(ri(0, 100), 400 * k + ri(0, 10)) for k in range(-N2 // 4, N2 // 4)]       # narrow vertical band
-p += [(400 * k + ri(0, 10), 10**8 + ri(0, 100)) for k in range(-N2 // 4, N2 // 4)]  # narrow horizontal band
-add(shuffled(p))
-s = 4400                                                      # square lattice, one pair a bit closer
-p = [(s * i, s * j) for i in range(-223, 224) for j in range(-223, 224)][:N]
-p[ri(0, len(p) - 1)] = (s * 10 + 3000, s * 10 + 1)
-add(shuffled(p))
-M = 130_000
-s = 5 * 10**6                                                 # lattice with a huge gap: the answer needs 64 bits
-p = [(s * i, s * j) for i in range(-180, 181) for j in range(-180, 181)][:M]
-add(shuffled(p))
-s = 100                                                       # a tall thin and a wide flat lattice
-p = [(-10**6 + s * k, -25 * 10**5 + s * j) for k in range(2) for j in range(N // 4)]
-p += [(-25 * 10**5 + s * j + s // 2, 10**6 + s * k + s // 2) for k in range(2) for j in range(N // 4)]
-add(shuffled(p))
-p = [(ri(-MAXC, -MAXC + 10**6), ri(-MAXC, -MAXC + 10**6)) for _ in range(M // 2)]
-p += [(ri(MAXC - 10**6, MAXC), ri(MAXC - 10**6, MAXC)) for _ in range(M // 2)]
-add(shuffled(p))
-p = [(7 * k, 7 * k + ri(0, 3)) for k in range(-N // 2, N // 2)]   # along a diagonal
-add(shuffled(p))
-p = line(N - 1, 9000, 0, True)
-p.append(p[ri(0, N - 2)])                                      # one repeated point
-add(shuffled(p))
+add(ri(0, 10**7), rnd(N, 1, MAXP))
+add(0, rnd(N, 1, 10**6))
+add(1000, walk(N, 5 * 10**5, 3000, 1, 10**6))
+add(0, list(range(N // 2, 0, -1)) + list(range(1, N // 2 + 1)))    # one deep valley
+add(10, waves(N, 50_000, 1, 10**6, 5))
+add(0, [MAXP if i % 2 else 1 for i in range(N)])
+add(MAXP - 1, [MAXP if i % 2 else 1 for i in range(N)])     # nothing pays
+add(1, list(range(1, N + 1)))
+add(0, [5] * (N - 1) + [MAXP])
+add(500, waves(N, 2000, 1, 10**6, 400))
+add(ri(10**5, 10**6), walk(N, 5 * 10**8, 10**6, 1, MAXP))
+add(3, list(range(N, 0, -1)))
+add(20, [ri(1, 50) if i < N // 2 else ri(10**6 - 50, 10**6) for i in range(N)])  # buy early, sell late
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("total bytes", sum(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

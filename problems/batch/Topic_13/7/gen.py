@@ -1,69 +1,81 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(13007)
-MAXB = 10 ** 11
-MAXQ = 10_000
+random.seed(110007)
+MAXN, MAXQ, MAXA, MAXX = 200_000, 200_000, 10**9, 10**6
 tests = []
 
 
-def add(qs):
-    assert 1 <= len(qs) <= MAXQ
-    assert all(0 <= a <= b < MAXB for a, b in qs)
-    tests.append(f"{len(qs)}\n" + "".join(f"{a} {b}\n" for a, b in qs))
+def ri(lo, hi):
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def rq(lo, hi, q):
-    out = []
+def add(a, ops):
+    n, q = len(a), len(ops)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(0 <= v <= MAXA for v in a)
+    for op in ops:
+        assert 1 <= op[1] <= op[2] <= n
+        if op[0] == 1:
+            assert len(op) == 4 and 1 <= op[3] <= MAXX
+        else:
+            assert len(op) == 3 and op[0] == 2
+    assert any(op[0] == 2 for op in ops)
+    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n"
+                 + "".join(" ".join(map(str, op)) + "\n" for op in ops))
+
+
+def rng_range(n, kind):
+    if kind == "long":
+        return ri(1, min(n, 99)), ri(max(1, n - 99), n)
+    if kind == "short":
+        l = ri(1, n)
+        return l, min(n, l + ri(0, 3))
+    if kind == "suffix":
+        return ri(1, min(n, 99)), n
+    l = ri(1, n)
+    return l, ri(l, n)
+
+
+def rnd_ops(n, q, p_add, xmax, kind="any"):
+    """p_add = chance of fertilising; kind of ranges: any / long / short / suffix (r = N)"""
+    ops = []
     for _ in range(q):
-        a, b = random.randint(lo, hi), random.randint(lo, hi)
-        out.append((min(a, b), max(a, b)))
-    return out
-
-
-def near_pow(hi, q):
-    """ends close to powers of two and to 2^k - 1"""
-    out = []
-    top = hi.bit_length()
-    for _ in range(q):
-        ends = []
-        for _ in range(2):
-            k = random.randint(0, top)
-            x = (1 << k) + random.randint(-2, 2)
-            if random.random() < 0.3:
-                x = (1 << k) - (1 << random.randint(0, k)) + random.randint(-1, 1)
-            ends.append(min(max(x, 0), hi))
-        out.append((min(ends), max(ends)))
-    return out
+        l, r = rng_range(n, kind)
+        if random.random() < p_add:
+            ops.append((1, l, r, ri(1, xmax)))
+        else:
+            ops.append((2, l, r))
+    if all(op[0] == 1 for op in ops):
+        ops[-1] = (2, 1, n)
+    return ops
 
 
 # samples
-add([(0, 5), (3, 4)])
-add([(0, 0), (4, 4)])
-add([(7, 7), (8, 8), (0, 15)])
-add([(0, 99_999_999_999), (1023, 1024)])
-add([(10, 20), (1000, 1023), (12345, 67890)])
-# hidden: small (the brute force builds the rows)
-add([(0, 0)])
-add([(r, r) for r in range(64)])
-add(rq(0, 300, 1000))
-add(near_pow(4000, 500))
-add([(0, 4999), (4999, 4999), (4096, 4999), (0, 4095)] + rq(0, 4999, 20))
-add(rq(2000, 4000, 300))
-# hidden: medium (rows up to 10^7)
-add(rq(0, 10 ** 7, 5))
-add([(0, 10 ** 7 - 1)])
-# hidden: large
-add(rq(0, MAXB - 1, MAXQ))
-add([(0, MAXB - 1)] * MAXQ)
-add(near_pow(MAXB - 1, MAXQ))
-add([(0, random.randint(MAXB // 2, MAXB - 1)) for _ in range(MAXQ)])
-add(rq(MAXB - 10 ** 6, MAXB - 1, MAXQ))
-add([(random.randint(0, 10 ** 6), random.randint(MAXB - 10 ** 6, MAXB - 1)) for _ in range(MAXQ)])
-add(rq(10 ** 10, MAXB - 1, MAXQ))
-add([(0, (1 << 36) - 1), (1 << 36, MAXB - 1), (0, MAXB - 1), (MAXB - 1, MAXB - 1)] + rq(0, MAXB - 1, 100))
-add([(0, (1 << k) - 1) for k in range(37)] + [((1 << k) - 1, (1 << k) - 1) for k in range(37)] + [(0, 0)])
-add([(0, MAXB - 1)])
+add([1, 2, 3, 4, 5], [(2, 1, 5), (1, 2, 4, 10), (2, 1, 3), (1, 1, 5, 1), (2, 4, 5)])
+add([MAXA, MAXA - 1], [(1, 1, 2, MAXX), (2, 1, 2), (2, 2, 2)])
+add([0], [(2, 1, 1), (1, 1, 1, 7), (1, 1, 1, 7), (2, 1, 1)])
+add([4, 0, 4, 0, 4, 0], [(1, 2, 5, 3), (1, 5, 6, 2), (2, 1, 6), (2, 5, 5), (2, 2, 3)])
+add([9, 8, 7, 6], [(1, 1, 2, 5), (2, 2, 4), (1, 4, 4, 1), (2, 1, 4)])
+# hidden: small
+add([MAXA], [(1, 1, 1, MAXX), (2, 1, 1)])
+for n, q, xmax in ((5, 10, 3), (10, 30, 10), (50, 100, 1000), (400, 800, MAXX), (3000, 3000, 100), (6000, 6000, MAXX)):
+    add([ri(0, 100) for _ in range(n)], rnd_ops(n, q, 0.5, xmax))
+add([ri(0, 9) for _ in range(5000)], rnd_ops(5000, 8000, 0.5, 9, "short"))
+add([MAXA] * 3000, rnd_ops(3000, 3000, 0.6, MAXX, "suffix"))
+# hidden: maximum size (short numbers keep the files small; long ranges make a loop per operation too slow)
+N, Q = MAXN, MAXQ
+add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.5, 9, "long"))
+add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.8, 9, "long"))
+add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.2, 99, "long"))
+add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.5, 9, "suffix"))
+add([0] * N, [(1, 1, N, 1) if k % 2 == 0 else (2, 1, N) for k in range(Q)])
+add([ri(0, 99) for _ in range(N)], rnd_ops(N, 140_000, 0.5, 99))
+add([ri(0, 9) for _ in range(N)], rnd_ops(N, 160_000, 0.5, 9, "short"))
+# largest values: sums up to about 10^16
+add([MAXA] * N, [(1, 1, N, MAXX) if k % 3 else (2, 1, N) for k in range(45_000)])
+add([MAXA - ri(0, 9) for _ in range(N)], rnd_ops(N, 50_000, 0.5, MAXX, "long"))
+add([ri(0, MAXA) for _ in range(N)], rnd_ops(N, 40_000, 0.5, MAXX))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

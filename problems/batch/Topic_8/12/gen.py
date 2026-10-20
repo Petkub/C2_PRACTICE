@@ -1,195 +1,227 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(81212)
-MAXN, MAXL, MAXSUM, MAXT, MAXP = 100_000, 100_000, 150_000, 10**9, 10**9
+random.seed(7012)
+MAXN, MAXM = 5_000, 200_000
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, P, A, B, lines, shuffle=True):
-    """lines: list of (stations, times)"""
-    lines = list(lines)
+def rshuffle(a):
+    """Fisher-Yates with random.random() (faster than random.shuffle, still deterministic)"""
+    rnd = random.random
+    for i in range(len(a) - 1, 0, -1):
+        j = int(rnd() * (i + 1))
+        a[i], a[j] = a[j], a[i]
+
+
+def pick(a):
+    return a[int(random.random() * len(a))]
+
+
+def add(n, edges, shuffle=True):
+    m = len(edges)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n and a != b for a, b in edges)
+    assert len(set(a * (n + 1) + b if a < b else b * (n + 1) + a for a, b in edges)) == m
     if shuffle:
-        random.shuffle(lines)
-    L = len(lines)
-    assert 2 <= n <= MAXN and 1 <= L <= MAXL and 1 <= P <= MAXP and 1 <= A <= n and 1 <= B <= n
-    assert sum(len(s) for s, t in lines) <= MAXSUM
-    assert all(len(s) >= 2 and len(t) == len(s) - 1 and len(set(s)) == len(s) for s, t in lines)
-    assert all(1 <= min(s) and max(s) <= n and 1 <= min(t) and max(t) <= MAXT for s, t in lines)
-    tests.append(f"{n} {L} {P} {A} {B}\n" + "\n".join(
-        f"{len(s)} {' '.join(map(str, s))}\n{' '.join(map(str, t))}" for s, t in lines) + "\n")
+        perm = list(range(1, n + 1))
+        rshuffle(perm)
+        rnd = random.random
+        edges = [(perm[a - 1], perm[b - 1]) if rnd() < 0.5 else (perm[b - 1], perm[a - 1])
+                 for a, b in edges]
+        rshuffle(edges)
+    # the graph must be bipartite
+    adj = [[] for _ in range(n + 1)]
+    for a, b in edges:
+        adj[a].append(b)
+        adj[b].append(a)
+    col = [-1] * (n + 1)
+    for s in range(1, n + 1):
+        if col[s] < 0:
+            col[s] = 0
+            st = [s]
+            while st:
+                u = st.pop()
+                for v in adj[u]:
+                    if col[v] < 0:
+                        col[v] = 1 - col[u]
+                        st.append(v)
+                    assert col[v] != col[u]
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in edges))
 
 
-def distinct(lo, hi, k):
-    """k different random integers in [lo, hi]"""
-    if hi - lo >= 1000 * k:                 # collisions are rare: draw all, retry if needed
-        while True:
-            res = [lo + int(random.random() * (hi - lo + 1)) for _ in range(k)]
-            if len(set(res)) == k:
-                return res
-    res, seen = [], set()
-    while len(res) < k:
-        x = ri(lo, hi)
-        if x not in seen:
-            seen.add(x)
-            res.append(x)
-    return res
+class Builder:
+    """collects components; every component is a bipartite graph on new vertices"""
+
+    def __init__(self):
+        self.n = 0
+        self.edges = []
+
+    def bip(self, p, q, extra=0):
+        """connected bipartite component with sides p >= 1 and q (q = 0 only if p = 1):
+        a random spanning tree between the sides plus `extra` random cross edges"""
+        A = list(range(self.n + 1, self.n + p + 1))
+        B = list(range(self.n + p + 1, self.n + p + q + 1))
+        self.n += p + q
+        if q == 0:
+            assert p == 1
+            return
+        seen = set()
+        order = [(0, x) for x in A] + [(1, x) for x in B]
+        rshuffle(order)
+        # first vertex of each side placed, then attach every other vertex to an earlier one of the other side
+        placed = [[A[0]], [B[0]]]
+        e = [(A[0], B[0])]
+        for side, x in order:
+            if x in (A[0], B[0]):
+                continue
+            y = pick(placed[1 - side])
+            e.append((x, y))
+            placed[side].append(x)
+        for a, b in e:
+            seen.add((min(a, b), max(a, b)))
+        tries = 0
+        while extra > 0 and tries < 10 * extra + 100:
+            tries += 1
+            a, b = pick(A), pick(B)
+            if (min(a, b), max(a, b)) not in seen:
+                seen.add((min(a, b), max(a, b)))
+                e.append((a, b))
+                extra -= 1
+        self.edges += e
+
+    def complete(self, p, q):
+        A = range(self.n + 1, self.n + p + 1)
+        B = range(self.n + p + 1, self.n + p + q + 1)
+        self.n += p + q
+        self.edges += [(a, b) for a in A for b in B]
+
+    def star(self, leaves):
+        self.bip(1, leaves) if leaves else self.bip(1, 0)
+
+    def done(self):
+        add(self.n, self.edges)
 
 
-def rnd_line(n, k, tlo, thi):
-    return (distinct(1, n, k), [ri(tlo, thi) for _ in range(k - 1)])
-
-
-def rnd_lines(n, L, kmin, kmax, tlo, thi):
-    """up to L random lines, stopping before the total length passes MAXSUM"""
-    res, used = [], 0
-    for _ in range(L):
-        k = ri(kmin, kmax)
-        if used + k > MAXSUM:
-            break
-        res.append(rnd_line(n, k, tlo, thi))
-        used += k
-    return res
-
-
-def relabel(n, A, B, lines):
-    p = list(range(1, n + 1))
-    random.shuffle(p)
-    p = [0] + p
-    return n, p[A], p[B], [([p[x] for x in s], t) for s, t in lines]
-
-
-def grid_metro(r, c, tlo, thi):
-    """stations on an r x c grid; one line along every row and every column"""
-    lines = []
-    for i in range(r):
-        lines.append(([i * c + j + 1 for j in range(c)], [ri(tlo, thi) for _ in range(c - 1)]))
-    for j in range(c):
-        lines.append(([i * c + j + 1 for i in range(r)], [ri(tlo, thi) for _ in range(r - 1)]))
-    return r * c, lines
-
-
-def hub(n, L, tlo, thi):
-    """station 1 is on every line; each line is short"""
-    lines, used = [], 0
-    for _ in range(L):
-        k = 2 if random.random() < 0.85 else 3
-        if used + k > MAXSUM:
-            break
-        used += k
-        s = distinct(2, n, k - 1)
-        s.insert(ri(0, k - 1), 1)
-        lines.append((s, [ri(tlo, thi) for _ in range(k - 1)]))
-    return lines
-
-
-def express(n, k, P):
-    """one slow line through every station, express lines that skip ahead but need transfers"""
-    order = list(range(1, n + 1))
-    random.shuffle(order)
-    lines = [(order, [ri(1, 100) for _ in range(n - 1)])]
-    used = n
-    while used + k <= MAXSUM:
-        i = ri(0, n - k * 50 - 1)
-        s = [order[i + 50 * x] for x in range(k)]
-        lines.append((s, [ri(1000, 4000) for _ in range(k - 1)]))
-        used += k
-    return lines, order[0], order[-1]
-
-
-def traps(g, tlo, thi):
-    """g blocks in a row: a -> x directly, or a -> y -> x on a line that goes on to b"""
-    lines = []
-    for i in range(g):
-        a, x, y, b = 3 * i + 1, 3 * i + 2, 3 * i + 3, 3 * i + 4
-        lines += [([a, x], [ri(tlo, thi)]), ([a, y, x, b], [ri(tlo, thi), ri(tlo, thi), ri(tlo, thi)])]
-    return lines
-
-
-def with_hub(lines, lo, hi, h, tlo, thi):
-    """fill the rest of the total length with short lines through station h and stations of [lo, hi]"""
-    lines = list(lines)
-    used = sum(len(s) for s, t in lines)
-    while used + 3 <= MAXSUM:
-        k = 2 if random.random() < 0.85 else 3
-        s = [x for x in distinct(lo, hi, k) if x != h][:k - 1]
-        s.insert(ri(0, len(s)), h)
-        lines.append((s, [ri(tlo, thi) for _ in range(len(s) - 1)]))
-        used += len(s)
-    return lines
+def build(parts):
+    b = Builder()
+    for p in parts:
+        b.bip(*p)
+    b.done()
 
 
 # samples
-add(6, 5, 1, 6, [([1, 2, 3, 4], [2, 2, 2]), ([5, 3, 6], [1, 3]), ([2, 6], [9])], False)
-add(5, 100, 4, 3, [([4, 2, 1], [1, 1]), ([1, 5, 3], [1, 1]), ([2, 3], [150])], False)
-add(4, 1, 1, 4, [([1, 2], [5]), ([3, 4], [5])], False)
-add(3, MAXP, 2, 2, [([1, 3], [7])], False)
-add(4, 3, 1, 4, [([1, 2, 3], [5, 5]), ([3, 2, 4], [1, 1])], False)
-# hidden: small
-add(2, 1, 1, 2, [([2, 1], [MAXT])])
-add(3, 10, 1, 3, [([1, 2], [1]), ([2, 3], [1]), ([1, 3], [12]), ([1, 2, 3], [7, 7])])
-for n, L, kmax, thi, P in ((6, 4, 3, 5, 3), (8, 6, 4, 10, 1), (10, 8, 5, 3, 7), (12, 10, 4, 20, 15),
-                           (30, 20, 6, 100, 50), (60, 40, 8, 10, 25)):
-    lines = rnd_lines(n, L, 2, kmax, 1, thi)
-    add(n, P, ri(1, n), ri(1, n), lines)
-n, lines = grid_metro(6, 7, 1, 9)
-n, A, B, lines = relabel(n, 1, n, lines)
-add(n, 6, A, B, lines)
-add(40, 4, 1, 2, hub(40, 50, 1, 10))
-n, lines = grid_metro(15, 15, 1, 50)
-n, A, B, lines = relabel(n, 1, n, lines)
-add(n, 30, A, B, lines)
-lines = rnd_lines(500, 300, 2, 10, 1, 1000)
-add(500, 700, 1, 2, lines)
-lines = []
-for g in range(30):                                                 # arriving first is not always best
-    a, x, y, b = 3 * g + 1, 3 * g + 2, 3 * g + 3, 3 * g + 4
-    lines += [([a, x], [10]), ([a, y, x, b], [5, 7, 1])]
-add(91, 100, 1, 91, lines)
-lines = rnd_lines(40, 60, 2, 8, 1, 30)
-add(40, 200, 1, 2, lines)
-# hidden: maximum size
-n, lines = grid_metro(250, 300, 1, 1000)
-n, A, B, lines = relabel(n, 1, n, lines)
-add(n, 2000, A, B, lines)
-n, lines = grid_metro(250, 300, 1, 10)
-n, A, B, lines = relabel(n, 1, n, lines)
-add(n, 1, A, B, lines)
-lines = hub(MAXN, 90_000, 1, 1000)                               # every route changes at the hub
-add(MAXN, 5, max(lines[0][0]), max(lines[-1][0]), lines, False)
-lines = hub(MAXN, 90_000, 1, MAXT)
-add(MAXN, MAXP, max(lines[0][0]), max(lines[1][0]), lines, False)
-lines, A, B = express(MAXN, 20, 500)
-add(MAXN, 500, A, B, lines)
-lines, A, B = express(MAXN, 20, 10**6)
-add(MAXN, 10**6, A, B, lines)
-lines = traps(10_000, 1, 10)
-add(MAXN, 100, 1, 30_001, with_hub(lines + [([1, 30_002], [1])], 30_002, MAXN, 30_002, 1, 50))
-lines = with_hub(rnd_lines(MAXN, 4000, 2, 18, 1, 10**4), 1, MAXN, ri(1, MAXN), 1, 10**4)
-add(MAXN, 10**5, lines[0][0][0], lines[1][0][-1], lines)
-add(20_000, 3 * 10**4, 1, 2, rnd_lines(20_000, 10_000, 2, 38, 1, 10**4))
-order = list(range(1, MAXN + 1))
-random.shuffle(order)
-order = order[:MAXSUM // 2]
-lines = [(order[i:i + 2], [MAXT]) for i in range(len(order) - 1)]          # a line for every step, lengths near 10^14
-add(MAXN, MAXP, order[0], order[-1], lines)
-lines = rnd_lines(MAXN, 4000, 2, 18, 1, 10**4)
-lines = [l for l in with_hub(lines, 1, MAXN, 3, 1, 10**4) if 2 not in l[0]]
-add(MAXN, 50, lines[0][0][0], 2, lines)                          # station 2 is on no line
-lines = []
-used = 0
-while used + 3 <= MAXSUM:                                            # two busy stations
-    k = 2 if random.random() < 0.85 else 3
-    s = distinct(3, MAXN, k - 1)
-    s.insert(ri(0, k - 1), ri(1, 2))
-    lines.append((s, [ri(1, 10**5) for _ in range(k - 1)]))
-    used += k
-add(MAXN, 10**5, lines[0][0][0], lines[-1][0][-1], lines)
-add(30, 500, 1, 2, rnd_lines(30, 100_000, 2, 10, 1, 1000))         # every station is on thousands of lines
+add(6, [(1, 2), (2, 3), (4, 5)], False)
+add(4, [(1, 3), (1, 4), (2, 3), (2, 4)], False)
+add(1, [], False)
+add(5, [], False)
+add(7, [(1, 2), (2, 3), (3, 4), (4, 5), (6, 7)], False)
+add(8, [(1, 2), (1, 3), (1, 4), (5, 6)], False)
+# hidden: small (every split tried)
+add(2, [(1, 2)])
+add(3, [(1, 2)])
+build([(4, 1), (4, 1), (3, 1), (3, 1), (3, 1)])                 # differences 3 3 2 2 2 (22 people)
+build([(3, 1), (2, 1), (2, 1), (1, 0), (1, 1)])
+build([(5, 4, 6), (3, 3, 4), (2, 0 + 1)])
+build([(1, 0)] * 6 + [(6, 1), (2, 2, 1)])
+build([(ri(1, 3), ri(1, 3)) for _ in range(5)])
+build([(7, 1), (1, 1), (1, 1), (1, 1), (2, 1), (1, 0)])
+b = Builder()                                                   # a complete bipartite group: 0 new pairs
+b.complete(10, 10)
+b.done()
+# hidden: medium
+build([(ri(1, 40), ri(1, 40), ri(0, 20)) for _ in range(60)])
+build([(ri(1, 8), ri(0, 1) and ri(1, 3) or 1) for _ in range(800)])
+b = Builder()                                                   # few large differences
+for _ in range(20):
+    d = ri(50, 150)
+    q = ri(1, 5)
+    b.bip(d + q, q, ri(0, q))
+b.done()
+# hidden: large
+N = MAXN
+add(N, [])                                                      # nobody is a rival yet
+b = Builder()
+b.bip(3000, 2000, MAXM - N + 1)                                 # one group, many pairs
+b.done()
+b = Builder()                                                   # stars of many sizes
+while b.n < N - 40:
+    b.star(ri(0, 30))
+while b.n < N:
+    b.bip(1, 0)
+b.done()
+b = Builder()                                                   # differences 3 3 2 2 2 repeated an odd number of times
+for _ in range(155):
+    for p, q in ((5, 2), (5, 2), (4, 2), (4, 2), (4, 2)):
+        b.bip(p, q, 1)
+b.done()
+b = Builder()                                                   # differences 30 30 20 20 20, 37 times
+for _ in range(37):
+    for d in (30, 30, 20, 20, 20):
+        b.bip(d + 1, 1)
+b.done()
+b = Builder()                                                   # about 25 groups with differences 100..300
+while True:
+    d = ri(100, 300)
+    q = ri(1, 10)
+    if b.n + d + 2 * q > N:
+        break
+    b.bip(d + q, q, ri(0, 3 * q))
+b.done()
+b = Builder()                                                   # large differences only, no small groups
+while True:
+    p = ri(20, 200)
+    q = ri(1, p // 3)
+    if b.n + p + q > N:
+        break
+    b.bip(p, q, ri(0, p))
+b.done()
+b = Builder()                                                   # many groups with equal sides plus a few lopsided ones
+while b.n < N - 510:
+    s = ri(1, 30)
+    b.bip(s, s, ri(0, s))
+for p in (201, 100, 99, 30, 15):
+    b.bip(p, 1)
+b.done()
+b = Builder()                                                   # random small trees and isolated people
+while b.n < N - 20:
+    if random.random() < 0.3:
+        b.bip(1, 0)
+    else:
+        b.bip(ri(1, 12), ri(1, 12), ri(0, 3))
+b.done()
+b = Builder()                                                   # paths and even cycles (differences 0 and 1)
+while b.n < N - 200:
+    L = ri(2, 200)
+    b.bip((L + 1) // 2, L // 2, 0)
+b.done()
+b = Builder()                                                   # one huge lopsided group and many isolated people
+b.bip(3500, 2, 0)
+while b.n < N:
+    b.bip(1, 0)
+b.done()
+b = Builder()                                                   # mostly isolated people plus a few big groups
+for d in (900, 701, 503, 301):
+    b.bip(d + 2, 2, 1)
+while b.n < N:
+    b.bip(1, 0)
+b.done()
+b = Builder()                                                   # powers of two differences
+for e in range(11):
+    b.bip(2 ** e + 1, 1)
+while b.n + 100 <= N:
+    b.bip(ri(1, 50), ri(1, 50), ri(0, 50))
+b.done()
+b = Builder()                                                   # big groups with many pairs
+while b.n + 600 <= N:
+    p = ri(1, 300)
+    b.bip(p, ri(1, p), ri(0, p * 30))
+b.done()
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

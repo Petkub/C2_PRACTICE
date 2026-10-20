@@ -1,88 +1,95 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(7001)
-MAXN, MAXM = 200_000, 200_000
+random.seed(60001)
+MAXR = MAXC = 1000
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def add(g):
+    r, c = len(g), len(g[0])
+    assert 1 <= r <= MAXR and 1 <= c <= MAXC
+    assert all(len(row) == c and set(row) <= set(".*#") for row in g)
+    tests.append(f"{r} {c}\n" + "".join(row + "\n" for row in g))
 
 
-def add(n, edges):
-    m = len(edges)
-    assert 1 <= n <= MAXN and 0 <= m <= MAXM
-    assert all(1 <= a <= n and 1 <= b <= n and a != b for a, b in edges)
-    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in edges))
+def rnd(r, c, rock, star):
+    """each cell is a rock with probability rock, a viewpoint with probability star"""
+    g = []
+    for _ in range(r):
+        row = []
+        for _ in range(c):
+            x = random.random()
+            row.append("#" if x < rock else "*" if x < rock + star else ".")
+        g.append("".join(row))
+    return g
 
 
-def relabel(n, edges):
-    """random person numbers and random order of pairs and of the two ends"""
-    p = list(range(1, n + 1))
-    random.shuffle(p)
-    res = [(p[a - 1], p[b - 1]) if random.random() < 0.5 else (p[b - 1], p[a - 1]) for a, b in edges]
-    random.shuffle(res)
-    return res
+def put(g, i, j, ch):
+    g[i] = g[i][:j] + ch + g[i][j + 1:]
 
 
-def path(start, k):
-    return [(start + i, start + i + 1) for i in range(k - 1)]
-
-
-def rnd_edges(n, m):
-    res = []
-    while len(res) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a != b:
-            res.append((a, b))
-    return res
+def clear_ends(g):
+    put(g, 0, 0, ".")
+    put(g, len(g) - 1, len(g[0]) - 1, ".")
+    return g
 
 
 # samples
-add(6, [(1, 2), (4, 2), (3, 6)])
-add(5, [(2, 5), (4, 3), (3, 4)])
-add(1, [])
-add(4, [])
-add(7, [(5, 7), (7, 3), (1, 2), (6, 4)])
-add(5, [(1, 2), (2, 3), (3, 1), (4, 5), (5, 3), (2, 1)])
-# hidden: small
-add(2, [(2, 1)])
-add(2, [(1, 2), (2, 1), (1, 2)])
-add(3, [(2, 3)])                                     # the largest group does not contain 1
-add(8, [(8, 7), (6, 5), (4, 3)])                     # three groups of size 2, answer 3
-add(10, relabel(10, path(1, 4) + path(5, 4)))        # two groups of size 4 with random numbers
-add(12, rnd_edges(12, 6))
-add(30, rnd_edges(30, 20))
-add(50, relabel(50, path(1, 50)))
-add(200, rnd_edges(200, 120))
-add(2000, rnd_edges(2000, 1500))
-add(5000, relabel(5000, path(1, 2500) + path(2501, 2500)))
+add(["..*.", ".#..", "...."])
+add([".#*", "..."])
+add(["*..", "...", "..."])
+add(["#"])
+add(["...#....", ".*....#.", "..#.*...", "#.......", "...*..#."])
+add(["."] * 3 + ["*"] + ["."] * 2)
+# hidden: small (every path is walked)
+add(["*"])
+add(["."])
+add(["...."])
+add(["..*.", "....", "...#"])
+add(clear_ends(rnd(8, 9, 0.2, 0.05)))
+add(clear_ends(rnd(12, 12, 0.1, 0.02)))
+add(clear_ends(rnd(13, 14, 0.05, 0.0)))                    # no viewpoint: 0
+g = ["." * 14 for _ in range(14)]
+put(g, 13, 13, "*")                                        # viewpoint at the end: every path counts
+add(g)
+add(clear_ends(rnd(14, 13, 0.0, 0.3)))                     # many viewpoints on one path
+add(rnd(10, 10, 0.0, 1.0))                                 # all viewpoints
 # hidden: large
-N = MAXN
-add(N, relabel(N, path(1, N)))                       # one long path, random numbers: labels spread slowly
-add(N, [(i + 1, i) for i in range(N - 1, 0, -1)])    # path N - (N-1) - ... - 1, listed from the far end
-add(N, relabel(N, path(1, N // 2) + path(N // 2 + 1, N // 2)))   # two equal halves
-add(N, [(1, i) for i in range(2, N + 1)])            # a star
-add(N, [])                                           # nobody has a friend
-add(N, rnd_edges(N, MAXM))
-add(N, rnd_edges(N, N // 2))                         # many small groups
-add(N, relabel(N, [(1, 2)] * MAXM))                  # one pair repeated
-edges = []
-for s in range(1, N + 1, 50_000):                    # 4 paths of 50 000; the first is cut, 3 tie
-    edges += path(s, 50_000)
-edges.pop(0)
-add(N, relabel(N, edges))
-rest = [(150_000 + a, 150_000 + b) for a, b in rnd_edges(50_000, 49_999)]
-add(N, relabel(N, path(1, 150_000) + rest))          # a long path and a random part
-comb = path(1, N // 2) + [(i, N // 2 + i) for i in range(1, N // 2 + 1)]
-add(N, relabel(N, comb))                             # a path with one extra friend at every person
-edges = [(a + 100_000, b + 100_000) for a, b in relabel(100_000, path(1, 100_000))]
-for s in range(1, 100_001, 1000):                    # many groups of 1000 among 1..100 000
-    edges += path(s, 1000)
-random.shuffle(edges)
-add(N, edges)                                        # the unique largest group is 100 001..200 000
+R = C = 1000
+
+
+def blank(r, c):
+    return ["." * c for _ in range(r)]
+
+
+g = blank(R, C)
+put(g, 500, 500, "*")
+add(g)                                                     # one viewpoint, huge counts
+g = blank(R, C)
+put(g, 0, 0, "*")
+add(g)                                                     # every path counts
+add(rnd(R, C, 0.0, 1.0))
+add(clear_ends(rnd(R, C, 0.1, 0.0001)))
+add(clear_ends(rnd(R, C, 0.25, 0.001)))
+add(clear_ends(rnd(R, C, 0.05, 0.05)))
+add(clear_ends(rnd(R, C, 0.1, 0.0)))                       # no viewpoint: 0
+g = clear_ends(rnd(R, C, 0.02, 0.0))
+put(g, R - 1, C - 1, "*")
+add(g)                                                     # viewpoint only at the end
+g = blank(R, C)
+for i in range(R):                                         # anti-diagonal wall with a few gaps
+    if i % 97 != 0:
+        put(g, i, C - 1 - i, "#")
+for k in range(30):
+    put(g, random.randrange(R), random.randrange(C), "*")
+add(clear_ends(g))
+g = blank(R, C)
+put(g, 0, 0, "#")
+put(g, 3, 3, "*")
+add(g)                                                     # start is a rock
+add(["*" if i == 700 else "." for i in range(R)])          # one column
+add([".." * 300 + "*" + "." * 399])                        # one row
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,104 +1,169 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(81010)
-MAXN, MAXM, MAXQ, MAXC = 500, 5000, 200_000, 10**9
+random.seed(7010)
+MAXR = MAXC = 1000
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, edges, qs, shuffle=True):
-    edges = list(edges)
-    if shuffle:
-        random.shuffle(edges)
-    m, q = len(edges), len(qs)
-    assert 2 <= n <= MAXN and 1 <= m <= MAXM and 1 <= q <= MAXQ
-    assert all(1 <= a <= n and 1 <= b <= n and a != b and 1 <= c <= MAXC for a, b, c in edges)
-    assert all(1 <= t <= n and 1 <= k <= n for t, k in qs)
-    tests.append(f"{n} {m} {q}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in edges)
-                 + "".join(f"{t} {k}\n" for t, k in qs))
+def add(rows):
+    r, c = len(rows), len(rows[0])
+    assert 1 <= r <= MAXR and 1 <= c <= MAXC and r * c >= 2
+    assert all(len(x) == c and set(x) <= set(".#ST") for x in rows)
+    text = "".join(rows)
+    assert text.count("S") == 1 and text.count("T") == 1
+    tests.append(f"{r} {c}\n" + "".join(x + "\n" for x in rows))
 
 
-def rnd_edges(n, m, clo, chi):
-    res = []
-    while len(res) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a != b:
-            res.append((a, b, ri(clo, chi)))
-    return res
+def place(g, s=None, t=None):
+    """put S and T on free cells (random ones unless given; T next to a wall or the border, so that
+    the robot may stop there), return the rows as strings"""
+    r, c = len(g), len(g[0])
+
+    def blocked(i, j):
+        return not (0 <= i < r and 0 <= j < c) or g[i][j] == "#"
+
+    for ch, pos in (("S", s), ("T", t)):
+        if pos is None:
+            while True:
+                i, j = ri(0, r - 1), ri(0, c - 1)
+                if g[i][j] == "." and (ch == "S" or any(blocked(i + a, j + b)
+                                                        for a, b in ((0, 1), (1, 0), (0, -1), (-1, 0)))):
+                    break
+        else:
+            i, j = pos
+        g[i][j] = ch
+    return ["".join(x) for x in g]
 
 
-def rnd_q(n, q, kmax=None):
-    kmax = kmax or n
-    return [(ri(1, n), ri(1, kmax)) for _ in range(q)]
+def solve(rows):
+    """reference BFS (slow, small grids only)"""
+    r, c = len(rows), len(rows[0])
+    for i in range(r):
+        for j in range(c):
+            if rows[i][j] == "S":
+                s = (i, j)
+    dist = {s: 0}
+    q = [s]
+    for i, j in q:
+        if rows[i][j] == "T":
+            return dist[(i, j)]
+        for a, b in ((0, 1), (1, 0), (0, -1), (-1, 0)):
+            x, y = i, j
+            while 0 <= x + a < r and 0 <= y + b < c and rows[x + a][y + b] != "#":
+                x, y = x + a, y + b
+            if (x, y) not in dist:
+                dist[(x, y)] = dist[(i, j)] + 1
+                q.append((x, y))
+    return -1
 
 
-def perm(n):
-    p = list(range(2, n + 1))
-    random.shuffle(p)
-    return [1] + p
+def reachable_small(r, c, d):
+    """random grid whose answer is not -1"""
+    while True:
+        rows = place(rnd(r, c, d))
+        if solve(rows) >= 0:
+            return rows
 
 
-def staircase(n, m, cmax):
-    """cities on a line; a flight over d cities costs more than d short flights, so more flights is cheaper"""
-    p = perm(n)
-    e = [(p[i], p[i + 1], ri(cmax // 2, cmax)) for i in range(n - 1)]
-    while len(e) < m:
-        i = ri(0, n - 2)
-        j = min(n - 1, i + ri(2, 60))
-        e.append((p[i], p[j], min(MAXC, (j - i) * cmax + ri(1, cmax))))
-    return e
+def corners(g):
+    """S = first free cell of the top row, T = last free cell of the bottom row"""
+    r, c = len(g), len(g[0])
+    sj = next(j for j in range(c) if g[0][j] == ".")
+    tj = next(j for j in range(c - 1, -1, -1) if g[r - 1][j] == ".")
+    return place(g, (0, sj), (r - 1, tj))
 
 
-def chain_q(n, q):
-    """queries near the number of flights the cheapest route needs"""
-    return [(ri(1, n), max(1, min(n, ri(1, n) if random.random() < 0.3 else ri(n - 80, n)))) for _ in range(q)]
+def rnd(r, c, dens):
+    return [["#" if random.random() < dens else "." for _ in range(c)] for _ in range(r)]
+
+
+def serpentine(r, c):
+    """corridors on even rows joined at alternating ends: the robot zigzags all the way down"""
+    g = [["."] * c for _ in range(r)]
+    for i in range(1, r, 2):
+        for j in range(c):
+            g[i][j] = "#"
+        g[i][c - 1 if i % 4 == 1 else 0] = "."
+    return g
 
 
 # samples
-add(4, [(1, 2, 1), (2, 3, 1), (3, 4, 1), (1, 4, 10), (1, 3, 5)], [(4, 1), (4, 2), (4, 3)], False)
-add(3, [(1, 2, 4), (3, 1, 2)], [(1, 1), (2, 2), (3, 3)], False)
-add(4, [(1, 2, 2), (2, 3, 7), (1, 3, 20), (3, 4, 1), (2, 4, 30)], [(4, 2), (4, 3)], False)
-add(3, [(1, 2, MAXC), (2, 3, MAXC), (1, 2, 1)], [(3, 2), (2, 1)], False)
-add(3, [(1, 2, 5), (2, 1, 1), (2, 3, 1)], [(1, 3), (3, 3)], False)
-# hidden: small
-add(2, [(2, 1, 1)], [(1, 1), (2, 2)])
-for n, m, chi, q in ((5, 10, 10, 20), (6, 15, 5, 30), (8, 20, 100, 40), (8, 30, 3, 40), (10, 40, MAXC, 50)):
-    add(n, rnd_edges(n, m, 1, chi), rnd_q(n, q))
-add(12, staircase(12, 30, 10), rnd_q(12, 60))
-add(30, staircase(30, 100, 1000), rnd_q(30, 300))
-add(60, rnd_edges(60, 300, 1, 50), rnd_q(60, 500))
-add(100, staircase(100, 600, 10**6), chain_q(100, 1000))
-# hidden: maximum size
-N, M, Q = MAXN, MAXM, MAXQ
-add(N, staircase(N, M, 10**6), chain_q(N, Q))
-add(N, staircase(N, M, MAXC // 60), chain_q(N, Q))
-p = perm(N)
-e = [(p[i], p[i + 1], MAXC) for i in range(N - 1)]               # one route, up to 499 * 10^9
-while len(e) < M:
-    i, j = sorted(random.sample(range(N), 2))
-    e.append((p[j], p[i], ri(1, MAXC)))                          # flights back along the route
-add(N, e, chain_q(N, Q))
-add(N, staircase(N, M, 1000), chain_q(N, Q), False)              # flights listed along the route
-add(N, rnd_edges(N, M, 1, MAXC), rnd_q(N, Q))
-add(N, rnd_edges(N, M, 1, 10), rnd_q(N, Q, 10))
-add(N, staircase(N, M, 10**4), [(t, k) for t, k in chain_q(N, Q)])
-p = perm(N)
-e = [(p[i], p[i + 1], ri(1, 10)) for i in range(N // 2)]         # half of the cities unreachable
-while len(e) < M:
-    i, j = ri(0, N - 1), ri(0, N // 2)
-    if i != j:
-        e.append((p[i], p[j], ri(1, MAXC)))
-add(N, e, chain_q(N, Q))
-e = []
-for i in range(2, N + 1):                                        # every city: direct expensive flight, cheaper via hubs
-    e.append((1, i, ri(10**8, MAXC)))
-e += staircase(N, M - len(e), 10**5)
-add(N, e, rnd_q(N, Q))
-add(N, staircase(N, M, 10**6), [(ri(1, N), N) for _ in range(Q)])
+add(["S..#.",
+     "..#..",
+     ".....",
+     "#...T",
+     "....#"])
+add(["S....",
+     "..T..",
+     "....."])
+add(["#S#",
+     "#T.",
+     "..."])
+add(["S..T#."])
+add(["..#...",
+     "S...#.",
+     "#.....",
+     "...T.#"])
+add(["T......",
+     ".#####.",
+     ".#...#.",
+     ".#.S.#.",
+     ".#...#.",
+     ".......",
+     ])
+# hidden: small (checked by repeated relaxation)
+add(["ST"])
+add(["S", ".", "T"])
+add(["S.T."])                                                  # T is passed over, never a stop
+add(["T.S", "...", "..."])
+for r, c, d in ((6, 6, 0.2), (8, 10, 0.3), (12, 12, 0.15), (15, 20, 0.35), (20, 20, 0.1),
+                (30, 30, 0.25), (40, 50, 0.4), (60, 60, 0.05)):
+    add(reachable_small(r, c, d))
+add(place(rnd(30, 30, 0.3)))
+add(place(serpentine(41, 30), (0, 0), (40, 29)))
+add(reachable_small(150, 200, 0.3))
+# hidden: large
+R, C = MAXR, MAXC
+add(place(rnd(R, C, 0.02), (0, 0), (R - 1, C - 1)))
+add(corners(rnd(R, C, 0.1)))
+add(corners(rnd(R, C, 0.2)))
+add(corners(rnd(R, C, 0.25)))
+add(corners(rnd(R, C, 0.08)))
+add(corners(rnd(R, C, 0.4)))
+add(place([["."] * C for _ in range(R)], (R // 2, C // 2), (R // 2 - 1, C // 2 + 7)))   # empty room: -1
+add(place([["."] * C for _ in range(R)], (R // 2, C // 3), (R - 1, 0)))                 # empty room: 2
+add(place(serpentine(R - 1, C), (0, 0), (R - 2, C - 1 if (R - 2) % 4 == 0 else 0)))
+g = serpentine(R - 1, C)                                        # target in the middle of a corridor
+add(place(g, (0, 0), (R // 2 + (R // 2) % 2, C // 2)))
+g = rnd(R, C, 0.003)                                            # sparse posts: long slides
+add(corners(g))
+g = rnd(R, C, 0.1)
+for j in range(C):                                              # a wall across the middle with few gaps
+    g[R // 2][j] = "#"
+for _ in range(4):
+    j = ri(1, C - 1)
+    for i in range(R):                                          # a clear column through each gap
+        g[i][j] = "."
+g[0][0] = "."
+add(place(g, (0, 0), (R - 1, j)))
+g = rnd(R, C, 0.25)
+for j in range(C):                                              # a closed wall: unreachable half
+    g[R // 2][j] = "#"
+for (i, j) in ((ri(0, R // 2 - 1), ri(0, C - 1)), (ri(R // 2 + 1, R - 1), ri(0, C - 1))):
+    g[i][j] = "."
+s_pos = None
+add(place(g))
+g = [["."] * C for _ in range(R)]                               # a staircase: right and down move one cell each
+for i in range(R - 2):
+    g[i][i + 2] = "#"
+    g[i + 2][i + 1] = "#"
+add(place(g, (0, 0), (R - 1, C - 1)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

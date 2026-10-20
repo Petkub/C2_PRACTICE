@@ -1,70 +1,85 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40405)
-MAXN, MAXX, MAXB = 100_000, 10**9, 10**9
+random.seed(3005)
+MAXN, MAXA = 200_000, 10**9
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (deterministic, faster than randint)"""
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(lamps, houses):
-    n, q = len(lamps), len(houses)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXN
-    assert all(1 <= l <= r <= MAXX and 1 <= b <= MAXB for l, r, b in lamps)
-    assert all(1 <= p <= MAXX for p in houses)
-    tests.append(f"{n} {q}\n" + "".join(f"{l} {r} {b}\n" for l, r, b in lamps)
-                 + " ".join(map(str, houses)) + "\n")
+def add(a):
+    n = len(a)
+    assert 1 <= n <= MAXN
+    assert all(0 <= x <= MAXA for x in a)
+    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
 
 
-def rlamps(n, X, maxlen, B):
-    out = []
-    for _ in range(n):
-        l = ri(1, X)
-        out.append((l, min(X, l + ri(0, maxlen)), ri(1, B)))
-    return out
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
-def rh(q, X):
-    return [ri(1, X) for _ in range(q)]
+def levels(n, sizes, blocked=False):
+    """stone 1 reaches level 1; every stone of level k reaches exactly the end of level k+1 (long scans,
+    few jumps). With blocked=True the last level cannot reach stone n."""
+    ends = [1]
+    for s in sizes:
+        ends.append(ends[-1] + s)
+    assert ends[-1] == n
+    a = [0] * (n + 1)
+    lvl = 0
+    for i in range(1, n + 1):
+        while ends[lvl] < i:
+            lvl += 1
+        if lvl + 1 < len(ends):
+            a[i] = ends[lvl + 1] - i
+    if blocked:
+        for i in range(1, n):
+            a[i] = min(a[i], n - 1 - i)
+    return a[1:]
 
 
 # samples
-add([(1, 5, 3), (4, 10, 7), (8, 9, 2)], [2, 4, 9, 11])
-add([(5, 5, 4), (1, 4, 9)], [5, 4, 6])
-add([(1, MAXX, MAXB)], [MAXX])
-add([(2, 6, 5), (3, 4, 5), (6, 8, 1)], [6, 6, 3, 1])
-add([(1, 100, 1), (10, 20, 50), (15, 30, 20), (40, 40, 8)], [15, 21, 40, 100, 31])
-add([(10, 20, 3)], [1, 9, 21])
+add([2, 3, 1, 1, 4, 0])
+add([3, 2, 1, 0, 4])
+add([0])
+add([1, 1, 1, 1, 1])
+add([2, 0, 3, 1, 0, 2, 5, 0])
+add([10, 0, 0, 0])
 # hidden: small
-add([(1, 1, 1)], [1])
-add([(3, 3, 5), (3, 3, 5), (3, 3, 2)], [3, 2, 4])          # equal brightness on the same spot
-add(rlamps(6, 20, 5, 10), rh(10, 22))
-add(rlamps(40, 100, 20, 30), rh(50, 100))
-add(rlamps(300, 1000, 100, 5), rh(300, 1000))            # many equal brightness values
-add(rlamps(2000, 10**6, 2000, MAXB), rh(2000, 10**6))
-add(rlamps(3000, MAXX, 10**7, MAXB), rh(3000, MAXX))
-add([(i, i, i) for i in range(1, 3001)], list(range(3000, 0, -1)))
-# hidden: large (N * Q = 10^10 for the one-by-one way)
+add([5])
+add([0, 3])
+add([1, 0])
+add([1, 0, 1])
+add([2, 0, 1, 0])
+add([3, 0, 0, 0, 0])
+add([1, 2, 0, 1, 1, 0, 0])
+for n, hi in [(8, 2), (10, 3), (12, 2), (15, 4), (20, 3), (50, 5), (300, 6), (2000, 4)]:
+    add(rnd(n, 1, hi))
+for n, hi in [(10, 2), (30, 3), (200, 4)]:
+    add(rnd(n, 0, hi))
+add(rnd(5000, 0, 9) + [0])
+# hidden: maximum size
 N = MAXN
-X = 10**6
-add(rlamps(N, X, 100, 10**4), rh(N, X))                   # many dark houses
-add(rlamps(N, X, 30_000, 10**4), rh(N, X))
-add(rlamps(N, X, X, 10**6), rh(N, X))
-lamps = [(ri(1, 1000), ri(1001, 2000), ri(100_000, 999_999)) for _ in range(N - 1000)]
-lamps += [(1, X, ri(1, 99)) for _ in range(1000)]          # bright lamps far away, dim lamps everywhere
-add(lamps, [ri(2001, X) for _ in range(N)])
-lamps = [(ri(1, 5000), ri(1, 5000) + 5000, ri(1, 10**6)) for _ in range(N)]
-add(lamps, [ri(5001, 999_999) for _ in range(N)])         # nobody is lit
-add([(i, X + 1 - i, i) for i in range(1, N + 1)], rh(N, X))  # nested
-add([(1, X, 7)] * N, rh(N, X))                            # all equal, removal of one copy
-add([(10 * i + 1, 10 * i + 10, ri(1, 10**6)) for i in range(N)], [10 * i + 10 for i in range(N)])  # right ends
-add([(10 * i + 1, 10 * i + 10, ri(1, 10**6)) for i in range(N)], [10 * i + 1 for i in range(N)])   # left ends
-add(rlamps(N, 100, 30, 10**6), rh(N, 100))                # many equal positions
-add(rlamps(70_000, MAXX, 10**8, MAXB), rh(70_000, MAXX))  # large values
+add([1] * N)                                        # N - 1 jumps
+add([MAXA] * N)                                     # one jump
+add([N - 1 - i for i in range(1, N)] + [0])         # everyone reaches stone N - 1 only: -1, long scans
+add(levels(N, [N // 2, N // 2 - 2, 1]))             # 3 jumps, the middle level is huge
+add(levels(N, [1, N // 3, N // 3, N - 1 - 1 - 2 * (N // 3)]))
+add(levels(N, [N // 2, N // 2 - 2, 1], blocked=True))
+add(levels(N, [N // 8] * 7 + [N - 1 - 7 * (N // 8)]))
+add(rnd(N, 1, 3))
+add(rnd(N, 1, 100000))
+a = rnd(N, 1, 30000)
+a[N // 2] = 0                                       # nobody gets past stone N / 2 + 1
+for i in range(N // 2 - 30000, N // 2):
+    a[i] = min(a[i], N // 2 - i)
+add(a)
+a = [ri(0, 1) * ri(1, MAXA) if ri(0, 99) == 0 else ri(1, 4) for _ in range(N)]
+add(a)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

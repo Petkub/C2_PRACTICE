@@ -1,8 +1,9 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110013)
-MAXN, MAXQ = 500_000, 200_000
+random.seed(91301)
+MAXN, MAXK, MAXL, MAXCH = 100_000, 200_000, 20, 2_000_000
+OK = set("abcdefghijklmnopqrstuvwxyz0123456789@.")
 tests = []
 
 
@@ -10,70 +11,79 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(s, ops):
-    n, q = len(s), len(ops)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert set(s) <= set("()")
-    for op in ops:
-        if op[0] == 1:
-            assert len(op) == 2 and 1 <= op[1] <= n
-        else:
-            assert op[0] == 2 and len(op) == 3 and 1 <= op[1] <= op[2] <= n
-    assert any(op[0] == 2 for op in ops)
-    t = f"{n} {q}\n{s}\n" + "".join(" ".join(map(str, op)) + "\n" for op in ops)
-    assert len(t) <= 3_100_000
-    tests.append(t)
+def add(accs):
+    n = len(accs)
+    assert 1 <= n <= MAXN and all(len(a) >= 1 for a in accs)
+    assert sum(len(a) for a in accs) <= MAXK
+    assert sum(len(e) for a in accs for e in a) <= MAXCH
+    assert all(1 <= len(e) <= MAXL and set(e) <= OK for a in accs for e in a)
+    tests.append(f"{n}\n" + "".join(f"{len(a)} " + " ".join(a) + "\n" for a in accs))
 
 
-def rnd_str(n, p_open=0.5):
-    return "".join("(" if random.random() < p_open else ")" for _ in range(n))
+DOMS = ["a.com", "m.th", "x.co", "p.net", "ac.th", "q.org"]
+LET = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 
-def mix(n, q, flip_frac, long_frac=0.9):
-    ops = []
-    for _ in range(q):
-        if random.random() < flip_frac:
-            ops.append((1, ri(1, n)))
-        elif random.random() < long_frac:
-            l = ri(1, max(1, n // 20))
-            ops.append((2, l, ri(max(l, n - n // 20), n)))
-        else:
-            l = ri(1, n)
-            ops.append((2, l, ri(l, n)))
-    if not any(op[0] == 2 for op in ops):
-        ops.append((2, 1, n))
-    return ops
+def email(i, long=False):
+    """a different address for every i"""
+    s, x = "", i + 1
+    while x:
+        s += LET[x % 36]
+        x //= 36
+    if long:
+        return (s + ".abcdefgh")[:13] + "@" + DOMS[0]
+    return s + "@" + DOMS[i % len(DOMS)]
+
+
+def shuffled(accs):
+    accs = [list(a) for a in accs]
+    for a in accs:
+        random.shuffle(a)
+    random.shuffle(accs)
+    return accs
+
+
+def from_pool(n, total, pool, long=False):
+    """every account takes random addresses from a pool"""
+    ks = [1] * n
+    for _ in range(total - n):
+        ks[ri(0, n - 1)] += 1
+    return [[email(ri(0, pool - 1), long) for _ in range(k)] for k in ks]
 
 
 # samples
-add("(()(", [(2, 1, 4), (1, 4), (2, 1, 4), (1, 2), (2, 1, 4)])
-add(")(", [(2, 1, 2), (1, 1), (2, 1, 2), (1, 2), (2, 1, 2)])
-add("(", [(2, 1, 1)])
-add("())(()))((", [(2, 1, 10), (2, 3, 8), (1, 9), (1, 10), (2, 1, 10)])
-add(")()(()(", [(2, 1, 7), (1, 1), (2, 1, 7), (2, 2, 6)])
+add([["ann@a.com", "ann.k@b.org"], ["bob@a.com"], ["ann.k@b.org", "kk@c.net"], ["kk@c.net"]])
+add([["a@x"], ["b@x"], ["b@x", "a@x"]])
+add([["p@q", "p@q", "r@s"], ["t@u"]])
+add([["m1@y.th"], ["m2@y.th"], ["m3@y.th", "m1@y.th"], ["m4@y.th"], ["m2@y.th", "m4@y.th"]])
+add([["z@z"], ["c@c", "d@d"], ["e@e"], ["d@d", "e@e"], ["z@z", "f@f"], ["f@f", "g@g"]])
 # hidden: small
-add(")", [(2, 1, 1), (1, 1), (2, 1, 1)])
-s = rnd_str(10)
-add(s, [(2, l, r) for l in range(1, 11) for r in range(l, 11)] + [(1, 3), (2, 1, 10), (1, 7), (2, 2, 9)])
-add(rnd_str(100), mix(100, 300, 0.3, 0.3))
-add(rnd_str(1000, 0.6), mix(1000, 2000, 0.2, 0.4))
-add("(" * 5000 + ")" * 5000, mix(10000, 5000, 0.1, 0.5))
-add(rnd_str(30000), mix(30000, 10000, 0.3, 0.4))
-add(")" * 3000 + "(" * 3000, mix(6000, 4000, 0.2, 0.5))
+add([["x"]])
+add([["a@b"], ["a@b"]])
+add(from_pool(8, 14, 10))
+add(from_pool(30, 50, 40))
+add(from_pool(200, 400, 300))
+add(shuffled([[email(i), email(i + 1)] for i in range(500)]))
+add(from_pool(2000, 3000, 2500))
 # hidden: maximum size
-N = MAXN
-add(rnd_str(N), mix(N, 150_000, 0.2))
-add(rnd_str(N), mix(N, 160_000, 0.5))
-add(rnd_str(N, 0.55), mix(N, 150_000, 0.3))
-add("(" * N, mix(N, 150_000, 0.3))                                     # flips create the only pairs
-add(")" * N, mix(N, 150_000, 0.3))
-add("(" * (N // 2) + ")" * (N // 2), mix(N, 150_000, 0.2))            # one deep nest
-add("()" * (N // 2), mix(N, 150_000, 0.2))
-add(")" * (N // 2) + "(" * (N // 2), mix(N, 150_000, 0.2))            # nothing matches at first
-s = "".join("(" * 3 + ")" * 2 if i % 2 else "(" + ")" * 2 for i in range(N // 4))[:N]
-add(s, mix(len(s), 150_000, 0.3))
-add(rnd_str(N), [(2, 1, N) if j % 2 else (1, ri(1, N)) for j in range(170_000)])
-add(rnd_str(N, 0.45), mix(N, 150_000, 0.1, 1.0))
+N, K = MAXN, MAXK
+add([[email(0), email(i + 1)] for i in range(N)])               # one address in every account
+add([[email(i + 1), email(0)] for i in range(N)])
+add([[email(i), email(i + 1)] for i in range(N)])               # a chain 1-2-3-...
+add([[email(i), email(i + 1)] for i in range(N)][::-1])
+add(shuffled([[email(i), email(i + 1)] for i in range(N)]))
+add([[email(i)] * 2 for i in range(N)])                         # nobody shares: N persons
+add(from_pool(N, K, N))                                         # one big person and many small ones
+add(from_pool(N, K, 3 * N))
+add(from_pool(N // 2, K // 2, 200_000, long=True))              # long addresses
+accs = []                                                       # 20 persons, accounts interleaved
+for i in range(N):
+    g = i % 20
+    accs.append([email(10**6 + g), email(i)] if random.random() < 0.5 else [email(i), email(10**6 + g)])
+add(accs)
+add([[email(ri(0, 29))] for _ in range(N)])                     # one address each, from 30 addresses
+accs = [[email(5 * (i // 5) + j) for j in range(2)] for i in range(N)]   # groups of five neighbours
+add(shuffled(accs))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

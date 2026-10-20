@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(8005)
-MAXR = MAXC = 1000
+random.seed(7005)
+MAXN, MAXM = 200_000, 200_000
 tests = []
 
 
@@ -11,134 +11,79 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(rows):
-    r, c = len(rows), len(rows[0])
-    assert 1 <= r <= MAXR and 1 <= c <= MAXC
-    assert all(len(x) == c and all(ch in "0123456789#" for ch in x) for x in rows)
-    assert rows[0][0] != "#" and rows[-1][-1] != "#"
-    tests.append(f"{r} {c}\n" + "".join(x + "\n" for x in rows))
+def add(n, edges):
+    m = len(edges)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n and a != b for a, b in edges)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in edges))
 
 
-def digit(lo, hi):
-    return chr(48 + ri(lo, hi))
+def shuffled(n, edges):
+    """random student numbers, random order of pairs and of the two ends"""
+    p = list(range(1, n + 1))
+    random.shuffle(p)
+    res = [(p[a - 1], p[b - 1]) if random.random() < 0.5 else (p[b - 1], p[a - 1]) for a, b in edges]
+    random.shuffle(res)
+    return res
 
 
-def rnd(r, c, lo, hi, wall=0.0):
-    pop = [chr(48 + d) for d in range(lo, hi + 1)] + ["#"]
-    wt = [(1 - wall) / (hi - lo + 1)] * (hi - lo + 1) + [wall]
-    g = ["".join(random.choices(pop, wt, k=c)) for _ in range(r)]
-    g[0] = digit(lo, hi) + g[0][1:]
-    g[-1] = g[-1][:-1] + digit(lo, hi)
-    return g
+def bip(n, m, side=None):
+    """random pairs between a hidden split of the students (always possible)"""
+    if side is None:
+        side = [random.random() < 0.5 for _ in range(n + 1)]
+    left = [i for i in range(1, n + 1) if side[i]]
+    right = [i for i in range(1, n + 1) if not side[i]]
+    if not left or not right:
+        return []
+    return [(left[ri(0, len(left) - 1)], right[ri(0, len(right) - 1)]) for _ in range(m)]
 
 
-def maze(r, c, lo, hi, wallch="#", wlo=0, whi=9):
-    """recursive backtracker maze; r and c odd; passages get digits lo..hi, walls get wallch or digits wlo..whi"""
-    h, w = r // 2 + 1, c // 2 + 1
-    seen = bytearray(h * w)
-    passage = bytearray(r * c)
-    seen[0] = passage[0] = 1
-    stack = [0]
-    rand = random.random
-    while stack:
-        x = stack[-1]
-        i, j = divmod(x, w)
-        nb = []
-        if i + 1 < h and not seen[x + w]:
-            nb.append(x + w)
-        if i > 0 and not seen[x - w]:
-            nb.append(x - w)
-        if j + 1 < w and not seen[x + 1]:
-            nb.append(x + 1)
-        if j > 0 and not seen[x - 1]:
-            nb.append(x - 1)
-        if not nb:
-            stack.pop()
-            continue
-        y = nb[int(rand() * len(nb))]
-        a, b = divmod(y, w)
-        seen[y] = 1
-        passage[2 * a * c + 2 * b] = 1
-        passage[(i + a) * c + (j + b)] = 1
-        stack.append(y)
-    pd = random.choices([chr(48 + d) for d in range(lo, hi + 1)], k=r * c)
-    wd = ["#"] * (r * c) if wallch == "#" else random.choices([chr(48 + d) for d in range(wlo, whi + 1)], k=r * c)
-    cells = [pd[k] if passage[k] else wd[k] for k in range(r * c)]
-    return ["".join(cells[i * c:(i + 1) * c]) for i in range(r)]
-
-
-def serpentine(r, c, lo, hi):
-    """walls on every other row with one gap at alternating ends"""
-    g = []
-    for i in range(r):
-        if i % 2 == 0:
-            g.append("".join(random.choices([chr(48 + d) for d in range(lo, hi + 1)], k=c)))
-        else:
-            gap = c - 1 if i % 4 == 1 else 0
-            g.append("".join(digit(lo, hi) if j == gap else "#" for j in range(c)))
-    return g
-
-
-def diagonal(r, c, lo, hi):
-    """staircase corridors along anti-diagonals (i + j) mod 4 in {0, 1}, joined at alternating ends"""
-    assert (r + c - 2) % 4 in (0, 1)
-    digits = [chr(48 + d) for d in range(lo, hi + 1)]
-    g = []
-    for i in range(r):
-        row = random.choices(digits, k=c)
-        for j in range(c):
-            if (i + j) % 4 >= 2:
-                row[j] = "#"
-        g.append(row)
-    for s in range(2, r + c - 1):
-        if s % 4 < 2:
-            continue
-        t = s // 4
-        i = max(0, s - (c - 1)) if t % 2 == 0 else min(r - 1, s)
-        g[i][s - i] = random.choice(digits)
-    return ["".join(x) for x in g]
-
-
-def transpose(g):
-    return ["".join(g[i][j] for i in range(len(g))) for j in range(len(g[0]))]
+def path(n):
+    return [(i, i + 1) for i in range(1, n)]
 
 
 # samples
-add(["19111", "19191", "11191"])
-add(["5#1", "3#4"])
-add(["1111", "###1", "1111", "1###", "1111"])
-add(["7"])
-add(["000", "000"])
-add(["2#315", "41190", "3#2#6", "12843"])
-# hidden: small
-add(["9" * 20])
-add(["3"] * 25)
-add(rnd(5, 5, 0, 9, 0.3))
-add(rnd(10, 12, 1, 9, 0.25))
-add(maze(15, 21, 1, 9))
-add(serpentine(17, 9, 0, 9))
-add(maze(41, 41, 0, 9, "0", 5, 9))
-add(diagonal(30, 28, 1, 9))
-add(rnd(60, 60, 1, 9, 0.35))
+add(5, [(1, 3), (3, 5), (2, 4)])
+add(3, [(1, 2), (2, 3), (3, 1)])
+add(1, [])
+add(4, [(4, 2), (2, 3)])
+add(6, [(1, 2), (2, 3), (3, 4), (4, 1), (2, 1), (5, 6)])
+add(7, [(1, 2), (3, 4), (4, 5), (5, 6), (6, 7), (7, 3)])
+# hidden: small (every assignment is tried)
+add(2, [(2, 1), (1, 2)])
+add(3, [])
+add(4, [(4, 3), (3, 2), (2, 1)])
+add(8, shuffled(8, path(8)))
+add(9, shuffled(9, path(9) + [(9, 1)]))                      # an odd cycle
+add(10, shuffled(10, path(10) + [(10, 1)]))                  # an even cycle
+add(12, bip(12, 15))
+add(14, bip(14, 10))
+add(16, bip(16, 20) + [(3, 5)])                              # one extra pair may spoil it
+add(18, [(i, i + 2) for i in range(1, 17)])
+add(20, bip(20, 25))
+add(20, bip(20, 30) + [(7, 13), (13, 19), (19, 7)])
+# hidden: medium
+add(2000, bip(2000, 3000))
+add(3000, shuffled(3000, path(3000) + [(1, 3000)]))
 # hidden: large
-R = C = MAXR
-add(rnd(R, C, 1, 9))
-add(rnd(R, C, 0, 9, 0.35))
-add(rnd(R, C, 1, 9, 0.2))
-add(maze(999, 999, 1, 9))
-add(maze(999, 999, 9, 9))
-add(maze(999, 999, 0, 1, "9", 9, 9))            # walls are only expensive, not closed
-add(serpentine(999, C, 1, 9))
-add(transpose(serpentine(999, C, 0, 9)))
-g = maze(999, 999, 1, 9)                       # closed exit
-g[-1] = g[-1][:-2] + "#" + g[-1][-1]
-g[-2] = g[-2][:-1] + "#"
-add(g)
-add(["5" * C] * R)                             # everything equal
-add(diagonal(R, 999, 1, 9))                    # one long staircase corridor
-add(transpose(diagonal(R, 999, 0, 9)))
-add(diagonal(998, 1000, 9, 9))
-add(maze(999, 999, 0, 9, "0", 3, 9))
+N = MAXN
+add(N, shuffled(N, path(N)))                                 # one long chain
+add(N, shuffled(N, path(N) + [(1, N - 1)]))                  # an odd cycle through almost everybody
+add(N, shuffled(N, path(N) + [(1, N)]))                      # an even cycle through everybody
+add(N, [(1, i) for i in range(2, N + 1)])                    # a star
+add(N, bip(N, MAXM))
+chords = []
+while len(chords) < MAXM - N:                                # chain with chords of odd length (still possible)
+    a = ri(1, N - 1)
+    b = a + 2 * ri(0, min(1000, (N - a - 1) // 2)) + 1
+    chords.append((a, b))
+x = ri(1000, N - 1000)
+add(N, shuffled(N, path(N) + chords[:-1] + [(x, x + 2)]))    # ... and one chord of even length
+add(N, [])
+add(N, bip(N, N // 3))                                       # many groups
+add(N, bip(N, MAXM - 3) + [(N - 2, N - 1), (N - 1, N), (N, N - 2)])   # a triangle among the last students
+add(N, [(2 * i - 1, 2 * i) for i in range(1, N // 2 + 1)])
+add(N, shuffled(N, chords + path(N)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

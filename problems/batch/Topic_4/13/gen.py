@@ -1,60 +1,89 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40113)
-MAXN, MAXD = 120_000, 10**4
+random.seed(30113)
+MAXN = 100_000
+MAXT = 10**6
+MAXD = 10**11
+MAXW = 1000
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, b):
-    """a, b: lists of (free, busy)"""
-    n, m = len(a), len(b)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXN
-    for (f, x) in a + b:
-        assert 0 <= f <= MAXD and 1 <= x <= MAXD
-    la = " ".join(f"{f} {x}" for (f, x) in a)
-    lb = " ".join(f"{f} {x}" for (f, x) in b)
-    tests.append(f"{n} {m}\n{la}\n{lb}\n")
+def add(jobs):
+    n = len(jobs)
+    assert 1 <= n <= MAXN
+    assert all(1 <= t <= MAXT and 1 <= d <= MAXD and 1 <= w <= MAXW for t, d, w in jobs)
+    tests.append(f"{n}\n" + "".join(f"{t} {d} {w}\n" for t, d, w in jobs))
 
 
-def rnd(k, flo, fhi, blo, bhi):
-    return [(ri(flo, fhi), ri(blo, bhi)) for _ in range(k)]
+def rnd(n, tmax, slack, wmax=MAXW):
+    """durations 1..tmax, deadlines spread over [1, total * slack], weights 1..wmax"""
+    ts = [ri(1, tmax) for _ in range(n)]
+    hi = max(1, min(MAXD, int(sum(ts) * slack)))
+    return [(t, ri(1, hi), ri(1, wmax)) for t in ts]
+
+
+def tight(n, tmax, extra, wmax=MAXW):
+    """a schedule with no fine exists: deadlines = finish times in a random order + a little"""
+    ts = [ri(1, tmax) for _ in range(n)]
+    now, res = 0, []
+    for t in ts:
+        now += t
+        res.append((t, min(MAXD, now + ri(0, extra)), ri(1, wmax)))
+    random.shuffle(res)
+    return res
 
 
 # samples
-add([(1, 3), (2, 2)], [(2, 5)])
-add([(0, 5)], [(5, 3), (4, 1)])
-add([(0, 10000)], [(0, 10000)])
-add([(3, 1), (1, 1), (1, 1), (1, 1)], [(2, 2), (0, 3), (2, 6)])
-add([(4, 2), (0, 3), (10, 5)], [(1, 4), (1, 1), (0, 2), (9, 1)])
-# hidden: small
-add([(0, 1)], [(1, 1)])
-add([(7, 2)], [(0, 8)])
-add(rnd(5, 0, 5, 1, 5), rnd(6, 0, 5, 1, 5))
-add(rnd(40, 0, 20, 1, 20), rnd(30, 0, 20, 1, 30))
-add(rnd(500, 0, 100, 1, 100), rnd(700, 0, 80, 1, 50))
-add(rnd(3000, 0, MAXD, 1, MAXD), rnd(2000, 0, MAXD, 1, MAXD))
-add(rnd(8000, 0, 3, 1, 3), rnd(9000, 0, 2, 1, 2))
-add(rnd(5000, 0, 0, 1, MAXD), rnd(4000, MAXD, MAXD, 1, 1))     # first always busy, second rarely
-# hidden: maximum size
+add([(2, 2, 1), (2, 3, 5), (3, 10, 2)])
+add([(5, 5, 3), (1, 10, 7)])
+add([(MAXT, 1, MAXW)])
+add([(2, 6, 1), (3, 6, 4), (1, 6, 2), (4, 3, 3)])
+add([(1, 2, 1), (10, 13, 2), (5, 9, 3)])
+add([(4, 7, 2), (2, 15, 1), (6, 9, 5), (3, 4, 1), (5, 20, 3), (1, 11, 4)])
+# hidden: small (every order is tried)
+add([(1, 1, 1)])
+add([(2, 1, 1), (1, 3, 9)])
+for n, wmax in ((5, 3), (10, 1000), (14, 1000), (16, 50)):
+    add(rnd(n, 10, 0.8, wmax))
+add(tight(16, 20, 2))
+add([(ri(1, MAXT), ri(1, 10**7), ri(1, MAXW)) for _ in range(16)])
+add([(ri(1, 5), 7, ri(1, 9)) for _ in range(12)])               # equal deadlines
+add(rnd(16, 10, 0.6, 1))                                        # all weights 1
+add(rnd(3000, 1000, 0.5))
+# hidden: large
 N = MAXN
-add(rnd(N, 0, MAXD, 1, MAXD), rnd(N, 0, MAXD, 1, MAXD))
-add(rnd(N, 8000, MAXD, 8000, MAXD), rnd(N, 8000, MAXD, 8000, MAXD))   # ends beyond 2^31
-add(rnd(N, MAXD, MAXD, MAXD, MAXD), rnd(N, MAXD, MAXD, MAXD, MAXD))   # identical, times beyond 2^31
-add(rnd(N, 0, 0, MAXD, MAXD), rnd(N, 0, 0, MAXD, MAXD))               # both busy all the time
-add(rnd(N, MAXD - 100, MAXD, 1, 100), rnd(N, 0, 100, MAXD - 100, MAXD))
-add(rnd(N, 9000, MAXD, 9000, MAXD), rnd(N, 9000, MAXD, 9000, MAXD))
-add(rnd(N, 0, 9, 1, 9), rnd(N, 0, 9, 1, 9))                           # short pieces, ends near 2 * 10^6
-add(rnd(N, 0, MAXD, 1, MAXD), rnd(N // 2, MAXD, MAXD, MAXD, MAXD))
-add(rnd(N, 9000, 9000, 9000, 9000), rnd(N, 9000, 9000, 9000, 9000))   # same rhythm, phase shift 0
-add([(0, 9000)] + rnd(N - 1, 9000, 9000, 9000, 9000), rnd(N, 9000, 9000, 9000, 9000))   # exactly out of phase
-add(rnd(N, 0, MAXD, MAXD - 10, MAXD), rnd(N, 0, 10, 1, MAXD))
-add(rnd(10, 0, 0, MAXD, MAXD), rnd(N, 0, MAXD, 1, MAXD))              # first busy only at the start
-add(rnd(N, 1, MAXD, 8000, MAXD), rnd(N, 1, MAXD, 8000, MAXD))
+add(rnd(N, MAXT, 1.0))
+add(rnd(N, MAXT, 0.3))
+add(tight(N, MAXT, 0))                                          # answer 0, only one good order up to ties
+add(tight(N, 10**4, 3))
+add([(ri(1, 10**4), 10**8, ri(1, MAXW)) for _ in range(N)])     # all deadlines equal
+add([(MAXT, ri(1, 10**6), MAXW) for _ in range(N)])             # the largest fines
+add(rnd(N, MAXT, 0.7, 1))                                       # all weights 1
+jobs = [(N - i, i + 1, ri(1, MAXW)) for i in range(N)]          # long jobs have early deadlines
+add(jobs)
+jobs = []
+for i in range(N):                                              # costly jobs with later deadlines
+    t = ri(1, 10**4)
+    if i % 10 == 0:
+        jobs.append((t, ri(10**7, 10**8), MAXW))
+    else:
+        jobs.append((t, ri(1, 10**8), 1))
+random.shuffle(jobs)
+add(jobs)
+jobs = []
+for i in range(N):                                              # weights 1 or 1000
+    t = ri(1, 10**5)
+    jobs.append((t, ri(1, 4 * 10**9), random.choice((1, MAXW))))
+add(jobs)
+add(tight(N, MAXT, 10**6))
+add(rnd(N, 999, 0.7))
+add([(MAXT, MAXD, MAXW)] * N)                                   # everything finishes exactly on time
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

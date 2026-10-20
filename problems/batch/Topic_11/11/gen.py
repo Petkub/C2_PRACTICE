@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110011)
-MAXN, MAXQ, MAXV = 300_000, 200_000, 10**9
+random.seed(91101)
+MAXN, MAXM = 400_000, 400_000
 tests = []
 
 
@@ -10,79 +10,53 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, qs):
-    n, q = len(a), len(qs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= v <= MAXV for v in a)
-    assert all(1 <= l <= r <= n and 1 <= x <= MAXV for (l, r, x) in qs)
-    t = f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{l} {r} {x}\n" for (l, r, x) in qs)
-    assert len(t) <= 3_100_000
-    tests.append(t)
+def add(n, ps):
+    m = len(ps)
+    assert 1 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= p <= n for p in ps)
+    tests.append(f"{n} {m}\n" + " ".join(map(str, ps)) + "\n")
 
 
-def queries(a, q, xs, long_frac=0.9):
-    """xs(): a random cap"""
-    n = len(a)
-    res = []
-    for _ in range(q):
-        if random.random() < long_frac:
-            l = ri(1, max(1, n // 20))
-            r = ri(max(l, n - n // 20), n)
-        else:
-            l = ri(1, n)
-            r = ri(l, n)
-        res.append((l, r, xs()))
-    return res
-
-
-def from_values(a):
-    """a cap equal to some value, or one more / one less"""
-    return lambda: max(1, random.choice(a) + ri(-1, 1))
+def block_then_middle(n, m, filled):
+    """first a long run of taken spots (cheap), then every car wants the middle of that run"""
+    start = ri(1, n)
+    ps = [(start - 1 + i) % n + 1 for i in range(filled)]
+    mid = (start - 1 + filled // 2) % n + 1
+    return ps + [mid] * (m - filled)
 
 
 # samples
-add([3, 8, 5, 1, 10], [(1, 5, 6), (2, 3, 4), (4, 4, 100), (1, 5, 1)])
-add([2, 2, 2], [(1, 3, 5), (2, 3, 2)])
-add([7], [(1, 1, 7), (1, 1, 3)])
-add([4, 9, 1, 6, 6, 2], [(1, 6, 5), (2, 5, 6), (3, 3, 1), (1, 4, 10)])
-add([5, 12, 3, 8, 20, 7, 1, 9], [(1, 8, 8), (2, 6, 4), (5, 8, 15), (3, 7, 1), (1, 1, 2)])
+add(6, [3, 3, 3, 4, 1, 6, 2])
+add(5, [5, 5, 5, 1])
+add(1, [1, 1])
+add(8, [4, 5, 3, 4, 4, 8, 2])
+add(10, [10, 1, 10, 9, 2, 1, 10, 5, 6])
 # hidden: small
-add([MAXV], [(1, 1, MAXV), (1, 1, 1)])
-a = [ri(1, 10) for _ in range(10)]
-add(a, [(l, r, ri(1, 11)) for l in range(1, 11) for r in range(l, 11)])
-a = [ri(1, 100) for _ in range(200)]
-add(a, queries(a, 400, from_values(a), 0.3))
-a = [ri(1, MAXV) for _ in range(2000)]
-add(a, queries(a, 3000, lambda: ri(1, MAXV), 0.3))
-a = [ri(1, 1000) for _ in range(10000)]
-add(a, queries(a, 8000, from_values(a), 0.4))
-a = sorted(ri(1, 10**6) for _ in range(5000))
-add(a, queries(a, 5000, from_values(a), 0.5))
+add(1, [1])
+add(2, [2, 2, 1, 2])
+add(7, [ri(1, 7) for _ in range(10)])
+add(30, [ri(1, 30) for _ in range(40)])
+add(100, [50] * 100)
+add(500, [1] * 600)
+add(1000, block_then_middle(1000, 1200, 700))
+add(3000, [ri(1, 3000) for _ in range(3000)])
+add(5000, [ri(1, 10) for _ in range(5000)])
 # hidden: maximum size
-N = 250_000
-a = [ri(1, 9999) for _ in range(N)]
-add(a, queries(a, 75_000, lambda: ri(1, 10**4)))
-a = [ri(1, 9999) for _ in range(N)]
-add(a, queries(a, 75_000, from_values(a)))
-a = [ri(1, 9999) for _ in range(N)]
-add(a, queries(a, 75_000, lambda: ri(1, 50)))                         # almost everything is capped
-a = [ri(1, 9999) for _ in range(N)]
-add(a, queries(a, 75_000, lambda: ri(9990, 99999)))                   # almost nothing is capped
-a = sorted(ri(1, 9999) for _ in range(N))
-add(a, queries(a, 75_000, from_values(a)))
-a = sorted((ri(1, 9999) for _ in range(N)), reverse=True)
-add(a, queries(a, 75_000, from_values(a)))
-add([5000] * N, queries([5000] * N, 75_000, lambda: ri(4999, 5001)))  # equal values, caps at the boundary
-a = [ri(1, 99) for _ in range(300_000)]
-add(a, queries(a, 80_000, from_values(a)))
-a = [MAXV - ri(0, 9) for _ in range(200_000)]
-add(a, queries(a, 30_000, lambda: MAXV - ri(0, 12)))                   # sums up to 2 * 10^14
-a = [ri(1, MAXV) for _ in range(180_000)]
-add(a, queries(a, 30_000, lambda: ri(1, MAXV)))
-a = [9999 - ri(0, 9) for _ in range(300_000)]
-add(a, queries(a, 75_000, lambda: ri(9995, 99999), 0.95))              # sums above 2^31 with short numbers
-a = [ri(1, 9999) if i % 2 else ri(1, 9) for i in range(N)]           # small and large values alternate
-add(a, queries(a, 75_000, from_values(a), 0.95))
+N, M = MAXN, MAXM
+add(N, [N // 2] * M)                                         # one run grows to both sides
+add(N, [1] * M)                                              # ... across the end of the ring
+add(N, block_then_middle(N, M, N * 3 // 4))
+add(N, block_then_middle(N, M, N // 2))
+add(N // 2, block_then_middle(N // 2, M, N // 2 - 20000))     # the lot fills up, then many cars get 0
+add(N, [ri(1, N) for _ in range(M)])
+add(N, [ri(1, 100) for _ in range(M)])
+add(N // 4, [ri(N // 8 - 50, N // 8 + 50) for _ in range(M)])  # the lot fills up, M = 4N
+add(N, [ri(1, N) if i % 2 else N // 3 for i in range(M)])
+ps = [i for i in range(1, N + 1, 2)]                         # every other spot first
+random.shuffle(ps)
+add(N, ps + [ri(1, N) for _ in range(M - len(ps))])
+add(N, [N - (i % 7) for i in range(M)])
+add(3, [ri(1, 3) for _ in range(M)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

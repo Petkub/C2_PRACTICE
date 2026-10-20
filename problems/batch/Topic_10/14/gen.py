@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100114)
-MAXN, MAXM = 100_000, 100_000
+random.seed(81414)
+MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
 tests = []
 
 
@@ -10,126 +10,102 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
-    par = [0, 0]
-    half = max(1, n // 2)
-    b = max(2, int(n ** 0.5))
-    for i in range(2, n + 1):
-        if kind == "path":
-            p = i - 1
-        elif kind == "star":
-            p = 1
-        elif kind == "random":
-            p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, a few short branches
-            p = ri(max(1, i - 3), i - 1)
-        elif kind == "binary":
-            p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
-            p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
-            p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains meeting at node 1
-            p = 1 if i <= 3 else i - 2
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
-            p = i - 1 if (i - 1) % b else ri(1, i - 1)
-        else:
-            raise ValueError(kind)
-        par.append(p)
-    return par
+def add(n, edges, shuffle=True, relabel=True):
+    """relabel: intersections other than 1 get random numbers; each road gets a random orientation"""
+    edges = list(edges)
+    if relabel:
+        p = list(range(2, n + 1))
+        random.shuffle(p)
+        p = [0, 1] + p
+        edges = [(p[a], p[b], w) if random.random() < 0.5 else (p[b], p[a], w) for a, b, w in edges]
+    if shuffle:
+        random.shuffle(edges)
+    m = len(edges)
+    assert 2 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n and 1 <= w <= MAXW for a, b, w in edges)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in edges))
 
 
-def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends"""
-    n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    if root_first:
-        j = lab.index(1)
-        lab[0], lab[j] = lab[j], lab[0]
-    rnd = random.random
-    edges = [(lab[i - 1], lab[par[i] - 1]) if rnd() < 0.5 else (lab[par[i] - 1], lab[i - 1]) for i in range(2, n + 1)]
-    random.shuffle(edges)
-    return edges, lab
+def rnd(n, m, wlo, whi, ploop=0.0):
+    res = []
+    while len(res) < m:
+        a, b = ri(1, n), ri(1, n)
+        if a != b or random.random() < ploop:
+            res.append((a, b, ri(wlo, whi)))
+    return res
 
 
-def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
-    assert len(edges) == n - 1
-    root = list(range(n + 1))
-
-    def find(x):
-        while root[x] != x:
-            root[x] = root[root[x]]
-            x = root[x]
-        return x
-    for u, v in edges:
-        assert 1 <= u <= n and 1 <= v <= n and u != v
-        a, b = find(u), find(v)
-        assert a != b
-        root[a] = b
+def tree(n, wlo, whi, deep=False):
+    e = []
+    for v in range(2, n + 1):
+        par = ri(max(1, v - 3), v - 1) if deep else ri(1, v - 1)
+        e.append((par, v, ri(wlo, whi)))
+    return e
 
 
-def add(n, edges, rs, from_shape=False):
-    """from_shape: the edges come from relabel(), which already guarantees a tree"""
-    assert 1 <= n <= MAXN and 1 <= len(rs) <= MAXM and len(edges) == n - 1
-    if not from_shape:
-        check_tree(n, edges)
-    assert all(1 <= a <= n and 1 <= b <= n for a, b in rs)
-    tests.append(f"{n} {len(rs)}\n" + "".join(f"{u} {v}\n" for u, v in edges)
-                 + "".join(f"{a} {b}\n" for a, b in rs))
-
-
-def rr(n, m):
-    rnd = random.random
-    return [(1 + int(rnd() * n), 1 + int(rnd() * n)) for _ in range(m)]
-
-
-def far_r(lab, m, spread=100):
-    """routes between the two far ends of the shape (long routes)"""
-    n = len(lab)
-    return [(lab[ri(0, spread - 1)], lab[n - 1 - ri(0, spread - 1)]) for _ in range(m)]
-
-
-def big(kind, root_first=False, far=0):
-    n, m = MAXN, MAXM
-    edges, lab = relabel(shape(n, kind), root_first)
-    add(n, edges, far_r(lab, m, far) if far else rr(n, m), True)
+def grid(r, c, wfun):
+    e = []
+    for i in range(r):
+        for j in range(c):
+            v = i * c + j + 1
+            if j + 1 < c:
+                e.append((v, v + 1, wfun(True)))
+            if i + 1 < r:
+                e.append((v, v + c, wfun(False)))
+    return r * c, e
 
 
 # samples
-add(5, [(1, 2), (1, 3), (3, 4), (3, 5)], [(2, 4), (5, 4)])
-add(4, [(4, 3), (3, 1), (1, 2)], [(4, 2), (3, 3), (3, 1)])
-add(1, [], [(1, 1), (1, 1)])
-add(4, [(2, 1), (2, 3), (4, 2)], [(1, 3), (4, 1)])
-add(5, [(5, 3), (1, 5), (2, 3), (4, 1)], [(4, 2)])
-# hidden: small and medium
-add(2, [(2, 1)], [(1, 2), (2, 2), (1, 1)])
-for n, kind, m in ((10, "random", 5), (30, "deep", 20), (40, "star", 30), (60, "caterpillar", 60)):
-    e, lab = relabel(shape(n, kind))
-    add(n, e, rr(n, m))
-e, lab = relabel(shape(3000, "path"), True)
-add(3000, e, rr(3000, 3000))
-e, lab = relabel(shape(5000, "chains"))
-add(5000, e, rr(5000, 5000))
-e, lab = relabel(shape(6000, "twopaths"), True)
-add(6000, e, far_r(lab, 6000, 50))
-e, lab = relabel(shape(8000, "path"))
-add(8000, e, [(lab[0], lab[-1])] * 8000)                        # every route covers everything
+add(4, [(1, 2, 2), (2, 4, 3), (1, 3, 4), (3, 4, 2), (2, 3, 1)], False, False)
+add(3, [(1, 2, 5), (2, 2, 1)], False, False)
+add(4, [(1, 2, 3), (1, 2, 3), (2, 3, 1), (1, 3, 4)], False, False)
+add(3, [(2, 3, 7)], False, False)
+add(3, [(1, 2, MAXW), (2, 3, MAXW)], False, False)
+# hidden: small
+add(2, [(1, 2, 1)])
+add(2, [(1, 1, 4)])
+add(5, [(1, 2, 3), (1, 3, 3), (2, 4, 2), (3, 4, 2), (4, 5, 1)])
+for n, m, whi, pl in ((5, 6, 3, 0.1), (8, 12, 5, 0.0), (10, 15, 2, 0.05), (12, 20, 10, 0.0), (30, 50, 20, 0.02)):
+    add(n, rnd(n, m, 1, whi, pl))
+add(30, tree(30, 1, 5))
+add(40, tree(40, 1, 1))
+n, e = grid(6, 7, lambda h: 1)
+add(n, e)
+n, e = grid(10, 12, lambda h: ri(1, 3))
+add(n, e)
+add(200, rnd(200, 400, 1, 10**6))
+add(300, tree(300, 1, 10, True) + rnd(300, 50, 1, 10))
+add(150, rnd(100, 300, 1, 5))                                                   # intersections 101..150 cut off
 # hidden: maximum size
-big("path", True)
-big("path", False, far=1000)
-big("path", True, far=1)                                        # all junctions tie
-big("deep")
-big("caterpillar", True)
-big("broom", True, far=100)
-big("twopaths", True, far=3000)
-big("chains")
-big("random")
-big("star")
-big("deep", True, far=500)
+N, M = MAXN, MAXM
+add(N, rnd(N, M, 1, MAXW))
+add(50_000, rnd(50_000, M, 1, 3))                                               # many ties
+add(N, tree(N, 1, MAXW, True))                                                  # only back-and-forth detours
+add(N, tree(N, MAXW, MAXW, True), True, False)                                  # lengths near 10^14
+n, e = grid(200, 250, lambda h: 1)
+add(n, e)
+n, e = grid(10_000, 5, lambda h: ri(1, 10) if h else ri(10**8, MAXW))            # cheap rows, costly columns
+add(n, e)
+e = [(i, i + 1, 2) for i in range(1, N)]                                         # a path with parallel roads
+e += [(i, i + 1, 2 + random.choice((0, 1, 2))) for i in range(1, N - 1, 10)]
+add(N, e[:M], True, False)
+add(70_000, rnd(60_000, M, 1, 10**4, 0.01))                                      # some intersections cut off
+e = tree(N - 1, 1, 10**4, True) + [(v, v, ri(1, 3)) for v in range(1, N, 1000)]      # self-loops, one isolated
+add(N, e[:M])
+add(N, [(1, v, ri(1, MAXW)) for v in range(2, N + 1)] + [(2, 3, 1)])               # a star
+n, e = grid(220, 225, lambda h: ri(1, 1000))
+add(n, e[:M])
+e = [(i, i + 1, ri(1, 100)) for i in range(1, 50_000)]                           # long thin band
+while len(e) < M:
+    a = ri(1, 49_999)
+    e.append((a, min(50_000, a + ri(1, 10)), ri(1, 100)))
+add(50_000, e)
+add(30_000, rnd(30_000, M, 1, 2, 0.001))
+e = []
+for b in range(25_000):                                                          # blocks of two equal routes
+    a, x, y, z = 3 * b + 1, 3 * b + 2, 3 * b + 3, 3 * b + 4
+    e += [(a, x, 1), (x, z, 1), (a, y, 1), (y, z, 1)]
+add(75_001, e)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

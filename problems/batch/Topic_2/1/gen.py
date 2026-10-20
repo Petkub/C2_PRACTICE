@@ -1,88 +1,62 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(20201)
-MAXN = 200_000
-MAXV = 10**9
+random.seed(1101)
+MAXN, MAXQ, MAXA = 100_000, 100_000, 10**9
 tests = []
 
+def add(a, qs):
+    n, q = len(a), len(qs)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(-MAXA <= x <= MAXA for x in a)
+    assert all(1 <= l <= n and 1 <= r <= n for l, r in qs)
+    lines = [f"{n} {q}", " ".join(map(str, a))] + [f"{l} {r}" for l, r in qs]
+    tests.append("\n".join(lines) + "\n")
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
-
-
-def add(shows, ts):
-    n, q = len(shows), len(ts)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXN
-    assert all(0 <= l <= r <= MAXV for l, r in shows)
-    assert all(0 <= t <= MAXV for t in ts)
-    tests.append(f"{n} {q}\n" + "".join(f"{l} {r}\n" for l, r in shows) + " ".join(map(str, ts)) + "\n")
-
-
-def rnd_shows(n, hi, maxlen):
-    res = []
-    for _ in range(n):
-        l = ri(0, hi)
-        res.append((l, min(hi, l + ri(0, maxlen))))
-    return res
-
-
-def rnd_ts(q, hi):
-    return [ri(0, hi) for _ in range(q)]
-
-
-def edge_ts(shows, q, hi):
-    """queries placed on interval ends and one minute outside them"""
-    res = []
+def rand_q(n, q, mode):
+    qs = []
     for _ in range(q):
-        l, r = shows[ri(0, len(shows) - 1)]
-        res.append(max(0, min(hi, random.choice((l, r, l - 1, r + 1)))))
-    return res
-
+        if mode == "wrap_long":            # length close to n, always wrapping
+            r = random.randint(1, n - 1) if n > 1 else 1
+            l = r + 1 if random.random() < 0.7 else min(n, r + random.randint(1, 5))
+            if l <= r:
+                l = r + 1 if r < n else 1
+        elif mode == "full":               # l <= r long ranges
+            l = random.randint(1, max(1, n // 50))
+            r = random.randint(n - n // 50, n)
+            l = min(l, r)
+        else:
+            l, r = random.randint(1, n), random.randint(1, n)
+        qs.append((l, r))
+    return qs
 
 # samples
-add([(1, 5), (3, 8), (6, 6), (10, 12)], [0, 3, 6, 9, 12])
-add([(2, 4), (4, 4), (4, 7)], [4, 3, 5, 8])
-add([(0, 0)], [0, 1])
-add([(0, MAXV), (5, 5), (0, MAXV)], [MAXV, 5])
-add([(3, 9), (1, 2), (7, 7), (2, 5), (8, 10)], [2, 7, 8, 11, 6, 5])
-add([(1, 10), (2, 9), (3, 8), (4, 7)], [1, 4, 8, 10])
+add([3, -1, 4, 1, 5], [(2, 4), (4, 2), (3, 3)])
+add([10, -20, 30, -40], [(4, 1), (3, 1), (1, 4)])
+add([-10**9], [(1, 1)])
+add([10**9, 10**9], [(2, 1), (1, 1), (1, 2)])
+add([5, -7, 2, 0, 9, -3], [(6, 1), (2, 5), (5, 4)])
 # hidden: small
-add([(7, 7)], [6, 7, 8])
-add(rnd_shows(10, 20, 5), list(range(0, 22)))
-s = rnd_shows(200, 1000, 100)
-add(s, edge_ts(s, 300, 1000))
-s = rnd_shows(2000, MAXV, MAXV)
-add(s, edge_ts(s, 1000, MAXV) + rnd_ts(1000, MAXV))
-s = [(ri(0, 50),) * 2 for _ in range(3000)]           # every show lasts one minute
-add(s, list(range(0, 52)) * 40)
-add([(0, MAXV)] * 1500 + [(MAXV, MAXV)] * 1500, [0, MAXV, MAXV - 1, 1] * 500)
-# hidden: maximum size (values up to 10^5 keep the files near 3.5 MB)
-N, H = MAXN, 100_000
-add(rnd_shows(N, H, H), rnd_ts(N, H))
-add(rnd_shows(N, H, 1000), rnd_ts(N, H))
-add([(0, H)] * N, rnd_ts(N, H))                        # every show covers every query
-s = [(ri(0, 100), ri(H - 100, H)) for _ in range(N)]   # early starts, late ends: early breaks do not help
-add(s, [ri(H - 2000, H) for _ in range(N)])
-s = [(ri(0, H), ) * 2 for _ in range(N)]
-add(s, edge_ts(s, N, H))                               # single-minute shows, queries on and beside them
-s = rnd_shows(N, H, 300)
-add(s, edge_ts(s, N, H))
-s = [(0, ri(0, H)) for _ in range(N)]
-add(s, [ri(0, H) for _ in range(N)])
-s = [(ri(0, H), H) for _ in range(N)]
-add(s, [ri(0, H) for _ in range(N)])
-# full range values, smaller N and Q
-N2 = 100_000
-s = rnd_shows(N2, MAXV, MAXV // 2)
-add(s, edge_ts(s, N2 // 2, MAXV) + rnd_ts(N2 // 2, MAXV))
-s = [(ri(0, 1000), ri(MAXV - 1000, MAXV)) for _ in range(N2)]
-add(s, [ri(MAXV - 5000, MAXV) for _ in range(N2)])
+add([7], [(1, 1)] * 3)
+add([1, 2], [(1, 1), (1, 2), (2, 1), (2, 2)])
+for n, q in [(10, 30), (50, 100), (300, 500), (1000, 1000)]:
+    a = [random.randint(-100, 100) for _ in range(n)]
+    add(a, rand_q(n, q, "any"))
+a = [random.randint(-MAXA, MAXA) for _ in range(2000)]
+add(a, rand_q(2000, 2000, "wrap_long"))
+add([MAXA] * 3000, rand_q(3000, 3000, "wrap_long"))          # 32-bit overflow
+add([-MAXA] * 3000, rand_q(3000, 3000, "full"))
+# hidden: maximum size
+add([random.randint(-MAXA, MAXA) for _ in range(MAXN)], rand_q(MAXN, MAXQ, "wrap_long"))
+add([random.randint(-MAXA, MAXA) for _ in range(MAXN)], rand_q(MAXN, MAXQ, "any"))
+add([MAXA] * MAXN, rand_q(MAXN, MAXQ, "wrap_long"))
+add([-MAXA] * MAXN, rand_q(MAXN, MAXQ, "full"))
+add([random.choice([-MAXA, MAXA]) for _ in range(MAXN)], rand_q(MAXN, MAXQ, "wrap_long"))
+add([random.randint(0, MAXA) for _ in range(MAXN)], [(n, n - 1) for n in [MAXN]] * MAXQ)
+add([random.randint(-1000, 1000) for _ in range(MAXN)],
+    [(random.randint(1, MAXN), random.randint(1, MAXN)) if i % 2 else (MAXN, MAXN - 1) for i in range(MAXQ)])
+add([random.randint(-MAXA, MAXA) for _ in range(MAXN)], rand_q(MAXN, MAXQ, "full"))
 
-for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
-print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

@@ -1,91 +1,67 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40407)
-MAXN, MAXT = 150_000, 10**9
+random.seed(3007)
+MAXN, MAXV = 100_000, 10**9
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (deterministic, faster than randint)"""
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, shuffle=True):
-    a = list(a)
-    if shuffle:
-        random.shuffle(a)
-    n = len(a)
-    assert 1 <= n <= MAXN
-    assert all(0 <= s < e <= MAXT for s, e in a)
-    tests.append(f"{n}\n" + "".join(f"{s} {e}\n" for s, e in a))
+def add(a, b):
+    m = len(a)
+    assert m == len(b) and m % 2 == 0 and 1 <= m // 2 <= MAXN
+    assert all(1 <= x <= MAXV for x in a + b)
+    tests.append(f"{m // 2}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, b)) + "\n")
 
 
-def chain(n, start, gap_max, len_max):
-    """n bookings one after another, never overlapping (touching allowed)"""
-    out, t = [], start
-    for _ in range(n):
-        t += ri(0, gap_max)
-        d = ri(1, len_max)
-        out.append((t, t + d))
-        t += d
-    return out
+def rnd(m, lo, hi):
+    return [ri(lo, hi) for _ in range(m)]
 
 
 # samples
-add([(10, 20), (30, 40), (15, 18), (18, 35)], False)
-add([(0, 10), (10, 20), (10, 15), (12, 13)], False)
-add([(1, 5), (5, 9), (9, 12)], False)
-add([(0, 1)], False)
-add([(3, 10), (0, 3), (3, 4), (3, 6), (20, 30)], False)
-add([(0, MAXT), (0, MAXT)], False)
+add([15, 40, 300, 25], [30, 180, 60, 20])
+add([1, 2, 3, 4], [10, 10, 10, 10])
+add([5, 7], [6, 3])
+add([7] * 6, [7] * 6)
+add([4, 9, 2, 8, 5, 6], [3, 5, 7, 1, 9, 6])
+add([MAXV, MAXV], [MAXV, MAXV])
 # hidden: small
-add([(5, 6), (0, 5)])
-add([(0, 2), (1, 3)])
-add(chain(10, 0, 3, 5))                                  # OK
-add(chain(30, 0, 2, 10)[:29] + [(ri(0, 100), ri(101, 200))])
-a = chain(200, 0, 0, 20)                                  # touching everywhere, then one overlap late
-a.append((a[150][0] + 1, a[150][1] + 1))
-add(a)
-add([(ri(0, 1000), ri(1001, 2000)) for _ in range(300)])
-a = chain(2000, 0, 5, 1000)
-x = a[1500]
-a += [(x[0], x[1])] * 3 + [(x[0], x[0] + 1)]              # several start together at t
-add(a)
-a = chain(4000, 0, 10, 10**5)
-add(a)                                                    # OK, large values
-# hidden: large (O(N^2) pair checks are too slow)
-N = MAXN
-a = chain(N, 0, 1000, 5000)
-add(a)                                                    # OK
-a = chain(N - 1, 0, 1000, 5000)
-y = a[N - 10]
-add(a + [(y[1] - 1, y[1] + 5)])                           # the only overlap is near the end
-a = chain(N - 1, 0, 0, 6000)
-y = a[N // 2]
-add(a + [(y[0], y[0] + 1)])                               # touching chain, overlap in the middle
-a = chain(N // 2, 0, 0, 6000)
-t0 = a[-1][1]
-a += [(t0, t0 + ri(1, 1000)) for _ in range(N - N // 2)]  # half start at the same time t0
-add(a)
-starts = [ri(0, MAXT - 10**6) for _ in range(N)]
-add([(v, v + ri(1, 10**6)) for v in starts])             # random, overlap early
-a = chain(N - 2, 0, 0, 6000)
-z = a[N // 3]
-add(a + [(z[0] - 1, z[1]), (z[0], z[1] + 1)])             # a long one already in use before
-add([(0, MAXT)] + [(ri(1, MAXT - 1), MAXT) for _ in range(N - 1)])  # one long, then everything
-a = chain(N - 1, 0, 0, 6000)
-w = a[N - 3]
-add(a + [(w[0] - 1, w[1] + 1)], False)                     # covers a whole booking, given last
-a = [(t, t + 1) for t in range(N)]                         # unit bookings, touching
-a[N - 1] = (N - 2, N)
-add(a)
-add([(5000, 6000)] * N)                                    # all identical: every booking is listed
-a = chain(N - 1, 0, 0, 6000)
-add(a[::-1] + [(a[0][0], a[0][1])], False)                 # reverse order, overlap at the very start
+add([1, 1], [1, 1])
+add([1, 100], [2, 1000])                     # both prefer A by cost, the cheaper overall goes to B
+add([10, 10, 10, 10], [1, 2, 3, 4])
+add([5, 1, 9, 2, 8, 3], [1, 5, 2, 9, 3, 8])
+for m, v in [(4, 10), (6, 10), (8, 20), (10, 100), (12, 5), (20, 1000), (60, MAXV), (400, 10**6)]:
+    add(rnd(m, 1, v), rnd(m, 1, v))
+add(rnd(4000, 1, MAXV), rnd(4000, 1, MAXV))
+a = rnd(6000, 1, 1000)
+add(a, [x + ri(-3, 3) if x > 3 else x for x in a])
+# hidden: maximum size (values up to 10^5 keep the files near 3 MB)
+M, V = 2 * MAXN, 10**5
+add(rnd(M, 1, V), rnd(M, 1, V))
+add(rnd(M, 1, V), rnd(M, 1, V))
+add(rnd(M, 1, V // 2), rnd(M, V // 2, V))     # everyone prefers A
+add(rnd(M, V // 2, V), rnd(M, 1, V // 2))     # everyone prefers B
+add([V] * M, [V] * M)                        # all equal
+a = rnd(M, 1, V)
+add(a, a[:])                                 # every difference is 0
+a = rnd(M, 1, V)
+add(a, [V + 1 - x for x in a])
+a = sorted(rnd(M, 1, V))
+add(a, sorted(rnd(M, 1, V)))
+add(rnd(M, 1, 10), rnd(M, 1, 10))            # many ties
+# the largest values, at full size (a line of 2N ten-digit values would be too big, so mix in short ones)
+add([MAXV] * M, rnd(M, 1, 9))                 # everyone prefers B, but N of them must pay 10^9 in A
+add(rnd(M, 1, 9), [MAXV - ri(0, 9) for _ in range(M)])
+big = [ri(0, 2) == 0 for _ in range(M)]
+add([ri(1, MAXV) if x else ri(1, 99) for x in big], [ri(1, MAXV) if x else ri(1, 99) for x in big])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("largest test", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

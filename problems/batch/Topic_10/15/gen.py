@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
-import os, random
+import heapq, os, random
 
-random.seed(100115)
-MAXN, MAXW = 100_000, 10_000
+random.seed(80150)
+MAXN, MAXM, MAXK, MAXW, MAXC = 100_000, 100_000, 100_000, 10**6, 10**12
 tests = []
 
 
@@ -10,103 +10,136 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def shape(n, kind):
-    """parent of point i (2..n) is par[i] < i, in creation order"""
-    par = [0, 0]
-    for i in range(2, n + 1):
-        if kind == "random":
-            p = ri(1, i - 1)
-        elif kind == "path":
-            p = i - 1
-        elif kind == "star":
-            p = 1
-        elif kind == "deep":                       # long random branches
-            p = ri(max(1, i - 4), i - 1)
-        elif kind == "binary":
-            p = i // 2
-        elif kind == "cater":                      # spine 1..n/2, the rest are legs
-            p = i - 1 if i <= n // 2 else ri(1, n // 2)
-        elif kind == "broom":                      # a long handle, then a star
-            p = i - 1 if i <= n // 2 else n // 2
-        else:
-            raise ValueError(kind)
-        par.append(p)
-    return par
+def add(n, roads, shel):
+    m, k = len(roads), len(shel)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= k <= MAXK
+    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in roads)
+    assert all(1 <= s <= n and 0 <= c <= MAXC for s, c in shel)
+    tests.append(f"{n} {m} {k}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads)
+                 + "".join(f"{s} {c}\n" for s, c in shel))
 
 
-def add(n, kinds, edges):
-    """kinds: string over H S .; edges: (u, v, w) with labels 1..n"""
-    assert 1 <= n <= MAXN and len(kinds) == n and set(kinds) <= set("HS.")
-    assert len(edges) == n - 1
-    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in edges)
-    root = list(range(n + 1))                      # it really is a tree (union-find)
-
-    def find(x):
-        while root[x] != x:
-            root[x] = root[root[x]]
-            x = root[x]
-        return x
-    for u, v, w in edges:
-        a, b = find(u), find(v)
-        assert a != b
-        root[a] = b
-    tests.append(f"{n}\n{kinds}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges))
-
-
-def build(n, kind, kinds_of, wgen):
-    """kinds_of(i) gives the letter of the i-th created point; labels are shuffled afterwards"""
-    par = shape(n, kind)
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    lab = [0] + lab
-    letters = [""] * (n + 1)
-    for i in range(1, n + 1):
-        letters[lab[i]] = kinds_of(i)
-    edges = []
-    for i in range(2, n + 1):
-        u, v = lab[i], lab[par[i]]
-        if random.random() < 0.5:
-            u, v = v, u
-        edges.append((u, v, wgen()))
-    random.shuffle(edges)
-    add(n, "".join(letters[1:]), edges)
+def dist_to(n, roads, s):
+    """shortest time from every town to town s (Dijkstra on reversed roads)"""
+    rev = [[] for _ in range(n + 1)]
+    for u, v, w in roads:
+        rev[v].append((u, w))
+    d = [None] * (n + 1)
+    d[s] = 0
+    pq = [(0, s)]
+    while pq:
+        x, v = heapq.heappop(pq)
+        if x != d[v]:
+            continue
+        for u, w in rev[v]:
+            if d[u] is None or x + w < d[u]:
+                d[u] = x + w
+                heapq.heappush(pq, (d[u], u))
+    return d
 
 
-def mix(ph, ps):
-    def f(i):
-        r = random.random()
-        return "H" if r < ph else ("S" if r < ph + ps else ".")
-    return f
+def rnd_roads(n, m, wmax, conn=True):
+    roads = []
+    if conn:                                   # a random spanning structure towards random earlier towns
+        perm = list(range(1, n + 1))
+        random.shuffle(perm)
+        for i in range(1, n):
+            a, b = perm[i], perm[ri(0, i - 1)]
+            roads.append((a, b, ri(1, wmax)) if random.random() < 0.8 else (b, a, ri(1, wmax)))
+    while len(roads) < m:
+        u, v = ri(1, n), ri(1, n)
+        if u != v:
+            roads.append((u, v, ri(1, wmax)))
+    random.shuffle(roads)
+    return roads[:m]
+
+
+def cyc_roads(n, m, wmax):
+    """one big directed cycle through all towns in random order plus random chords (strongly connected)"""
+    perm = list(range(1, n + 1))
+    random.shuffle(perm)
+    roads = [(perm[i], perm[(i + 1) % n], ri(1, wmax)) for i in range(n)]
+    while len(roads) < m:
+        u, v = ri(1, n), ri(1, n)
+        if u != v:
+            roads.append((u, v, ri(1, wmax)))
+    random.shuffle(roads)
+    return roads
+
+
+def rnd_shel(n, k, clo, chi):
+    return [(ri(1, n), ri(clo, chi)) for _ in range(k)]
 
 
 # samples
-add(4, "HS.H", [(1, 2, 3), (2, 3, 2), (3, 4, 5)])
-add(5, ".HHSS", [(1, 2, 1), (1, 3, 2), (1, 4, 3), (1, 5, 4)])
-add(3, "HH.", [(1, 2, 7), (3, 2, 1)])
-add(7, "SH.HSHS", [(1, 2, 4), (2, 3, 1), (2, 4, 6), (1, 5, 2), (5, 6, 3), (5, 7, 8)])
-add(6, "HHHSSS", [(1, 2, 10000), (2, 3, 10000), (3, 4, 10000), (4, 5, 10000), (5, 6, 10000)])
+add(6, [(1, 2, 3), (2, 5, 4), (1, 3, 2), (3, 4, 6), (4, 5, 1)], [(5, 20), (4, 9)])
+add(4, [(1, 2, 5), (2, 3, 4), (4, 3, 8)], [(3, 8), (4, 0)])
+add(3, [(1, 2, 7), (1, 2, 3), (3, 1, 5)], [(2, 10), (2, 4)])
+add(4, [(1, 2, 5), (2, 1, 5), (3, 4, 1)], [(2, 100)])
+add(1, [], [(1, MAXC)])
 # hidden: small
-add(1, "H", [])
-add(2, "SH", [(2, 1, 9999)])
-add(2, "SS", [(1, 2, 5)])
-build(10, "random", mix(0.4, 0.4), lambda: ri(1, 10))
-build(60, "path", mix(0.3, 0.3), lambda: ri(1, 100))
-build(300, "random", mix(0.3, 0.5), lambda: ri(1, MAXW))
-build(2000, "cater", mix(0.5, 0.5), lambda: ri(1, MAXW))
-build(3000, "deep", mix(0.2, 0.2), lambda: ri(1, 50))
-build(5000, "star", mix(0.5, 0.4), lambda: ri(1, MAXW))
-# hidden: maximum size
+add(2, [(1, 2, 1)], [(2, 0)])                                    # town 1 is one minute too late
+add(2, [(2, 1, MAXW)], [(1, MAXW)])                              # exactly on time: 0
+for n, m, k, wmax in ((8, 14, 2, 9), (30, 60, 5, 20), (200, 500, 20, 100), (1000, 3000, 50, 1000)):
+    roads = rnd_roads(n, m, wmax, conn=(n != 30))
+    add(n, roads, rnd_shel(n, k, 0, wmax * 6))
+n = 2000                                                          # answers exactly 0 or -1 for many towns
+roads = rnd_roads(n, 5000, 1000)
+d = dist_to(n, roads, 1)
+far = max(x for x in d[1:] if x is not None)
+add(n, roads, [(1, far // 2)])
+roads = [(i, i + 1, ri(1, MAXW)) for i in range(1, 1000)]       # town 1 has exactly 0 minutes to spare
+add(1000, roads, [(1000, sum(w for _, _, w in roads)), (500, 1)])
+n = 3000
+roads = rnd_roads(n, 6000, 10**4)
+add(n, roads, rnd_shel(n, 1500, 0, 4 * 10**4))                  # many shelters, also several in one town
+# hidden: large
 N = MAXN
-build(N, "path", lambda i: "H" if i <= N // 2 else "S", lambda: MAXW)      # the largest answer
-build(N, "path", lambda i: "HS"[i % 2], lambda: ri(1, MAXW))
-build(N, "random", mix(0.5, 0.5), lambda: ri(1, MAXW))
-build(N, "star", mix(0.5, 0.5), lambda: MAXW)
-build(N, "cater", mix(0.45, 0.45), lambda: ri(1, MAXW))
-build(N, "broom", lambda i: "H" if i <= N // 2 else "S", lambda: MAXW)
-build(N, "binary", mix(0.5, 0.5), lambda: ri(1, MAXW))
-build(N, "random", lambda i: "S" if i == 1 else "H", lambda: ri(1, MAXW))  # one shop, everybody else a house
-build(N, "deep", lambda i: "H", lambda: MAXW)                              # no shop at all
-build(N, "cater", lambda i: "H" if i <= N // 2 else "S", lambda: MAXW)    # houses on the spine, shops on legs
+roads = [(i, i + 1, MAXW) for i in range(1, N)]                  # one long chain, largest times
+add(N, roads, [(N, MAXC)])
+roads = [(i, i + 1, ri(1, 10)) for i in range(1, N)]             # chain, a shelter in every town:
+c, shel = 0, []                                                  # each new one beats the earlier ones
+for i in range(1, N + 1):
+    c += 20
+    shel.append((i, c))
+add(N, roads, shel)
+roads = [(i + 1, i, ri(1, MAXW)) for i in range(1, N)]           # chain the other way, decreasing times
+shel = [(i, MAXC - (i - 1) * 9 * 10**6) for i in range(1, N + 1, 2)]
+add(N, roads, shel)
+roads = [(i, i + 1, 10) for i in range(1, N)]                   # chain, shelters listed by decreasing time:
+add(N, roads, [(i, 5 * i) for i in range(N, 0, -1)])             # every town is best served by its own shelter
+roads = cyc_roads(70_000, MAXM, MAXW)
+add(70_000, roads, rnd_shel(70_000, 35_000, 0, 3 * 10**9))
+roads = cyc_roads(N, MAXM, 1000)
+add(N, roads, rnd_shel(N, 20_000, 0, 10**6))
+roads = cyc_roads(80_000, MAXM, MAXW)
+add(80_000, roads, rnd_shel(80_000, 60_000, MAXC - 10**10, MAXC))
+roads = cyc_roads(N, MAXM, MAXW)
+add(N, roads, rnd_shel(N, 1, 2 * 10**10, 4 * 10**10))
+roads = [(i, 1, ri(1, MAXW)) for i in range(2, N + 1)]           # star into town 1
+roads += [(1, ri(2, N), ri(1, MAXW)) for _ in range(MAXM - len(roads))]
+random.shuffle(roads)
+add(N, roads, [(1, ri(0, MAXW))] + rnd_shel(N, 999, 0, 2 * MAXW))
+# near shelters close early, far shelters close late
+roads = cyc_roads(N, MAXM, 100)
+shel = [(v, ri(0, 50)) for v in random.sample(range(1, N + 1), 30_000)]
+shel += [(v, ri(10**6, 2 * 10**6)) for v in random.sample(range(1, N + 1), 30)]
+random.shuffle(shel)
+add(N, roads, shel)
+# layered graph: every town of a layer goes to several towns of the next one
+L, W = 200, N // 200
+roads = []
+for a in range(L - 1):
+    for b in range(W):
+        u = a * W + b + 1
+        for _ in range(2):
+            roads.append((u, (a + 1) * W + ri(0, W - 1) + 1, ri(1, 10**4)))
+roads = roads[:MAXM]
+shel = [((L - 1) * W + b + 1, ri(0, 3 * 10**6)) for b in range(W)]
+shel += rnd_shel(N, 20_000, 0, 10**6)
+add(N, roads, shel)
+roads = rnd_roads(N, MAXM, MAXW, conn=False)                    # many towns reach nothing
+add(N, roads, rnd_shel(N, 50_000, 0, MAXC))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

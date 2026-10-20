@@ -1,115 +1,71 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40114)
-MAXN, MAXC = 3000, 10**9
+random.seed(30114)
+MAXN = 500_000
+ABC = "abcdefghijklmnopqrstuvwxyz"
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(k, s):
+    n = len(s)
+    assert 1 <= k <= n <= MAXN
+    assert all(c in ABC for c in s)
+    tests.append(f"{n} {k}\n{s}\n")
 
 
-def add(rs):
-    n = len(rs)
-    assert 1 <= n <= MAXN
-    for (x1, y1, x2, y2) in rs:
-        assert 0 <= x1 < x2 <= MAXC and 0 <= y1 < y2 <= MAXC
-    tests.append(f"{n}\n" + "".join(f"{a} {b} {c} {d}\n" for (a, b, c, d) in rs))
+def rnd(n, letters, weights=None):
+    return "".join(random.choices(letters, weights=weights, k=n))
 
 
-def rnd_rect(lo, hi, minside=1, maxside=None):
-    maxside = maxside or (hi - lo)
-    x1 = ri(lo, hi - minside)
-    x2 = min(hi, x1 + ri(minside, maxside))
-    y1 = ri(lo, hi - minside)
-    y2 = min(hi, y1 + ri(minside, maxside))
-    return (x1, y1, x2, y2)
+def shuffled(s):
+    a = list(s)
+    random.shuffle(a)
+    return "".join(a)
 
 
-def grid_touch(k, size):
-    """k x k squares that touch along edges and corners (each corner point is lit by 4)"""
-    return [(i * size, j * size, (i + 1) * size, (j + 1) * size) for i in range(k) for j in range(k)]
+def dominant(n, k, big, others, extra=0):
+    """letter big as often as k * (others + 1) allows (plus extra), the rest from the letters others"""
+    nb = n * k // (k + 1)
+    while nb > k * (n - nb + 1):
+        nb -= 1
+    while nb + 1 <= k * (n - nb):
+        nb += 1
+    nb = min(n, nb + extra)
+    return shuffled(big * nb + rnd(n - nb, others))
 
 
 # samples
-add([(0, 0, 4, 4), (2, 2, 6, 6), (4, 4, 8, 8)])
-add([(0, 0, 2, 2), (3, 0, 5, 2), (1, 1, 4, 3)])
-add([(0, 0, MAXC, MAXC)])
-add([(0, 0, 1, 1), (2, 2, 3, 3), (5, 0, 6, 9)])
-add([(1, 1, 3, 3), (1, 1, 3, 3), (3, 3, 5, 5), (0, 2, 9, 4), (4, 0, 5, 1)])
-add([(0, 4, 10, 6), (4, 0, 6, 10), (6, 6, 9, 9), (0, 0, 3, 3)])
-# hidden: small
-add([(5, 5, 6, 6), (6, 6, 7, 7)])
-add(grid_touch(3, 2))
-add([rnd_rect(0, 10) for _ in range(8)])
-add([rnd_rect(0, 20) for _ in range(30)])
-add([rnd_rect(0, 100) for _ in range(150)])
-add([rnd_rect(0, MAXC, 1, MAXC // 3) for _ in range(250)])
-add([rnd_rect(0, 50, 1, 5) for _ in range(300)])
-# hidden: maximum size
+add(2, "aaabbc")
+add(1, "aabbb")
+add(2, "aaaaab")
+add(6, "banana")
+add(2, "aaaaaaabbb")
+add(2, "bbbbbbaac")
+# hidden: small (every choice is tried)
+add(1, "z")
+add(3, "bbbabbb")
+add(1, "cbcacbc")
+for n, letters, k in ((8, "ab", 1), (10, "abc", 2), (12, "abcd", 1), (12, "ab", 3), (11, "abc", 1)):
+    add(k, rnd(n, letters, [random.random() ** 2 + 0.01 for _ in letters]))
+add(1, dominant(300, 1, "b", "ac"))
+add(2, dominant(400, 2, "c", "ab"))
+add(3, dominant(2000, 3, "a", "b"))
+# hidden: large
 N = MAXN
-add([rnd_rect(0, MAXC) for _ in range(N)])
-add([rnd_rect(0, MAXC, 1, MAXC // 4) for _ in range(N)])
-add([rnd_rect(0, MAXC, 1, MAXC // 20) for _ in range(N)])
-add([(0, 0, MAXC, MAXC)] * N)                                           # every lamp lights everything
-s = []                                                                  # a chain where only corners touch
-for i in range(N):
-    s.append((i * 200_000, i * 200_000, (i + 1) * 200_000, (i + 1) * 200_000))
-random.shuffle(s)
-add(s)
-s = grid_touch(54, 18_000_000)                                          # 2916 touching squares: answer 4
-random.shuffle(s)
-add(s)
-s = []                                                                  # horizontal and vertical bars
-for i in range(N):
-    a = ri(0, MAXC - 10**6)
-    b = ri(10**5, 10**6)
-    s.append((0, a, MAXC, a + b) if i % 2 else (a, 0, a + b, MAXC))
-add(s)
-add([rnd_rect(0, 1000, 1, 300) for _ in range(N)])                      # many equal coordinates
-s = []                                                                  # rectangles that meet only at edges
-for i in range(N):
-    x = ri(0, 999) * 10**6
-    y = ri(0, 999) * 10**6
-    s.append((x, y, x + 10**6 * ri(1, 3), y + 10**6 * ri(1, 3)))
-s = [(a, b, min(c, MAXC), min(d, MAXC)) for (a, b, c, d) in s]
-add(s)
-s = [(ri(0, MAXC // 2), ri(0, MAXC // 2), ri(MAXC // 2, MAXC), ri(MAXC // 2, MAXC)) for _ in range(N)]
-for i in range(0, N, 3):                                                # half the lamps miss the centre
-    s[i] = rnd_rect(0, MAXC // 2 - 1, 1, MAXC // 4)
-add(s)
-s = [(i * 100_000, 0, i * 100_000 + 2 * 10**8, MAXC - i * 100_000) for i in range(N)]   # staircase
-random.shuffle(s)
-add(s)
-add([rnd_rect(0, MAXC, MAXC // 3, MAXC) for _ in range(N)])
-# lamps that light almost the whole width but thin horizontal strips: every lamp is lit at every
-# candidate x while only a few strips overlap
-xl = random.sample(range(0, 10**7), N)
-add([(xl[i], y, MAXC - ri(0, 10**7), y + ri(1, 10**6)) for i, y in enumerate(ri(0, MAXC - 10**6) for _ in range(N))])
-xl = random.sample(range(0, 10**7), N)
-s = [(xl[i], i * 190_000, MAXC - ri(0, 10**7), i * 190_000 + 380_000) for i in range(N)]   # strips touch
-random.shuffle(s)
-add(s)
-xl = random.sample(range(0, 10**7), N)
-s = [(xl[i], y, MAXC - ri(0, 10**7), y + ri(1, 3 * 10**6)) for i, y in enumerate(ri(0, MAXC - 3 * 10**6) for _ in range(N))]
-for i in range(0, N, 50):                                               # a few tall lamps as well
-    s[i] = (ri(0, MAXC - 10**6), 0, 0, MAXC)
-    s[i] = (s[i][0], 0, s[i][0] + ri(1, 10**6), MAXC)
-add(s)
-
-xl = random.sample(range(0, 10**7), N)
-add([(xl[i], y, MAXC - ri(0, 10**7), y + ri(1, 2 * 10**7)) for i, y in enumerate(ri(0, MAXC - 2 * 10**7) for _ in range(N))])
-xl = random.sample(range(0, 10**7), N)
-s = []
-for i in range(N):                                                      # a heavy cluster plus many thin strips
-    if i % 4 == 0:
-        y = ri(4 * 10**8, 5 * 10**8)
-        s.append((xl[i], y, MAXC - ri(0, 10**7), y + ri(10**8, 2 * 10**8)))
-    else:
-        y = ri(0, MAXC - 10**5)
-        s.append((xl[i], y, MAXC - ri(0, 10**7), y + ri(1, 10**5)))
-add(s)
+add(1, rnd(N, ABC))
+add(1, dominant(N, 1, "z", ABC[:25]))                    # z exactly at the limit
+add(1, dominant(N, 1, "m", ABC, extra=1))                # one too many: -1
+add(2, dominant(N, 2, "a", "bc"))
+add(3, dominant(N - 1, 3, "q", "pr"))
+add(1, "ab" * (N // 2))
+add(N, rnd(N, ABC))                                      # no limit at all
+add(N - 1, "a" * N)                                      # one letter, not allowed
+add(N, "y" * N)
+add(5, rnd(N, "abc", [20, 2, 1]))
+add(1, shuffled("a" * (N // 2 - 1000) + rnd(N // 2 + 1000, ABC[1:])))
+add(4, dominant(N, 4, "k", ABC[:5]))
+add(1000, rnd(N, "ab", [1000, 1]))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

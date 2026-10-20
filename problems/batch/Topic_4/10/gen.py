@@ -1,114 +1,71 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40110)
-MAXN, MAXQ, MAXX, MAXP, MAXC = 80_000, 80_000, 10**9, 10**5, 10**10
+random.seed(30110)
+MAXN = 200_000
+MAXV = 10**9
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(groups, qs):
-    n, q = len(groups), len(qs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= s < e <= MAXX and 1 <= p <= MAXP for (s, e, p) in groups)
-    assert all(1 <= c <= MAXC for c in qs)
-    tests.append(f"{n} {q}\n" + "".join(f"{s} {e} {p}\n" for (s, e, p) in groups)
-                 + " ".join(map(str, qs)) + "\n")
+def add(D, F, st, shuffle=True):
+    n = len(st)
+    assert 1 <= n <= MAXN
+    assert 1 <= D <= MAXV and 1 <= F <= MAXV
+    assert all(1 <= p < D and 1 <= f <= MAXV for p, f in st)
+    st = list(st)
+    if shuffle:
+        random.shuffle(st)
+    tests.append(f"{n} {D} {F}\n" + "".join(f"{p} {f}\n" for p, f in st))
 
 
-def loads(groups):
-    """the load right after boarding at every position where somebody boards"""
-    ev = sorted([(s, p) for (s, e, p) in groups] + [(e, -p) for (s, e, p) in groups])
-    res, cur, i = [], 0, 0
-    while i < len(ev):
-        j = i
-        while j < len(ev) and ev[j][0] == ev[i][0]:
-            cur += ev[j][1]
-            j += 1
-        res.append(cur)
-        i = j
-    return res
-
-
-def near(groups, q, spread=0.15):
-    """capacities close to the largest load (answers late in the trip, or OK)"""
-    m = max(loads(groups))
-    lo, hi = max(1, int(m * (1 - spread))), min(MAXC, int(m * (1 + spread / 3)) + 1)
-    return [ri(lo, hi) for _ in range(q)]
-
-
-def exact(groups, q):
-    """capacities equal to a load or one less (the boundary of 'more than C')"""
-    ls = loads(groups)
-    return [max(1, random.choice(ls) - ri(0, 1)) for _ in range(q)]
-
-
-def rnd_group(lo, hi, maxp):
-    s = ri(lo, hi - 1)
-    return (s, ri(s + 1, hi), ri(1, maxp))
+def rnd(n, D, flo, fhi):
+    return [(ri(1, D - 1), ri(flo, fhi)) for _ in range(n)]
 
 
 # samples
-add([(2, 5, 3), (4, 8, 2), (5, 9, 4)], [4, 5, 6, 2])
-add([(1, 3, 5), (3, 6, 5)], [5, 4])
-add([(10, 20, 7)], [7, 6, 1])
-add([(1, 100, 1), (50, 60, 2), (60, 70, 2), (2, 3, 1), (60, 61, 1)], [2, 3, 1, 4])
-add([(5, 6, 100000), (1, 10, 100000), (3, 6, 100000)], [100000, 200000, 299999, 300000, 10000000000])
-# hidden: small
-add([(1, 2, 1)], [1])
-add([(i, i + 1, 9) for i in range(1, 30)], [9, 8, 10])          # people leave exactly where others board
-g = [rnd_group(1, 20, 5) for _ in range(10)]
-add(g, exact(g, 10))
-g = [rnd_group(1, 100, 100) for _ in range(50)]
-add(g, exact(g, 25) + near(g, 25))
-g = [rnd_group(1, 1000, MAXP) for _ in range(500)]
-add(g, exact(g, 300) + [ri(1, MAXC) for _ in range(200)])
-g = [rnd_group(1, MAXX, MAXP) for _ in range(3000)]
-add(g, exact(g, 1500) + near(g, 1500))
-g = []
-for i in range(5000):                                           # many shared stops
-    s = ri(1, 300)
-    g.append((s, s + ri(1, 5), ri(1, 1000)))
-add(g, exact(g, 5000))
-# hidden: maximum size
-N, Q = MAXN, MAXQ
-g = [(ri(1, MAXX - 1), MAXX, ri(1, MAXP)) for _ in range(N)]   # everybody rides to the end: load grows
-add(g, near(g, Q))
-g = [(ri(1, MAXX - 1), MAXX, MAXP) for _ in range(N)]          # load up to 10^10
-add(g, near(g, Q, 0.05))
-g = [rnd_group(1, MAXX, MAXP) for _ in range(N)]
-add(g, near(g, Q // 2) + exact(g, Q // 2))
-g = [rnd_group(1, MAXX, MAXP) for _ in range(N)]
-m = max(loads(g))
-add(g, [ri(1, m + 10) for _ in range(Q)])
-g = [(1, MAXX, MAXP)] * N                                      # one stop, 10^10 people
-add(g, [MAXC - ri(0, 1) for _ in range(Q)])
-g = []
-x = 1
-for i in range(N):                                             # chain: leave where the next boards
-    d = ri(1, 9000)
-    g.append((x, x + d, MAXP - ri(0, 3)))
-    x += d
-add(g, [ri(MAXP - 4, MAXP + 1) for _ in range(Q)])
-g = [(ri(1, MAXX - 1), MAXX, ri(1, MAXP)) for _ in range(N)]
-add(g, [MAXC] * Q)                                             # nobody ever exceeds: all OK
-g = []
-for i in range(N):                                             # load grows slowly with many shared stops
-    s = ri(1, 50_000)
-    g.append((s, ri(s + 1, s + 3) if i % 3 == 0 else MAXX, ri(1, MAXP)))
-add(g, near(g, Q, 0.1))
-g = [(1, ri(2, MAXX), ri(1, MAXP)) for _ in range(N)]          # everybody boards at the start
-add(g, exact(g, Q))
-g = []
-for i in range(N):                                             # a rising staircase of short trips
-    s = ri(1, MAXX - 10**7)
-    g.append((s, s + ri(1, 10**7), 1 + s // 10**4))
-add(g, near(g, Q, 0.3))
-g = [(ri(1, MAXX - 1), MAXX, ri(1, MAXP)) for _ in range(N)]
-add(g, near(g, Q // 2, 0.02) + exact(g, Q // 2))
+add(100, 10, [(10, 60), (20, 30), (30, 30), (60, 40)], False)
+add(50, 5, [(10, 100), (5, 4)], False)
+add(20, 25, [(5, 1), (10, 1)], False)
+add(30, 4, [(12, 9), (4, 3), (4, 5), (7, 6), (16, 20)], False)
+add(40, 6, [(6, 6), (12, 6), (18, 6), (24, 6), (30, 6), (36, 6)], False)
+add(60, 15, [(15, 10), (14, 30), (40, 5), (25, 20), (50, 10), (5, 1)], False)
+# hidden: small (every set of stops is tried)
+add(10, 9, [(9, 1)])                                   # reach the station with 0 litres left
+add(10, 8, [(9, 5)])
+for n in (5, 8, 10, 12, 14, 16, 16):
+    D = ri(20, 100)
+    add(D, ri(1, D // 3), rnd(n, D, 1, D // 4))
+add(1000, 10, [(10 * i, 10) for i in range(1, 16)] + [(5, 1000)])
+add(10**6, 50, rnd(3000, 10**6, 1, 700))
+add(10**5, 20, rnd(5000, 10**5, 1, 30))
+# hidden: large
+N = 180_000                                            # 10-digit positions: about 3 MB
+add(MAXV, 5000, rnd(N, MAXV, 1, 12000))                # tens of thousands of stops
+add(MAXV, 5000, rnd(N, MAXV, 1, 10000))                # total fuel just around D
+st = rnd(N - 20, MAXV, 1, 100) + [(ri(1, 10**6), ri(5 * 10**7, 10**8)) for _ in range(20)]
+add(MAXV, 10**6, st)                                   # only a few stops needed
+add(MAXV, MAXV, rnd(N, MAXV, 1, 10**6))                # no stop needed
+add(MAXV, MAXV - 1, [(ri(1, MAXV - 1), 1) for _ in range(N)])
+add(MAXV, 1, [(1, ri(1, 10000)) for _ in range(MAXN)]) # every station at position 1
+step = MAXV // N                                       # farther stations give less fuel
+add(MAXV, step, [(k * step, max(1, 3 * step - k // 20)) for k in range(1, N)])
+st = [(k, 1) for k in range(1, MAXN - 10)] + [(MAXN - 10, MAXV)]
+add(MAXV, 1, st)                                       # many tiny stops to reach the big one
+st = [(k * 5000, 5000) for k in range(1, N)]          # one stop at each, exactly enough
+add(N * 5000, 5000, st)
+st = [(k * 5000, 5000) for k in range(1, N)]
+st[N // 2] = (st[N // 2][0], 4999)                     # one litre short
+add(N * 5000, 5000, st)
+st = rnd(N, MAXV, 1, 20000)
+gap = 600_000_000                                      # nothing between 6 * 10^8 and 7 * 10^8
+st = [(p, f) for p, f in st if not gap <= p < gap + 10**8]
+add(MAXV, 30000, st)
+add(MAXV // 10, 1000, rnd(MAXN, MAXV // 10, 1, 1500))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

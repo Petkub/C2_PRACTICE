@@ -7,7 +7,7 @@ Regression tests for the POSN Practice Judge.
 1. Every sample in samples/expected.json is judged and must get its verdict (and score, when given).
    Verdict = CE if it does not compile, else the first non-AC verdict, else AC.
 2. The judge's command line is run like a student would (repo layout, --ascii, --list).
-3. A student package is built with tools/build_dist.py and judged from inside Topic_1.
+3. A student package is built with tools/build_dist.py and judged from inside Topic_2.
    (1. and 2. also run in a built package, so the big tests that gen.py rebuilds never land in the repo.)
 4. Self-update: a local HTTP server serves a modified copy of the repo as v9.9; a package must update itself
    (hashes, backups, restart, create-only set files), and must refuse bad hashes, bad paths and no network.
@@ -121,7 +121,7 @@ def test_missed_last_reading():
         return 1024 * 1024
     setattr(judge, name, first_only)
     try:
-        verdict, _ = judge_sample(os.path.join(SAMPLES, "batch", "profit_mle.cpp"), "1-1", False)
+        verdict, _ = judge_sample(os.path.join(SAMPLES, "batch", "profit_mle.cpp"), "2-1", False)
     finally:
         setattr(judge, name, real)
     check(verdict == "MLE", "a 400 MB program is MLE even when the readings miss its growth", f"got {verdict}")
@@ -138,23 +138,23 @@ def test_cli():
     print("Command line")
     ok_cpp = os.path.join(SAMPLES, "batch", "profit_ok.cpp")
     wa_cpp = os.path.join(SAMPLES, "batch", "profit_nowrap.cpp")
-    code, out, _ = run_judge([ok_cpp, "1-1", "--no-color"])
-    check(code == 0 and "ACCEPTED" in out, "judge.py profit_ok.cpp 1-1", f"exit {code}\n{out}")
-    code, out, _ = run_judge([os.path.join(SAMPLES, "batch", "profit_throw.cpp"), "1-1", "--no-color", "--stop"])
+    code, out, _ = run_judge([ok_cpp, "2-1", "--no-color"])
+    check(code == 0 and "ACCEPTED" in out, "judge.py profit_ok.cpp 2-1", f"exit {code}\n{out}")
+    code, out, _ = run_judge([os.path.join(SAMPLES, "batch", "profit_throw.cpp"), "2-1", "--no-color", "--stop"])
     check("out_of_range" in out and "stderr" in out, "RE shows the program's stderr (out_of_range)", out)
-    code, out, _ = run_judge([os.path.join(SAMPLES, "batch", "profit_warn.cpp"), "1-1", "--no-color", "--stop"])
+    code, out, _ = run_judge([os.path.join(SAMPLES, "batch", "profit_warn.cpp"), "2-1", "--no-color", "--stop"])
     check("g++ warning" in out and "unused" in out, "warnings are shown after Compiled", out)
-    code, out, _ = run_judge([ok_cpp, "1-1", "--no-color", "--stop"])
+    code, out, _ = run_judge([ok_cpp, "2-1", "--no-color", "--stop"])
     check("warning" not in out and "Memory  peak" in out and "256 MB per test" in out,
           "clean program: no warnings, memory line, limit in header", out)
     mle_cpp = os.path.join(SAMPLES, "batch", "profit_mle.cpp")     # 400 MB: a tiny program is under 1 MB on macOS
-    code, out, _ = run_judge([mle_cpp, "1-1", "--no-color", "--stop", "--ml", "100"])
+    code, out, _ = run_judge([mle_cpp, "2-1", "--no-color", "--stop", "--ml", "100"])
     check("Memory Limit Exceeded" in out and "limit is 100 MB" in out, "--ml 100: a 400 MB program is MLE", out)
-    code, out, _ = run_judge([mle_cpp, "1-1", "--no-color", "--stop", "--ml", "512"])
+    code, out, _ = run_judge([mle_cpp, "2-1", "--no-color", "--stop", "--ml", "512"])
     check(code == 0 and "ACCEPTED" in out, "--ml 512: the same program is accepted", f"exit {code}\n{out}")
     code, out, _ = run_judge(["--ml", "0"])
     check(code == 2 and "--ml must be" in out, "judge.py --ml 0 is rejected", f"exit {code}\n{out}")
-    code, out, plain = run_judge([wa_cpp, "1-1", "--ascii", "--no-color"])
+    code, out, plain = run_judge([wa_cpp, "2-1", "--ascii", "--no-color"])
     check(code == 0 and "First failure" in out and plain, "judge.py --ascii shows the failure, ASCII only",
           f"exit {code}, ascii={plain}\n{out}")
     code, out, plain = run_judge(["--list", "--ascii"])
@@ -174,16 +174,16 @@ def test_student_package():
         if p.returncode != 0:
             return
         root = os.path.join(tmp, "C2_Practice")
-        set1 = os.path.join(root, "Topic_1")
+        set1 = os.path.join(root, "Topic_2")
         count = len(next(s for s in judge.load_sets() if s["set"] == 1)["problems"])
         templates = [os.path.join(set1, f"{i}.cpp") for i in range(1, count + 1)]
-        check(all(judge.is_template(t) for t in templates), f"Topic_1/1.cpp ... {count}.cpp are empty templates")
+        check(all(judge.is_template(t) for t in templates), f"Topic_2/1.cpp ... {count}.cpp are empty templates")
         shutil.copy(os.path.join(SAMPLES, "batch", "profit_ok.cpp"), os.path.join(set1, "1.cpp"))
         student_judge = os.path.join(os.pardir, "Judge", "judge.py")
         code, out, _ = run_judge(["1", "--no-color"], cwd=set1, judge_path=student_judge)
-        check(code == 0 and "ACCEPTED" in out, "inside Topic_1: judge.py 1", f"exit {code}\n{out}")
+        check(code == 0 and "ACCEPTED" in out, "inside Topic_2: judge.py 1", f"exit {code}\n{out}")
         code, out, _ = run_judge(["--no-color"], cwd=set1, judge_path=student_judge)
-        check(code == 0 and "Total" in out and "Problem 1" in out, "inside Topic_1: judge.py (whole set)",
+        check(code == 0 and "Total" in out and "Problem 1" in out, "inside Topic_2: judge.py (whole set)",
               f"exit {code}\n{out}")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -269,7 +269,7 @@ def test_updater():
         subprocess.run([sys.executable, os.path.join(REPO, "tools", "build_dist.py"), "--out", tmp, "--no-zip"],
                        check=True, stdout=subprocess.DEVNULL)
         root = os.path.join(tmp, "C2_Practice")
-        judge_dir, set1 = os.path.join(root, "Judge"), os.path.join(root, "Topic_1")
+        judge_dir, set1 = os.path.join(root, "Judge"), os.path.join(root, "Topic_2")
         shutil.copy(os.path.join(SAMPLES, "batch", "profit_ok.cpp"), os.path.join(set1, "1.cpp"))
         student_hash, old_judge = sha(os.path.join(set1, "1.cpp")), sha(os.path.join(judge_dir, "judge.py"))
         template = sha(os.path.join(set1, "2.cpp"))
@@ -277,7 +277,7 @@ def test_updater():
         # a) automatic update during a normal run: new files, backup, restart with the new judge
         repo2 = make_repo2(tmp, "9.9", "marker-v9.9")
         edit_manifest(repo2, lambda m: m["create_only"].update(
-            {"Topic_1/9.cpp": [sha(os.path.join(REPO, "student", "set_files", "template.cpp")), "student/set_files/template.cpp"]}))
+            {"Topic_2/9.cpp": [sha(os.path.join(REPO, "student", "set_files", "template.cpp")), "student/set_files/template.cpp"]}))
         srv, url = serve(repo2)
         code, out, _ = run_student(["1.cpp", "--no-color"], set1, url)
         check(code == 0 and "restarting" in out and "ACCEPTED" in out and "Judge v9.9" in out,
@@ -291,12 +291,12 @@ def test_updater():
         with open(os.path.join(set1, "Makefile"), encoding="utf-8") as f:
             makefile = f.read()
         check("marker-v9.9" in readme and "marker-v9.9" in makefile
-              and os.path.exists(os.path.join(judge_dir, ".backup", "_package", "Topic_1", "Makefile")),
-              "managed files README.txt and Topic_1/Makefile replaced, old copies in Judge/.backup/_package/")
+              and os.path.exists(os.path.join(judge_dir, ".backup", "_package", "Topic_2", "Makefile")),
+              "managed files README.txt and Topic_2/Makefile replaced, old copies in Judge/.backup/_package/")
         check(sha(os.path.join(set1, "1.cpp")) == student_hash and sha(os.path.join(set1, "2.cpp")) == template,
               "student files untouched")
         check(os.path.exists(os.path.join(set1, "9.cpp")) and sha(os.path.join(set1, "9.cpp")) == template,
-              "create-only Topic_1/9.cpp added")
+              "create-only Topic_2/9.cpp added")
         check(not os.path.exists(os.path.join(judge_dir, ".update_tmp")), "no temp folder left behind")
         code, out, _ = run_student(["--update", "--no-color"], set1, url)
         check(code == 0 and "up to date" in out, "--update: up to date", f"exit {code}\n{out}")
@@ -324,7 +324,7 @@ def test_updater():
               "path outside Judge/: refused", f"exit {code}\n{out}")
         rebuild_manifest(repo2)
         edit_manifest(repo2, lambda m: m["managed"].update(
-            {"Topic_1/1.cpp": [sha(os.path.join(repo2, "student", "set_files", "template.cpp")), "student/set_files/template.cpp"]})
+            {"Topic_2/1.cpp": [sha(os.path.join(repo2, "student", "set_files", "template.cpp")), "student/set_files/template.cpp"]})
             or m.update(version="9.14"))
         code, out, _ = run_student(["--update", "--no-color"], set1, url)
         check(code == 1 and "bad managed entry" in out and sha(os.path.join(set1, "1.cpp")) == student_hash,
@@ -493,7 +493,7 @@ def main():
     if not shutil.which("g++"):
         print("g++ not found: the regression tests need a C++ compiler in PATH.")
         return 1
-    # samples and command line run in a built package: problem 1-1's big tests are rebuilt there by gen.py,
+    # samples and command line run in a built package: problem 2-1's big tests are rebuilt there by gen.py,
     # never inside the repo
     global judge, JUDGE
     repo_judge = judge

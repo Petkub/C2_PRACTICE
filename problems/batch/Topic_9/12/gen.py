@@ -1,102 +1,73 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(91201)
-MAXRC, MAXK = 1000, 300_000
+random.seed(131201)
+MAXN = 30
+MAXQ = 100000
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(n, qs):
+    assert 1 <= n <= MAXN and 1 <= len(qs) <= MAXQ
+    side = 1 << n
+    for q in qs:
+        if q[0] == 1:
+            assert len(q) == 2 and 0 <= q[1] < side * side
+        else:
+            assert q[0] == 2 and len(q) == 3 and 0 <= q[1] < side and 0 <= q[2] < side
+    tests.append(f"{n} {len(qs)}\n" + "".join(" ".join(map(str, q)) + "\n" for q in qs))
 
 
-def add(R, C, cells):
-    k = len(cells)
-    assert 1 <= R <= MAXRC and 1 <= C <= MAXRC and 1 <= k <= min(R * C, MAXK)
-    assert all(1 <= r <= R and 1 <= c <= C for (r, c) in cells)
-    assert len(set(cells)) == k
-    tests.append(f"{R} {C} {k}\n" + "".join(f"{r} {c}\n" for (r, c) in cells))
+def rq(n, p1=0.5):
+    side = 1 << n
+    if random.random() < p1:
+        return (1, random.randrange(side * side))
+    return (2, random.randrange(side), random.randrange(side))
 
 
-def all_cells(R, C):
-    return [(r, c) for r in range(1, R + 1) for c in range(1, C + 1)]
-
-
-def rnd(R, C, k):
-    cells = all_cells(R, C)
-    random.shuffle(cells)
-    return cells[:k]
-
-
-def snake(R, C):
-    """a winding path through the odd rows: one long corridor from the top row to the bottom row"""
-    path = []
-    for i, r in enumerate(range(1, R + 1, 2)):
-        cols = range(1, C + 1) if i % 2 == 0 else range(C, 0, -1)
-        path += [(r, c) for c in cols]
-        if r + 1 <= R:
-            path.append((r + 1, C if i % 2 == 0 else 1))
-    return path
-
-
-def without_row(R, C, k, row):
-    """random cells but one row stays closed: never through, big groups on both sides"""
-    cells = [(r, c) for (r, c) in all_cells(R, C) if r != row]
-    random.shuffle(cells)
-    return cells[:k]
+def edge_q(n):
+    """steps next to the borders of the quadrants of every level, cells on borders and diagonals"""
+    side = 1 << n
+    k = random.randint(0, n - 1)
+    r = random.random()
+    if r < 0.4:
+        d = random.randint(0, 3) * 4**k + random.choice((-1, 0, 1)) + random.randrange(side * side // 4**(k + 1) or 1) * 4**(k + 1)
+        return (1, min(max(d, 0), side * side - 1))
+    s = 1 << k
+    x = random.randrange(side) // (2 * s) * (2 * s) + random.choice((s - 1, s, 0, 2 * s - 1))
+    if r < 0.7:
+        y = random.choice((x, side - 1 - x, 0, side - 1, random.randrange(side)))
+    else:
+        y = random.randrange(side) // (2 * s) * (2 * s) + random.choice((s - 1, s))
+    return (2, min(x, side - 1), min(y, side - 1))
 
 
 # samples
-add(3, 3, [(1, 2), (3, 3), (2, 1), (2, 2), (3, 2), (1, 1)])
-add(2, 2, [(1, 1), (2, 2)])
-add(1, 4, [(1, 3), (1, 1)])
-add(4, 3, [(4, 1), (3, 1), (1, 3), (2, 2), (2, 3), (3, 2)])
-add(3, 4, [(2, 4), (1, 1), (3, 4), (1, 4), (2, 2)])
-# hidden: small
-add(1, 1, [(1, 1)])
-add(5, 1, [(2, 1), (5, 1), (1, 1), (4, 1), (3, 1)])
-add(4, 4, rnd(4, 4, 16))
-add(6, 7, rnd(6, 7, 30))
-add(20, 20, rnd(20, 20, 400))
-p = snake(25, 9)
-add(25, 9, p[1:] + p[:1])
-add(50, 60, without_row(50, 60, 2500, 25))
-add(300, 200, rnd(300, 200, 30000))
-cells = [(r, c) for r in range(1, 1001) for c in (1, 2, 3)]  # three columns, the middle row opens last
-cells = [x for x in cells if x[0] != 500] + [(500, 2)]
-add(1000, 3, cells)
-# hidden: maximum size
-add(500, 600, rnd(500, 600, MAXK))                           # every cell, random order
-cells = [(r, c) for r in range(1, 301) for c in range(1, 1001)]   # the top 300 rows only: one huge group
-random.shuffle(cells)
-add(1000, 1000, cells)
-p = snake(999, 598)
-assert len(p) <= MAXK
-add(999, 598, p)                                             # the corridor from the top, in order
-p = snake(999, 598)
-random.shuffle(p)
-add(999, 598, p)
-p = snake(999, 598)
-add(999, 598, p[-1:] + p[:-1][::-1])                         # from the bottom end, the top cell is the last
-add(600, 500, without_row(600, 500, MAXK - 500, 599))        # everything except the row above the bottom
-cells = [(r, c) for (r, c) in all_cells(600, 500) if (r + c) % 2 == 0]   # chessboard first: no two cells touch
-random.shuffle(cells)
-rest = [(r, c) for (r, c) in all_cells(600, 500) if (r + c) % 2 == 1 and r < 600]
-random.shuffle(rest)
-add(600, 500, cells + rest)                                  # then the rest, except the bottom row
-add(1000, 1, [(r, 1) for r in range(1000, 0, -1)])           # one column from the bottom up
-add(1, 1000, rnd(1, 1000, 1000))
-add(1000, 300, rnd(1000, 300, MAXK))
-cells = [(r, c) for (r, c) in all_cells(1000, 300) if r != 500]   # row 500 opens last
-random.shuffle(cells)
-row = [(500, c) for c in range(1, 301)]
-random.shuffle(row)
-add(1000, 300, cells + row)
-add(700, 420, rnd(700, 420, 700 * 420))
-cells = [(r, c) for r in range(1, 1001) for c in range(1, 151)]   # a far column opens at the end
-random.shuffle(cells)
-cells = cells[:MAXK - 1000] + [(r, 1000) for r in range(1, 1001)]
-add(1000, 1000, cells)
+add(2, [(1, 6), (1, 13), (2, 3, 3), (2, 0, 2)])
+add(1, [(1, 3), (2, 0, 1), (2, 1, 1)])
+add(3, [(1, 21), (2, 4, 3), (2, 7, 0)])
+add(30, [(1, 5), (2, 0, 2**30 - 1), (2, 2**30 - 1, 0)])
+add(5, [(1, 500), (2, 31, 16), (1, 1023)])
+# hidden: small (the brute force walks the whole curve)
+add(1, [(1, d) for d in range(4)] + [(2, x, y) for x in range(2) for y in range(2)])
+add(3, [(1, d) for d in range(64)] + [(2, x, y) for x in range(8) for y in range(8)])
+add(4, [(1, d) for d in range(256)][::-1] + [(2, x, y) for y in range(16) for x in range(16)])
+add(7, [rq(7) for _ in range(3000)])
+add(9, [edge_q(9) for _ in range(5000)])
+add(11, [rq(11) for _ in range(20000)])
+# hidden: large
+add(30, [rq(30) for _ in range(MAXQ)])
+add(30, [rq(30, 1.0) for _ in range(MAXQ)])
+add(30, [rq(30, 0.0) for _ in range(MAXQ)])
+add(30, [edge_q(30) for _ in range(MAXQ)])
+add(29, [rq(29) for _ in range(MAXQ)])
+add(25, [edge_q(25) for _ in range(MAXQ)])
+add(20, [rq(20) for _ in range(MAXQ)])
+add(16, [rq(16) for _ in range(MAXQ)])
+add(14, [rq(14) for _ in range(MAXQ)])
+add(30, [(1, 4**30 - 1 - i) for i in range(MAXQ // 2)] + [(2, 2**30 - 1 - i, i) for i in range(MAXQ // 2)])
+add(28, [(2, x, x) for x in random.sample(range(2**28), MAXQ)])
+add(30, [(1, random.randrange(4**15)) for _ in range(MAXQ)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

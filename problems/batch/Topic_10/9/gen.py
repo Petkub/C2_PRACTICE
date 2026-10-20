@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100109)
-MAXN, MAXW = 100_000, 10**6
+random.seed(80909)
+MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
 tests = []
 
 
@@ -10,120 +10,161 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
-    par = [0, 0]
-    half = max(1, n // 2)
-    b = max(2, int(n ** 0.5))
-    for i in range(2, n + 1):
-        if kind == "path":
-            p = i - 1
-        elif kind == "star":
-            p = 1
-        elif kind == "random":
-            p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, a few short branches
-            p = ri(max(1, i - 3), i - 1)
-        elif kind == "binary":
-            p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
-            p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
-            p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains meeting at node 1
-            p = 1 if i <= 3 else i - 2
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
-            p = i - 1 if (i - 1) % b else ri(1, i - 1)
+def add(n, edges, shuffle=True, relabel=True):
+    """relabel: cities other than 1 and n get random numbers"""
+    edges = list(edges)
+    if relabel:
+        p = list(range(2, n))
+        random.shuffle(p)
+        p = [0, 1] + p + [n]
+        edges = [(p[a], p[b], w) for a, b, w in edges]
+    if shuffle:
+        random.shuffle(edges)
+    m = len(edges)
+    assert 2 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n and a != b and 0 <= w <= MAXW for a, b, w in edges)
+    # no cycle made only of length-0 roads (Kahn on the length-0 roads)
+    zout = [[] for _ in range(n + 1)]
+    deg = [0] * (n + 1)
+    for a, b, w in edges:
+        if w == 0:
+            zout[a].append(b)
+            deg[b] += 1
+    st = [v for v in range(1, n + 1) if deg[v] == 0]
+    seen = 0
+    while st:
+        v = st.pop()
+        seen += 1
+        for u in zout[v]:
+            deg[u] -= 1
+            if deg[u] == 0:
+                st.append(u)
+    assert seen == n
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in edges))
+
+
+def rnd(n, m, wlo, whi, pzero=0.0):
+    """random roads; length-0 roads only go forward in a hidden random order"""
+    rank = list(range(n + 1))
+    random.shuffle(rank)
+    res = []
+    while len(res) < m:
+        a, b = ri(1, n), ri(1, n)
+        if a == b:
+            continue
+        if random.random() < pzero:
+            if rank[a] > rank[b]:
+                a, b = b, a
+            res.append((a, b, 0))
         else:
-            raise ValueError(kind)
-        par.append(p)
-    return par
+            res.append((a, b, ri(wlo, whi)))
+    return res
 
 
-def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends"""
-    n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    if root_first:
-        j = lab.index(1)
-        lab[0], lab[j] = lab[j], lab[0]
-    rnd = random.random
-    edges = [(lab[i - 1], lab[par[i] - 1]) if rnd() < 0.5 else (lab[par[i] - 1], lab[i - 1]) for i in range(2, n + 1)]
-    random.shuffle(edges)
-    return edges, lab
+def diamonds(k, wmax, zero=False):
+    """k blocks in a row from city 1; each block has two routes of equal length with different road counts"""
+    e, cur, nxt = [], 1, 2
+    for _ in range(k):
+        x, y, z = nxt, nxt + 1, nxt + 2
+        nxt += 3
+        s = ri(2, wmax)
+        t = ri(1, s - 1)
+        if zero and random.random() < 0.5:
+            t = 0
+        e += [(cur, x, t), (x, z, s - t), (cur, y, s // 2), (y, z, s - s // 2), (cur, z, s)]
+        cur = z
+    return cur, e
 
 
-def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
-    assert len(edges) == n - 1
-    root = list(range(n + 1))
-
-    def find(x):
-        while root[x] != x:
-            root[x] = root[root[x]]
-            x = root[x]
-        return x
-    for u, v in edges:
-        assert 1 <= u <= n and 1 <= v <= n and u != v
-        a, b = find(u), find(v)
-        assert a != b
-        root[a] = b
+def layers(sizes, wfun):
+    """complete connections between consecutive layers; first layer = {1}, last = {n}"""
+    ids, nxt = [], 1
+    for s in sizes:
+        ids.append(list(range(nxt, nxt + s)))
+        nxt += s
+    e = []
+    for L in range(len(ids) - 1):
+        for u in ids[L]:
+            for v in ids[L + 1]:
+                e.append((u, v, wfun(L)))
+    return nxt - 1, e
 
 
-def weigh(edges, lo=1, hi=MAXW):
-    rnd, k = random.random, hi - lo + 1
-    return [(u, v, lo + int(rnd() * k)) for u, v in edges]
+def zero_layers(groups, size, extra):
+    """groups of cities at the same distance joined by length-0 roads in a hidden order"""
+    e, prev, nxt = [], [1], 2
+    for g in range(groups):
+        cur = list(range(nxt, nxt + size))
+        nxt += size
+        step = ri(1, 3)
+        for v in cur:
+            for _ in range(2):
+                e.append((random.choice(prev), v, step))
+        for _ in range(extra):
+            i, j = sorted(random.sample(range(size), 2))
+            e.append((cur[i], cur[j], 0))
+        prev = cur
+    n = nxt
+    for v in prev:
+        e.append((v, n, 1))
+    return n, e
 
 
-def add(n, wedges, from_shape=False):
-    """from_shape: the edges come from relabel(), which already guarantees a tree"""
-    assert 1 <= n <= MAXN and len(wedges) == n - 1
-    if not from_shape:
-        check_tree(n, [(u, v) for u, v, w in wedges])
-    assert all(1 <= w <= MAXW for u, v, w in wedges)
-    tests.append(f"{n}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in wedges))
-
-
-def make(n, kind, root_first=False, lo=1, hi=MAXW):
-    edges, lab = relabel(shape(n, kind), root_first)
-    add(n, weigh(edges, lo, hi), True)
+def zero_dag(n, m):
+    """only length-0 roads, each going a little forward in a hidden order that starts at 1 and ends at n"""
+    order = list(range(2, n))
+    random.shuffle(order)
+    order = [1] + order + [n]
+    e = [(order[i], order[i + 1], 0) for i in range(n - 1)]
+    while len(e) < m:
+        i = ri(0, n - 2)
+        j = min(n - 1, i + ri(1, 6))
+        e.append((order[i], order[j], 0))
+    return n, e
 
 
 # samples
-add(5, [(1, 2, 3), (1, 3, 5), (3, 4, 2), (3, 5, 7)])
-add(4, [(4, 3, 2), (3, 1, 9), (1, 2, 4)])
-add(1, [])
-add(5, [(2, 1, 4), (2, 3, 1), (4, 2, 6), (2, 5, 6)])
-add(7, [(5, 7, 8), (1, 5, 3), (2, 7, 4), (6, 1, 1), (3, 2, 2), (4, 6, 5)])
-# hidden: small and medium
-add(2, [(2, 1, MAXW)])
-add(3, [(1, 2, 5), (3, 1, 5)])
-make(10, "random", lo=1, hi=10)
-make(30, "deep", lo=1, hi=5)
-make(40, "star", lo=1, hi=3)
-make(200, "caterpillar")
-make(3000, "path", True)
-make(5000, "chains", lo=1, hi=100)
-e, lab = relabel(shape(4000, "random"))
-add(4000, [(u, v, 1) for u, v in e])                          # all lengths equal
-e, lab = relabel(shape(6000, "broom"))
-add(6000, [(u, v, MAXW if random.random() < 0.01 else 1) for u, v in e])   # a few very long roads
+add(5, [(1, 2, 2), (1, 3, 1), (3, 2, 1), (2, 5, 4), (3, 4, 2), (4, 5, 3)], False, False)
+add(4, [(1, 2, 0), (2, 3, 0), (1, 3, 0), (3, 4, 5), (4, 1, 1)], False, False)
+add(4, [(1, 3, 2), (1, 2, 2), (3, 2, 0), (2, 4, 1)], False, False)
+add(3, [(1, 2, 1), (1, 2, 1), (2, 3, 1), (2, 3, 1), (1, 3, 2)], False, False)
+add(3, [(2, 1, 4), (3, 2, 4)], False, False)
+# hidden: small
+add(2, [(1, 2, 0)])
+add(2, [(1, 2, MAXW), (1, 2, MAXW), (2, 1, 0)])
+for n, m, whi, pz in ((6, 15, 3, 0.3), (8, 25, 2, 0.4), (10, 40, 1, 0.5), (12, 50, 4, 0.2), (30, 90, 10, 0.1)):
+    add(n, rnd(n, m, 1, whi, pz))
+n, e = diamonds(12, 6, True)
+add(n, e)
+n, e = layers([1, 3, 4, 3, 4, 1], lambda L: 1 if L % 2 else 0)
+add(n, e)
+n, e = zero_layers(5, 5, 6)
+add(n, e)
+add(9, rnd(9, 30, 1, 1, 0.6) + [(1, 9, 9)])
+add(1000, rnd(1000, 5000, 1, 20, 0.05))
+add(5000, rnd(5000, 20000, 1, 5, 0.3))
 # hidden: maximum size
-N = MAXN
-make(N, "path", True)
-make(N, "path", False, MAXW, MAXW)                              # the largest distances
-make(N, "deep")
-make(N, "caterpillar")
-make(N, "broom")
-make(N, "twopaths", True)
-make(N, "chains")
-make(N, "random")
-make(N, "binary", True, 1, 10)
-make(N, "star")
-e, lab = relabel(shape(N, "caterpillar"))
-add(N, [(u, v, MAXW if random.random() < 0.001 else ri(1, 3)) for u, v in e], True)
+N, M = MAXN, MAXM
+n, e = diamonds(20_000, 2000, True)
+add(n, e)
+n, e = diamonds(19_000, 1000)
+add(n, e + rnd(n, M - len(e), 10**8, MAXW))
+n, e = zero_layers(900, 30, 40)
+add(n, e + rnd(n, M - len(e), 10**6, MAXW))
+n, e = zero_layers(3000, 8, 15)
+add(n, e)
+add(10_000, rnd(10_000, M, 1, 1, 0.3))
+add(40_000, rnd(40_000, M - 10, 1, MAXW) + [(ri(2, 39_999), 40_000, ri(1, MAXW)) for _ in range(5)]
+    + [(1, ri(2, 39_999), ri(1, MAXW)) for _ in range(5)])
+add(N, [(i, i + 1, MAXW) for i in range(1, N)], True, False)            # length close to 10^14
+n, e = layers([1] + [10] * 1000 + [1], lambda L: L % 3)
+add(n, e)
+add(*zero_dag(30_000, M))                                                # every road has length 0
+e = rnd(N - 1, M - 1, 1, 10)                                             # city n cannot be reached
+add(N, e + [(N, 1, 1)], True, False)
+n, e = layers([1] + [3] * 11_000 + [1], lambda L: 1 + L % 2)
+add(n, e)
+add(5000, rnd(5000, M, 1, 3, 0.5))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

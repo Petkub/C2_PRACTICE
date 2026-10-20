@@ -1,8 +1,9 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(3004)
-MAXN, MAXK, MAXT = 200_000, 200_000, 10**6
+random.seed(20204)
+MAXN = 200_000
+MAXV = 10**9
 tests = []
 
 
@@ -11,56 +12,77 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(k, t):
-    n = len(t)
-    assert 1 <= n <= MAXN and 1 <= k <= MAXK
-    assert all(1 <= x <= MAXT for x in t)
-    tests.append(f"{n} {k}\n" + " ".join(map(str, t)) + "\n")
+def add(a, b):
+    n, q = len(a), len(b)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXN
+    assert all(-MAXV <= x <= MAXV for x in a + b)
+    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, b)) + "\n")
 
 
 def rnd(n, lo, hi):
     return [ri(lo, hi) for _ in range(n)]
 
 
+def around(a, q, spread):
+    """houses on, next to and between the stations"""
+    s = sorted(set(a))
+    res = []
+    for _ in range(q):
+        k = ri(0, len(s) - 1)
+        r = random.random()
+        if r < 0.3 and k + 1 < len(s):
+            v = (s[k] + s[k + 1]) // 2 + ri(0, 1)       # in the middle of a gap (ties)
+        elif r < 0.5:
+            v = s[k]
+        else:
+            v = s[k] + ri(-spread, spread)
+        res.append(max(-MAXV, min(MAXV, v)))
+    return res
+
+
 # samples
-add(2, [4, 1, 3, 2, 5])
-add(1, [7, 2, 4])
-add(5, [3, 3, 3])
-add(1, [1000000])
-add(3, [8, 1, 6, 2, 9, 4])
-add(2, [5, 5, 1, 7, 3, 2, 6])
-# hidden: small (every schedule is tried)
-add(1, [1])
-add(4, [2, 9])
-add(1, [3, 1, 2, 5, 4, 8, 6, 7])
-add(2, [10, 1, 1, 1, 1, 10])
-add(3, [7, 7, 7, 7, 7, 7, 7])
-add(8, [5, 4, 3, 2, 1, 6, 7, 8])
-add(7, [9, 8, 7, 6, 5, 4, 3, 2])
-add(3, rnd(8, 1, 20))
-add(4, rnd(8, 1, 100))
-add(2, rnd(8, 1, MAXT))
-add(5, rnd(6, 1, 10))
-# hidden: medium
-add(3, rnd(100, 1, 1000))
-add(17, rnd(1000, 1, MAXT))
-add(400, rnd(3000, 1, MAXT))
-# hidden: maximum size
-N = MAXN
-add(1, [MAXT] * N)                         # the largest answer
-add(1, rnd(N, 1, MAXT))
-add(2, rnd(N, 1, MAXT))
-add(N // 2, rnd(N, 1, MAXT))               # many doctors: scanning all doctors per patient is too slow
-add(N // 3 + 1, rnd(N, 1, 1000))
-add(N - 1, rnd(N, 1, MAXT))
-add(N, rnd(N, 1, MAXT))                    # everyone has a doctor
-add(MAXK, rnd(N // 2, 1, MAXT))            # more doctors than patients
-add(30_000, sorted(rnd(N, 1, MAXT)))
-add(60_000, sorted(rnd(N, 1, MAXT), reverse=True))
-add(99_999, [MAXT] * N)
+add([1, 8, 4, 15], [3, 8, 10, 20, 0])
+add([6, 6, -2], [-10, 2, 7])
+add([0], [-MAXV, MAXV, 0, 7])
+add([-MAXV, -MAXV], [MAXV, -999_999_999, -MAXV])
+add([10, -5, 3, 3, 20], [4, -100, 12, 16, 3, 0])
+add([7, 1], [4, 5, 1, 7])
+# hidden: small
+add([5], [5])
+add([3, 3, 3], rnd(20, -10, 10))
+a = rnd(100, -1000, 1000)
+add(a, around(a, 200, 5))
+a = rnd(3000, -MAXV, MAXV)
+add(a, around(a, 3000, 10**6) + rnd(1000, -MAXV, MAXV))
+a = rnd(2000, 0, 100)
+add(a, rnd(2000, -500, 600))
+add([MAXV] * 1000, [-MAXV] * 1000 + [MAXV])
+a = [ri(-50, 50) * 1000 for _ in range(1000)]
+add(a, around(a, 2000, 600))
+# hidden: maximum size (positions up to 10^6 in absolute value keep the files near 3 MB)
+N, H = MAXN, 10**6
+a = rnd(N, -H, H)
+add(a, rnd(N, -H, H))
+a = rnd(N, -H, H)
+add(a, around(a, N, 3))
+a = rnd(N, -H, -H + 1000)                              # every house to the right of every station
+add(a, rnd(N, H - 1000, H))
+a = rnd(N, H - 1000, H)                                # every house to the left of every station
+add(a, rnd(N, -H, -H + 1000))
+a = [ri(-1000, 1000) * 1000 for _ in range(N)]         # many repeats, houses in the middle of gaps
+add(a, around(a, N, 500))
+a = [ri(-H, H) // 2 * 2 for _ in range(N)]
+add(a, [x + 1 for x in rnd(N, -H, H - 2)])
+add([0] * N, rnd(N, -H, H))
+# the largest distances
+add([MAXV] * N, [-MAXV] * 100_000)
+add(rnd(N, MAXV - 10**6, MAXV), rnd(100_000, -MAXV, -MAXV + 10**6))
+a = rnd(100_000, -MAXV, MAXV)
+add(a, around(a, 100_000, 10**7))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

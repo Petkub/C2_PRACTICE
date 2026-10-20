@@ -1,88 +1,55 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20204)
-MAXN = 200_000
-MAXV = 10**9
+random.seed(1104)
+MAXN, MAXA = 500_000, 10**9
+BIGN = 250_000                                # largest N whose input with 10-digit values stays near 3 MB
 tests = []
 
-
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
-
-
-def add(a, b):
-    n, q = len(a), len(b)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXN
-    assert all(-MAXV <= x <= MAXV for x in a + b)
-    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, b)) + "\n")
-
+def add(k, a):
+    n = len(a)
+    assert 1 <= k <= n <= MAXN
+    assert all(-MAXA <= x <= MAXA for x in a)
+    tests.append(f"{n} {k}\n" + " ".join(map(str, a)) + "\n")
 
 def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
-
-
-def around(a, q, spread):
-    """houses on, next to and between the stations"""
-    s = sorted(set(a))
-    res = []
-    for _ in range(q):
-        k = ri(0, len(s) - 1)
-        r = random.random()
-        if r < 0.3 and k + 1 < len(s):
-            v = (s[k] + s[k + 1]) // 2 + ri(0, 1)       # in the middle of a gap (ties)
-        elif r < 0.5:
-            v = s[k]
-        else:
-            v = s[k] + ri(-spread, spread)
-        res.append(max(-MAXV, min(MAXV, v)))
-    return res
-
+    return random.choices(range(lo, hi + 1), k=n)
 
 # samples
-add([1, 8, 4, 15], [3, 8, 10, 20, 0])
-add([6, 6, -2], [-10, 2, 7])
-add([0], [-MAXV, MAXV, 0, 7])
-add([-MAXV, -MAXV], [MAXV, -999_999_999, -MAXV])
-add([10, -5, 3, 3, 20], [4, -100, 12, 16, 3, 0])
-add([7, 1], [4, 5, 1, 7])
+add(3, [2, -1, 3, 4, -2, 5, 1])
+add(2, [3, 1, -5, 4, 0, 2])
+add(2, [-5, -3, -8, -1])
+add(1, [0, -2, 7, 7, 3])
+add(1, [-10**9])
+add(4, [5, -1, -1, 5])
 # hidden: small
-add([5], [5])
-add([3, 3, 3], rnd(20, -10, 10))
-a = rnd(100, -1000, 1000)
-add(a, around(a, 200, 5))
-a = rnd(3000, -MAXV, MAXV)
-add(a, around(a, 3000, 10**6) + rnd(1000, -MAXV, MAXV))
-a = rnd(2000, 0, 100)
-add(a, rnd(2000, -500, 600))
-add([MAXV] * 1000, [-MAXV] * 1000 + [MAXV])
-a = [ri(-50, 50) * 1000 for _ in range(1000)]
-add(a, around(a, 2000, 600))
-# hidden: maximum size (positions up to 10^6 in absolute value keep the files near 3 MB)
-N, H = MAXN, 10**6
-a = rnd(N, -H, H)
-add(a, rnd(N, -H, H))
-a = rnd(N, -H, H)
-add(a, around(a, N, 3))
-a = rnd(N, -H, -H + 1000)                              # every house to the right of every station
-add(a, rnd(N, H - 1000, H))
-a = rnd(N, H - 1000, H)                                # every house to the left of every station
-add(a, rnd(N, -H, -H + 1000))
-a = [ri(-1000, 1000) * 1000 for _ in range(N)]         # many repeats, houses in the middle of gaps
-add(a, around(a, N, 500))
-a = [ri(-H, H) // 2 * 2 for _ in range(N)]
-add(a, [x + 1 for x in rnd(N, -H, H - 2)])
-add([0] * N, rnd(N, -H, H))
-# the largest distances
-add([MAXV] * N, [-MAXV] * 100_000)
-add(rnd(N, MAXV - 10**6, MAXV), rnd(100_000, -MAXV, -MAXV + 10**6))
-a = rnd(100_000, -MAXV, MAXV)
-add(a, around(a, 100_000, 10**7))
+add(1, [7])
+add(2, [-1, -1, -1, -1, -1])                  # all ties: s = 1
+add(3, rnd(10, -10, 10))
+add(5, rnd(50, -100, 100))
+add(30, rnd(300, -1000, 1000))
+add(400, rnd(2000, -MAXA, MAXA))
+add(5000, rnd(12000, -5, 5))                  # many ties likely
+add(10000, [-MAXA] * 20000)
+add(9000, [MAXA] * 20000)
+# hidden: maximum size (K near N / 2 so that the O(N K) way has to do about N^2 / 4 additions)
+add(MAXN // 2, rnd(MAXN, -1000, 1000))
+add(BIGN // 2, rnd(BIGN, -MAXA, MAXA))
+add(BIGN // 2, [MAXA] * BIGN)                 # all equal: answer at s = 1, sum beyond 32 bits
+add(BIGN // 2 - 1, [-MAXA] * BIGN)
+add(200_000, rnd(MAXN, -999, -1))             # every window negative
+a = random.choices([-MAXA, -MAXA + 1, MAXA - 1, MAXA], k=BIGN)
+add(BIGN // 2 + 1, a)
+a = [1] * MAXN                                # a strictly better window appears late, then ties
+a[400_000] = 3
+add(250_000, a)
+a = [(-1) ** i for i in range(MAXN)]          # alternating: many ties
+add(MAXN // 2 + 1, a)
+add(MAXN // 2 - 12_345, rnd(MAXN, -9999, 9999))
+add(MAXN // 3, rnd(MAXN, 0, 99))
+add(MAXN, rnd(MAXN, -1000, 1000))
+add(1, rnd(MAXN, -1000, 1000))
 
-for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
-print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

@@ -1,111 +1,163 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(81414)
-MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
+random.seed(7014)
+MAXN, MAXL = 20_000, 8
+ALL = "abcdef"
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, edges, shuffle=True, relabel=True):
-    """relabel: intersections other than 1 get random numbers; each road gets a random orientation"""
-    edges = list(edges)
-    if relabel:
-        p = list(range(2, n + 1))
-        random.shuffle(p)
-        p = [0, 1] + p
-        edges = [(p[a], p[b], w) if random.random() < 0.5 else (p[b], p[a], w) for a, b, w in edges]
+def add(words, a, b, shuffle=True):
+    n = len(words)
+    assert 1 <= n <= MAXN and len(set(words)) == n
+    assert all(1 <= len(x) <= MAXL and set(x) <= set(ALL) for x in words)
+    assert a in words and b in words
+    words = list(words)
     if shuffle:
-        random.shuffle(edges)
-    m = len(edges)
-    assert 2 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(1 <= a <= n and 1 <= b <= n and 1 <= w <= MAXW for a, b, w in edges)
-    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in edges))
+        random.shuffle(words)
+    tests.append(f"{n}\n{a} {b}\n" + " ".join(words) + "\n")
 
 
-def rnd(n, m, wlo, whi, ploop=0.0):
+def rword(lo, hi, alpha):
+    return "".join(alpha[ri(0, len(alpha) - 1)] for _ in range(ri(lo, hi)))
+
+
+def edit(x, alpha):
+    """one random change / deletion / insertion that keeps the length in 1..MAXL"""
+    while True:
+        k = ri(0, 2)
+        if k == 0:
+            i = ri(0, len(x) - 1)
+            ch = alpha[ri(0, len(alpha) - 1)]
+            if ch != x[i]:
+                return x[:i] + ch + x[i + 1:]
+        elif k == 1 and len(x) > 1:
+            i = ri(0, len(x) - 1)
+            return x[:i] + x[i + 1:]
+        elif k == 2 and len(x) < MAXL:
+            i = ri(0, len(x))
+            return x[:i] + alpha[ri(0, len(alpha) - 1)] + x[i:]
+
+
+def walk(start, steps, alpha, used):
+    """a random walk of edits through new words; returns the words in order"""
+    path = [start]
+    used.add(start)
+    x = start
+    for _ in range(steps):
+        for _ in range(50):
+            y = edit(x, alpha)
+            if y not in used:
+                break
+        else:
+            break
+        used.add(y)
+        path.append(y)
+        x = y
+    return path
+
+
+def random_dict(n, lo, hi, alpha, used=None):
+    used = set() if used is None else used
     res = []
-    while len(res) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a != b or random.random() < ploop:
-            res.append((a, b, ri(wlo, whi)))
+    while len(res) < n:
+        x = rword(lo, hi, alpha)
+        if x not in used:
+            used.add(x)
+            res.append(x)
     return res
 
 
-def tree(n, wlo, whi, deep=False):
-    e = []
-    for v in range(2, n + 1):
-        par = ri(max(1, v - 3), v - 1) if deep else ri(1, v - 1)
-        e.append((par, v, ri(wlo, whi)))
-    return e
-
-
-def grid(r, c, wfun):
-    e = []
-    for i in range(r):
-        for j in range(c):
-            v = i * c + j + 1
-            if j + 1 < c:
-                e.append((v, v + 1, wfun(True)))
-            if i + 1 < r:
-                e.append((v, v + c, wfun(False)))
-    return r * c, e
-
-
 # samples
-add(4, [(1, 2, 2), (2, 4, 3), (1, 3, 4), (3, 4, 2), (2, 3, 1)], False, False)
-add(3, [(1, 2, 5), (2, 2, 1)], False, False)
-add(4, [(1, 2, 3), (1, 2, 3), (2, 3, 1), (1, 3, 4)], False, False)
-add(3, [(2, 3, 7)], False, False)
-add(3, [(1, 2, MAXW), (2, 3, MAXW)], False, False)
-# hidden: small
-add(2, [(1, 2, 1)])
-add(2, [(1, 1, 4)])
-add(5, [(1, 2, 3), (1, 3, 3), (2, 4, 2), (3, 4, 2), (4, 5, 1)])
-for n, m, whi, pl in ((5, 6, 3, 0.1), (8, 12, 5, 0.0), (10, 15, 2, 0.05), (12, 20, 10, 0.0), (30, 50, 20, 0.02)):
-    add(n, rnd(n, m, 1, whi, pl))
-add(30, tree(30, 1, 5))
-add(40, tree(40, 1, 1))
-n, e = grid(6, 7, lambda h: 1)
-add(n, e)
-n, e = grid(10, 12, lambda h: ri(1, 3))
-add(n, e)
-add(200, rnd(200, 400, 1, 10**6))
-add(300, tree(300, 1, 10, True) + rnd(300, 50, 1, 10))
-add(150, rnd(100, 300, 1, 5))                                                   # intersections 101..150 cut off
-# hidden: maximum size
-N, M = MAXN, MAXM
-add(N, rnd(N, M, 1, MAXW))
-add(50_000, rnd(50_000, M, 1, 3))                                               # many ties
-add(N, tree(N, 1, MAXW, True))                                                  # only back-and-forth detours
-add(N, tree(N, MAXW, MAXW, True), True, False)                                  # lengths near 10^14
-n, e = grid(200, 250, lambda h: 1)
-add(n, e)
-n, e = grid(10_000, 5, lambda h: ri(1, 10) if h else ri(10**8, MAXW))            # cheap rows, costly columns
-add(n, e)
-e = [(i, i + 1, 2) for i in range(1, N)]                                         # a path with parallel roads
-e += [(i, i + 1, 2 + random.choice((0, 1, 2))) for i in range(1, N - 1, 10)]
-add(N, e[:M], True, False)
-add(70_000, rnd(60_000, M, 1, 10**4, 0.01))                                      # some intersections cut off
-e = tree(N - 1, 1, 10**4, True) + [(v, v, ri(1, 3)) for v in range(1, N, 1000)]      # self-loops, one isolated
-add(N, e[:M])
-add(N, [(1, v, ri(1, MAXW)) for v in range(2, N + 1)] + [(2, 3, 1)])               # a star
-n, e = grid(220, 225, lambda h: ri(1, 1000))
-add(n, e[:M])
-e = [(i, i + 1, ri(1, 100)) for i in range(1, 50_000)]                           # long thin band
-while len(e) < M:
-    a = ri(1, 49_999)
-    e.append((a, min(50_000, a + ri(1, 10)), ri(1, 100)))
-add(50_000, e)
-add(30_000, rnd(30_000, M, 1, 2, 0.001))
-e = []
-for b in range(25_000):                                                          # blocks of two equal routes
-    a, x, y, z = 3 * b + 1, 3 * b + 2, 3 * b + 3, 3 * b + 4
-    e += [(a, x, 1), (x, z, 1), (a, y, 1), (y, z, 1)]
-add(75_001, e)
+add(["dab", "dad", "dead", "deed", "feed", "fee"], "dab", "fee", False)
+add(["abc", "fed", "abd"], "abc", "fed", False)
+add(["added"], "added", "added", False)
+add(["a", "fade", "ad", "faded", "fad"], "faded", "a", False)
+add(["ab", "ba", "a", "b", "aba"], "ab", "ba", False)
+add(["face", "fade", "fad", "bad", "bead", "bed", "ace"], "face", "bed", False)
+# hidden: small and medium
+add(["a", "b"], "a", "b")
+add(["a", "ab", "abc", "abcd", "abcde"], "abcde", "a")
+add(["abcd", "abdc"], "abcd", "abdc")                        # a swap is not one edit
+add(["f", "ff", "fff", "ffff", "ffffffff"], "f", "ffffffff")  # cannot jump four letters
+used = set()
+p = walk("faded", 30, ALL, used)
+add(p + random_dict(200, 1, 8, ALL, used), p[0], p[-1])
+used = set()
+w = random_dict(300, 1, 6, "abc", used)
+add(w, w[0], w[1])
+used = set()
+w = random_dict(2000, 1, 6, "abcd", used)
+add(w, w[0], w[-1])
+used = set()
+p = walk("aaaaaaaa", 400, "ab", used)
+add(p + random_dict(1500, 3, 8, "abc", used), p[0], p[-1])
+used = set()
+p = walk("deadbeef", 3000, ALL[:6], used)
+add(p + random_dict(2000, 1, 8, ALL[:6], used), p[0], p[-1])
+used = set()
+w = random_dict(5000, 1, 8, ALL, used)
+add(w, w[0], w[1])                                            # almost surely not connected
+# hidden: large
+N = MAXN
+used = set()                                                  # every word over {a, b, c} of length 1..8 (except a few)
+allw = []
+for L in range(1, MAXL + 1):
+    cur = [""]
+    for _ in range(L):
+        cur = [x + ch for x in cur for ch in "abc"]
+    allw += cur
+random.shuffle(allw)
+add(allw[:9800], "abcabcab" if "abcabcab" in allw[:9800] else allw[0], "c" if "c" in allw[:9800] else allw[1])
+used = set()
+w = random_dict(N, 1, 8, "abcd", used)                        # a dense dictionary
+add(w, w[0], w[1])
+used = set()
+w = random_dict(N, 4, 8, "abcde", used)
+add(w, w[0], w[2])
+used = set()
+p = walk("decaf", 15000, ALL, used)                          # one long random walk plus noise
+add(p + random_dict(N - len(p), 1, 8, ALL, used), p[0], p[-1])
+used = set()
+p = walk("aaaa", 15000, "abc", used)                          # a walk over {a, b, c} until it gets stuck
+add(p + random_dict(N - len(p), 1, 8, ALL, used), p[0], p[-1])
+used = set()
+p = walk("beaded", 300, ALL, used)
+w = random_dict(N - len(p), 1, 8, ALL, used)
+add(p + w, p[0], p[-1])
+used = set()
+p = walk("ceded", 300, ALL, used)
+w = random_dict(N - len(p), 1, 8, ALL, used)
+add(p + w, p[0], w[0])                                        # no ladder at all
+words = []
+for L in range(1, MAXL + 1):                                  # all words over {a, b} plus random ones
+    cur = [""]
+    for _ in range(L):
+        cur = [x + ch for x in cur for ch in "ab"]
+    words += cur
+used = set(words)
+words += random_dict(N - len(words), 1, 8, ALL, used)
+add(words, "a", "bbbbbbbb")
+used = set()
+w = random_dict(N - 1, 7, 8, "abcde", used)                  # the target is far from everything
+add(w + ["fffffff"], w[0], "fffffff")
+used = set()
+w = random_dict(N - 1, 5, 8, "abcde", used)                  # dense enough to be one big component
+add(w + ["ff"], w[0], "ff")
+used = set()
+p = walk("fedcbafe", 5000, ALL, used)
+add(p + random_dict(N - len(p), 6, 8, ALL, used), p[0], p[len(p) // 2])
+used = set()
+p = walk("abcdabcd", 15000, "abcd", used)                     # a long walk through a dense dictionary
+add(p + random_dict(N - len(p), 1, 8, "abcd", used), p[0], p[-1])
+used = set()
+w = random_dict(N - 1, 3, 8, "abcd", used)                    # everything reachable is visited
+add(w + ["fff"], w[-1], "fff")
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

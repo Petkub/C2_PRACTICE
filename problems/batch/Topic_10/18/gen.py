@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100118)
-MAXN, MAXQ, MAXA = 100_000, 100_000, 10**6
+random.seed(80180)
+MAXN, MAXM, MAXK, MAXW = 100_000, 100_000, 10, 10**9
 tests = []
 
 
@@ -10,156 +10,127 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, par, qs):
-    """a[1..n] ranks, par[2..n] bosses (index 0 and 1 unused), qs = [(v, x)]"""
-    n, q = len(a) - 1, len(qs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ and len(par) == n + 1
-    assert all(1 <= x <= MAXA for x in a[1:])
-    assert all(1 <= par[i] <= n and par[i] != i for i in range(2, n + 1))
-    assert all(1 <= v <= n and 1 <= x <= MAXA for v, x in qs)
-    done = [False] * (n + 1)                     # every chain of bosses reaches person 1
-    done[1] = True
-    for i in range(2, n + 1):
-        path, x = [], i
-        while not done[x]:
-            path.append(x)
-            x = par[x]
-            assert len(path) <= n
-        for y in path:
-            done[y] = True
-    lines = [f"{n} {q}", " ".join(map(str, a[1:]))]
-    if n > 1:
-        lines.append(" ".join(map(str, par[2:])))
-    tests.append("\n".join(lines) + "\n" + "".join(f"{v} {x}\n" for v, x in qs))
+def add(n, k, roads):
+    m = len(roads)
+    assert 2 <= n <= MAXN and 1 <= m <= MAXM and 1 <= k <= MAXK
+    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in roads)
+    tests.append(f"{n} {m} {k}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads))
 
 
-def shape(n, kind):
-    """par[i] < i in creation order; node 1 is the root"""
-    par = [0, 0]
-    for i in range(2, n + 1):
-        if kind == "random":
-            p = ri(1, i - 1)
-        elif kind == "path":
-            p = i - 1
-        elif kind == "star":
-            p = 1
-        elif kind == "deep":
-            p = ri(max(1, i - 4), i - 1)
-        elif kind == "binary":
-            p = i // 2
-        elif kind == "broom":                    # a long handle, then many leaves at its end
-            p = i - 1 if i <= n // 2 else n // 2
-        elif kind == "cater":
-            p = i - 1 if i <= n // 2 else ri(1, n // 2)
-        else:
-            raise ValueError(kind)
-        par.append(p)
-    return par
+def rnd_edges(n, cnt, wlo, whi, lo=1, hi=None):
+    hi = hi or n
+    res = []
+    while len(res) < cnt:
+        u, v = ri(lo, hi), ri(lo, hi)
+        if u != v:
+            res.append((u, v, ri(wlo, whi)))
+    return res
 
 
-def build(n, kind, val, q, qgen):
-    """val(i, depth, n) ranks the i-th created person; qgen(info) gives one query on created indices"""
-    par = shape(n, kind)
-    depth = [0] * (n + 1)
-    for i in range(2, n + 1):
-        depth[i] = depth[par[i]] + 1
-    rank = [0] + [val(i, depth[i], n) for i in range(1, n + 1)]
-    lab = [0, 1] + random.sample(range(2, n + 1), n - 1)
-    a, p = [0] * (n + 1), [0] * (n + 1)
-    for i in range(1, n + 1):
-        a[lab[i]] = rank[i]
-        if i >= 2:
-            p[lab[i]] = lab[par[i]]
-    md = max(depth)
-    deep = [i for i in range(1, n + 1) if 3 * depth[i] >= md]
-    pp = par + [0]
-    pp[0] = 0
-    a2 = [pp[pp[i]] for i in range(n + 1)]
-    a4 = [a2[a2[i]] or 1 for i in range(n + 1)]   # the 4th boss above (person 1 if fewer)
-    info = (n, par, rank, deep, a4)
-    qs = []
-    for _ in range(q):
-        v, x = qgen(info)
-        qs.append((lab[v], x))
-    add(a, p, qs)
+def relabel(n, roads):
+    """random numbers for junctions 2..n-1 (1 and n keep their numbers)"""
+    mid = list(range(2, n))
+    random.shuffle(mid)
+    mp = {1: 1, n: n}
+    for i, x in enumerate(mid):
+        mp[i + 2] = x
+    roads = [(mp[u], mp[v], w) for u, v, w in roads]
+    random.shuffle(roads)
+    return roads
 
 
-def up_rank(i, d, n):                            # ranks grow towards the top, with ties
-    return max(1, min(MAXA, MAXA - d * MAXA // (n + 1) - ri(0, 3)))
-
-
-def rnd_rank(i, d, n):
-    return ri(1, MAXA)
-
-
-def small_rank(i, d, n):                         # many equal ranks
-    return ri(1, 5)
-
-
-def comb_rank(i, d, n):                          # ranks fall going down the handle, the leaves beat them all
-    return MAXA if d >= n // 2 else MAXA - 1 - d
-
-
-def cater_comb(lo):
-    """the spine's ranks fall going down, the legs beat (almost) the whole spine above them"""
-    def f(i, d, n):
-        return MAXA - 1 - d if i <= n // 2 else MAXA - ri(0, lo)
-    return f
-
-
-def q_any(info):
-    n = info[0]
-    v = ri(1, n)
-    return v, ri(1, MAXA)
-
-
-def q_chain(info):
-    """x near the ranks above v, so the answer is often far up the chain"""
-    n, par, rank, deep, a4 = info
-    v = deep[int(random.random() * len(deep))]
-    u = v
-    for _ in range(int(random.random() * 4)):
-        u = a4[u]
-    r = random.random()
-    if r < 0.1:
-        return v, MAXA                           # often nobody reaches the top rank
-    if r < 0.2:
-        return v, max(1, rank[v] - ri(0, 2))     # v decides itself
-    w = 1 if r < 0.35 else (par[u] or 1 if r < 0.55 else u)
-    return v, max(1, min(MAXA, rank[w] + ri(-1, 1)))
-
-
-def q_mix(info):
-    return q_any(info) if random.random() < 0.3 else q_chain(info)
+def backbone(n, m, wlo, whi):
+    """a path 1 -> 2 -> ... -> n plus random roads"""
+    roads = [(i, i + 1, ri(wlo, whi)) for i in range(1, n)]
+    return roads + rnd_edges(n, m - len(roads), wlo, whi)
 
 
 # samples
-add([0, 9, 4, 7, 2, 4, 1, 8], [0, 0, 1, 2, 2, 4, 5, 3], [(6, 3), (6, 5), (6, 10), (7, 9), (3, 7)])
-add([0, 5, 5, 3, 6], [0, 0, 1, 2, 3], [(4, 6), (3, 5), (3, 6), (2, 5)])
-add([0, 1], [0, 0], [(1, 1), (1, 2)])
-add([0, 10, 3, 6, 6, 1, 2], [0, 0, 1, 1, 3, 4, 4], [(5, 2), (6, 7), (5, 11)])
-add([0, 1000000, 1], [0, 0, 1], [(2, 1000000)])
+add(4, 3, [(1, 2, 1), (2, 4, 2), (1, 3, 2), (3, 4, 2), (2, 1, 1)])
+add(3, 4, [(1, 2, 5), (1, 2, 5), (2, 3, 1)])
+add(3, 4, [(1, 3, 10), (3, 2, 1), (2, 3, 1)])
+add(3, 2, [(2, 3, 5), (3, 1, 2)])
+add(5, 6, [(1, 2, 3), (2, 3, 1), (3, 1, 2), (2, 5, 9), (3, 4, 4), (4, 5, 1), (5, 4, 6)])
 # hidden: small
-build(2, "path", rnd_rank, 6, q_any)
-build(10, "random", small_rank, 50, q_mix)
-build(30, "path", up_rank, 100, q_mix)
-build(200, "deep", small_rank, 300, q_mix)
-build(1000, "cater", up_rank, 1000, q_mix)
-build(2000, "broom", comb_rank, 2000, q_mix)
-build(3000, "random", rnd_rank, 3000, q_mix)
-build(5000, "deep", up_rank, 5000, q_chain)
-# hidden: maximum size
-N, Q = MAXN, MAXQ
-build(N, "path", up_rank, Q, q_chain)            # one long chain of holders
-build(N, "path", small_rank, Q, q_mix)
-build(N, "broom", comb_rank, Q, q_mix)           # finding the next holder by hopping is slow here
-build(N, "deep", up_rank, Q, q_chain)
-build(N, "cater", up_rank, Q, q_chain)
-build(N, "random", rnd_rank, Q, q_mix)
-build(N, "cater", cater_comb(2), Q, q_mix)        # hopping to the next holder walks the spine again
-build(N, "cater", cater_comb(30), Q, q_chain)
-build(N, "deep", lambda i, d, n: MAXA - d // 7, Q, q_chain)   # long runs of equal ranks
-build(N, "broom", lambda i, d, n: comb_rank(i, d, n) if d < n // 2 else ri(1, MAXA), Q, q_mix)
+add(2, 1, [(1, 2, MAXW)])
+add(2, 10, [(1, 2, 7), (2, 1, 3)])
+for n, m, k, wmax in ((6, 10, 5, 5), (10, 20, 10, 9), (20, 30, 10, 20), (40, 60, 7, 10), (60, 150, 10, 30)):
+    add(n, k, relabel(n, backbone(n, m, 1, wmax)))
+add(30, 10, relabel(30, [(i, i + 1, 2) for i in range(1, 30)] * 2))     # 2^29 routes of the same cost
+add(25, 10, relabel(25, [(i, j, j - i) for i in range(1, 25) for j in range(i + 1, min(26, i + 3))]))  # no cycle
+add(300, 10, relabel(300, backbone(300, 900, 1, 40)))
+add(3000, 10, relabel(3000, backbone(3000, 9000, 1, MAXW)))
+# hidden: largest
+N, M, K = MAXN, MAXM, MAXK
+add(30_000, K, relabel(30_000, backbone(30_000, M, 1, MAXW)))
+add(10_000, K, relabel(10_000, backbone(10_000, M, 1, 1000)))
+roads = [(i, i + 1, MAXW) for i in range(1, N)] + [(N, N - 1, MAXW)]   # largest costs
+add(N, K, roads)
+# a cheap tangle near 1, then one very expensive road to n: every junction is taken k times
+part = 40_000
+roads = [(i, i + 1, ri(1, 5)) for i in range(1, part)] + rnd_edges(part, M - part, 1, 5, 1, part)
+roads.append((part, N, MAXW))
+add(N, K, relabel(N, roads))
+roads = [(i, i + 1, ri(1, 5)) for i in range(1, part)] + rnd_edges(part, M - part - 2, 1, 5, 1, part)
+roads += [(part, N, MAXW), (ri(1, part // 2), N, MAXW), (N, ri(1, part), 1)]  # and n leads back into the tangle
+add(N, K, relabel(N, roads))
+# deep: a long cheap path 1 -> ... -> n with cheap roads going back (cycles) and costly roads going forward
+def deep(n, m, back):
+    roads = [(i, i + 1, ri(1, 10)) for i in range(1, n)]
+    while len(roads) < m:
+        u = ri(2, n - 1)
+        if random.random() < 0.8:
+            v = max(1, u - ri(1, back))
+            roads.append((u, v, ri(1, 10)))
+        else:
+            v = min(n, u + ri(1, back))
+            roads.append((u, v, ri(10 * (v - u) + 1, 10 * (v - u) + 50)))
+    return relabel(n, roads)
+
+
+add(50_000, K, deep(50_000, M, 20))
+add(40_000, K, deep(40_000, M, 3000))
+add(60_000, 7, deep(60_000, M, 5))
+# n sits on a cheap cycle far from 1: later routes pass n and come back
+L = 49_990
+roads = [(i, i + 1, ri(10**6, 10**7)) for i in range(1, L)] + [(L, N, 5)]
+roads += [(N, L + 1, 1)] + [(i, i + 1, 1) for i in range(L + 1, N - 2)] + [(N - 2, N, 1)]
+roads.append((L + 7, L + 3, 1))                                          # one shorter cycle inside
+add(N, K, relabel(N, roads))
+# many routes of the same cost: two parallel roads at every step
+L = 60_000
+roads = []
+for i in range(1, L):
+    w = ri(1, 1000)
+    roads += [(i, i + 1, w), (i, i + 1, w)] if i % 3 == 0 else [(i, i + 1, w)]
+roads += [(ri(2, L), ri(2, L), ri(1, 1000)) for _ in range(M - len(roads))]
+add(L, K, relabel(L, [r for r in roads if r[0] != r[1]]))
+# a DAG with only a few routes: the last answers are -1
+roads = [(i, i + 1, ri(1, MAXW)) for i in range(1, N)]
+a = ri(1, N - 10)
+roads.append((a, ri(a + 1, N), ri(1, MAXW)))
+add(N, K, relabel(N, roads))
+n = 20_000
+roads = rnd_edges(n, M - 1, 1, MAXW)
+roads = [(u, v, w) for u, v, w in roads if v != n] + [(n - 1, n, 1)]  # n reachable only from n - 1
+add(n, K, roads)
+add(N, K, [(i, i + 1, 1) for i in range(2, N)] + [(N, 2, 1)])           # 1 has no road out
+add(50_000, 1, relabel(50_000, backbone(50_000, M, 1, 100)))            # k = 1
+# a grid of 100 x 500 junctions, roads right and down plus some going back
+R, C = 100, 500
+roads = []
+for r in range(R):
+    for c in range(C):
+        v = r * C + c + 1
+        if c + 1 < C:
+            roads.append((v, v + 1, ri(1, 3)))
+        if r + 1 < R and random.random() < 0.5:
+            roads.append((v, v + C, ri(1, 3)))
+add(R * C, K, roads + rnd_edges(R * C, M - len(roads), 1, 3))
+# star: junction 2 has a road to every junction, every junction has a road to 2
+roads = [(1, 2, 1)] + [(2, v, ri(1, 10**4)) for v in range(3, N + 1)]
+roads += [(v, 2, ri(1, 10**4)) for v in range(3, 3 + M - len(roads))]
+add(N, K, roads[:M])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

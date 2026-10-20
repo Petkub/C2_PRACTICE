@@ -1,62 +1,67 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20210)
-MAXN, MAXV = 200_000, 10**9
+random.seed(10110)
+MAXN = 200_000
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def add(t, c):
+    n, k = len(t), len(c)
+    assert 1 <= k <= n <= MAXN
+    assert all(1 <= x <= k for x in t)
+    assert all(1 <= x <= n for x in c)
+    tests.append(f"{n} {k}\n" + " ".join(map(str, t)) + "\n" + " ".join(map(str, c)) + "\n")
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
-
-
-def add(k, a, b):
-    n, m = len(a), len(b)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXN
-    assert 1 <= k <= n * m
-    assert all(1 <= x <= MAXV for x in a + b)
-    tests.append(f"{n} {m} {k}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, b)) + "\n")
+def rnd(n, k):
+    return [random.randint(1, k) for _ in range(n)]
 
 
 # samples
-add(4, [5, 1, 3], [2, 4])
-add(3, [1, 1], [1, 2])
-add(1, [MAXV], [MAXV])
-add(9, [7, 2, 9], [4, 4, 1])
-add(1, [6, 3, 8, 3], [5, 2, 9])
-add(7, [10, 20, 30, 40], [1, 2, 3])
-# hidden: small
-add(2, [1], [5, 1, 3])
-add(5, [4, 4, 4], [4, 4])
-add(33, rnd(7, 1, 20), rnd(9, 1, 20))
-add(1000, rnd(40, 1, 1000), rnd(50, 1, 1000))
-add(80_000, rnd(300, 1, MAXV), rnd(400, 1, MAXV))
-add(250_000, rnd(500, 1, 50), rnd(700, 1, 50))      # many equal prices
-add(2_000_000, rnd(2000, MAXV - 100, MAXV), rnd(1000, MAXV - 100, MAXV))
-add(999 * 777, rnd(999, 1, MAXV), rnd(777, 1, MAXV))   # the largest price
-# hidden: big (K far from both ends, so taking sums one by one is too slow)
-B = 100_000
-add(B * B // 2, rnd(B, 1, MAXV), rnd(B, 1, MAXV))
-add(B * B // 3 + 12_345, rnd(B, 1, MAXV), rnd(B, 1, MAXV))
-add(B * B - 1, rnd(B, 1, MAXV), rnd(B, 1, MAXV))
-add(B * B, [MAXV] * B, [MAXV] * B)                     # 2 * 10^9 does not fit in int
-add(B * B // 2 + 1, rnd(B, MAXV - 1000, MAXV), rnd(B, MAXV - 1000, MAXV))
-add(5_000_000_000 - 7, rnd(B, 1, 10), rnd(B, 1, 10))   # huge numbers of equal sums
-add(ri(1, B * B), rnd(B, 1, MAXV), rnd(B, 1, 1000))
-add(ri(1, 2 * 10**10), rnd(2 * MAXN // 2, 1, 999_999), rnd(MAXN // 2, 1, 999_999))
-add(ri(1, 10**10), sorted(rnd(B, 1, MAXV)), sorted(rnd(B, 1, MAXV), reverse=True))
-add(MAXN * 1000 // 2, rnd(MAXN, 1, 999_999), rnd(1000, 1, MAXV))
-add(ri(1, MAXN) * 7, [ri(1, 999_999) for _ in range(7)], rnd(MAXN, 1, 999_999))
-add(3 * 10**9, [1 + 2 * i for i in range(B)], [2 + 2 * i for i in range(B)])
-add(4 * 10**9, rnd(150_000, 1, 99_999), rnd(150_000, 1, 99_999))
-add(1, rnd(B, 1, MAXV), rnd(B, 1, MAXV))
-add(B * B // 4, rnd(B, 1, MAXV // 1000), rnd(B, 1, MAXV))
-add(B * B // 4 + 99, rnd(B, MAXV // 2, MAXV), rnd(B // 2, 1, MAXV // 2))
+add([1, 2, 1, 3, 2, 2, 1, 3, 1, 2], [2, 1, 1])
+add([1, 1, 2, 1, 1], [1, 2])
+add([1, 1, 1], [1])
+add([2, 1, 1, 3, 2, 2, 3, 1], [1, 1, 1])
+add([3, 1, 2, 1, 3], [2, 1, 2])
+add([2, 2, 1, 2, 1, 2, 2], [1, 3])
+# hidden (small)
+add([1], [1])
+add([1, 1, 2], [3, 1])                      # not enough of type 1
+add([1, 2, 3, 4], [1, 1, 1, 1])
+add([1, 2, 1, 2, 1, 2], [1, 1])             # many ties
+add([5, 1, 2, 3, 4], [1, 1, 1, 1, 1])
+add(rnd(30, 3), [2, 3, 1])
+add(rnd(200, 5), [random.randint(1, 8) for _ in range(5)])
+add(rnd(2000, 40), [random.randint(1, 30) for _ in range(40)])
+t = rnd(3000, 10)
+add(t, [t.count(j) for j in range(1, 11)])   # need every stamp: the whole street (or a trimmed piece)
+# large
+N = MAXN
+t = rnd(N, 2)
+add(t, [t.count(1) - 5, 3])                  # almost every stamp of type 1
+t = [2] + rnd(N - 2, 1) + [2]
+add(t, [1, 2])                               # the only type-2 stamps are at both ends
+t = rnd(N, 50)
+add(t, [t.count(j) // 2 + 1 for j in range(1, 51)])
+t = list(range(1, N + 1))
+random.shuffle(t)
+add(t, [1] * N)                              # K = N: the whole street
+t = rnd(N, 3)
+add(t, [t.count(1), 1, 1])
+t = rnd(N, 1000)
+add(t, [1] * 999 + [N])                      # impossible (type 1000 is too rare)
+add([1] * (N - 1) + [2], [N - 1, 1])
+t = list(range(1, 100_001)) * 2
+random.shuffle(t)
+add(t, [1] * 100_000)
+t = [1 + (i % 7) for i in range(N)]
+add(t, [N // 7 - 3] * 7)
+t = rnd(N, 20)
+add(t, [random.randint(1, 3) for _ in range(20)])
+t = rnd(N, 5)
+add(t, [N // 5 - 2000] * 5)
+add([1, 2] * (N // 2), [N // 2, N // 2 - 1])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(11020)
-MAXN, MAXQ, MAXV = 200_000, 200_000, 10**9
+random.seed(90120)
+MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
 tests = []
 
 
@@ -10,76 +10,122 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, ops):
-    n, q = len(a), len(ops)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(0 <= v <= MAXV for v in a)
-    lines = []
-    for op in ops:
-        assert op[0] in "AMS" and 1 <= op[1] <= op[2] <= n
-        assert (op[0] == "S") == (len(op) == 3)
-        if op[0] != "S":
-            assert 0 <= op[3] <= MAXV
-        lines.append(" ".join(map(str, op)))
-    assert any(op[0] == "S" for op in ops)
-    t = f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "\n".join(lines) + "\n"
-    assert len(t) <= 3_100_000
-    tests.append(t)
+def add(n, roads, shuffle=True, relabel=True):
+    m = len(roads)
+    assert 2 <= n <= MAXN and 1 <= m <= MAXM
+    us, vs, ws = zip(*roads)
+    assert 1 <= min(us) and max(us) <= n and 1 <= min(vs) and max(vs) <= n
+    assert 1 <= min(ws) and max(ws) <= MAXW and all(u != v for u, v, _ in roads)
+    K = n + 1                                    # no two roads join the same two districts
+    assert len({u * K + v if u < v else v * K + u for u, v, _ in roads}) == m
+    if relabel:
+        lab = list(range(1, n + 1))
+        random.shuffle(lab)
+        lab = [0] + lab
+        roads = [(lab[u], lab[v], w) for u, v, w in roads]
+    if shuffle:
+        roads = roads[:]
+        random.shuffle(roads)
+    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads))
 
 
-def rnd_range(n):
-    l = ri(1, n)
-    return l, ri(l, n)
+def rnd(n, m, wlo, whi, used=None):
+    """m new random roads; used holds the pairs taken so far as a * (n + 1) + b with a < b"""
+    used = set() if used is None else used
+    roads, K, r, d = [], n + 1, random.random, whi - wlo + 1
+    while len(roads) < m:
+        a = 1 + int(r() * n)
+        b = 1 + int(r() * (n - 1))
+        b += b >= a
+        k = a * K + b if a < b else b * K + a
+        if k in used:
+            continue
+        used.add(k)
+        roads.append((a, b, wlo + int(r() * d)))
+    return roads
 
 
-def wide_range(n, slack):
-    return ri(1, min(n, slack)), ri(max(1, n - slack), n)
+def triangles(k, heavy, light, extra=0):
+    """k triangles of dear roads in a row, joined by cheap roads (taking every triangle is best);
+    extra: also some cheap roads between random triangles"""
+    roads = []
+    for t in range(k):
+        a, b, c = 3 * t + 1, 3 * t + 2, 3 * t + 3
+        for x, y in ((a, b), (b, c), (a, c)):
+            roads.append((x, y, ri(*heavy)))
+        if t:
+            x, y = 3 * t - ri(0, 2), 3 * t + 1 + ri(0, 2)
+            roads.append((x, y, ri(*light)))
+    n = 3 * k
+    used = {min(x, y) * (n + 1) + max(x, y) for x, y, _ in roads}
+    while extra:
+        a, b = ri(1, n), ri(1, n)
+        key = min(a, b) * (n + 1) + max(a, b)
+        if (a - 1) // 3 != (b - 1) // 3 and key not in used:
+            used.add(key)
+            roads.append((a, b, ri(*light)))
+            extra -= 1
+    return n, roads
 
 
-def ops_of(n, q, rng, xfun, ps=1 / 3, pm=0.5):
-    """each operation is S with probability ps, otherwise M with probability pm, else A"""
-    ops = []
-    for _ in range(q):
-        l, r = rng()
-        if random.random() < ps:
-            ops.append(("S", l, r))
-        else:
-            ops.append(("M" if random.random() < pm else "A", l, r, xfun()))
-    return ops
+def cycles_tree(n, m, wlo, whi):
+    """a random tree, then extra roads: a few dear ones (create cycles early), the rest cheap"""
+    roads, used = [], set()
+    for i in range(2, n + 1):
+        p = ri(max(1, i - 50), i - 1)
+        roads.append((i, p, ri(wlo, whi)))
+        used.add(p * (n + 1) + i)
+    mid = (wlo + whi) // 2
+    roads += rnd(n, (m - (n - 1)) // 10, mid, whi, used)
+    roads += rnd(n, m - len(roads), wlo, mid, used)
+    return roads
+
+
+def islands(n, size, wlo, whi):
+    """many separate dense little groups (and some districts without roads)"""
+    roads = []
+    start = 1
+    while start + size - 1 <= n and len(roads) + size * (size - 1) // 2 <= MAXM:
+        for a in range(start, start + size):
+            for b in range(a + 1, start + size):
+                roads.append((a, b, ri(wlo, whi)))
+        start += size + ri(0, 2)
+    return roads
 
 
 # samples
-add([1, 2, 3, 4], [("S", 1, 4), ("M", 2, 3, 10), ("S", 1, 4), ("A", 1, 2, 5), ("S", 2, 2)])
-add([5, 5, 5], [("A", 1, 3, 1), ("M", 1, 2, 2), ("S", 1, 3), ("M", 2, 3, 0), ("A", 3, 3, 4), ("S", 1, 3)])
-add([MAXV, MAXV], [("S", 1, 2), ("M", 1, 1, MAXV), ("S", 1, 1)])
-add([0], [("A", 1, 1, 7), ("M", 1, 1, 3), ("A", 1, 1, 1), ("S", 1, 1)])
-add([2, 0, 1, 7, 3], [("M", 1, 5, 3), ("A", 2, 4, 2), ("S", 3, 5), ("M", 2, 2, 5), ("S", 1, 3)])
-# hidden: small
-add([ri(0, 9) for _ in range(6)], ops_of(6, 25, lambda: rnd_range(6), lambda: ri(0, 9)))
-add([ri(0, MAXV) for _ in range(20)], ops_of(20, 60, lambda: rnd_range(20), lambda: ri(0, MAXV)))
-add([ri(0, 100) for _ in range(100)], ops_of(100, 300, lambda: rnd_range(100), lambda: ri(0, 3), 0.4))
-add([ri(0, MAXV) for _ in range(2000)], ops_of(2000, 2000, lambda: rnd_range(2000), lambda: ri(0, MAXV)))
-add([MAXV] * 2000, ops_of(2000, 2000, lambda: wide_range(2000, 20), lambda: MAXV - ri(0, 1)))
-add([ri(0, 50) for _ in range(3000)], ops_of(3000, 3000, lambda: rnd_range(3000), lambda: ri(1, 2), 0.3, 0.9))
+add(4, [(1, 2, 5), (2, 3, 4), (3, 1, 3), (3, 4, 2), (1, 4, 1)], False, False)
+add(6, [(1, 2, 9), (2, 3, 9), (1, 3, 9), (4, 5, 8), (5, 6, 8), (4, 6, 8), (3, 4, 1)], False, False)
+add(3, [(1, 2, 1000000000), (2, 3, 1000000000)], False, False)
+add(4, [(1, 2, 2), (2, 3, 2), (3, 4, 2), (4, 1, 2)], False, False)
+add(6, [(1, 2, 3), (2, 3, 4), (1, 3, 7), (3, 4, 6), (4, 1, 5), (5, 6, 1)], False, False)
+# hidden: small (every choice is tried)
+add(5, [(1, 2, 2), (1, 3, 2), (1, 4, 2), (1, 5, 2), (2, 3, 2), (3, 4, 2), (4, 5, 2)])
+add(7, [(1, 2, 3), (2, 3, 4), (3, 4, 6), (4, 1, 5), (1, 3, 7), (5, 6, 1), (6, 7, 2), (2, 4, 1)])
+add(2, [(1, 2, 1)])
+add(4, [(1, 2, 3), (2, 3, 3), (3, 4, 3), (1, 4, 3), (1, 3, 3), (2, 4, 3)])    # all pairs, equal
+for n, m, wmax in ((5, 8, 5), (6, 12, 3), (7, 14, 10), (8, 16, 2), (9, 18, MAXW), (12, 20, 6)):
+    add(n, rnd(n, m, 1, wmax))
+add(*triangles(4, (10, 20), (1, 5)))
+add(*triangles(5, (5, 9), (1, 9), 1))
+add(300, cycles_tree(300, 900, 1, 1000))
+add(*triangles(500, (100, 200), (1, 150), 200))
+add(2000, rnd(2000, 3000, 1, MAXW))
 # hidden: maximum size
-N, Q = MAXN, MAXQ
-small = lambda: ri(0, 999)
-add([ri(0, 999) for _ in range(N)], ops_of(N, 140_000, lambda: wide_range(N, 99), small))
-add([ri(0, 999) for _ in range(N)], ops_of(N, 140_000, lambda: wide_range(N, 99), lambda: ri(2, 999), 0.3, 1.0))  # M only
-add([ri(0, 999) for _ in range(N)], ops_of(N, 140_000, lambda: wide_range(N, 99), small, 0.3, 0.0))                # A only
-add([MAXV] * (N // 2), ops_of(N // 2, 80_000, lambda: wide_range(N // 2, 99), lambda: MAXV - ri(0, 9)))    # the largest values
-add([ri(0, MAXV) for _ in range(N // 2)], ops_of(N // 2, 80_000, lambda: rnd_range(N // 2), lambda: ri(0, MAXV)))
-add([ri(0, 999) for _ in range(N)], ops_of(N, 110_000, lambda: rnd_range(N), small, 0.5))
-ops = []
-for i in range(70_000):                                         # M then A on the same long range, then a query
-    l, r = wide_range(N, 999)
-    ops.append(("M", l, r, ri(2, 999)) if i % 2 else ("A", l, r, ri(1, 999)))
-    ops.append(("S",) + wide_range(N, 999))
-add([ri(0, 999) for _ in range(N)], ops)
-add([ri(0, 999) for _ in range(N)], ops_of(N, 140_000, lambda: wide_range(N, 99), lambda: random.choice((0, 1, 2, 999)), 0.4))
-add([ri(0, 999) for _ in range(N)], ops_of(N, 110_000, lambda: (lambda i: (i, min(N, i + ri(0, 20))))(ri(1, N)), small))
-add([1] * N, ops_of(N, 150_000, lambda: (1, N), lambda: ri(1, 9), 0.5))
-add([ri(0, 999) for _ in range(N)], ops_of(N, 115_000, lambda: wide_range(N, N // 3), small, 0.2, 0.7))
+N, M = MAXN, MAXM
+add(N, rnd(N, M, 1, MAXW))
+add(N, rnd(N, M, 1, 3))                                         # many equal benefits
+add(N // 2, rnd(N // 2, M, 1, MAXW))                            # more roads than districts
+add(N, rnd(N, M, MAXW, MAXW))                                   # every road at the largest benefit
+add(*triangles(25_000, (MAXW // 2, MAXW), (1, MAXW // 2)))
+add(*triangles(20_000, (500, 1000), (1, 900), M - 79_999))
+add(N, cycles_tree(N, M, 1, MAXW))
+add(N // 4, cycles_tree(N // 4, M, 1, 10**6))
+add(N, islands(N, 5, 1, MAXW))
+add(N, islands(N, 30, 1, 100))
+add(N, [(i, i + 1, ri(1, MAXW)) for i in range(1, N)] + [(1, N, 1)])   # one long cycle
+add(10, rnd(10, 45, 1, MAXW))
+add(N // 10, cycles_tree(N // 10, M, MAXW - 1000, MAXW))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

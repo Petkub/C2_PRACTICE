@@ -1,10 +1,9 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(42000)
-MAXN = 200_000
-MAXC = 10**9
-MAXH = 10**9
+random.seed(30320)
+MAXN = 50_000
+MAXV = 10**9
 tests = []
 
 
@@ -13,72 +12,94 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(bs):
-    n = len(bs)
+def add(pairs):
+    n = len(pairs)
     assert 1 <= n <= MAXN
-    for l, r, h in bs:
-        assert 0 <= l < r <= MAXC and 1 <= h <= MAXH
-    tests.append(f"{n}\n" + "".join(f"{l} {r} {h}\n" for l, r, h in bs))
+    lines = [f"{n}\n"]
+    for q in pairs:
+        assert len(q) == 4 and all(1 <= x <= MAXV for x in q)
+        lines.append("%d %d %d %d\n" % q)
+    tests.append("".join(lines))
 
 
-def shuffled(bs):
-    bs = list(bs)
-    random.shuffle(bs)
-    return bs
+def rnd(n, wlo, whi, slo, shi):
+    return [(ri(wlo, whi), ri(slo, shi), ri(wlo, whi), ri(slo, shi)) for _ in range(n)]
 
 
-def rnd(n, cmax, hmax, wmax=None):
-    out = []
+def trap(n, big):
+    """a heavy weak acrobat with a light, slightly stronger partner: the stronger one must stand on top"""
+    res = []
     for _ in range(n):
-        if wmax is None:
-            l = ri(0, cmax - 1)
-            r = ri(l + 1, cmax)
-        else:
-            l = ri(0, cmax - 1)
-            r = min(cmax, l + ri(1, wmax))
-        out.append((l, r, ri(1, hmax)))
-    return out
+        s = ri(big // 10, big)
+        heavy = (ri(big // 2, big), ri(1, s - 1))
+        light = (ri(1, big // 100), ri(s, min(MAXV, s + big // 50)))
+        q = heavy + light if random.random() < 0.5 else light + heavy
+        res.append(q)
+    return res
+
+
+def trap2(n, big):
+    """a heavy but weak acrobat with a lighter strong partner: the heavy one must stand on top"""
+    res = []
+    for _ in range(n):
+        heavy = (ri(big // 5, big // 3), ri(1, big // 100))
+        light = (ri(big // 20, big // 10), ri(big // 2, big))
+        q = heavy + light if random.random() < 0.5 else light + heavy
+        res.append(q)
+    return res
+
+
+def same_key(n, total):
+    """every acrobat has w + s = total"""
+    res = []
+    for _ in range(n):
+        w1, w2 = ri(1, total - 1), ri(1, total - 1)
+        res.append((w1, total - w1, w2, total - w2))
+    return res
 
 
 # samples
-add([(1, 5, 3), (2, 4, 6), (6, 8, 2)])
-add([(0, 3, 4), (3, 6, 4), (6, 8, 2), (8, 9, 5)])
-add([(5, 7, 1)])
-add([(0, 10, 1), (0, 5, 3), (0, 2, 5)])
-add([(1, 9, 9), (3, 5, 2), (2, 8, 9), (10, 12, 9)])
-add([(0, 4, 5), (4, 7, 3), (2, 4, 1)])
-# hidden: small
-add([(0, MAXC, MAXH)])
-add([(3, 4, 2), (3, 4, 2), (4, 5, 2)])
-add(rnd(8, 10, 3))
-add(rnd(50, 30, 5))
-add(rnd(300, 1000, 10**6, 50))
-add(rnd(2000, MAXC, MAXH))
-add([(i, i + 1, ri(1, 3)) for i in range(3000)])                # touching unit buildings, many equal neighbours
-add(shuffled([(i, 6000 - i, ri(1, 2000)) for i in range(3000)]))  # nested
-# large: N = MAXN with small numbers (input near 3 MB) or N = 100 000 with full-size numbers
+add([(3, 2, 1, 6), (2, 1, 2, 3)])
+add([(100, 50, 1, 60)])
+add([(5, 5, 5, 5), (1, 1, 1, 1), (3, 9, 4, 2)])
+add([(10, 3, 2, 8), (6, 6, 1, 1), (4, 12, 7, 5)])
+add([(2, 7, 3, 4), (8, 1, 1, 9), (5, 5, 5, 5), (1, 2, 9, 3)])
+add([(4, 20, 6, 3), (1, 9, 2, 30)])
+# hidden (small, every arrangement is tried by brute.cpp)
+add([(1, 1, 1, 1)])
+add([(MAXV, MAXV, MAXV, MAXV)] * 3)
+add([(MAXV, 1, 1, MAXV)])
+add(rnd(4, 1, 10, 1, 10))
+add(rnd(5, 1, 100, 1, 300))
+add(trap(6, 1000))
+add(same_key(7, 50))
+add(rnd(8, 1, MAXV, 1, MAXV))
+add(rnd(8, 1, 1000, 1, 10))
+add(trap2(8, 1000))
+# large
 N = MAXN
-add(shuffled([(i, 2 * N - i, 1 + 99 * i // N) for i in range(N)]))   # nested, taller inside: a staircase up and down
-add(shuffled([(i, 2 * N - i, 99 - 98 * i // N) for i in range(N)]))  # nested, lower inside: only 2 points
-add(shuffled([(i, 2 * N - i, ri(1, 99)) for i in range(N)]))      # nested, random heights
-N2 = 150_000
-add([(0, ri(1, 10**6), ri(1, 99)) for _ in range(N2)])            # all start at 0
-add([(ri(0, 5 * 10**5 - 1), ri(5 * 10**5, 10**6), ri(1, 99)) for _ in range(N)])   # every building is wide
-add(rnd(N, 10**6, 99))
-add(rnd(N2, 10**6, 99, 10**3))
-add(shuffled([(2 * i, 2 * i + 2, 1 + (i // 3) % 2) for i in range(N2)]))   # touching, equal heights in runs of 3
-add(shuffled([(i, i + 1, ri(1, 2)) for i in range(N2)]))            # unit steps, drops and rises at each x
-bs = [(3 * i, 3 * i + 3, 7) for i in range(N2 // 2)]                 # the tallest ends where an equal one starts
-bs += [(3 * i + 1, 3 * i + 2, ri(1, 6)) for i in range(N2 // 2)]
-add(shuffled(bs))
-M = 100_000
-add(rnd(M, MAXC, MAXH))
-add([(ri(0, 10**8), ri(9 * 10**8, MAXC), ri(MAXH - 10**3, MAXH)) for _ in range(M)])
-add([(ri(0, 10**5), 10**6, ri(1, 99)) for _ in range(N2)])      # all end at the same x
-add([(ri(0, 5 * 10**5 - 1), ri(5 * 10**5, 10**6), 5) for _ in range(N)])   # everything the same height
+add(rnd(N, 1, MAXV, 1, MAXV))
+add(rnd(N, 1, 1000, 1, MAXV))
+add(rnd(N, 1, MAXV, 1, 1000))
+add([(MAXV, MAXV, MAXV, MAXV)] * N)
+add([(1, 1, 1, 1)] * N)
+add(trap(N, MAXV))
+mix = trap2(N // 2, 10**6) + trap(N // 2, MAXV)              # the trap blocks are at the bottom
+random.shuffle(mix)
+add(mix)
+add(same_key(N, MAXV))
+add(rnd(N, 1, 10**5, 1, 10**9))
+add(sorted(rnd(N, 1, MAXV, 1, MAXV), key=lambda q: -(q[0] + q[1] + q[2] + q[3])))
+add([(w, s, w, s) for w, s, _, _ in rnd(N, 1, MAXV, 1, MAXV)])
+add(rnd(N, 1, 10, 1, 10))
+add(trap2(N, MAXV))
+mix = trap(N // 2, 10**6) + trap2(N // 2, MAXV)              # the trap2 blocks are at the bottom
+random.shuffle(mix)
+add(mix)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("total bytes", sum(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

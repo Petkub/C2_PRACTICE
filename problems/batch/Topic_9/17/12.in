@@ -1,61 +1,301 @@
-60
-919758 630846 500865
-577870 712957 664945
-295464 897130 703548
-249330 721638 1052
-746653 251203 821310
-18395 308920 800051
-72076 328960 994943
-334680 858832 726058
-304013 246202 776769
-875059 971727 178349
-769388 463389 587813
-935717 850637 289300
-86147 810070 538737
-534935 204533 331445
-847593 984242 730731
-310440 247137 641340
-162871 602860 25474
-408844 40950 681177
-891773 642396 150449
-699521 991449 691249
-622425 480794 100911
-309136 343330 721582
-731949 334911 482596
-741395 769114 818079
-924888 299651 437373
-558546 225844 37316
-717210 899945 249528
-334580 448870 116282
-611888 950708 190292
-524174 804670 377049
-741925 844890 575424
-708340 93634 740933
-87806 468199 402436
-383849 685440 378306
-889401 17230 75411
-690701 566875 642113
-28172 222820 23409
-810203 275936 705121
-452452 83731 723778
-500478 670439 777145
-736597 9258 47722
-345433 310722 85123
-303662 902385 305134
-612958 866487 550956
-851636 896851 884495
-158499 147461 883564
-291221 582914 286740
-255159 982535 551567
-527195 920045 648465
-153780 6167 389969
-530249 32945 193656
-300583 808597 346577
-816212 739706 581863
-210454 852716 908897
-285623 206417 754754
-604917 735918 468714
-709061 353002 369468
-443712 247080 978214
-462847 622844 976986
-180655 465582 667138
+300
+0 aaa aaa aaaaaaaaaaaaaaaaaaa
+10 aaa a aaaaaaaaa
+12 aaa a aaaaaaa
+11 a aaaa aaa
+4 aaa aaa aaaaaaaaaaaaa
+6 a a aaaaaaaaaaaaaaaa
+12 a aaa aaaaaaaa
+7 aa aaaa aaaaaa
+2 aa aa aa
+3 a a a
+1 a a a
+10 aa aaaaa a
+8 aa a aaaaaaaaaaaaaaaaa
+0 aa aaa aaaaaaaaaaaaaaaa
+1 aaa a aaaaaaaaaaa
+1 aa a aaaaaaaaaaaaaaaaaaaa
+1 a aaa aaaaaaaaaaaaaaaaaaa
+0 aaa aaa aaa
+10 aaa aaaa aaaaaaaaaaaa
+12 aa aa aaaaaa
+6 aaa a a
+9 a aa aaaaaaaaa
+2 aaa aaaa aaaaa
+10 a aaa aaaaa
+2 a aaa aaaaaaaaaaaa
+11 aaa aaaaa aaaaaaaaaaaaaaaa
+4 aaa aaaaa a
+6 a aaa aaaaaaaa
+8 aaa aaa aaaaaa
+6 aa a aaaaaaaaa
+10 aaa aaa aaaaaaaaaaaaaaaaa
+1 aa aaa aaaa
+11 aa aaa aa
+0 aa aaaaa aa
+3 a aaaa aaaaaaaaaaaaaaaa
+1 aa aaaa aaaaaaaaaaaaaaaa
+7 a aa aaaaaaaaaaaaaaaaaa
+1 a aa aaaaaaaaaaaa
+2 a aaa aa
+6 a aaa aaaaa
+8 aaa aaa aaaaa
+7 a a aa
+2 aaa aa aa
+10 aa a aaaaaaaaaaaaaa
+9 aa aaaaa aaaaaaaaa
+6 aa a aaaaaaaaaaa
+4 aaa aaa aaaaaaaaaaaaaaaaa
+12 aa aaaa aaa
+1 aaa aaa aaaaaaaaaaaaaaaaaaa
+0 a aaaa aaaaaaaaa
+7 aa aaa aaa
+1 aa aaaa aaaaaaaaaaaaaaaaa
+10 a aaaa aaaaaaaa
+9 aa aa aaaaaa
+1 a a aaaaaa
+6 aaa aaa a
+11 a aaa aaaaaaa
+11 a aaaa aaaaaaaaa
+7 a aa aaaaaaaaaaa
+8 a aaa a
+9 aa aaaa aaaaaaaaaaaaaaaaa
+10 aaa aaa aaaaaaa
+5 aaa aa aa
+2 a a a
+7 aa aaa aaaaaaaaaaaaaaaaaaaa
+4 aa aaaa aa
+6 aa aaa aaaaaa
+0 aaa aaaaa aaaaaaaaaaaaa
+0 aa aaaaa aaaaaaaaaaaaaa
+8 a aaaaa aaa
+7 aaa a a
+2 aaa aaa aaaaaaaaaa
+4 aaa aaaa aaaaaaaaaaaaaa
+1 a aaaaa a
+2 aa aaa aaaaaaaaaaa
+10 aaa aa aaaaaaa
+7 aa a aaaaaaaaaa
+9 aaa aaaaa aaaaa
+10 aaa aaa aaaaaa
+8 aaa a aaaaaa
+11 aa aaa aaaaaaaaaaaaaa
+9 aa aaa aaaaaaaaaa
+5 aa aaa aaaaaaaaaaaaa
+8 aa aaaa aaaaaaaaaaa
+7 a aa aaaaaaaaaaaaaaaa
+10 a aaaa aaaaaaaaaaaaaaa
+12 a aaa aaaaaaaaaaaaaaaa
+2 aaa a aaaaaa
+12 a aaa aaaaaa
+6 aaa a aaaaaaa
+5 a aaaaa aaaaaaaaaaaaaaa
+7 aa aaa a
+11 aaa a a
+2 aaa a aaaaaa
+5 aa aa aaaaaaaaaaaaaa
+5 a aa aaaaaaaaa
+0 aa aa aaaaaaaaaaaaaaaa
+9 a aaaa aaaaaaaaaaaaa
+11 a a aaa
+1 aaa aa aaaaa
+11 a aaa aaaaaaaaaaaaaaaa
+12 a aa aaaaaaaaaaaaaaaa
+6 aaa aaaaa aaaaaaaaaaaaaaaaaaa
+8 a aaa aaaaaaa
+6 aaa aa aaaaaaaaaaaaaa
+11 aaa aaa aaa
+1 aa aa aaaaa
+1 a aaaaa aaaa
+12 aaa aaaa aaaaaaaaaaaaaaaaaa
+6 aaa aaa aaaaaaaaaaaaaaa
+5 aaa aaa aaaaaaaa
+12 aaa aaa aaaaaaaa
+1 aaa a aaaaaaaaaaaaa
+1 a a aa
+4 aaa aaa aaaa
+4 aaa aaaaa aaaaaaaaaaaaaaaaa
+12 aa aaaaa aaa
+4 aa a aa
+3 a a aaaaaaaaaaaaaaaa
+2 aa aaa aa
+8 aaa aaaa aaaaaaaa
+9 aaa a aaaaaaaaaaaaaaaaaa
+12 a aa aaaa
+0 aa aa aaaaaaaaaaaaaaaaaa
+11 aa aa aa
+2 aa aa aa
+4 a aaaa aaaaaaaaaaaaaaa
+4 aa aaaa aaaaaaaaaaaaaaaaa
+2 a aaaaa aaaa
+6 a aaa aaaa
+8 aaa aaa aaaaa
+10 aaa a a
+5 a aaa a
+6 aaa aaaa aaaaaaaa
+5 aa aa aaaa
+11 aaa aa aaaaaaaaaaaaaaaaa
+1 aa aaa aaaaaaaaaaa
+11 aa aa aaa
+1 aaa aaa aaaaaaaaaaaaaaa
+0 aaa a aaaaaaaaaaaa
+9 aa aaaa aaaaaaaaaaaa
+5 a aaaaa aaaaaaaaaaaaaaaaa
+2 a a aaaaaaaaaaaaaaa
+2 a aaa aa
+12 aaa a aaaaaaaaaa
+0 a aaaa aaaaaaaaaa
+10 aaa aa aaaaaaaaaaaaa
+6 aaa a aaaaaaa
+10 aa aaaaa aaaaaaaaa
+5 aaa aaaaa aaaaaaaaaaaaaa
+2 a a aaaaaaaaaaaa
+9 a aaaa aaaaaaaaaaaa
+11 aaa aaaa aaaaaaaaaaaaaa
+0 aaa a aaaaaaaaaaa
+4 a aaa aaaaa
+9 aa aaa aaa
+0 aaa aaaa aaaaaaaaaaa
+4 aa aaaaa aaaaaaaaaaaaa
+5 a a aa
+0 aa a aa
+9 aa aa aaaaaaaaaaaaaaaaa
+1 aaa aaaaa aaaaaaaaaaaa
+7 a aa aaaa
+9 aa aa aaaaaaaaaaaaaaaaa
+1 a aa aaaaaaaaaaaaaa
+11 a aa aaaaaaaaaaaaaaaa
+7 aaa aaaa aaaaa
+10 aa aa aaaaaaaaaaa
+8 aaa aaaa aaaaaaaaaa
+10 aa aa aaaaaaaaaaaaa
+6 aaa aaaaa aaaaaaaa
+12 a aa aaaaaaaaaaa
+4 a aaa aaa
+11 aa aa aaaaaaaaaaaaaaa
+5 aa aa aaaaaaaaaaaaaa
+1 aa a a
+7 a aaa aaaaa
+12 a aa aaaaaaaaa
+4 a aa aaaaaaaaaaa
+8 a aaaa aaaaaaaaaaaaaaa
+8 a aaa aaaaaaaaa
+1 aa a aaaaaaaaaaaaaaaa
+2 a aaaaa aaaaaaaaaaaaaa
+5 a aaa aaaaaa
+7 aaa aaaaa a
+6 a aaa a
+9 a aaa aaaaaa
+8 aa aaa a
+12 aaa aa aaaaa
+6 a aaaa aaaa
+10 aa a aaaaaaaaaaaaaaaaaaaa
+2 a aaa aaaaa
+7 aaa aaa aaaaaaaaaaaaaaaaa
+1 aa aaaaa aaaaaaaaaaaaaaaa
+5 aaa aaaa aaaaaa
+8 aaa a aaaaaaaaaaaa
+0 aaa aa aaaaaaaaaaaaaaaa
+12 a aaaaa aaaaaaaaaa
+11 a aa aaaaaaaaaaaa
+8 aa a aaaaaaaaa
+4 aaa aa aaaaaa
+1 aa aaaa aaaa
+0 aa a aa
+3 aa aa aaa
+4 aa a aaaaaaa
+11 a aaa aaaaaaa
+3 aa aaaaa aaaaa
+7 a aaaaa aaaaa
+2 aa aaaaa aa
+12 aa aaa aaa
+9 aaa aaaa aaaaaaaaaa
+3 aa a aaaa
+5 aaa aa aa
+2 aaa aaa aaaaaaaaaaaaa
+7 aaa a aaaaaaaaaaaaaa
+1 aa a aaaaaaa
+1 aaa aaaa aaaaaaaaaaaaaaaaa
+11 aa aa a
+6 aa a a
+2 aa a aaaaaaaaa
+11 aaa a aaaaaaaaaaaa
+11 aaa a aaaaaaaaaaaaaaa
+3 aaa aaaa aaaaaaaaaaaaaaaaaaa
+6 aaa a aa
+6 aa aa aaa
+6 a aaaa aaaaaaaaaaaa
+5 a aa aaaaaaaaa
+5 aaa aaaaa aaaaaaaaaaaaaaaaaaa
+0 aa a aaaaaaaaaaaaaaaaaa
+7 a aaaaa aaa
+9 aaa a aaaaaaaaaaaaaaa
+5 a a aaaaa
+10 aaa aaaaa aaaaaaaaa
+11 aaa aaaa aaaaaaaaaaaaaaaa
+9 aa aaaaa aaaaaaaaa
+12 aaa aaa aaaaaaaaaaa
+7 a aaa aaaa
+12 aaa a a
+11 aa aaa aaaaaaaaaaa
+7 aaa aaaaa aaaaaaaaaaaaaaaaaa
+1 aaa aaa aaa
+7 a a aaaaaaa
+10 aa aaaaa aaaaaaaaa
+12 aa aaaaa aaaa
+2 a aaa aaaaaaaaaaaaaaaaaaaa
+4 a aaaa aaaaaaaaaaaaaaaa
+4 aa aa aaaaaaaaaaaaaaaaaa
+4 aaa aaaa aa
+11 aa a aaaaaaaaa
+6 aa a aaaaaaaaaa
+9 aaa aaaaa aaaa
+0 aa a aaaaaaaaaaaaaaaaa
+4 aa aaaaa aaaaaaaaaaaaaaaa
+7 aaa a aaaaaaaaaaaaaaa
+0 aaa aa aaaaaaaaaaa
+7 aa aaaaa aaaaaaaaaaaaaaaaaaa
+1 a a aaa
+4 aa a aaaaaaaaaa
+5 a aa aaaaaaaaaaaa
+9 aa aaaa aaaaaaaaaaaaaaaaaaaa
+7 aa aaaaa aaaaaaaaaaa
+6 aaa aaaaa aaaa
+11 aaa aa aaaaaaaaaaaaaaaaa
+4 aaa aaaa aaaaaaaaa
+2 a aaaaa aaaaaaaaaaaaa
+4 aaa aaaaa aaaaa
+7 aa aaaaa a
+7 aaa a aaaaaaaaaaaaaaa
+2 aa aaa aaaaaa
+10 a aaa aaaaaaaaaaaaaaaaaaaa
+4 a aaaa aaaaa
+7 aa a aaaaaaaaaaaa
+10 a aaaa aa
+8 aaa aaaaa aaaaaaaa
+6 aa aaa aaa
+0 aaa aaa aaaaaaaaaaaaa
+11 aa aaaa aaaaaaaa
+4 a aaaaa aaaaa
+10 aaa aaa aaaaaa
+3 aaa aaa aaaaaaa
+11 aaa aaa aaaaaaaaaaaaaaa
+1 aa aaa aaaaaaaaaa
+1 a a aaaaaa
+12 aa a aaaaaa
+7 a aaaaa aaaaaaaaaaaaaaaaaaa
+11 aa aaaaa aaaaaaaaaaaaa
+6 aa aa aaaaaaaaaaaaaaa
+3 aaa aa aaaaaa
+11 aaa a aaaaaaaaaa
+1 a aa aaaaaaaaaaaaaaaa
+7 aaa aaaa aaaa
+4 a aaaaa aa
+9 a aa aaaaaaaaaaaaaaaa
+5 aaa a aaaaa
+11 a aa a
+4 a aaaaa aaaaaaaaaaaaaaaaaaa
+1 a aa a
+7 aa a aaaaaaaaaa
+8 aa aa aaaaaaaaa
+9 aa aaaaa a

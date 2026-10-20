@@ -1,10 +1,10 @@
 {
- "batch/profit_ok.cpp": {"problem": "1-1", "verdict": "AC", "score": 100},
- "batch/profit_nowrap.cpp": {"problem": "1-1", "verdict": "WA"},
- "batch/profit_loop.cpp": {"problem": "1-1", "verdict": "TLE"},
- "batch/profit_crash.cpp": {"problem": "1-1", "verdict": "RE"},
- "batch/profit_syntax.cpp": {"problem": "1-1", "verdict": "CE"},
- "batch/profit_mle.cpp": {"problem": "1-1", "verdict": "MLE"},
- "batch/profit_throw.cpp": {"problem": "1-1", "verdict": "RE"},
- "batch/profit_warn.cpp": {"problem": "1-1", "verdict": "AC", "score": 100}
+ "batch/profit_ok.cpp": {"problem": "2-1", "verdict": "AC", "score": 100},
+ "batch/profit_nowrap.cpp": {"problem": "2-1", "verdict": "WA"},
+ "batch/profit_loop.cpp": {"problem": "2-1", "verdict": "TLE"},
+ "batch/profit_crash.cpp": {"problem": "2-1", "verdict": "RE"},
+ "batch/profit_syntax.cpp": {"problem": "2-1", "verdict": "CE"},
+ "batch/profit_mle.cpp": {"problem": "2-1", "verdict": "MLE"},
+ "batch/profit_throw.cpp": {"problem": "2-1", "verdict": "RE"},
+ "batch/profit_warn.cpp": {"problem": "2-1", "verdict": "AC", "score": 100}
 }

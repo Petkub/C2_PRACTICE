@@ -1,71 +1,70 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30114)
-MAXN = 500_000
-ABC = "abcdefghijklmnopqrstuvwxyz"
+random.seed(20214)
+MAXN, MAXB = 200_000, 10**9
 tests = []
 
 
-def add(k, s):
-    n = len(s)
-    assert 1 <= k <= n <= MAXN
-    assert all(c in ABC for c in s)
-    tests.append(f"{n} {k}\n{s}\n")
+def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def rnd(n, letters, weights=None):
-    return "".join(random.choices(letters, weights=weights, k=n))
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
-def shuffled(s):
-    a = list(s)
-    random.shuffle(a)
-    return "".join(a)
-
-
-def dominant(n, k, big, others, extra=0):
-    """letter big as often as k * (others + 1) allows (plus extra), the rest from the letters others"""
-    nb = n * k // (k + 1)
-    while nb > k * (n - nb + 1):
-        nb -= 1
-    while nb + 1 <= k * (n - nb):
-        nb += 1
-    nb = min(n, nb + extra)
-    return shuffled(big * nb + rnd(n - nb, others))
+def add(m, k, b):
+    n = len(b)
+    assert 1 <= n <= MAXN
+    assert 1 <= m <= n and 1 <= k <= n
+    assert all(1 <= x <= MAXB for x in b)
+    tests.append(f"{n} {m} {k}\n" + " ".join(map(str, b)) + "\n")
 
 
 # samples
-add(2, "aaabbc")
-add(1, "aabbb")
-add(2, "aaaaab")
-add(6, "banana")
-add(2, "aaaaaaabbb")
-add(2, "bbbbbbaac")
-# hidden: small (every choice is tried)
-add(1, "z")
-add(3, "bbbabbb")
-add(1, "cbcacbc")
-for n, letters, k in ((8, "ab", 1), (10, "abc", 2), (12, "abcd", 1), (12, "ab", 3), (11, "abc", 1)):
-    add(k, rnd(n, letters, [random.random() ** 2 + 0.01 for _ in letters]))
-add(1, dominant(300, 1, "b", "ac"))
-add(2, dominant(400, 2, "c", "ab"))
-add(3, dominant(2000, 3, "a", "b"))
-# hidden: large
+add(2, 2, [3, 1, 4, 1, 5, 9, 2])
+add(3, 2, [1, 2, 3, 4, 5])
+add(1, 5, [5, 4, 3, 2, 1])
+add(1, 1, [MAXB])
+add(2, 3, [1, 1, 1, 9, 1, 1, 2, 1])
+add(3, 2, [6, 2, 8, 3, 3, 7, 1, 9, 4, 4])
+# hidden: small
+add(1, 1, [7])
+add(2, 2, [7, 3, 4])                           # M K > N
+add(1, 2, [5, 5])
+add(2, 2, [1, 9, 1, 1, 9, 1])                  # bloomed pairs split by late flowers
+add(3, 3, rnd(9, 1, 5))
+add(4, 3, rnd(20, 1, 30))
+add(5, 4, rnd(60, 1, 1000))
+add(7, 10, rnd(80, 1, MAXB))                   # M K = 70 <= 80
+add(9, 10, rnd(80, 1, MAXB))                   # M K = 90 > 80
+add(30, 3, rnd(150, 1, 50))
+add(1, 300, rnd(300, 1, MAXB))
+# hidden: maximum size (the answer is a late bloom day)
 N = MAXN
-add(1, rnd(N, ABC))
-add(1, dominant(N, 1, "z", ABC[:25]))                    # z exactly at the limit
-add(1, dominant(N, 1, "m", ABC, extra=1))                # one too many: -1
-add(2, dominant(N, 2, "a", "bc"))
-add(3, dominant(N - 1, 3, "q", "pr"))
-add(1, "ab" * (N // 2))
-add(N, rnd(N, ABC))                                      # no limit at all
-add(N - 1, "a" * N)                                      # one letter, not allowed
-add(N, "y" * N)
-add(5, rnd(N, "abc", [20, 2, 1]))
-add(1, shuffled("a" * (N // 2 - 1000) + rnd(N // 2 + 1000, ABC[1:])))
-add(4, dominant(N, 4, "k", ABC[:5]))
-add(1000, rnd(N, "ab", [1000, 1]))
+add(N, 1, rnd(N, 1, MAXB))                     # every flower is needed
+add(N // 2, 1, rnd(N, 1, MAXB))
+add(1, N, rnd(N, 1, MAXB))
+add(N // 1000, 1000, rnd(N, 1, MAXB))
+add(N // 3, 3, rnd(N, 1, MAXB))
+add(400, 400, rnd(N, 1, MAXB))
+add(N // 2, 2, sorted(rnd(N, 1, MAXB)))
+add(N // 7, 7, sorted(rnd(N, 1, MAXB), reverse=True))
+add(N // 4, 4, rnd(N, 1, MAXB))
+add(65536, 65536, rnd(N, 1, MAXB))              # M K = 2^32: impossible
+add(N // 2 + 1, 2, rnd(N, 1, MAXB))            # impossible by one bouquet
+add(N // 2, 2, [MAXB] * N)
+add(N // 5, 4, rnd(N, 1, 100_000))              # many equal days
+b = rnd(N, 1, MAXB // 2)
+for i in range(0, N, 50):
+    b[i] = MAXB - i                             # a late flower in every block of 50
+add(N // 50, 49, b)
+add(ri(1, N // 10), 10, rnd(N, 1, MAXB))
+add(1, N // 2, rnd(N, 1, MAXB))
+add(N - 5, 1, rnd(N, 1, MAXB))
+add(N // 30, 25, rnd(N, 1, MAXB))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

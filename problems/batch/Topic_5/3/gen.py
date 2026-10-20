@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(50303)
-MAXN, MAXA = 200_000, 10**9
+random.seed(40403)
+MAXN, MAXT = 200_000, 10**9
 tests = []
 
 
@@ -11,48 +11,57 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(k, a):
+def add(a, shuffle=False):
+    a = list(a)
+    if shuffle:
+        random.shuffle(a)
     n = len(a)
-    assert 1 <= k <= n <= MAXN
-    assert all(1 <= x <= MAXA for x in a)
-    tests.append(f"{n} {k}\n" + " ".join(map(str, a)) + "\n")
+    assert 1 <= n <= MAXN
+    assert all(1 <= l <= r <= MAXT for l, r in a)
+    tests.append(f"{n}\n" + "".join(f"{l} {r}\n" for l, r in a))
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def rnd(n, T, maxlen):
+    out = []
+    for _ in range(n):
+        l = ri(1, T)
+        out.append((l, min(T, l + ri(0, maxlen))))
+    return out
 
 
 # samples
-add(1, [5, 1, 2, 10, 6, 2])
-add(2, [5, 1, 2, 10, 6, 2])
-add(4, [3, 9, 4, 1])
-add(1, [8])
-add(1, [10**9, 1, 10**9, 1, 10**9])
-add(1, [4, 7, 4, 1, 2, 8, 3])
-# hidden: small (the brute force checks these)
-add(1, [3, 3])
-add(2, [1, 5, 1])
-add(1, rnd(18, 1, 10))
-add(3, rnd(20, 1, 100))
-add(2, rnd(22, 1, MAXA))
-add(5, rnd(22, 1, 50))
-add(1, [1, 2] * 11)
-add(4, [2, 1, 1, 1, 2, 1, 1, 1, 2, 9, 9, 9, 9, 2])
-# hidden: maximum size
+add([(1, 3), (2, 5), (6, 8), (5, 6)])
+add([(1, 5), (5, 9), (9, 9), (10, 12)])
+add([(7, 7)])
+add([(1, 2), (3, 4), (5, 6), (10, 20)])
+add([(3, 7)] * 5)
+add([(1, 100), (2, 3), (50, 60), (61, 61), (60, 70)])
+# hidden: small
+add([(MAXT, MAXT), (1, MAXT)])
+add([(1, 1), (2, 2), (1, 2), (2, 3), (3, 3)])
+add(rnd(10, 20, 4))
+add(rnd(60, 100, 10))
+add(rnd(300, 1000, 50))
+add(rnd(2000, 10**6, 300))
+add(rnd(5000, MAXT, MAXT))
+add([(i, i) for i in range(1, 3001)], True)          # nobody meets
+add([(i, i + 1) for i in range(1, 3001)], True)      # only neighbours meet, at one minute
+# hidden: large (N = 2*10^5; many pairs for the "list every meeting pair" way)
 N = MAXN
-add(1, rnd(N, 1, MAXA))
-add(1, [MAXA] * N)                      # the largest total
-add(2, rnd(N, 1, MAXA))
-add(3, rnd(N, 1, 10))
-add(7, rnd(N, 1, MAXA))
-add(50, rnd(N, 1, MAXA))
-add(1, [MAXA if i % 3 == 0 else MAXA - 1 for i in range(N)])
-add(2, list(range(1, N + 1)))
-add(1, [ri(1, 3) for _ in range(N)])
-add(1000, rnd(N, 1, MAXA))
-add(N, rnd(N, 1, MAXA))                 # only one lot can be taken
-add(N - 1, rnd(N, 1, MAXA))
-add(10, [1] * N)
+add(rnd(N, 10**7, 100))                               # few pairs
+add(rnd(N, 10**7, 2 * 10**6))
+add(rnd(N, 10**6, 10**6))                             # about half of all pairs
+add([(1, 10**6)] * N)                                 # every pair: N(N-1)/2
+add([(i, 10**6) for i in range(1, N + 1)], True)      # everyone stays until the end
+add([(i, i) for i in range(1, N + 1)])                # nobody meets, sorted
+add([(N + 1 - i, N + 1 - i) for i in range(1, N + 1)])  # nobody meets, reverse sorted
+add([(5 * i, 5 * i + 5) for i in range(1, N + 1)], True)  # only neighbours, touching
+add([(ri(1, 1000), ri(999_000, 10**6)) for _ in range(N)])  # everyone shares the middle
+add([(i, 2 * N + 1 - i) for i in range(1, N + 1)], True)  # nested
+x = [(ri(1, 10**6), 0) for _ in range(N)]
+add([(l, l + ri(0, 3)) for l, _ in x])                # short stays, touching often
+add([(ri(1, 50), ri(50, 100)) for _ in range(N)])     # many equal times
+add(rnd(140_000, MAXT, 10**8))                        # large times
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,80 +1,86 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40402)
-MAXN, MAXT, MAXG = 150_000, 10**9, 10**9
+random.seed(3002)
+MAXN, MAXD, MAXC = 200_000, 10**9, 10**9
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (deterministic, faster than randint)"""
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(G, a, shuffle=True):
-    a = list(a)
-    if shuffle:
-        random.shuffle(a)
-    n = len(a)
-    assert 1 <= n <= MAXN and 1 <= G <= MAXG
-    assert all(0 <= s < e <= MAXT for s, e in a)
-    tests.append(f"{n} {G}\n" + "".join(f"{s} {e}\n" for s, e in a))
+def add(D, C, p):
+    n = len(p)
+    assert 1 <= n <= MAXN
+    assert 2 <= D <= MAXD and 1 <= C <= MAXC
+    assert all(0 < x < D for x in p) and all(p[i] < p[i + 1] for i in range(n - 1))
+    tests.append(f"{n} {D} {C}\n" + " ".join(map(str, p)) + "\n")
 
 
-def rnd(n, T, maxlen):
-    out = []
-    for _ in range(n):
-        s = ri(0, T - 1)
-        out.append((s, min(T, s + ri(1, maxlen))))
-    return out
+def need(D, p):
+    """the smallest tank that makes the trip possible"""
+    return max(max(b - a for a, b in zip([0] + p, p)), 2 * (D - p[-1]))
+
+
+def stations(n, D):
+    """n distinct sorted positions in 1..D-1"""
+    if n * 3 > D:
+        return sorted(random.sample(range(1, D), n))
+    s = set()
+    while len(s) < n:
+        s.add(ri(1, D - 1))
+    return sorted(s)
 
 
 # samples
-add(10, [(95, 110), (0, 30), (200, 230), (60, 90), (35, 50)], False)
-add(1, [(0, 100), (10, 20), (30, 40), (106, 110), (100, 105)], False)
-add(5, [(3, 8)], False)
-add(1000, [(500, 600), (0, 1), (2000, 2001)], False)
-add(3, [(4, 6), (4, 6), (1, 2)], False)
-add(2, [(10, 20), (1, 9), (22, 30), (11, 12)], False)
+add(10, 8, [3, 6, 8])
+add(10, 5, [4, 7])
+add(5, 10, [2])
+add(6, 6, [3])
+add(30, 9, [4, 9, 12, 17, 20, 26])
+add(100, 30, [40, 60])
 # hidden: small
-add(MAXG, [(0, MAXT)])
-add(1, [(0, 1), (1, 2), (2, 3), (4, 5)])
-add(2, [(0, 10), (2, 3), (5, 6), (11, 12), (14, 15)])   # nested: compare with the largest end
-add(3, rnd(8, 40, 5))
-add(5, rnd(30, 300, 8))
-add(20, rnd(100, 10_000, 50))
-add(100, rnd(500, 10**6, 500))
-add(1, rnd(800, 2000, 3))
-a = [(0, 1000)] + [(ri(0, 990), 0) for _ in range(300)]
-a = [(s, s + ri(1, 9)) if e == 0 else (s, e) for s, e in a] + [(1000 + 7 * i, 1003 + 7 * i) for i in range(300)]
-add(4, a)
-add(MAXG, rnd(1000, MAXT, 10))                          # everything in one group
-# hidden: large
+add(2, 1, [1])                         # the turnaround 1 -> 2 -> 1 is longer than the tank
+add(2, 2, [1])
+add(2, 4, [1])                         # no refill
+add(7, 4, [1, 3, 5])                   # turnaround 5 -> 7 -> 5 is exactly 4
+add(7, 3, [1, 3, 5])                   # turnaround too long
+add(12, 5, [2, 5, 9])
+for D, n in [(20, 5), (30, 8), (40, 12), (60, 20), (100, 30), (1000, 300), (50, 6), (80, 15)]:
+    p = stations(n, D)
+    add(D, need(D, p) + ri(0, 2 * need(D, p)), p)
+D = 10**6
+add(D, 4000, stations(3000, D))
+add(MAXD, 10**8, stations(5000, MAXD))
+p = stations(3000, 10**5)
+add(10**5, need(10**5, p), p)   # just enough fuel
+# hidden: maximum size
 N = MAXN
-add(1000, rnd(N, MAXT, 4000))
-add(6000, rnd(N, MAXT, 2000))
-add(1, rnd(N, MAXT, 6000))
-a = [(i * 6000, i * 6000 + 3000) for i in range(N)]     # gaps of exactly G: N separate groups
-add(3000, a)
-a = [(i * 6000, i * 6000 + 3000 + (i % 2)) for i in range(N)]  # gaps alternate G and G - 1
-add(3000, a, False)
-a = []
-for blk in range(N // 50):                              # long appointment covering 49 short ones, then a gap
-    base = blk * 6000
-    a.append((base, base + 5000))
-    for j in range(49):
-        s = base + ri(0, 4000)
-        a.append((s, s + ri(1, 100)))
-add(900, a)
-a = [(MAXT - 1 - 6000 * i - 3000, MAXT - 1 - 6000 * i) for i in range(N)]
-add(2999, a, False)                                     # reverse sorted input
-add(MAXG, rnd(N, MAXT, 1))                              # all one group
-a = [(ri(0, 10) * 1000, 0) for _ in range(N)]
-a = [(s, s + 500) for s, _ in a]                        # heavy duplicates
-add(500, a)
-add(10, [(ri(0, MAXT - 1), MAXT) for _ in range(N)])    # all end at the latest time
-add(2, [(2 * i, 2 * i + 1) for i in range(N)])          # touching nothing, gap 1 < G
-add(5000, rnd(N, MAXT, 500))
+add(MAXD, 4 * 10**8, stations(N, MAXD))                          # long tank: many stations within reach
+add(MAXD, 2 * 10**8 + 7, stations(N, MAXD))
+add(MAXD, 3 * 10**7, stations(N, MAXD))
+add(MAXD, 2 * 10**4, stations(N, MAXD))                           # likely impossible somewhere
+p = [4900 * (i + 1) for i in range(N)]                            # evenly spaced
+D = p[-1] + 2450
+add(D, 4900, p)                                                   # refill at every passing: 2N
+add(D, 9800, p)
+add(MAXD, MAXC, stations(N, MAXD))                                # tank C < 2D: one refill near the far end
+add(MAXD - 1, MAXC, stations(N, MAXD - 1))
+p = stations(N, MAXD // 2)                                        # all stations in the first half
+add(MAXD, 6 * 10**8, p)                                           # turnaround longer than the tank
+p = stations(N - 1, MAXD // 2) + [MAXD - 3 * 10**8]
+add(MAXD, 6 * 10**8, p)                                           # turnaround exactly C
+p = []                                                            # 20 dense clusters with long gaps between
+for c in range(20):
+    base = 25_000_000 + c * 48_000_000
+    p += [base + 1000 * k + ri(0, 999) for k in range(N // 20)]
+gap = need(MAXD, p)
+add(MAXD, gap, p)                                                 # tightest feasible tank
+add(MAXD, gap - 1, p)                                             # one less: impossible
+p = list(range(1, N + 1))                                         # stations packed near home
+add(N + 1, 7, p)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

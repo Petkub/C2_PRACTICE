@@ -1,70 +1,70 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(90404)
-MAXN, MAXC = 8000, 10**6
+random.seed(13004)
+MAXN = 60
+MAXQ = 20_000
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(n, ks):
+    assert 1 <= n <= MAXN and 1 <= len(ks) <= MAXQ
+    assert all(0 <= k <= (1 << n) - 1 for k in ks)
+    tests.append(f"{n} {len(ks)}\n" + "".join(f"{k}\n" for k in ks))
 
 
-def add(pts):
-    n = len(pts)
-    assert 1 <= n <= MAXN
-    assert all(0 <= x <= MAXC and 0 <= y <= MAXC for x, y in pts)
-    tests.append(f"{n}\n" + "".join(f"{x} {y}\n" for x, y in pts))
+def rnd(n, q):
+    return [random.randint(0, (1 << n) - 1) for _ in range(q)]
 
 
-def rnd(n, lo=0, hi=MAXC):
-    return [(ri(lo, hi), ri(lo, hi)) for _ in range(n)]
-
-
-def clusters(n, k, spread):
-    cs = rnd(k, spread, MAXC - spread)
-    pts = []
-    for _ in range(n):
-        cx, cy = random.choice(cs)
-        pts.append((cx + ri(-spread, spread), cy + ri(-spread, spread)))
-    return pts
+def special(n, q):
+    """around the moves of the big disks, the ends, numbers made of few bits"""
+    top = (1 << n) - 1
+    ks = []
+    while len(ks) < q:
+        t = random.randint(0, 4)
+        j = random.randint(0, n - 1)
+        if t == 0:
+            k = (1 << j) + random.randint(-2, 1)
+        elif t == 1:
+            k = top - random.randint(0, 3)
+        elif t == 2:
+            k = random.randint(0, 5)
+        elif t == 3:
+            k = sum(1 << b for b in random.sample(range(n), min(n, 3)))
+        else:
+            k = top ^ (1 << j)
+        if 0 <= k <= top:
+            ks.append(k)
+    return ks
 
 
 # samples
-add([(0, 0), (3, 0), (0, 4), (3, 4)])
-add([(0, 0), (1, 0), (3, 0)])
-add([(7, 7)])
-add([(5, 5), (5, 5), (6, 7)])
-add([(0, 0), (MAXC, MAXC), (0, MAXC), (MAXC, 0), (MAXC // 2, MAXC // 2)])
-# hidden: small
-add([(0, 0), (MAXC, MAXC)])
-add(rnd(8, 0, 20))
-add(rnd(50))
-add([(0, 0)] * 30)                                              # all poles at one place
-add(rnd(300, 0, 100))
-add(clusters(1000, 5, 1000))
-add([(ri(0, MAXC), 0) for _ in range(2000)])                    # all on one line
-# hidden: maximum size
-N = MAXN
-add(rnd(N))
-add(rnd(N))
-add(clusters(N, 2, 10))                                         # two far groups
-add(clusters(N, 40, 5000))
-add([(ri(0, 1) * MAXC, ri(0, 1) * MAXC) for _ in range(N)])     # only the four corners
-add([(i * 125, ri(0, MAXC)) for i in range(N)])                 # one pole on each column
-add([((i % 90) * 11111, (i // 90) * 11111) for i in range(N)])  # a grid
-add([(i * 125, i * 125) for i in range(N)])                     # a diagonal line
-pts = [(0, 0)] * (N // 2) + [(MAXC, MAXC)] * (N - N // 2)       # largest single cable
-random.shuffle(pts)
-add(pts)
-add(rnd(N, 0, 50))                                              # many equal positions
-pts = []
-x, y = 0, 0
-for i in range(N):                                              # a random walk with big steps
-    x = min(MAXC, max(0, x + ri(-30000, 30000)))
-    y = min(MAXC, max(0, y + ri(-30000, 30000)))
-    pts.append((x, y))
-add(pts)
+add(3, [3, 0, 7])
+add(2, [1, 2])
+add(1, [0, 1])
+add(4, [5, 8, 10])
+add(30, [536870912, 1073741823, 6])
+# hidden: small (the brute force lists every move)
+add(1, [1, 0, 1])
+add(3, list(range(8)))
+add(4, list(range(16)))
+add(8, rnd(8, 300))
+add(12, rnd(12, 2000))
+add(16, special(16, 3000))
+add(18, rnd(18, 5000))
+add(18, special(18, 5000))
+# hidden: large
+add(MAXN, rnd(MAXN, MAXQ))
+add(MAXN, rnd(MAXN, MAXQ))
+add(MAXN, special(MAXN, MAXQ))
+add(MAXN, [(1 << MAXN) - 1 - i for i in range(MAXQ)])
+add(MAXN, [(1 << 59) - MAXQ // 2 + i for i in range(MAXQ)])
+add(59, special(59, MAXQ))
+add(50, rnd(50, MAXQ))
+add(40, special(40, MAXQ))
+add(33, rnd(33, MAXQ))
+add(MAXN, [random.randint(0, (1 << random.randint(1, MAXN)) - 1) for _ in range(MAXQ)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,8 +1,10 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(3006)
-MAXN, MAXL = 200_000, 10**9
+random.seed(20206)
+MAXN = 200_000
+MAXM = 10**9
+MAXT = 10**9
 tests = []
 
 
@@ -11,57 +13,45 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a):
-    n = len(a)
-    assert 1 <= n <= MAXN
-    assert all(1 <= x <= MAXL for x in a)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
-
-
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def add(m, t):
+    n = len(t)
+    assert 1 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= x <= MAXT for x in t)
+    tests.append(f"{n} {m}\n" + " ".join(map(str, t)) + "\n")
 
 
 # samples
-add([4, 3, 2, 6])
-add([5, 5, 5, 5])
-add([7])
-add([1000000000, 1000000000])
-add([8, 1, 3, 5, 2, 9, 4])
-add([1, 1, 2, 4, 8, 16])
-# hidden: small (every way is tried)
-add([1])
-add([3, 9])
-add([1, 1, 1])
-add([2, 2, 3, 3])
-add([1] * 10)
-add([10, 11, 12, 13, 14, 15])
-add([1, 2, 3, 100, 101, 102, 103])
-add(rnd(8, 1, 10))
-add(rnd(10, 1, 100))
-add(rnd(10, 1, MAXL))
-add(rnd(7, 1, 5))
-# hidden: medium
-add(rnd(100, 1, 1000))
-add(rnd(2000, 1, MAXL))
-add(rnd(5000, 1, 10))
-# hidden: maximum size
+add(7, [3, 2, 5])
+add(MAXM, [MAXT])
+add(5, [2, 2])
+add(1, [5, 3, 9])
+add(20, [4, 7, 6, 10])
+add(MAXM, [1, 1, 1, MAXT])
+# hidden: small (M small enough for an item-by-item check)
+add(1, [1])
+add(1, [MAXT])
+add(10**6, [MAXT])
+add(10**6, [ri(1, 100) for _ in range(10)])
+add(500_000, [ri(1, MAXT) for _ in range(1000)])
+add(300_000, [7] * 3000)
+add(10**6, [1] * 999 + [MAXT])
+add(777_777, [ri(1, 1000) * 1000 for _ in range(5000)])
+# hidden: maximum size, M up to 10^9
 N = MAXN
-add([MAXL] * N)                                   # the largest answer
-add(rnd(N, 1, MAXL))
-add(sorted(rnd(N, 1, MAXL)))
-add(sorted(rnd(N, 1, MAXL), reverse=True))
-add(rnd(N, 1, 3))                                 # many equal lengths
-add(rnd(N, MAXL - 1000, MAXL))
-add([1] * (N - 30) + [2 ** k for k in range(30)])  # many short ropes and a few doubling ones
-a = rnd(N - 100, 1, 100) + rnd(100, 10**8, MAXL)
-random.shuffle(a)
-add(a)
-add([ri(1, 9) * 10 ** ri(0, 8) for _ in range(N)])       # lengths of very different sizes
-add(rnd(N - 1, 1, MAXL))
+add(MAXM, [MAXT] * N)
+add(MAXM, [ri(1, MAXT) for _ in range(N)])
+add(MAXM, [1] * (N - 1) + [MAXT])               # a huge upper bound makes the sum overflow
+add(MAXM, [1] * N)
+add(MAXM, [ri(1, 10) for _ in range(N)])
+add(MAXM, [MAXT] * (N - 1) + [1])
+add(MAXM - 1, [ri(MAXT // 2, MAXT) for _ in range(N)])
+add(ri(MAXM // 2, MAXM), [ri(1, MAXT) for _ in range(N)])
+add(MAXM, [ri(1, 1000) for _ in range(N // 2)] + [ri(10**8, MAXT) for _ in range(N // 2)])
+add(N, [MAXT - i for i in range(N)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

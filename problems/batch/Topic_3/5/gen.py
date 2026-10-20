@@ -1,8 +1,10 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(3005)
-MAXN, MAXA = 200_000, 10**9
+random.seed(20205)
+MAXN = 200_000
+MAXA = 10**9
+MAXK = 10**15
 tests = []
 
 
@@ -11,78 +13,69 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a):
+def add(k, a):
     n = len(a)
-    assert 1 <= n <= MAXN
-    assert all(0 <= x <= MAXA for x in a)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
+    assert 1 <= n <= MAXN and 1 <= k <= MAXK
+    assert all(1 <= x <= MAXA for x in a)
+    tests.append(f"{n} {k}\n" + " ".join(map(str, a)) + "\n")
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def pieces(a, L):
+    return sum(x // L for x in a)
 
 
-def levels(n, sizes, blocked=False):
-    """stone 1 reaches level 1; every stone of level k reaches exactly the end of level k+1 (long scans,
-    few jumps). With blocked=True the last level cannot reach stone n."""
-    ends = [1]
-    for s in sizes:
-        ends.append(ends[-1] + s)
-    assert ends[-1] == n
-    a = [0] * (n + 1)
-    lvl = 0
-    for i in range(1, n + 1):
-        while ends[lvl] < i:
-            lvl += 1
-        if lvl + 1 < len(ends):
-            a[i] = ends[lvl + 1] - i
-    if blocked:
-        for i in range(1, n):
-            a[i] = min(a[i], n - 1 - i)
-    return a[1:]
+def aim(a, L, extra=0):
+    """K so that the answer is about L (exactly the count at L, plus a little to push it down)"""
+    return max(1, pieces(a, L) + extra)
 
 
 # samples
-add([2, 3, 1, 1, 4, 0])
-add([3, 2, 1, 0, 4])
-add([0])
-add([1, 1, 1, 1, 1])
-add([2, 0, 3, 1, 0, 2, 5, 0])
-add([10, 0, 0, 0])
-# hidden: small
-add([5])
-add([0, 3])
-add([1, 0])
-add([1, 0, 1])
-add([2, 0, 1, 0])
-add([3, 0, 0, 0, 0])
-add([1, 2, 0, 1, 1, 0, 0])
-for n, hi in [(8, 2), (10, 3), (12, 2), (15, 4), (20, 3), (50, 5), (300, 6), (2000, 4)]:
-    add(rnd(n, 1, hi))
-for n, hi in [(10, 2), (30, 3), (200, 4)]:
-    add(rnd(n, 0, hi))
-add(rnd(5000, 0, 9) + [0])
+add(5, [10, 15, 7])
+add(6, [3, 2])
+add(1, [MAXA])
+add(3 * MAXA, [MAXA] * 3)
+add(4, [7, 7, 7])
+add(10, [100, 1, 35, 64])
+# hidden: small (lengths up to a few thousand so brute finishes)
+add(1, [1])
+add(2, [1])
+a = [ri(1, 50) for _ in range(10)]
+add(aim(a, 7), a)
+a = [ri(1, 1000) for _ in range(300)]
+add(aim(a, 37, 1), a)
+a = [ri(1, 3000) for _ in range(2000)]
+add(sum(a), a)                                  # only L = 1 works
+add(sum(a) + 1, a)                              # impossible
+a = [ri(1, 3000) for _ in range(2000)]
+add(len(a) + 1, a)
+add(len(a) // 2, [2999] * 2000)
 # hidden: maximum size
 N = MAXN
-add([1] * N)                                        # N - 1 jumps
-add([MAXA] * N)                                     # one jump
-add([N - 1 - i for i in range(1, N)] + [0])         # everyone reaches stone N - 1 only: -1, long scans
-add(levels(N, [N // 2, N // 2 - 2, 1]))             # 3 jumps, the middle level is huge
-add(levels(N, [1, N // 3, N // 3, N - 1 - 1 - 2 * (N // 3)]))
-add(levels(N, [N // 2, N // 2 - 2, 1], blocked=True))
-add(levels(N, [N // 8] * 7 + [N - 1 - 7 * (N // 8)]))
-add(rnd(N, 1, 3))
-add(rnd(N, 1, 100000))
-a = rnd(N, 1, 30000)
-a[N // 2] = 0                                       # nobody gets past stone N / 2 + 1
-for i in range(N // 2 - 30000, N // 2):
-    a[i] = min(a[i], N // 2 - i)
-add(a)
-a = [ri(0, 1) * ri(1, MAXA) if ri(0, 99) == 0 else ri(1, 4) for _ in range(N)]
-add(a)
+add(N + 1, [MAXA] * N)                          # every rope gives 1 piece until L <= 5 * 10^8
+add(N * 3 + 1, [MAXA] * N)
+a = [ri(1, MAXA) for _ in range(N)]
+add(aim(a, 123_456_789), a)
+a = [ri(1, MAXA) for _ in range(N)]
+add(aim(a, 300_000_007, 1), a)
+a = [ri(MAXA // 2, MAXA) for _ in range(N)]
+add(aim(a, 49_999_999), a)
+a = [ri(1, MAXA) for _ in range(N)]
+add(aim(a, 10_000_019), a)
+a = [ri(1, 10**6) for _ in range(N)] + [MAXA]   # one very long rope
+a = a[:N]
+a[ri(0, N - 1)] = MAXA
+add(aim(a, 600_000), a)
+add(sum([MAXA] * N), [MAXA] * N)                # only L = 1 works, 2 * 10^14 pieces
+add(MAXK, [MAXA] * N)                           # impossible
+a = [ri(1, MAXA) for _ in range(N)]
+add(1, a)                                       # the longest rope
+a = [ri(1, MAXA) for _ in range(N)]
+add(aim(a, 3), a)                               # short pieces: about 7 * 10^13 of them
+add(2 * N + 1, [MAXA - 1] * (N - 1) + [MAXA])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

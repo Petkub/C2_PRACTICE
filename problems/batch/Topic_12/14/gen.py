@@ -1,152 +1,135 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(121407)
-MAXRC, MAXV, MAXS = 500, 10 ** 9, 100
+random.seed(100114)
+MAXN, MAXM = 100_000, 100_000
 tests = []
 
 
-def check_stamp(p):
-    h, w = len(p), len(p[0])
-    assert 1 <= h <= MAXS and 1 <= w <= MAXS and all(len(x) == w and set(x) <= set(".#") for x in p)
-    cols = ["".join(p[r][c] for r in range(h)) for c in range(w)]
-    for line in list(p) + cols:
-        assert "#" in line
-        assert "#" not in line[line.index("#"):].lstrip("#")      # one block of '#'
+def ri(lo, hi):
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(grid_text, r, c, p):
-    """grid_text: the grid lines already joined (big grids are reused by several tests)"""
-    check_stamp(p)
-    h, w = len(p), len(p[0])
-    assert 1 <= r <= MAXRC and 1 <= c <= MAXRC
-    assert (h <= r and w <= c) or (w <= r and h <= c)
-    tests.append(f"{r} {c}\n" + grid_text + f"{h} {w}\n" + "".join(x + "\n" for x in p))
-
-
-def text(g):
-    for row in g:
-        assert all(-MAXV <= v <= MAXV for v in row)
-    return "".join(" ".join(map(str, row)) + "\n" for row in g)
-
-
-def grid(r, c, lo=-MAXV, hi=MAXV):
-    return [[random.randint(lo, hi) for _ in range(c)] for _ in range(r)]
-
-
-def walk(n, lo, hi, up, delay=0):
-    """a monotone random sequence of length n between lo and hi (an increasing one waits `delay` steps at lo,
-    a decreasing one starts at hi)"""
-    v = lo if up else hi
-    out = []
-    for i in range(n):
-        out.append(v)
-        if i >= delay and random.random() < 0.5:
-            v = min(hi, v + random.randint(0, 3)) if up else max(lo, v - random.randint(0, 3))
-    return out
-
-
-def blob(h, w, cut):
-    """a random stamp: every row and every column is one block (the four corners are cut off by monotone
-    walls of different sizes)"""
-    cut = min(cut, (w - 1) // 2)
-    while True:
-        c1, c2, c3, c4 = (random.randint(0, cut) for _ in range(4))
-        tl = walk(h, 0, c1, False)                            # top-left corner: left edge goes left
-        tr = [w - 1 - x for x in walk(h, 0, c2, False)]       # top-right corner: right edge goes right
-        bl = walk(h, 0, c3, True, random.randint(h // 2, h))  # bottom-left corner: left edge goes right
-        br = [w - 1 - x for x in walk(h, 0, c4, True, random.randint(h // 2, h))]
-        rows = []
-        for r in range(h):
-            a = max(tl[r], bl[r])
-            b = min(tr[r], br[r])
-            if a > b:
-                break
-            rows.append("." * a + "#" * (b - a + 1) + "." * (w - 1 - b))
+def shape(n, kind):
+    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
+    par = [0, 0]
+    half = max(1, n // 2)
+    b = max(2, int(n ** 0.5))
+    for i in range(2, n + 1):
+        if kind == "path":
+            p = i - 1
+        elif kind == "star":
+            p = 1
+        elif kind == "random":
+            p = ri(1, i - 1)
+        elif kind == "deep":                        # depth about n / 2, a few short branches
+            p = ri(max(1, i - 3), i - 1)
+        elif kind == "binary":
+            p = i // 2
+        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+            p = i - 1 if i <= half else ri(1, half)
+        elif kind == "broom":                       # a long handle ending in a star
+            p = i - 1 if i <= half else half
+        elif kind == "twopaths":                    # two long chains meeting at node 1
+            p = 1 if i <= 3 else i - 2
+        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+            p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
-            # drop empty columns
-            keep = [c for c in range(w) if any(row[c] == "#" for row in rows)]
-            rows = ["".join(row[c] for c in keep) for row in rows]
-            try:
-                check_stamp(rows)
-            except AssertionError:
-                continue
-            return rows
+            raise ValueError(kind)
+        par.append(p)
+    return par
 
 
-def orient(p, k, m):
-    """k quarter turns clockwise after an optional mirror"""
-    if m:
-        p = [row[::-1] for row in p]
-    for _ in range(k):
-        p = ["".join(p[len(p) - 1 - r][c] for r in range(len(p))) for c in range(len(p[0]))]
-    return p
+def relabel(par, root_first=False):
+    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends"""
+    n = len(par) - 1
+    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
+    lab = list(range(1, n + 1))
+    random.shuffle(lab)
+    if root_first:
+        j = lab.index(1)
+        lab[0], lab[j] = lab[j], lab[0]
+    rnd = random.random
+    edges = [(lab[i - 1], lab[par[i] - 1]) if rnd() < 0.5 else (lab[par[i] - 1], lab[i - 1]) for i in range(2, n + 1)]
+    random.shuffle(edges)
+    return edges, lab
 
 
-def plant(g, p, val):
-    """add val under the '#' cells of p at a random position"""
-    r, c = len(g), len(g[0])
-    i = random.randint(0, r - len(p))
-    j = random.randint(0, c - len(p[0]))
-    for x, row in enumerate(p):
-        for y, ch in enumerate(row):
-            if ch == "#":
-                g[i + x][j + y] = max(-MAXV, min(MAXV, g[i + x][j + y] + val))
+def check_tree(n, edges):
+    """the N - 1 edges connect all N nodes (union-find)"""
+    assert len(edges) == n - 1
+    root = list(range(n + 1))
+
+    def find(x):
+        while root[x] != x:
+            root[x] = root[root[x]]
+            x = root[x]
+        return x
+    for u, v in edges:
+        assert 1 <= u <= n and 1 <= v <= n and u != v
+        a, b = find(u), find(v)
+        assert a != b
+        root[a] = b
 
 
-def small(r, c, h, w, cut, lo=-9, hi=9):
-    g = grid(r, c, lo, hi)
-    p = blob(h, w, cut)
-    if not ((len(p) <= r and len(p[0]) <= c) or (len(p[0]) <= r and len(p) <= c)):
-        p = blob(min(h, r, c), min(w, r, c), cut)
-    add(text(g), r, c, p)
+def add(n, edges, rs, from_shape=False):
+    """from_shape: the edges come from relabel(), which already guarantees a tree"""
+    assert 1 <= n <= MAXN and 1 <= len(rs) <= MAXM and len(edges) == n - 1
+    if not from_shape:
+        check_tree(n, edges)
+    assert all(1 <= a <= n and 1 <= b <= n for a, b in rs)
+    tests.append(f"{n} {len(rs)}\n" + "".join(f"{u} {v}\n" for u, v in edges)
+                 + "".join(f"{a} {b}\n" for a, b in rs))
+
+
+def rr(n, m):
+    rnd = random.random
+    return [(1 + int(rnd() * n), 1 + int(rnd() * n)) for _ in range(m)]
+
+
+def far_r(lab, m, spread=100):
+    """routes between the two far ends of the shape (long routes)"""
+    n = len(lab)
+    return [(lab[ri(0, spread - 1)], lab[n - 1 - ri(0, spread - 1)]) for _ in range(m)]
+
+
+def big(kind, root_first=False, far=0):
+    n, m = MAXN, MAXM
+    edges, lab = relabel(shape(n, kind), root_first)
+    add(n, edges, far_r(lab, m, far) if far else rr(n, m), True)
 
 
 # samples
-add(text([[3, -1, 2, 0, 5],
-          [1, 4, -2, 6, 1],
-          [0, 2, 7, 3, -4],
-          [2, -3, 1, 1, 2]]), 4, 5, ["#.", "#.", "##"])
-add(text([[4], [-1], [3]]), 3, 1, ["###"])
-add(text([[-5, -2], [-7, -3]]), 2, 2, ["#.", "##"])
-add(text([[1, -2], [-3, 4]]), 2, 2, ["#"])
-add(text([[2, 9, 1, 0], [6, 1, 8, 2]]), 2, 4, ["##.", ".##"])
-# hidden: small
-add(text([[-MAXV]]), 1, 1, ["#"])
-add(text([[MAXV, -MAXV, MAXV]]), 1, 3, ["#", "#"])
-add(text([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), 3, 3, [".#.", "###", ".#."])
-small(6, 7, 3, 4, 2)
-small(10, 8, 5, 5, 2)
-small(12, 15, 7, 4, 3)
-small(20, 20, 8, 9, 4, -100, 100)
-small(25, 30, 12, 6, 5, -MAXV, MAXV)
-small(9, 40, 30, 5, 2)                         # only the turned stamp fits
-g = grid(30, 30, -50, 50)
-p = blob(10, 7, 4)
-plant(g, orient(p, 3, 1), 1000)
-add(text(g), 30, 30, p)
-# hidden: large
-R = C = MAXRC
-G1 = text(grid(R, C))
-G2 = text(grid(R, C, -MAXV, MAXV // 2))
-add(G1, R, C, blob(100, 100, 30))
-add(G1, R, C, blob(100, 97, 45))
-add(G2, R, C, blob(99, 100, 20))
-add(G2, R, C, blob(100, 70, 35))
-add(G1, R, C, ["#" * 100] + ["#" * 99 + "."] * 99)   # nearly a square, still 8 different orientations
-g = grid(R, C)
-p = blob(100, 100, 40)
-plant(g, orient(p, 1, 1), 3 * 10 ** 8)              # the best place needs mirror + one turn
-add(text(g), R, C, p)
-g = grid(R, C, -MAXV, -MAXV + 1000)                  # every value negative: the answer is negative
-add(text(g), R, C, blob(100, 100, 35))
-add(text([[MAXV] * C for _ in range(R)]), R, C, ["#" * 100] * 100)     # largest total 10^13
-g = grid(R, C)
-p = blob(100, 95, 30)
-plant(g, orient(p, 2, 0), 4 * 10 ** 8)
-add(text(g), R, C, p)
-add(text(grid(MAXS, R)), MAXS, R, blob(MAXS, 40, 15))                  # stamp as tall as the paper
-add(text(grid(R, 120)), R, 120, blob(60, 100, 25))
+add(5, [(1, 2), (1, 3), (3, 4), (3, 5)], [(2, 4), (5, 4)])
+add(4, [(4, 3), (3, 1), (1, 2)], [(4, 2), (3, 3), (3, 1)])
+add(1, [], [(1, 1), (1, 1)])
+add(4, [(2, 1), (2, 3), (4, 2)], [(1, 3), (4, 1)])
+add(5, [(5, 3), (1, 5), (2, 3), (4, 1)], [(4, 2)])
+# hidden: small and medium
+add(2, [(2, 1)], [(1, 2), (2, 2), (1, 1)])
+for n, kind, m in ((10, "random", 5), (30, "deep", 20), (40, "star", 30), (60, "caterpillar", 60)):
+    e, lab = relabel(shape(n, kind))
+    add(n, e, rr(n, m))
+e, lab = relabel(shape(3000, "path"), True)
+add(3000, e, rr(3000, 3000))
+e, lab = relabel(shape(5000, "chains"))
+add(5000, e, rr(5000, 5000))
+e, lab = relabel(shape(6000, "twopaths"), True)
+add(6000, e, far_r(lab, 6000, 50))
+e, lab = relabel(shape(8000, "path"))
+add(8000, e, [(lab[0], lab[-1])] * 8000)                        # every route covers everything
+# hidden: maximum size
+big("path", True)
+big("path", False, far=1000)
+big("path", True, far=1)                                        # all junctions tie
+big("deep")
+big("caterpillar", True)
+big("broom", True, far=100)
+big("twopaths", True, far=3000)
+big("chains")
+big("random")
+big("star")
+big("deep", True, far=500)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

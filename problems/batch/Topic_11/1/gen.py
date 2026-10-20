@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110001)
-MAXN, MAXQ, MAXV = 200_000, 200_000, 10**9
+random.seed(90101)
+MAXN, MAXQ = 200_000, 200_000
 tests = []
 
 
@@ -10,72 +10,99 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, ops):
-    n, q = len(a), len(ops)
+def add(n, ops):
+    q = len(ops)
     assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(0 <= v <= MAXV for v in a)
-    for t, u, v in ops:
-        if t == 1:
-            assert 1 <= u <= n and 0 <= v <= MAXV
-        else:
-            assert t == 2 and 1 <= u <= v <= n
-    assert any(t == 2 for t, _, _ in ops)
-    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n"
-                 + "".join(f"{t} {u} {v}\n" for t, u, v in ops))
+    assert any(c == "?" for c, a, b in ops)
+    for c, a, b in ops:
+        assert c in "+?" and 1 <= a <= n and 1 <= b <= n
+        assert c == "?" or a != b
+    tests.append(f"{n} {q}\n" + "".join(f"{c} {a} {b}\n" for c, a, b in ops))
 
 
-def rnd_ops(n, q, p_set, vmax, long_q=False, front_set=False, wide=False):
-    """p_set = chance of an update; long_q: queries cover almost everything; front_set: updates near day 1"""
+def rnd_join(n):
+    a = ri(1, n)
+    b = ri(1, n - 1)
+    return ("+", a, b + (b >= a))
+
+
+def rnd_ops(n, q, pjoin):
     ops = []
     for _ in range(q):
-        if random.random() < p_set:
-            i = ri(1, min(n, 99)) if front_set else ri(1, n)
-            ops.append((1, i, ri(0, vmax)))
-        elif long_q:
-            ops.append((2, ri(1, min(n, 99)), ri(max(1, n - 99), n)))
-        elif wide:
-            ops.append((2, ri(1, n // 10 + 1), ri(n - n // 10, n)))
+        if random.random() < pjoin:
+            ops.append(rnd_join(n))
         else:
-            l = ri(1, n)
-            ops.append((2, l, ri(l, n)))
-    if all(t == 1 for t, _, _ in ops):
-        ops[-1] = (2, 1, n)
+            ops.append(("?", ri(1, n), ri(1, n)))
+    if not any(c == "?" for c, a, b in ops):
+        ops.append(("?", 1, n))
+    return ops
+
+
+def chains(n, k):
+    """joins that build k long paths over a random labelling of 1..n, in a random-looking order"""
+    perm = list(range(1, n + 1))
+    random.shuffle(perm)
+    groups = [perm[i::k] for i in range(k)]
+    ops = []
+    for g in groups:
+        for i in range(1, len(g)):
+            ops.append(("+", g[i - 1], g[i]) if i % 2 else ("+", g[i], g[i - 1]))
+    return ops, groups
+
+
+def ends_asks(groups, q):
+    """asks between far ends of the paths (both answers)"""
+    ops = []
+    for _ in range(q):
+        g = random.choice(groups)
+        h = random.choice(groups)
+        ops.append(("?", g[ri(0, 9)], h[-1 - ri(0, 9)]))
     return ops
 
 
 # samples
-add([3, 1, 4, 1, 5], [(2, 1, 3), (1, 2, 7), (2, 2, 5), (1, 5, 0), (2, 4, 5)])
-add([10, 20, 30], [(1, 2, 5), (1, 2, 5), (2, 1, 3), (2, 2, 2)])
-add([MAXV] * 3, [(2, 1, 3), (1, 2, 0), (2, 1, 3)])
-add([0], [(2, 1, 1), (1, 1, 6), (2, 1, 1)])
-add([5, 0, 2, 8, 6], [(1, 4, 3), (2, 3, 5), (1, 1, 9), (2, 1, 4)])
+add(5, [("+", 1, 2), ("+", 3, 4), ("?", 1, 3), ("+", 2, 3), ("?", 4, 1), ("?", 5, 2)])
+add(2, [("?", 2, 2), ("?", 1, 2), ("+", 2, 1), ("?", 1, 2)])
+add(6, [("+", 1, 2), ("+", 5, 6), ("+", 6, 4), ("?", 4, 5), ("?", 2, 3)])
+add(1, [("?", 1, 1)])
+add(7, [("+", 7, 1), ("?", 1, 6), ("+", 6, 5), ("+", 5, 1), ("?", 7, 6)])
 # hidden: small
-add([7], [(1, 1, 7), (2, 1, 1), (1, 1, 0), (2, 1, 1)])
-for n, q, vmax in ((5, 10, 9), (8, 20, 3), (30, 60, 100), (200, 500, MAXV), (2000, 2000, MAXV), (5000, 8000, 1000)):
-    add([ri(0, vmax) for _ in range(n)], rnd_ops(n, q, 0.5, vmax))
-a = [ri(0, 9) for _ in range(1000)]
-ops = []
-for _ in range(3000):                                    # the same day corrected again and again
-    i = ri(1, 3)
-    ops.append((1, i, ri(0, 9)) if random.random() < 0.6 else (2, 1, ri(1, 1000)))
-add(a, ops)
-add([MAXV] * 3000, rnd_ops(3000, 3000, 0.3, MAXV, long_q=True))
-# hidden: maximum size (short numbers keep the files small; the long ranges make one pass per query too slow,
-# corrections near day 1 make rebuilding the prefix sums after each correction too slow)
+add(2, [("?", 1, 2), ("+", 1, 2), ("?", 2, 1), ("?", 1, 1)])
+add(10, rnd_ops(10, 30, 0.3))
+add(50, rnd_ops(50, 100, 0.4))
+add(300, rnd_ops(300, 600, 0.45))
+add(1000, rnd_ops(1000, 3000, 0.5))
+ops, groups = chains(2000, 3)
+add(2000, ops + ends_asks(groups, 2000))
+add(5000, rnd_ops(5000, 15000, 0.55))
+# hidden: maximum size
 N, Q = MAXN, MAXQ
-add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.3, 9, long_q=True, front_set=True))
-add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.5, 9, long_q=True, front_set=True))
-add([ri(0, 99) for _ in range(N)], rnd_ops(N, Q, 0.7, 99, long_q=True, front_set=True))
-add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.1, 9, long_q=True))
-add([ri(0, 999) for _ in range(N)], rnd_ops(N, 160_000, 0.4, 999, wide=True, front_set=True))
-add([0] * N, [(2, 1, N)] * Q)
-add([ri(0, 9) for _ in range(N)], [(1, 1, ri(0, 9)) if k % 2 == 0 else (2, 1, N) for k in range(Q)])
-# largest values: sums up to about 2 * 10^14
-a = [MAXV - ri(0, 9) for _ in range(N)]
-add(a, [(1, ri(1, N), MAXV) if k % 3 == 0 else (2, ri(1, 50), ri(N - 50, N)) for k in range(55_000)])
-a = [ri(0, MAXV) for _ in range(N)]
-add(a, rnd_ops(N, 50_000, 0.3, MAXV, wide=True))
-add([MAXV] * N, [(1, ri(1, N), 0) if k % 2 == 0 else (2, 1, N) for k in range(60_000)])
+add(N, rnd_ops(N, Q, 0.5))
+add(N, rnd_ops(N, Q, 0.75))
+ops, groups = chains(100_001, 2)                                # two long paths, then far asks
+add(N, ops + ends_asks(groups, Q - len(ops)))
+ops, groups = chains(60_000, 1)
+asks = ends_asks(groups, Q - len(ops))
+mix = []                                                        # asks spread while the path grows
+it = iter(asks)
+for i, o in enumerate(ops):
+    mix.append(o)
+    if i % 3 == 0:
+        mix.append(next(it))
+mix += list(it)
+add(N, mix)
+ops = [("+", 1, k) for k in range(2, 100_001)]                  # star joined from the centre
+add(N, ops + [("?", ri(1, 100_000), ri(1, N)) for _ in range(Q - len(ops))])
+ops = [("+", k, 1) for k in range(2, 100_001)]                  # the same star, other order
+add(N, ops + [("?", ri(1, 100_000), ri(1, N)) for _ in range(Q - len(ops))])
+ops = [("+", k, k + 1) for k in range(1, 100_000)]              # a path joined in order
+add(N, ops + [("?", 1, 100_000 - ri(0, 1)) if i % 2 else ("?", ri(1, N), ri(1, N)) for i in range(Q - len(ops))])
+ops = [("+", k + 1, k) for k in range(1, 120_000)]
+add(N, ops + [("?", 1, ri(110_000, 125_000)) for _ in range(Q - len(ops))])
+add(N, [("?", ri(1, N), ri(1, N)) for _ in range(Q)])           # nobody is friends: all NO except a = b
+add(N, [rnd_join(N) for _ in range(Q - 1)] + [("?", 1, N)])
+ops = [rnd_join(1000) for _ in range(50_000)]                   # small groups merged many times
+add(N, ops + rnd_ops(1000, Q - len(ops), 0.2))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

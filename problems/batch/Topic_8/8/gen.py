@@ -1,138 +1,148 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(80808)
-MAXN, MAXM, MAXC = 100_000, 100_000, 10**9
+random.seed(7008)
+MAXN, MAXM = 200_000, 200_000
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, edges, shuffle=True):
-    edges = list(edges)
-    if shuffle:
-        random.shuffle(edges)
+def add(n, edges):
     m = len(edges)
     assert 2 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(1 <= a <= n and 1 <= b <= n and a != b and 1 <= c <= MAXC for a, b, c in edges)
-    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in edges))
+    assert all(1 <= a <= n and 1 <= b <= n for a, b in edges)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in edges))
 
 
-def rnd_edges(n, m, clo, chi):
-    res = []
-    while len(res) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a != b:
-            res.append((a, b, ri(clo, chi)))
+def relabel(order, edges):
+    """edges given by positions; order[k] = city at position k (order[0] = 1, order[-1] = n)"""
+    res = [(order[a], order[b]) for a, b in edges]
+    random.shuffle(res)
     return res
 
 
-def perm(n):
-    """random order of the cities 2..n after city 1"""
-    p = list(range(2, n + 1))
-    random.shuffle(p)
-    return [1] + p
+def random_order(n):
+    mid = list(range(2, n))
+    random.shuffle(mid)
+    return [1] + mid + [n]
 
 
-def chain(n, clo, chi, extra, xlo, xhi):
-    """a long path 1 -> ... (cheap) plus extra random flights (expensive)"""
-    p = perm(n)
-    e = [(p[i], p[i + 1], ri(clo, chi)) for i in range(n - 1)]
-    return e + rnd_edges(n, extra, xlo, xhi)
+def dag(n, m, span):
+    """DAG on positions 0..n-1, edges go forward by at most span: every position is reachable from 0
+    and reaches n - 1; the rest of the m edges are random forward edges"""
+    edges = [(ri(max(0, i - span), i - 1), i) for i in range(1, n)]
+    has_out = [False] * n
+    for a, b in edges:
+        has_out[a] = True
+    edges += [(i, ri(i + 1, min(n - 1, i + span))) for i in range(n - 1) if not has_out[i]]
+    assert len(edges) <= m
+    while len(edges) < m:
+        a = ri(0, n - 2)
+        edges.append((a, ri(a + 1, min(n - 1, a + span))))
+    return edges
 
 
-def gadgets(k):
-    """k copies of: a cheap route with two equal flights vs. one long flight; the coupon prefers the long one"""
-    e, nxt = [], 2
-    hub = 1
-    for _ in range(k):
-        mid, end = nxt, nxt + 1
-        nxt += 2
-        x = ri(1000, 10**6)
-        e += [(hub, mid, x), (mid, end, x), (hub, end, 2 * x + ri(1, x - 2))]
-        hub = end if random.random() < 0.97 else ri(1, nxt - 1)
-    return nxt - 1, e
-
-
-def grid(r, c, chi):
-    """r x c grid of cities, flights between neighbours in random directions"""
-    idx = list(range(2, r * c + 1))
-    random.shuffle(idx)
-    idx = [1] + idx
-    e = []
-    for i in range(r):
-        for j in range(c):
-            v = idx[i * c + j]
-            if j + 1 < c:
-                e.append((v, idx[i * c + j + 1], ri(1, chi)))
-            if i + 1 < r:
-                e.append((v, idx[(i + 1) * c + j], ri(1, chi)))
-    e = [(a, b, w) if random.random() < 0.75 else (b, a, w) for a, b, w in e]
-    return r * c, e
-
-
-def ladder(r, c):
-    """tall r x c grid, flights both ways; cheap along the rows, expensive between rows"""
-    idx = list(range(2, r * c + 1))
-    random.shuffle(idx)
-    idx = [1] + idx
-    e = []
-    for i in range(r):
-        for j in range(c):
-            v = idx[i * c + j]
-            if j + 1 < c:
-                w = ri(1, 10)
-                e += [(v, idx[i * c + j + 1], w), (idx[i * c + j + 1], v, w)]
-            if i + 1 < r:
-                w = ri(10**8, MAXC)
-                e += [(v, idx[(i + 1) * c + j], w), (idx[(i + 1) * c + j], v, w)]
-    return r * c, e
+def big_with_extra(n, m, span, mode):
+    """core DAG on positions 0..core-1 plus extra cities with cycles that are not on any route"""
+    k = max(1, n // 10)
+    core = n - k
+    edges = dag(core, m - 3 * k, span)
+    for j in range(core, n):
+        if mode == "dead":                                # reachable from 1, cannot reach n
+            edges.append((ri(0, core - 2), j))
+        else:                                             # can reach n, not reachable from 1
+            edges.append((j, ri(1, core - 1)))
+        edges.append((j, ri(core, n - 1)))
+        edges.append((ri(core, n - 1), j))
+    mid = list(range(2, n))
+    random.shuffle(mid)
+    order = [1] + mid[:core - 2] + [n] + mid[core - 2:]
+    return order, edges
 
 
 # samples
-add(4, [(1, 2, 8), (2, 4, 8), (1, 3, 3), (3, 4, 16)], False)
-add(4, [(1, 2, 7), (3, 1, 4), (2, 3, 1)], False)
-add(3, [(1, 2, 1), (1, 2, 5), (2, 3, 3), (1, 3, 9)], False)
-add(6, [(1, 2, 4), (2, 3, 6), (3, 6, 2), (1, 4, 9), (4, 5, 1), (5, 6, 1), (2, 5, 11), (6, 1, 3)], False)
-add(4, [(1, 2, MAXC), (2, 3, MAXC), (3, 4, MAXC)], False)
+add(4, [(1, 2), (1, 3), (2, 4), (3, 4), (2, 3)])
+add(4, [(1, 2), (2, 3), (3, 2), (3, 4)])
+add(3, [(2, 1), (2, 3)])
+add(2, [(1, 1), (1, 2)])
+add(5, [(1, 2), (1, 2), (2, 5), (2, 3), (3, 4), (4, 3), (4, 4)])
+add(6, [(1, 2), (2, 3), (1, 3), (3, 4), (3, 5), (4, 6), (5, 6), (4, 5)])
 # hidden: small
-add(2, [(2, 1, 5)])
-add(2, [(1, 2, 1)])
-for n, m, chi in ((5, 8, 10), (8, 20, 100), (10, 30, 5), (30, 80, 10**9), (60, 200, 50)):
-    add(n, rnd_edges(n, m, 1, chi))
-n, e = gadgets(20)
-add(n, e)
-add(40, chain(40, 1, 5, 60, 10, 100))
-n, e = grid(6, 7, 30)
-add(n, e)
-add(300, rnd_edges(300, 1500, 1, 10**9))
-# hidden: maximum size
-N, M = MAXN, MAXM
-add(N, rnd_edges(N, M, 1, MAXC))
-add(N, chain(N, 1, 1000, M - N + 1, 10**6, MAXC))
-add(N, [(i, i + 1, MAXC) for i in range(N - 1, 0, -1)] + [(N, 1, MAXC)], False)   # sums near 10^14
-add(N, chain(N, 1, MAXC, M - N + 1, 1, MAXC))
-n, e = gadgets(30_000)
-add(n, e + rnd_edges(n, M - len(e), 10**7, MAXC))
-n, e = ladder(2500, 10)
-add(n, e)
-n, e = ladder(5000, 5)
-add(n, e)
-add(N, chain(N, 1, 1, M - N + 1, 2, 3))
-p = perm(N)
-e = [(p[i], p[i + 1], 2 * ri(1, 10**4) + 1) for i in range(N // 2)]  # about half of the cities unreachable
-while len(e) < M:
-    a, b = ri(0, N // 2), ri(0, N - 1)                          # flights into the first half
-    if random.random() < 0.5:
-        a, b = ri(N // 2 + 1, N - 1), ri(N // 2 + 1, N - 1)    # or inside the second half
-    if a != b:
-        e.append((p[b], p[a], ri(1, MAXC)))
-add(N, e)
-e = [(1, v, ri(5 * 10**8, MAXC)) for v in range(2, N + 1)]     # every city one expensive flight away
-add(N, e + rnd_edges(N, M - len(e), 1, 10**4))
-add(N, chain(N, 10**8, MAXC, M - N + 1, 1, 10**9))
+add(2, [(1, 2)])
+add(2, [(2, 1)])
+add(3, [(1, 3), (3, 1), (2, 2)])                         # cycle through both ends
+add(3, [(1, 2), (2, 2), (1, 3)])                         # self-loop off every route
+add(4, [(4, 4), (1, 2), (2, 4), (3, 1), (3, 3)])         # loops at n and at an unreachable city
+for n, m, mode, cyc in ((8, 16, "dead", 0), (10, 25, "source", 0), (12, 30, "dead", 1),
+                        (15, 40, "source", 0), (20, 60, "dead", 1), (30, 90, "source", 1)):
+    order, edges = big_with_extra(n, m, 3, mode)
+    if cyc:
+        a = ri(1, n - n // 3 - 3)
+        edges.append((a + 2, a))                          # a cycle on a route
+    add(n, relabel(order, edges))
+order = random_order(1500)
+add(1500, relabel(order, dag(1500, 3000, 4)))
+order = random_order(2000)
+add(2000, relabel(order, dag(2000, 5000, 6)))
+
+
+# hidden: large
+N = MAXN
+H = MAXN // 2                                              # size of the DAG tests (they need about 1.4 roads per city)
+add(H, relabel(random_order(H), dag(H, MAXM, 3)))
+add(H - 1, relabel(random_order(H - 1), dag(H - 1, MAXM, 40)))
+n = MAXM // 2 + 1                                         # every road doubled: 2^(n-1) routes
+add(n, [(i, i + 1) for i in range(1, n) for _ in range(2)])
+add(N, [(i, i + 1) for i in range(1, N)])                 # one long route
+w = 500                                                   # layers of 500 cities (city 1 alone in the first)
+edges = []
+layers = (H - 2) // w
+for i in range(w):
+    edges.append((0, 1 + i))
+for L in range(layers - 1):
+    base = 1 + L * w
+    for i in range(w):
+        edges.append((base + i, base + w + ri(0, w - 1)))
+        edges.append((base + ri(0, w - 1), base + w + i))
+last = 1 + (layers - 1) * w
+n = last + w + 1
+for i in range(w):
+    edges.append((last + i, n - 1))
+add(n, relabel(list(range(1, n + 1)), edges))
+s = 316                                                   # grid of s x s cities, roads right and down
+n = s * s
+edges = []
+for r in range(s):
+    for c in range(s):
+        if c + 1 < s:
+            edges.append((r * s + c, r * s + c + 1))
+        if r + 1 < s:
+            edges.append((r * s + c, (r + 1) * s + c))
+add(n, relabel(list(range(1, n + 1)), edges))
+order, edges = big_with_extra(H, MAXM, 4, "dead")         # cycles exist, but none lies on a route
+add(H, relabel(order, edges))
+order, edges = big_with_extra(H, MAXM, 4, "source")
+add(H, relabel(order, edges))
+edges = dag(H, MAXM - 1, 3)                               # one back road on a route, far from both ends
+edges.append((H // 2 + 2, H // 2 - 1))
+add(H, relabel(random_order(H), edges))
+edges = dag(H, MAXM - 1, 3)                               # a self-loop on a route
+edges.append((H // 3, H // 3))
+add(H, relabel(random_order(H), edges))
+edges = dag(H, MAXM - 1, 3)                               # a road back into city 1
+edges.append((H - 7, 0))
+add(H, relabel(random_order(H), edges))
+edges = dag(H, MAXM, 3)                                   # n cannot be reached: answer 0
+edges = [(a, b) for a, b in edges if b != H - 1]
+edges.append((H - 1, H - 2))
+add(H, relabel(random_order(H), edges))
+edges = dag(H, MAXM - 1, 3)                               # a road out of n back to a city before it
+edges.append((H - 1, H - 6))
+add(H, relabel(random_order(H), edges))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

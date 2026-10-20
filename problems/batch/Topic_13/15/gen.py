@@ -1,87 +1,78 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(131501)
-MAXQ = 50_000
-MAXA = MAXM = 10**9
-MAXN = 10**18
+random.seed(11015)
+MAXN, MAXH = 200_000, 10**9
 tests = []
 
 
-def add(qs):
-    assert 1 <= len(qs) <= MAXQ
-    for a, n, m in qs:
-        assert 1 <= a <= MAXA and 1 <= n <= MAXN and 1 <= m <= MAXM
-    tests.append(f"{len(qs)}\n" + "".join(f"{a} {n} {m}\n" for a, n, m in qs))
-
-
 def ri(lo, hi):
-    return random.randint(lo, hi)
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def rand_m(big):
-    """a modulus of a random kind: prime-like, power of two, highly composite, tiny, or 1"""
-    k = ri(0, 9)
-    if k == 0:
-        return 1
-    if k == 1:
-        return 2 ** ri(1, 29)
-    if k == 2:
-        return random.choice([10**9, 999_999_937, 735_134_400, 600_000_000, 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19 * 23])
-    if k == 3:
-        return ri(2, 30)
-    return ri(1, MAXM) if big else ri(1, 10**6)
+def add(h):
+    n = len(h)
+    assert 1 <= n <= MAXN
+    assert all(1 <= x <= MAXH for x in h)
+    tests.append(f"{n}\n" + " ".join(map(str, h)) + "\n")
 
 
-def rand_a(m):
-    """a multiplier, often congruent to 0, 1 or -1 modulo m"""
-    k = ri(0, 7)
-    if k == 0:
-        r = 1
-    elif k == 1:
-        r = 0
-    elif k == 2:
-        r = m - 1
-    else:
-        return ri(1, MAXA)
-    a = r + m * ri(0, (MAXA - r) // m)
-    return a if a >= 1 else m * ri(1, MAXA // m)
+def pairs(n, base=1, gap=2):
+    """2 1 4 3 6 5 ...: 2^(n/2) longest climbs"""
+    h = []
+    for i in range(n // 2):
+        h += [base + gap * i + 1, base + gap * i]
+    return h[:n]
 
 
-def query(nmax, big):
-    m = rand_m(big)
-    return (rand_a(m), ri(1, nmax), m)
+def blocks(n, k):
+    """k blocks, inside a block heights go down, every block is higher than the previous one:
+    the longest climbs take one checkpoint from each block"""
+    h, size = [], n // k
+    for b in range(k):
+        s = size + (n - size * k if b == k - 1 else 0)
+        top = (b + 1) * (MAXH // k)
+        h += sorted((ri(top - MAXH // k + 1, top) for _ in range(s)), reverse=True)
+    return h
+
+
+def noisy_up(n, step, noise):
+    return [min(MAXH, max(1, i * step + ri(-noise, noise) + noise + 1)) for i in range(n)]
 
 
 # samples
-add([(2, 10, 1000), (3, 4, 100), (10, 5, 7)])
-add([(7, 6, 10), (1, 25, 7)])
-add([(10**9, 10**18, 999_999_937), (999_999_999, 10**18 - 1, 10**9), (2, 10**18, 10**9)])
-add([(5, 1, 1), (5, 1, 3), (10**9, 1, 10**9), (4, 3, 4)])
-add([(6, 13, 35), (12, 100, 66), (3, 20, 2), (31, 7, 30), (9, 11, 1000)])
-# hidden: small n (the brute force adds the terms one by one)
-add([(a, n, m) for a in range(1, 7) for n in range(1, 9) for m in range(1, 13)])
-add([query(100, False) for _ in range(2000)])
-add([query(10_000, False) for _ in range(3000)])
-add([query(100_000, True) for _ in range(500)])
-add([(rand_a(m), 10**6 - ri(0, 10), m) for m in (2, 4, 6, 8, 9, 10, 12, 16, 1024, 10**9, 999_999_937, 1)])
-add([(m + 1, ri(1, 10**6), m) for m in (2, 3, 1000, 65536, 10**9 - 1)] +
-    [(ri(1, 10**3) * m, ri(1, 10**6), m) for m in (3, 7, 100, 10**6)])
-add([(10**9, 4 * 10**6, 10**9), (999_999_999, 4 * 10**6, 10**9), (2, 3 * 10**6, 2**29), (3, 3 * 10**6, 2 * 3**18)])
-# hidden: large (n up to 10^18)
-add([query(MAXN, True) for _ in range(MAXQ)])
-add([(ri(1, MAXA), ri(MAXN // 2, MAXN), ri(MAXM // 2, MAXM)) for _ in range(MAXQ)])
-add([(ri(1, MAXA), MAXN - ri(0, 1000), rand_m(True)) for _ in range(MAXQ)])
-add([(ri(1, MAXA), 2 ** ri(50, 59) - 1, ri(1, MAXM)) for _ in range(MAXQ)])     # many odd steps
-add([(1, ri(1, MAXN), ri(1, MAXM)) for _ in range(MAXQ)])                        # a = 1
-add([(m * ri(1, MAXA // m) + 1, ri(1, MAXN), m) for m in (ri(2, MAXM) for _ in range(MAXQ))])   # a = 1 mod m
-add([(ri(1, MAXA), ri(1, MAXN), 2 ** ri(20, 29)) for _ in range(MAXQ)])          # even moduli
-add([(MAXA, MAXN, MAXM)] * MAXQ)
-add([(MAXA - ri(0, 5), MAXN - ri(0, 5), MAXM - ri(0, 5)) for _ in range(MAXQ)])
-add([(m - 1, ri(1, MAXN), m) for m in (ri(2, MAXM) for _ in range(MAXQ))])       # a = -1 mod m
-add([(ri(1, MAXA), ri(1, MAXN), random.choice([735_134_400, 10**9, 999_999_937, 223_092_870]))
-     for _ in range(MAXQ)])
-add([query(MAXN, True) if i % 2 else query(10**6, True) for i in range(MAXQ)])
+add([1, 3, 2, 4, 3])
+add([7, 7, 7])
+add([9, 8, 6, 5])
+add([2, 1, 4, 3, 6, 5])
+add([3, 1, 4, 1, 5, 2, 6, 5, 3, 5])
+# hidden: small
+add([MAXH])
+add([1, 2, 2, 3, 3, 3])
+add([ri(1, 5) for _ in range(12)])
+add([ri(1, 30) for _ in range(40)])
+add(pairs(80))                                       # 2^40 climbs: needs the modulus
+add(blocks(2000, 40))
+add([ri(1, 50) for _ in range(3000)])
+add([ri(1, MAXH) for _ in range(3000)])
+# hidden: maximum size
+N = MAXN
+add([ri(1, MAXH) for _ in range(N)])
+add([ri(1, 10) for _ in range(N)])                  # many equal heights
+add(list(range(1, N + 1)))                           # one climb through everything
+add([MAXH - i for i in range(N)])                    # every checkpoint alone
+add([MAXH] * N)
+add(pairs(N, 1, 2))
+add(blocks(N, 2))
+add(blocks(N, 300))
+add(noisy_up(N, 4000, 100_000))
+add(noisy_up(N, 5, 1000))
+h = []
+for i in range(N):                                   # three interleaved increasing runs
+    h.append(1 + (i % 3) * 7 + (i // 3) * 20)
+add(h)
+add([ri(1, 2 * N) for _ in range(N)])
+add(blocks(N, 20000))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

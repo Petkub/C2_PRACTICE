@@ -1,143 +1,85 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(132006)
-MAXN = 80
-MAXM = 10_000
-MAXK = 10**9
-MAXC = 10**9
-MAXQ = 1000
+random.seed(11020)
+MAXN, MAXQ, MAXV = 200_000, 200_000, 10**9
 tests = []
 
 
-def add(n, edges, qs):
-    assert 2 <= n <= MAXN and 1 <= len(edges) <= MAXM and 1 <= len(qs) <= MAXQ
-    for a, b, c in edges:
-        assert 1 <= a <= n and 1 <= b <= n and a != b and 1 <= c <= MAXC
-    for s, t, k in qs:
-        assert 1 <= s <= n and 1 <= t <= n and 1 <= k <= MAXK
-    tests.append(f"{n} {len(edges)}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in edges)
-                 + f"{len(qs)}\n" + "".join(f"{s} {t} {k}\n" for s, t, k in qs))
-
-
 def ri(lo, hi):
-    return random.randint(lo, hi)
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-# K = 2^30 - 1 - 2^j (j = 27, 28, 29) and 2^29 - 1 have 29 one bits: the most squarings to combine
-HEAVY = [(1 << 30) - 1 - (1 << j) for j in (27, 28, 29)] + [(1 << 29) - 1]
-assert all(k <= MAXK and bin(k).count("1") == 29 for k in HEAVY)
+def add(a, ops):
+    n, q = len(a), len(ops)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(0 <= v <= MAXV for v in a)
+    lines = []
+    for op in ops:
+        assert op[0] in "AMS" and 1 <= op[1] <= op[2] <= n
+        assert (op[0] == "S") == (len(op) == 3)
+        if op[0] != "S":
+            assert 0 <= op[3] <= MAXV
+        lines.append(" ".join(map(str, op)))
+    assert any(op[0] == "S" for op in ops)
+    t = f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "\n".join(lines) + "\n"
+    assert len(t) <= 3_100_000
+    tests.append(t)
 
 
-def rand_k(kind=None):
-    """a number of flights of a random kind: uniform, many one bits, small, a power of two, the maximum"""
-    k = ri(0, 9) if kind is None else kind
-    if k <= 3:
-        return ri(1, MAXK)
-    if k <= 5:     # many one bits (all bits of a random length, with a few cleared)
-        b = ri(20, 29)
-        v = (1 << b) - 1
-        for _ in range(ri(0, 2)):
-            v &= ~(1 << ri(0, b - 1))
-        return random.choice(HEAVY) if ri(0, 2) == 0 else max(1, v)
-    if k == 6:
-        return ri(1, 50)
-    if k == 7:
-        return 1 << ri(0, 29)
-    if k == 8:
-        return MAXK - ri(0, 3)
-    return ri(MAXK // 2, MAXK)
+def rnd_range(n):
+    l = ri(1, n)
+    return l, ri(l, n)
 
 
-def rand_edges(n, m, cmax, cmin=1):
-    out = []
-    for _ in range(m):
-        a = ri(1, n)
-        b = ri(1, n - 1)
-        if b >= a:
-            b += 1
-        out.append((a, b, ri(cmin, cmax)))
-    return out
+def wide_range(n, slack):
+    return ri(1, min(n, slack)), ri(max(1, n - slack), n)
 
 
-def rand_q(n, q, kmax=MAXK, kind=None):
-    return [(ri(1, n), ri(1, n), rand_k(kind) if kmax == MAXK else ri(1, kmax)) for _ in range(q)]
-
-
-def all_pairs(n, kmax):
-    return [(s, t, ri(1, kmax)) for s in range(1, n + 1) for t in range(1, n + 1)]
-
-
-def bipartite(n, m, cmax):
-    """flights only between odd and even cities: the parity of K decides which pairs are possible"""
-    out = []
-    while len(out) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a % 2 != b % 2:
-            out.append((a, b, ri(1, cmax)))
-    return out
-
-
-def cycle_layers(n, L, m, cmax):
-    """city i belongs to layer i mod L; flights only go from layer j to layer j + 1 (mod L)"""
-    out = []
-    for i in range(1, n + 1):                       # make every layer reachable
-        j = i % n + 1
-        while (j % L) != ((i + 1) % L):
-            j = j % n + 1
-        out.append((i, j, ri(1, cmax)))
-    while len(out) < m:
-        a, b = ri(1, n), ri(1, n)
-        if b % L == (a + 1) % L and a != b:
-            out.append((a, b, ri(1, cmax)))
-    return out
-
-
-def dag(n, m, cmax):
-    out = []
-    while len(out) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a < b:
-            out.append((a, b, ri(1, cmax)))
-    return out
+def ops_of(n, q, rng, xfun, ps=1 / 3, pm=0.5):
+    """each operation is S with probability ps, otherwise M with probability pm, else A"""
+    ops = []
+    for _ in range(q):
+        l, r = rng()
+        if random.random() < ps:
+            ops.append(("S", l, r))
+        else:
+            ops.append(("M" if random.random() < pm else "A", l, r, xfun()))
+    return ops
 
 
 # samples
-add(3, [(1, 2, 5), (2, 3, 3), (3, 1, 4), (2, 1, 1)], [(1, 3, 4), (2, 2, 2)])
-add(2, [(1, 2, 7), (2, 1, 3)], [(1, 2, 3), (1, 1, 3), (1, 1, 2)])
-add(2, [(1, 2, MAXC), (2, 1, MAXC)], [(1, 1, MAXK), (2, 1, MAXK - 1)])
-add(3, [(1, 2, 3), (1, 2, 1)], [(1, 2, 1), (2, 1, 1)])
-add(4, [(4, 3, 12), (3, 2, 18), (3, 1, 1), (2, 4, 14), (4, 2, 18)], [(4, 4, 7), (3, 3, 6)])
-# hidden: small K (the brute force adds one flight at a time)
-add(2, [(1, 2, 4)], [(s, t, k) for s in (1, 2) for t in (1, 2) for k in (1, 2, 3)])
-add(3, rand_edges(3, 6, 10), all_pairs(3, 20) + all_pairs(3, 7))
-add(5, rand_edges(5, 12, 100), all_pairs(5, 60))
-add(6, bipartite(6, 15, 1000), all_pairs(6, 40) + all_pairs(6, 41))
-add(8, cycle_layers(8, 3, 20, 50), all_pairs(8, 100))
-add(10, rand_edges(10, 40, MAXC), all_pairs(10, 1000))
-add(10, dag(10, 30, 100), [(s, t, ri(1, 10)) for s in range(1, 11) for t in range(1, 11)])
-add(12, rand_edges(12, 30, 10), rand_q(12, 300, 999))
-add(20, rand_edges(20, 200, MAXC, MAXC - 10), rand_q(20, 300, 2000))
-add(30, cycle_layers(30, 7, 150, 1000), rand_q(30, 500, 300))
-add(MAXN, rand_edges(MAXN, 500, MAXC), rand_q(MAXN, 300, 400))
-# hidden: large (every query has its own K up to 10^9)
-add(MAXN, rand_edges(MAXN, MAXM, MAXC), rand_q(MAXN, MAXQ))
-add(MAXN, rand_edges(MAXN, MAXM, MAXC, MAXC - 1000), rand_q(MAXN, MAXQ, kind=4))
-add(MAXN, rand_edges(MAXN, 250, 1000), rand_q(MAXN, MAXQ))
-add(MAXN, bipartite(MAXN, MAXM, MAXC), rand_q(MAXN, MAXQ))
-add(MAXN, bipartite(MAXN, 1500, 10**6), rand_q(MAXN, MAXQ, kind=0))
-add(MAXN, cycle_layers(MAXN, 7, MAXM, MAXC), rand_q(MAXN, MAXQ))
-add(MAXN, cycle_layers(MAXN, MAXN, MAXN, MAXC), rand_q(MAXN, MAXQ))                 # one big ring
-add(MAXN, cycle_layers(MAXN, 10, 400, 100), rand_q(MAXN, MAXQ, kind=4))
-add(MAXN, dag(MAXN, MAXM, MAXC), [(ri(1, MAXN), ri(1, MAXN), rand_k(6) if i % 2 else rand_k()) for i in range(MAXQ)])
-add(MAXN, [(i, i % MAXN + 1, MAXC) for i in range(1, MAXN + 1)] + [(i % MAXN + 1, i, MAXC) for i in range(1, MAXN + 1)],
-    [(ri(1, MAXN), ri(1, MAXN), random.choice(HEAVY + [MAXK, MAXK - 1]) if i % 4 == 0 else rand_k(ri(8, 9)))
-     for i in range(MAXQ)])                                                        # answers up to 10^18
-add(MAXN, rand_edges(MAXN, MAXM, MAXC), [(ri(1, MAXN), ri(1, MAXN), rand_k(ri(6, 7))) for _ in range(MAXQ)])
-add(MAXN, rand_edges(MAXN, MAXM, 100), [(ri(1, MAXN), ri(1, MAXN), random.choice(HEAVY) if i % 4 == 0 else rand_k(4))
-                                         for i in range(MAXQ)])
-add(MAXN, rand_edges(MAXN, 120, MAXC) + [(1, 2, 1), (2, 1, 1)], rand_q(MAXN, MAXQ))
-add(MAXN, rand_edges(MAXN, MAXM, MAXC), [(s, s, rand_k()) for s in (ri(1, MAXN) for _ in range(MAXQ))])
+add([1, 2, 3, 4], [("S", 1, 4), ("M", 2, 3, 10), ("S", 1, 4), ("A", 1, 2, 5), ("S", 2, 2)])
+add([5, 5, 5], [("A", 1, 3, 1), ("M", 1, 2, 2), ("S", 1, 3), ("M", 2, 3, 0), ("A", 3, 3, 4), ("S", 1, 3)])
+add([MAXV, MAXV], [("S", 1, 2), ("M", 1, 1, MAXV), ("S", 1, 1)])
+add([0], [("A", 1, 1, 7), ("M", 1, 1, 3), ("A", 1, 1, 1), ("S", 1, 1)])
+add([2, 0, 1, 7, 3], [("M", 1, 5, 3), ("A", 2, 4, 2), ("S", 3, 5), ("M", 2, 2, 5), ("S", 1, 3)])
+# hidden: small
+add([ri(0, 9) for _ in range(6)], ops_of(6, 25, lambda: rnd_range(6), lambda: ri(0, 9)))
+add([ri(0, MAXV) for _ in range(20)], ops_of(20, 60, lambda: rnd_range(20), lambda: ri(0, MAXV)))
+add([ri(0, 100) for _ in range(100)], ops_of(100, 300, lambda: rnd_range(100), lambda: ri(0, 3), 0.4))
+add([ri(0, MAXV) for _ in range(2000)], ops_of(2000, 2000, lambda: rnd_range(2000), lambda: ri(0, MAXV)))
+add([MAXV] * 2000, ops_of(2000, 2000, lambda: wide_range(2000, 20), lambda: MAXV - ri(0, 1)))
+add([ri(0, 50) for _ in range(3000)], ops_of(3000, 3000, lambda: rnd_range(3000), lambda: ri(1, 2), 0.3, 0.9))
+# hidden: maximum size
+N, Q = MAXN, MAXQ
+small = lambda: ri(0, 999)
+add([ri(0, 999) for _ in range(N)], ops_of(N, 140_000, lambda: wide_range(N, 99), small))
+add([ri(0, 999) for _ in range(N)], ops_of(N, 140_000, lambda: wide_range(N, 99), lambda: ri(2, 999), 0.3, 1.0))  # M only
+add([ri(0, 999) for _ in range(N)], ops_of(N, 140_000, lambda: wide_range(N, 99), small, 0.3, 0.0))                # A only
+add([MAXV] * (N // 2), ops_of(N // 2, 80_000, lambda: wide_range(N // 2, 99), lambda: MAXV - ri(0, 9)))    # the largest values
+add([ri(0, MAXV) for _ in range(N // 2)], ops_of(N // 2, 80_000, lambda: rnd_range(N // 2), lambda: ri(0, MAXV)))
+add([ri(0, 999) for _ in range(N)], ops_of(N, 110_000, lambda: rnd_range(N), small, 0.5))
+ops = []
+for i in range(70_000):                                         # M then A on the same long range, then a query
+    l, r = wide_range(N, 999)
+    ops.append(("M", l, r, ri(2, 999)) if i % 2 else ("A", l, r, ri(1, 999)))
+    ops.append(("S",) + wide_range(N, 999))
+add([ri(0, 999) for _ in range(N)], ops)
+add([ri(0, 999) for _ in range(N)], ops_of(N, 140_000, lambda: wide_range(N, 99), lambda: random.choice((0, 1, 2, 999)), 0.4))
+add([ri(0, 999) for _ in range(N)], ops_of(N, 110_000, lambda: (lambda i: (i, min(N, i + ri(0, 20))))(ri(1, N)), small))
+add([1] * N, ops_of(N, 150_000, lambda: (1, N), lambda: ri(1, 9), 0.5))
+add([ri(0, 999) for _ in range(N)], ops_of(N, 115_000, lambda: wide_range(N, N // 3), small, 0.2, 0.7))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

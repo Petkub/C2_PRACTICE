@@ -1,61 +1,88 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(131101)
-MAXN = 200000
-MAXA = 10**9
-MAXLR = 10**15
+random.seed(110011)
+MAXN, MAXQ, MAXV = 300_000, 200_000, 10**9
 tests = []
 
 
-def add(a, lo, hi):
-    assert 1 <= len(a) <= MAXN and all(-MAXA <= x <= MAXA for x in a)
-    assert -MAXLR <= lo <= hi <= MAXLR
-    tests.append(f"{len(a)} {lo} {hi}\n" + " ".join(map(str, a)) + "\n")
+def ri(lo, hi):
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def rnd(n, lo, hi):
-    return [random.randint(lo, hi) for _ in range(n)]
+def add(a, qs):
+    n, q = len(a), len(qs)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(1 <= v <= MAXV for v in a)
+    assert all(1 <= l <= r <= n and 1 <= x <= MAXV for (l, r, x) in qs)
+    t = f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{l} {r} {x}\n" for (l, r, x) in qs)
+    assert len(t) <= 3_100_000
+    tests.append(t)
 
 
-def walk(n, drift, step):
-    """values around drift: prefix sums wander like a random walk"""
-    return [max(-MAXA, min(MAXA, drift + random.randint(-step, step))) for _ in range(n)]
+def queries(a, q, xs, long_frac=0.9):
+    """xs(): a random cap"""
+    n = len(a)
+    res = []
+    for _ in range(q):
+        if random.random() < long_frac:
+            l = ri(1, max(1, n // 20))
+            r = ri(max(l, n - n // 20), n)
+        else:
+            l = ri(1, n)
+            r = ri(l, n)
+        res.append((l, r, xs()))
+    return res
+
+
+def from_values(a):
+    """a cap equal to some value, or one more / one less"""
+    return lambda: max(1, random.choice(a) + ri(-1, 1))
 
 
 # samples
-add([3, -1, 2, -4, 5], 2, 3)
-add([-5, 2, -5], -4, -1)
-add([0, 0, 0, 0], 0, 0)
-add([1, 2, 3], 7, 100)
-add([MAXA] * 3, 2 * MAXA, 3 * MAXA)
-add([4, -7, 1, 0, 6, -2, -3, 5], -2, 2)
-# hidden: small and medium (the brute force checks these)
-add([5], 5, 5)
-add([-MAXA], -MAXLR, MAXLR)
-add(rnd(10, -5, 5), -3, 3)
-add(rnd(300, -10, 10), 0, 0)
-add(rnd(2000, -MAXA, MAXA), -10**10, 10**10)
-add(rnd(3000, -3, 3), -5, 2)
-add(rnd(20000, -MAXA, MAXA), 0, 10**11)
-add(rnd(20000, 1, 100), 500, 1000)
-# hidden: large
-N = MAXN
-add(rnd(N, -MAXA, MAXA), -10**12, 10**12)
-add(rnd(N, -MAXA, MAXA), 3 * 10**11, 2 * 10**12)
-add(rnd(N, -MAXA, MAXA), 777, 777)
-add(rnd(N, -3, 3), -1, 1)
-add(rnd(N, -1, 1), 0, 0)
-add([0] * N, 0, 0)                                                  # every period counts
-add([MAXA] * N, 5 * 10**13, 5 * 10**13)                             # periods of one exact length
-add([-MAXA] * N, -MAXLR, -10**14)
-add(rnd(N, -MAXA, MAXA), -MAXLR, MAXLR)
-add(rnd(N, 0, MAXA), 10**13, 10**14)
-add(walk(N, 3, 1000), -10**5, 10**6)
-add(walk(N, -50, 100), -10**6, -10**4)
-add([MAXA if i % 2 == 0 else -MAXA for i in range(N)], 0, MAXA)
-add(rnd(N, -MAXA, MAXA), 10**15 - 1, MAXLR)                         # nothing
-add([random.choice((-MAXA, MAXA)) for _ in range(N)], -2 * MAXA, 2 * MAXA)
+add([3, 8, 5, 1, 10], [(1, 5, 6), (2, 3, 4), (4, 4, 100), (1, 5, 1)])
+add([2, 2, 2], [(1, 3, 5), (2, 3, 2)])
+add([7], [(1, 1, 7), (1, 1, 3)])
+add([4, 9, 1, 6, 6, 2], [(1, 6, 5), (2, 5, 6), (3, 3, 1), (1, 4, 10)])
+add([5, 12, 3, 8, 20, 7, 1, 9], [(1, 8, 8), (2, 6, 4), (5, 8, 15), (3, 7, 1), (1, 1, 2)])
+# hidden: small
+add([MAXV], [(1, 1, MAXV), (1, 1, 1)])
+a = [ri(1, 10) for _ in range(10)]
+add(a, [(l, r, ri(1, 11)) for l in range(1, 11) for r in range(l, 11)])
+a = [ri(1, 100) for _ in range(200)]
+add(a, queries(a, 400, from_values(a), 0.3))
+a = [ri(1, MAXV) for _ in range(2000)]
+add(a, queries(a, 3000, lambda: ri(1, MAXV), 0.3))
+a = [ri(1, 1000) for _ in range(10000)]
+add(a, queries(a, 8000, from_values(a), 0.4))
+a = sorted(ri(1, 10**6) for _ in range(5000))
+add(a, queries(a, 5000, from_values(a), 0.5))
+# hidden: maximum size
+N = 250_000
+a = [ri(1, 9999) for _ in range(N)]
+add(a, queries(a, 75_000, lambda: ri(1, 10**4)))
+a = [ri(1, 9999) for _ in range(N)]
+add(a, queries(a, 75_000, from_values(a)))
+a = [ri(1, 9999) for _ in range(N)]
+add(a, queries(a, 75_000, lambda: ri(1, 50)))                         # almost everything is capped
+a = [ri(1, 9999) for _ in range(N)]
+add(a, queries(a, 75_000, lambda: ri(9990, 99999)))                   # almost nothing is capped
+a = sorted(ri(1, 9999) for _ in range(N))
+add(a, queries(a, 75_000, from_values(a)))
+a = sorted((ri(1, 9999) for _ in range(N)), reverse=True)
+add(a, queries(a, 75_000, from_values(a)))
+add([5000] * N, queries([5000] * N, 75_000, lambda: ri(4999, 5001)))  # equal values, caps at the boundary
+a = [ri(1, 99) for _ in range(300_000)]
+add(a, queries(a, 80_000, from_values(a)))
+a = [MAXV - ri(0, 9) for _ in range(200_000)]
+add(a, queries(a, 30_000, lambda: MAXV - ri(0, 12)))                   # sums up to 2 * 10^14
+a = [ri(1, MAXV) for _ in range(180_000)]
+add(a, queries(a, 30_000, lambda: ri(1, MAXV)))
+a = [9999 - ri(0, 9) for _ in range(300_000)]
+add(a, queries(a, 75_000, lambda: ri(9995, 99999), 0.95))              # sums above 2^31 with short numbers
+a = [ri(1, 9999) if i % 2 else ri(1, 9) for i in range(N)]           # small and large values alternate
+add(a, queries(a, 75_000, from_values(a), 0.95))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

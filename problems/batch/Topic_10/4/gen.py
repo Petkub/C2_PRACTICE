@@ -1,153 +1,103 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(100404)
-MAXN, MAXQ = 200_000, 100_000
+random.seed(8004)
+MAXN, MAXM, MAXC = 3000, 6000, 10**9
 tests = []
 
 
-_rnd = random.random
-
-
 def ri(lo, hi):
-    return lo + int(_rnd() * (hi - lo + 1))
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def shuf(a):
-    rnd = _rnd
-    for i in range(len(a) - 1, 0, -1):
-        j = int(rnd() * (i + 1))                                 # = ri(0, i)
-        a[i], a[j] = a[j], a[i]
+def add(n, roads):
+    m = len(roads)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n and -MAXC <= c <= MAXC for a, b, c in roads)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in roads))
 
 
-def shape(n, kind):
-    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is the root"""
-    par = [-1] * n
-    h = max(1, n // 2)
-    for i in range(1, n):
-        if kind == "random":
-            par[i] = int(_rnd() * i)                            # = ri(0, i - 1)
-        elif kind == "path":
-            par[i] = i - 1
-        elif kind == "star":
-            par[i] = 0
-        elif kind == "deep":                    # depth about n / 2, a few short side branches
-            par[i] = ri(max(0, i - 3), i - 1)
-        elif kind == "binary":
-            par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
-            par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
-            par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "twopaths":                # two long chains below the root
-            par[i] = 0 if i <= 2 else i - 2
-        else:
-            raise ValueError(kind)
-    return par
+def relabel(n, roads, keep_order=False):
+    """random numbers for towns 2..n (town 1 stays), random order of roads"""
+    p = list(range(2, n + 1))
+    random.shuffle(p)
+    p = [0, 1] + p
+    res = [(p[a], p[b], c) for a, b, c in roads]
+    if not keep_order:
+        random.shuffle(res)
+    return res
 
 
-def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1; node 0 gets the number root if given"""
-    lab = list(range(1, n + 1))
-    shuf(lab)
-    if root is not None:
-        j = lab.index(root)
-        lab[0], lab[j] = lab[j], lab[0]
-    return lab
+def potential_roads(n, m, lo, hi, spread, h=None):
+    """roads with cost = base + h[b] - h[a] where base in [lo, hi] >= 0: no negative cycle, many negative roads"""
+    if h is None:
+        h = [0] + [ri(-spread, spread) for _ in range(n)]
+    res = []
+    while len(res) < m:
+        a, b = ri(1, n), ri(1, n)
+        c = ri(lo, hi) + h[b] - h[a]
+        if -MAXC <= c <= MAXC:
+            res.append((a, b, c))
+    return res
 
 
-def depths(t):
-    """t[i] = teacher of i (t[1] = 0); depth of every person, checking that everybody reaches person 1"""
-    n = len(t) - 1
-    ch = [[] for _ in range(n + 1)]
-    for i in range(2, n + 1):
-        ch[t[i]].append(i)
-    d = [-1] * (n + 1)
-    d[1], order = 0, [1]
-    for v in order:                                             # BFS: the list grows while we walk it
-        dv = d[v] + 1
-        for c in ch[v]:
-            d[c] = dv
-        order.extend(ch[v])
-    assert min(d[1:]) >= 0
-    return d
-
-
-def add(t, qs, checked=False):
-    """t = [t_2, ..., t_N]; checked = depths() already ran on it"""
-    n, q = len(t) + 1, len(qs)
-    assert 2 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= x <= n and x != i + 2 for i, x in enumerate(t))
-    assert all(1 <= v <= n and 1 <= k <= n for v, k in qs)
-    if not checked:
-        depths([0, 0] + t)
-    t = f"{n} {q}\n" + " ".join(map(str, t)) + "\n" + "".join(f"{v} {k}\n" for v, k in qs)
-    assert len(t) <= 3_000_000
-    tests.append(t)
-
-
-def queries(t, q, mode, d=None):
-    """t = [t_2, ..., t_N]; deep people with k close to their depth (and some -1 answers);
-    d = the depths if tree() already computed them"""
-    n = len(t) + 1
-    if d is None:
-        d = depths([0, 0] + t)
-    people = sorted(range(1, n + 1), key=d.__getitem__, reverse=True)
-    deep = people[:max(1, n // 10)]
-    L, rnd = len(deep), _rnd                                    # rnd() inlined: x = lo + int(rnd() * (hi - lo + 1))
-    qs = []
-    for _ in range(q):
-        if mode == "deep":
-            v = deep[int(rnd() * L)]
-            k = d[v] // 2
-            k += int(rnd() * (d[v] + 3 - k))                    # k in [d[v] / 2, d[v] + 2]
-        elif mode == "edge":                                    # exactly the last ancestor, or one too far
-            v = deep[int(rnd() * L)]
-            k = d[v] + int(rnd() * 2)
-        else:
-            v = 1 + int(rnd() * n)
-            k = 1 + int(rnd() * (d[v] + 1)) if int(rnd() * 4) else 1 + int(rnd() * n)
-        qs.append((v, max(1, min(n, k))))
-    return qs
-
-
-def tree(n, kind):
-    """returns (t_2..t_N, depth of every person); every node hangs below an earlier one, so it is a tree"""
-    par, lab = shape(n, kind), labels(n, 1)
-    assert all(0 <= par[i] < i for i in range(1, n)) and sorted(lab) == list(range(1, n + 1)) and lab[0] == 1
-    t, d, dep = [0] * (n + 1), [-1] * (n + 1), [0] * n
-    d[1] = 0
-    for i in range(1, n):
-        dep[i] = dep[par[i]] + 1
-        t[lab[i]] = lab[par[i]]
-        d[lab[i]] = dep[i]
-    return t[2:], d
+def dag_roads(n, m, lo, hi):
+    """roads only from a smaller to a larger index (no cycle at all), any signs"""
+    res = [(i, i + 1, ri(lo, hi)) for i in range(1, n)]
+    while len(res) < m:
+        a, b = ri(1, n), ri(1, n)
+        if a < b:
+            res.append((a, b, ri(lo, hi)))
+    return res
 
 
 # samples
-add([3, 1, 2, 2, 5, 1], [(6, 1), (6, 3), (6, 4), (6, 5), (7, 1)])
-add([3, 4, 1], [(2, 2), (2, 3), (2, 4), (1, 1)])
-add([1], [(2, 1), (2, 2), (1, 2)])
-add([1, 1, 1, 1, 1], [(4, 1), (4, 2), (1, 6), (6, 1)])
-add([5, 1, 6, 1, 3], [(4, 3), (4, 2), (2, 2), (6, 3)])
+add(5, [(1, 2, 4), (1, 3, 2), (3, 2, -3), (2, 4, 5), (5, 4, -10)])
+add(4, [(1, 2, 1), (2, 3, -4), (3, 2, 2), (3, 4, 1)])
+add(4, [(1, 2, 3), (3, 4, -5), (4, 3, 1), (2, 1, -1)])
+add(3, [(1, 2, -2), (2, 3, 5), (3, 1, -3)])
+add(3, [(1, 2, 7), (2, 2, -1), (2, 3, 1)])
+add(2, [(1, 1, 0), (1, 2, -MAXC), (1, 2, MAXC)])
 # hidden: small
-for n, kind, q, mode in ((6, "random", 10, "any"), (10, "path", 15, "any"), (15, "binary", 20, "any"),
-                         (40, "deep", 50, "edge"), (300, "cater", 300, "any"), (2000, "twopaths", 2000, "deep"),
-                         (5000, "random", 5000, "any")):
-    t, d = tree(n, kind)
-    add(t, queries(t, q, mode, d), True)
-t = [i - 1 for i in range(2, 5001)]                             # path 1 - 2 - ... - N
-add(t, queries(t, 5000, "deep"), True)
-# hidden: maximum size
-N, Q = MAXN, MAXQ
-t = [i - 1 for i in range(2, N + 1)]
-add(t, queries(t, Q, "deep"), True)
-for kind, mode in (("path", "deep"), ("path", "edge"), ("deep", "deep"), ("broom", "deep"),
-                   ("twopaths", "deep"), ("cater", "any"), ("random", "any"), ("star", "any")):
-    t, d = tree(N, kind)
-    add(t, queries(t, Q, mode, d), True)
-t = [i + 1 for i in range(2, N)] + [1]                          # path 1 - N - (N-1) - ... - 2: teachers have larger numbers
-add(t, queries(t, Q, "deep"), True)
+add(1, [])
+add(1, [(1, 1, -1)])
+add(8, relabel(8, potential_roads(8, 15, 0, 5, 10)))
+add(8, [(i, i + 1, -1) for i in range(1, 8)] + [(8, 1, 7)])         # the whole cycle sums to 0
+add(8, [(i, i + 1, -1) for i in range(1, 8)] + [(8, 1, 6)])         # the whole cycle sums to -1
+add(30, relabel(30, potential_roads(30, 80, 0, 100, 1000)))
+add(30, relabel(30, potential_roads(30, 80, 0, 100, 1000) + [(15, 16, -100), (16, 15, 99)]))
+add(60, [(i, i + 1, ri(-5, 5)) for i in range(1, 30)] + [(40, 41, -3), (41, 40, 2), (40, 50, 1)])
+add(100, relabel(100, dag_roads(100, 300, -MAXC, MAXC)))
+add(200, relabel(200, potential_roads(200, 600, 0, 50, 10**6)))
+add(300, relabel(300, [(i, i + 1, -MAXC) for i in range(1, 300)]))
+# hidden: large
+N, M = MAXN, MAXM
+add(N, [(i, i + 1, ri(-MAXC, MAXC)) for i in range(N - 1, 0, -1)] + dag_roads(N, M - N + 1, -MAXC, MAXC)[N - 1:])
+add(N, [(i, i + 1, -MAXC) for i in range(N - 1, 0, -1)])            # the most negative distances
+add(N, [(i, i + 1, MAXC) for i in range(N - 1, 0, -1)])
+r = [(i, i + 1, -1) for i in range(N - 1, 0, -1)] + [(N, 1, N - 1)]    # one long cycle of total 0
+add(N, r + potential_roads(N, M - N, 0, 10, 0, [0] + [-(i - 1) for i in range(1, N + 1)]))
+r = [(i, i + 1, -1) for i in range(N - 1, 0, -1)] + [(N, N - 1, 0)]    # a cycle at the far end of a long chain
+add(N, r + [(a, b, c) for a, b, c in dag_roads(N, M - N, 0, MAXC) if b < N - 1])
+add(N, relabel(N, potential_roads(N, M, 0, 10**6, 10**8)))
+r = potential_roads(N, M - 2, 0, 3, 10**8)                           # plus one negative 2-cycle
+x, y = ri(2, N), ri(2, N)
+add(N, relabel(N, r + [(x, y, 5), (y, x, -6)]))
+h = N // 2                                                          # a negative cycle nobody can reach,
+r = relabel(h, potential_roads(h, M // 2, 0, 1000, 10**6))          # with negative roads into the reachable half
+r += [(a + h, b + h, c) for a, b, c in potential_roads(N - h, M // 2 - 22, 0, 1000, 10**6)]
+r += [(N - 1, N, -5), (N, N - 1, 4)] + [(ri(h + 1, N), ri(1, h), -MAXC) for _ in range(20)]
+add(N, r)
+r = [(i, i + 1, -MAXC) for i in range(h + 1, N)] + [(N, h + 1, -MAXC)]  # unreachable, very negative cycle
+r += [(ri(h + 1, N), ri(1, h), ri(-MAXC, 0)) for _ in range(100)]
+add(N, relabel(h, potential_roads(h, M - len(r), 0, 10, 1000)) + r)
+r = dag_roads(N, M - 2, -MAXC, MAXC)                                # a DAG plus one short negative cycle
+add(N, relabel(N, r + [(N - 5, N - 4, MAXC - 1), (N - 4, N - 5, -MAXC)]))
+r = dag_roads(N, M - 1, -10, MAXC)                                  # a DAG plus a negative self-loop
+add(N, relabel(N, r + [(N, N, -1)]))
+add(N, relabel(N, [(i, i + 1, -MAXC) for i in range(1, N)] + [(N, 1, MAXC)] * 2
+                  + potential_roads(N, M - N - 1, MAXC // 2, MAXC, 0)))   # one long very negative cycle
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

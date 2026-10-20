@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100108)
-MAXN, MAXQ, MAXW = 100_000, 100_000, 10**6
+random.seed(80808)
+MAXN, MAXM, MAXC = 100_000, 100_000, 10**9
 tests = []
 
 
@@ -10,129 +10,129 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
-    par = [0, 0]
-    half = max(1, n // 2)
-    b = max(2, int(n ** 0.5))
-    for i in range(2, n + 1):
-        if kind == "path":
-            p = i - 1
-        elif kind == "star":
-            p = 1
-        elif kind == "random":
-            p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, a few short branches
-            p = ri(max(1, i - 3), i - 1)
-        elif kind == "binary":
-            p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
-            p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
-            p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains meeting at node 1
-            p = 1 if i <= 3 else i - 2
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
-            p = i - 1 if (i - 1) % b else ri(1, i - 1)
-        else:
-            raise ValueError(kind)
-        par.append(p)
-    return par
+def add(n, edges, shuffle=True):
+    edges = list(edges)
+    if shuffle:
+        random.shuffle(edges)
+    m = len(edges)
+    assert 2 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n and a != b and 1 <= c <= MAXC for a, b, c in edges)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in edges))
 
 
-def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends"""
-    n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    if root_first:
-        j = lab.index(1)
-        lab[0], lab[j] = lab[j], lab[0]
-    rnd = random.random
-    edges = [(lab[i - 1], lab[par[i] - 1]) if rnd() < 0.5 else (lab[par[i] - 1], lab[i - 1]) for i in range(2, n + 1)]
-    random.shuffle(edges)
-    return edges, lab
+def rnd_edges(n, m, clo, chi):
+    res = []
+    while len(res) < m:
+        a, b = ri(1, n), ri(1, n)
+        if a != b:
+            res.append((a, b, ri(clo, chi)))
+    return res
 
 
-def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
-    assert len(edges) == n - 1
-    root = list(range(n + 1))
-
-    def find(x):
-        while root[x] != x:
-            root[x] = root[root[x]]
-            x = root[x]
-        return x
-    for u, v in edges:
-        assert 1 <= u <= n and 1 <= v <= n and u != v
-        a, b = find(u), find(v)
-        assert a != b
-        root[a] = b
+def perm(n):
+    """random order of the cities 2..n after city 1"""
+    p = list(range(2, n + 1))
+    random.shuffle(p)
+    return [1] + p
 
 
-def add(n, wedges, qs, from_shape=False):
-    """from_shape: the edges come from relabel(), which already guarantees a tree"""
-    assert 1 <= n <= MAXN and 1 <= len(qs) <= MAXQ
-    assert len(wedges) == n - 1
-    if not from_shape:
-        check_tree(n, [(u, v) for u, v, w in wedges])
-    assert all(1 <= w <= MAXW for u, v, w in wedges)
-    assert all(1 <= a <= n and 1 <= b <= n for a, b in qs)
-    tests.append(f"{n} {len(qs)}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in wedges)
-                 + "".join(f"{a} {b}\n" for a, b in qs))
+def chain(n, clo, chi, extra, xlo, xhi):
+    """a long path 1 -> ... (cheap) plus extra random flights (expensive)"""
+    p = perm(n)
+    e = [(p[i], p[i + 1], ri(clo, chi)) for i in range(n - 1)]
+    return e + rnd_edges(n, extra, xlo, xhi)
 
 
-def weigh(edges, lo=1, hi=MAXW):
-    rnd, k = random.random, hi - lo + 1
-    return [(u, v, lo + int(rnd() * k)) for u, v in edges]
+def gadgets(k):
+    """k copies of: a cheap route with two equal flights vs. one long flight; the coupon prefers the long one"""
+    e, nxt = [], 2
+    hub = 1
+    for _ in range(k):
+        mid, end = nxt, nxt + 1
+        nxt += 2
+        x = ri(1000, 10**6)
+        e += [(hub, mid, x), (mid, end, x), (hub, end, 2 * x + ri(1, x - 2))]
+        hub = end if random.random() < 0.97 else ri(1, nxt - 1)
+    return nxt - 1, e
 
 
-def rq(n, q):
-    rnd = random.random
-    return [(1 + int(rnd() * n), 1 + int(rnd() * n)) for _ in range(q)]
+def grid(r, c, chi):
+    """r x c grid of cities, flights between neighbours in random directions"""
+    idx = list(range(2, r * c + 1))
+    random.shuffle(idx)
+    idx = [1] + idx
+    e = []
+    for i in range(r):
+        for j in range(c):
+            v = idx[i * c + j]
+            if j + 1 < c:
+                e.append((v, idx[i * c + j + 1], ri(1, chi)))
+            if i + 1 < r:
+                e.append((v, idx[(i + 1) * c + j], ri(1, chi)))
+    e = [(a, b, w) if random.random() < 0.75 else (b, a, w) for a, b, w in e]
+    return r * c, e
 
 
-def big(kind, root_first=False, lo=1, hi=MAXW, far=False):
-    n, q = MAXN, MAXQ
-    edges, lab = relabel(shape(n, kind), root_first)
-    if far:     # both ends near the two ends of the shape (long paths)
-        qs = [(lab[ri(0, 99)], lab[n - 1 - ri(0, 99)]) for _ in range(q)]
-    else:
-        qs = rq(n, q)
-    add(n, weigh(edges, lo, hi), qs, True)
+def ladder(r, c):
+    """tall r x c grid, flights both ways; cheap along the rows, expensive between rows"""
+    idx = list(range(2, r * c + 1))
+    random.shuffle(idx)
+    idx = [1] + idx
+    e = []
+    for i in range(r):
+        for j in range(c):
+            v = idx[i * c + j]
+            if j + 1 < c:
+                w = ri(1, 10)
+                e += [(v, idx[i * c + j + 1], w), (idx[i * c + j + 1], v, w)]
+            if i + 1 < r:
+                w = ri(10**8, MAXC)
+                e += [(v, idx[(i + 1) * c + j], w), (idx[(i + 1) * c + j], v, w)]
+    return r * c, e
 
 
 # samples
-add(5, [(1, 2, 3), (1, 3, 5), (3, 4, 2), (3, 5, 7)], [(2, 4), (4, 5), (1, 1), (5, 2)])
-add(4, [(4, 3, 10**6), (3, 1, 10**6), (1, 2, 10**6)], [(4, 2), (2, 3), (3, 4)])
-add(4, [(2, 1, 4), (2, 3, 1), (4, 2, 6)], [(1, 4), (3, 3)])
-add(5, [(5, 3, 8), (1, 5, 3), (2, 3, 4), (4, 1, 1)], [(2, 4), (5, 2)])
-add(1, [], [(1, 1)])
-# hidden: small and medium
-add(2, [(2, 1, 1)], [(1, 2), (2, 1), (2, 2)])
-for n, kind in ((10, "random"), (30, "deep"), (40, "star"), (60, "caterpillar")):
-    e, lab = relabel(shape(n, kind))
-    add(n, weigh(e, 1, 20), rq(n, 50))
-e, lab = relabel(shape(3000, "path"), True)
-add(3000, weigh(e), rq(3000, 3000))
-e, lab = relabel(shape(5000, "chains"))
-add(5000, weigh(e), rq(5000, 5000))
-e, lab = relabel(shape(6000, "twopaths"), True)
-add(6000, weigh(e, MAXW, MAXW), [(lab[ri(0, 50)], lab[5999 - ri(0, 50)]) for _ in range(6000)])
+add(4, [(1, 2, 8), (2, 4, 8), (1, 3, 3), (3, 4, 16)], False)
+add(4, [(1, 2, 7), (3, 1, 4), (2, 3, 1)], False)
+add(3, [(1, 2, 1), (1, 2, 5), (2, 3, 3), (1, 3, 9)], False)
+add(6, [(1, 2, 4), (2, 3, 6), (3, 6, 2), (1, 4, 9), (4, 5, 1), (5, 6, 1), (2, 5, 11), (6, 1, 3)], False)
+add(4, [(1, 2, MAXC), (2, 3, MAXC), (3, 4, MAXC)], False)
+# hidden: small
+add(2, [(2, 1, 5)])
+add(2, [(1, 2, 1)])
+for n, m, chi in ((5, 8, 10), (8, 20, 100), (10, 30, 5), (30, 80, 10**9), (60, 200, 50)):
+    add(n, rnd_edges(n, m, 1, chi))
+n, e = gadgets(20)
+add(n, e)
+add(40, chain(40, 1, 5, 60, 10, 100))
+n, e = grid(6, 7, 30)
+add(n, e)
+add(300, rnd_edges(300, 1500, 1, 10**9))
 # hidden: maximum size
-big("path", True)
-big("path", False, far=True)
-big("path", True, MAXW, MAXW, far=True)            # the largest distances
-big("deep")
-big("caterpillar", True)
-big("broom", True, far=True)
-big("twopaths", True, far=True)
-big("chains")
-big("random")
-big("star")
-big("deep", True, 1, 10, far=True)
+N, M = MAXN, MAXM
+add(N, rnd_edges(N, M, 1, MAXC))
+add(N, chain(N, 1, 1000, M - N + 1, 10**6, MAXC))
+add(N, [(i, i + 1, MAXC) for i in range(N - 1, 0, -1)] + [(N, 1, MAXC)], False)   # sums near 10^14
+add(N, chain(N, 1, MAXC, M - N + 1, 1, MAXC))
+n, e = gadgets(30_000)
+add(n, e + rnd_edges(n, M - len(e), 10**7, MAXC))
+n, e = ladder(2500, 10)
+add(n, e)
+n, e = ladder(5000, 5)
+add(n, e)
+add(N, chain(N, 1, 1, M - N + 1, 2, 3))
+p = perm(N)
+e = [(p[i], p[i + 1], 2 * ri(1, 10**4) + 1) for i in range(N // 2)]  # about half of the cities unreachable
+while len(e) < M:
+    a, b = ri(0, N // 2), ri(0, N - 1)                          # flights into the first half
+    if random.random() < 0.5:
+        a, b = ri(N // 2 + 1, N - 1), ri(N // 2 + 1, N - 1)    # or inside the second half
+    if a != b:
+        e.append((p[b], p[a], ri(1, MAXC)))
+add(N, e)
+e = [(1, v, ri(5 * 10**8, MAXC)) for v in range(2, N + 1)]     # every city one expensive flight away
+add(N, e + rnd_edges(N, M - len(e), 1, 10**4))
+add(N, chain(N, 10**8, MAXC, M - N + 1, 1, 10**9))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

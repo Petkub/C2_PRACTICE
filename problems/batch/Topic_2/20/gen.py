@@ -1,82 +1,68 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(20220)
-MAXN, MAXA = 200_000, 10**9
+random.seed(12006)
+MAXN = 300_000
+MAXM = 100_000
+MAXD = 1000
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(n, cmds, batches):
+    m, k = len(cmds), len(batches)
+    assert 1 <= n <= MAXN and 1 <= m <= MAXM and 1 <= k <= MAXM
+    assert all(1 <= l <= r <= n and 1 <= d <= MAXD for l, r, d in cmds)
+    assert all(1 <= x <= y <= m for x, y in batches)
+    tests.append(f"{n} {m} {k}\n" + "".join(f"{l} {r} {d}\n" for l, r, d in cmds)
+                 + "".join(f"{x} {y}\n" for x, y in batches))
 
 
-def add(k, a):
-    n = len(a)
-    assert 1 <= k <= n <= MAXN
-    assert all(1 <= x <= MAXA for x in a)
-    tests.append(f"{n} {k}\n" + " ".join(map(str, a)) + "\n")
+def rng(n, lo_len=1, hi_len=None):
+    """a random range of 1..n with length between lo_len and hi_len"""
+    hi_len = n if hi_len is None else min(hi_len, n)
+    ln = random.randint(min(lo_len, hi_len), hi_len)
+    s = random.randint(1, n - ln + 1)
+    return s, s + ln - 1
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def cmds_of(n, m, lo_len=1, hi_len=None, dmax=MAXD):
+    return [rng(n, lo_len, hi_len) + (random.randint(1, dmax),) for _ in range(m)]
 
 
-def gadget(p, hlo, hhi, llo, lhi):
-    """H^p L^(2p-1) H^p: only the whole block has a high middle among stretches of length >= 2p"""
-    return rnd(p, hlo, hhi) + rnd(2 * p - 1, llo, lhi) + rnd(p, hlo, hhi)
-
-
-def gadget_test(n, p, layers):
-    """background of middle values with a few gadgets inside; k = 2p"""
-    a = rnd(n, 2, 4 * 10**8)
-    for j in range(layers):
-        g = gadget(p, 9 * 10**8 + j * 10**7, 9 * 10**8 + j * 10**7 + 10**6, 1, 1000)
-        s = ri(0, n - len(g))
-        a[s:s + len(g)] = g
-    return a
+def batches_of(m, k, lo_len=1, hi_len=None):
+    return [rng(m, lo_len, hi_len) for _ in range(k)]
 
 
 # samples
-add(2, [1, 3, 2, 5, 4])
-add(4, [9, 9, 1, 1, 1, 9, 9])
-add(4, [4, 1, 3, 2])
-add(1, [5, 8, 2])
-add(1, [MAXA])
-add(3, [6, 2, 7, 7, 1, 3, 8, 2])
-# hidden: small
-add(2, [1, 1])
-add(2, [1, 2])
-add(3, [5, 1, 5])
-add(6, [10, 10, 10, 1, 1, 1, 1, 1, 10, 10, 10])
-for n in (8, 20, 60, 300):
-    add(ri(1, n), rnd(n, 1, 5))
-add(150, rnd(1000, 1, MAXA))
-add(10, gadget(5, 50, 60, 1, 10) + gadget(7, 40, 45, 1, 10))
-add(200, gadget_test(3000, 100, 3))
-add(3000, rnd(3000, 1, 3))
-add(1, [7] * 2000)
-# hidden: large
-N = MAXN
-add(60_000, gadget_test(N, 30_000, 1))                 # the best middle needs a long stretch
-add(20_000, gadget_test(N, 10_000, 3))
-add(2000, gadget_test(N, 1000, 5))
-add(50_000, gadget(25_000, MAXA - 100, MAXA, 1, 10**8) + rnd(N - 99_999, 1, 10**8))
-a = []
-while len(a) < N - 1000:                                # many gadgets with small p
-    a += gadget(ri(3, 50), ri(5 * 10**8, MAXA), MAXA, 1, ri(1, 5 * 10**8))
-add(ri(10, 40), a[:N])
-add(ri(N // 3, N // 2), rnd(N, 1, MAXA))
-add(N, rnd(N, 1, MAXA))                                # the whole array
-add(1, rnd(N, 1, MAXA))                                # the largest score
-a = []
-while len(a) < N:                                      # blocks (1 2)^1000 1: a stretch of length 2000..4000 has at
-    a += [1, 2] * 1000 + [1]                           # most as many 2s as 1s, and some have exactly as many
-add(ri(2000, 4000), a[:N])                             # only two values: the tie rule decides (answer 1)
-add(ri(100, 300), rnd(N, 1, MAXA))
-add(N // 2, [1 + i % 2 for i in range(N)])             # 1 2 1 2 ...: only odd stretches that start with 2 have middle 2
-add(N // 2 + 1, [MAXA - (i % 2) for i in range(N)])
-add(ri(100, 1000), sorted(rnd(N, 1, MAXA)))
-add(ri(50_000, 100_000), [ri(1, 10**6) if (i // 7) % 2 else ri(10**6, MAXA) for i in range(N)])
+add(5, [(1, 3, 2), (2, 5, 1), (4, 4, 5)], [(1, 2), (2, 3)])
+add(4, [(1, 4, 1), (2, 3, 10)], [(2, 2), (1, 1), (2, 2)])
+add(6, [(1, 1, 7), (6, 6, 3), (2, 5, 1)], [(1, 3)])
+add(3, [(1, 3, 1000)], [(1, 1)] * 4)
+add(7, [(3, 7, 4), (1, 2, 9), (2, 6, 1), (5, 5, 6)], [(2, 4), (1, 1), (3, 3)])
+# hidden (small)
+add(1, [(1, 1, 1)], [(1, 1)])
+add(1, [(1, 1, MAXD)] * 3, [(1, 3), (2, 3), (3, 3)])
+add(30, cmds_of(30, 20, dmax=5), batches_of(20, 40))
+add(200, cmds_of(200, 150), batches_of(150, 200))
+add(300, [(1, 300, MAXD)] * 300, [(1, 300)] * 300)
+# large: "run every command of every batch" needs sum of batch lengths (up to K M = 10^10) steps,
+# "add d * times over every lamp of every command" needs sum of command lengths (up to M N = 3*10^10)
+n, m, k = MAXN, MAXM, MAXM
+add(n, [(1, n, MAXD)] * m, [(1, m)] * k)                            # every lamp gets 10^13
+add(n, cmds_of(n, m), batches_of(m, k))
+add(n, cmds_of(n, m, n - 1000, dmax=9), batches_of(m, k, m - 1000))  # long commands, long batches
+add(n, cmds_of(n, m, 1, 20), batches_of(m, k, m - 1000))           # short commands, long batches
+add(n, cmds_of(n, m, n - 1000, dmax=9), batches_of(m, k, 1, 3))    # long commands, short batches
+add(n, cmds_of(n, m), batches_of(m, k, 1, 5))                    # random commands, short batches
+add(m, [(i, i, MAXD) for i in range(1, m + 1)], [(1, m)] * k)      # one command per lamp
+add(n, [(1, n - i + 1, random.randint(1, MAXD)) for i in range(1, m + 1)], [(x, m) for x in range(1, k + 1)])
+add(n, [(i, n, MAXD) for i in range(1, m + 1)], [(1, y) for y in range(1, k + 1)])
+add(n, cmds_of(n, m), [(1, 1)] * (k // 2) + [(m, m)] * (k // 2))   # only the end commands run
+add(n, cmds_of(n, m, n // 2, dmax=9), [(random.randint(1, 100), random.randint(m - 100, m)) for _ in range(k)])
+add(n, [(1, n, random.randint(1, MAXD)) for _ in range(m)], batches_of(m, k, 1, 2))   # whole street, short batches
+add(n, cmds_of(n, m, n - 5000, dmax=9), batches_of(m, k, 1, 50))
+add(n, cmds_of(n, m, n // 2, dmax=99), batches_of(m, k, m // 2))
+add(2000, cmds_of(2000, m), batches_of(m, k))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

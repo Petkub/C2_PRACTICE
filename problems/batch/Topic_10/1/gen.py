@@ -1,110 +1,115 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100101)
-MAXN = 200_000
+random.seed(8001)
+MAXN, MAXM, MAXW, MAXC = 100_000, 100_000, 10**6, 10**6
 tests = []
 
 
-_rnd = random.random
-
-
 def ri(lo, hi):
-    return lo + int(_rnd() * (hi - lo + 1))
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def shuf(a):
-    for i in range(len(a) - 1, 0, -1):
-        j = int(_rnd() * (i + 1))                                # = ri(0, i)
-        a[i], a[j] = a[j], a[i]
+def add(n, c, roads):
+    m = len(roads)
+    assert 1 <= n <= MAXN and 1 <= m <= MAXM and len(c) == n
+    assert all(0 <= x <= MAXC for x in c)
+    assert all(1 <= u <= n and 1 <= v <= n and 1 <= w <= MAXW for u, v, w in roads)
+    tests.append(f"{n} {m}\n" + " ".join(map(str, c)) + "\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads))
 
 
-def shape(n, kind):
-    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is the root"""
-    par = [-1] * n
-    h = max(1, n // 2)
-    for i in range(1, n):
-        if kind == "random":
-            par[i] = int(_rnd() * i)                            # = ri(0, i - 1)
-        elif kind == "path":
-            par[i] = i - 1
-        elif kind == "star":
-            par[i] = 0
-        elif kind == "deep":                    # depth about n / 2, a few short side branches
-            par[i] = ri(max(0, i - 3), i - 1)
-        elif kind == "binary":
-            par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
-            par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
-            par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "twopaths":                # two long chains below the root
-            par[i] = 0 if i <= 2 else i - 2
-        else:
-            raise ValueError(kind)
-    return par
+def relabel(n, roads):
+    """random numbers for intersections 2..n (the warehouse stays 1), random order and direction of roads"""
+    p = list(range(2, n + 1))
+    random.shuffle(p)
+    p = [0, 1] + p
+    res = [(p[u], p[v], w) if random.random() < 0.5 else (p[v], p[u], w) for u, v, w in roads]
+    random.shuffle(res)
+    return res
 
 
-def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1; node 0 gets the number root if given"""
-    lab = list(range(1, n + 1))
-    shuf(lab)
-    if root is not None:
-        j = lab.index(root)
-        lab[0], lab[j] = lab[j], lab[0]
-    return lab
+def rnd_c(n, hi=MAXC):
+    return [ri(0, hi) for _ in range(n)]
 
 
-def add(p):
-    n = len(p)
-    assert 1 <= n <= MAXN
-    assert sum(1 for x in p if x == 0) == 1
-    assert all(0 <= x <= n and x != i + 1 for i, x in enumerate(p))
-    # everybody reaches the founder (no cycle): count generations from the founder
-    ch = [[] for _ in range(n + 1)]
-    for i, x in enumerate(p):
-        ch[x].append(i + 1)
-    seen, st = 0, [p.index(0) + 1]
-    while st:
-        v = st.pop()
-        seen += 1
-        st.extend(ch[v])
-    assert seen == n
-    tests.append(f"{n}\n" + " ".join(map(str, p)) + "\n")
+def rnd_roads(n, m, wmax=MAXW):
+    return [(ri(1, n), ri(1, n), ri(1, wmax)) for _ in range(m)]
 
 
-def tree(n, kind, root=None):
-    par, lab = shape(n, kind), labels(n, root)
-    p = [0] * n
-    for i in range(1, n):
-        p[lab[i] - 1] = lab[par[i]]
-    return p
+def connected(n, m, wmax=MAXW):
+    """a random tree plus random extra roads"""
+    roads = [(i, ri(1, i - 1), ri(1, wmax)) for i in range(2, n + 1)]
+    return roads + rnd_roads(n, m - (n - 1), wmax)
+
+
+def deep(n, m, wsmall, wbig):
+    """a long thin tree with short roads plus random long roads (shortest paths have many roads)"""
+    roads = [(i, ri(max(1, i - 3), i - 1), ri(1, wsmall)) for i in range(2, n + 1)]
+    roads += [(ri(1, n), ri(1, n), ri(wbig // 2, wbig)) for _ in range(m - (n - 1))]
+    return relabel(n, roads)
+
+
+def hub(k, leaves):
+    """many paths improve one hub again and again; the hub has many neighbours"""
+    n = k + leaves + 2                           # 2..k+1 middle, k+2..n-1 leaves, n hub
+    roads, H, B = [], n, 3 * k + 10
+    for i in range(2, k + 2):
+        roads.append((1, i, i))                  # reached in the order 2, 3, ..., k+1
+        roads.append((i, H, B - 2 * i))          # each one gives the hub a smaller distance B - i
+    for x in range(k + 2, n):
+        roads.append((H, x, ri(1, 5)))
+    return n, [0] * n, roads
 
 
 # samples
-add([3, 3, 0, 1, 1, 2])
-add([2, 3, 4, 5, 0])
-add([0])
-add([0, 1, 1, 1, 1])
-add([6, 0, 2, 6, 3, 2, 5, 4])
+add(5, [7, 1, 10, 2, 3], [(1, 2, 3), (2, 3, 2), (1, 3, 1), (3, 4, 4), (2, 4, 9), (4, 5, 1)])
+add(4, [0, 5, 0, 1], [(1, 2, 4), (2, 1, 2), (2, 2, 1), (3, 3, 5)])
+add(5, [4, 0, 6, 1, 2], [(1, 2, 5), (1, 3, 1), (3, 2, 1), (2, 4, 2), (3, 4, 6), (4, 5, 1)])
+add(5, [1, 2, 3, 4, 5], [(5, 4, 1), (4, 3, 1), (3, 2, 1), (2, 1, 1), (1, 5, 9)])
+add(1, [9], [(1, 1, 3)])
 # hidden: small
-add([2, 0])
-add([0, 1])
-for n, kind in ((7, "random"), (10, "deep"), (12, "binary"), (15, "random"), (30, "cater"), (100, "deep"),
-                (1000, "random"), (3000, "twopaths")):
-    add(tree(n, kind))
-add([i + 2 for i in range(4999)] + [0])                         # a path: the founder is N, every parent number is larger
-# hidden: maximum size
+add(3, [MAXC] * 3, [(1, 2, MAXW), (2, 3, MAXW)])
+add(2, [5, 5], [(2, 2, 1)])
+add(2, [0, 0], [(2, 1, 7), (1, 2, 3), (1, 2, 5)])
+add(8, rnd_c(8, 10), rnd_roads(8, 10, 10))
+add(30, rnd_c(30, 20), connected(30, 45, 20))
+add(60, [0] * 60, relabel(60, [(i, i + 1, 1) for i in range(1, 60)] + rnd_roads(60, 30, 60)))
+add(300, rnd_c(300), rnd_roads(300, 400))
+add(2000, rnd_c(2000, 100), connected(2000, 3000, 100))
+add(3000, rnd_c(3000, 5), relabel(3000, [(i, i + 1, ri(1, 3)) for i in range(1, 3000)] + rnd_roads(3000, 500, 3000)))
+# hidden: large
 N = MAXN
-add([i + 2 for i in range(N - 1)] + [0])                        # path N -> N-1 -> ... -> 1
-add([0] + [i for i in range(1, N)])                             # path 1 -> 2 -> ... -> N
-add(tree(N, "path"))
-add(tree(N, "deep"))
-add(tree(N, "star"))
-add(tree(N, "random"))
-add(tree(N, "broom"))
-add(tree(N, "twopaths"))
-add(tree(N, "binary"))
+add(N, rnd_c(N), [(i, i + 1, ri(1, MAXW)) for i in range(N - 1, 0, -1)])   # chain listed from the far end
+add(N, [MAXC] * N, relabel(N, [(i, i + 1, MAXW) for i in range(1, N)]))   # the largest distances
+add(N, rnd_c(N), connected(N, MAXM))
+add(N, rnd_c(N, 10), deep(N, MAXM, 10, 1000))                             # many equal distances
+add(N, [0] * N, deep(N, MAXM, 1, 1))                                      # all equal weights
+add(N, rnd_c(N, 1000), deep(N, MAXM, 1000, MAXW))
+n, c, roads = hub(30_000, MAXM - 60_000)
+add(n, c, roads)
+c = rnd_c(N, 100)
+side = 250                                                                # 250 x 400 grid
+grid = []
+for r in range(side):
+    for q in range(N // side):
+        v = r * (N // side) + q + 1
+        if q + 1 < N // side:
+            grid.append((v, v + 1, ri(1, MAXW)))
+        if r + 1 < side:
+            grid.append((v, v + N // side, ri(1, 10)))
+add(N, c, relabel(N, grid[:MAXM]))
+k = 300                                                                   # a dense part and a long tail
+roads = [(ri(1, k), ri(1, k), ri(1, MAXW)) for _ in range(MAXM - (N - k))]
+roads += [(i, i + 1, ri(1, 1000)) for i in range(k, N)]
+add(N, rnd_c(N), relabel(N, roads))
+roads = [(1, i, 3 * i) for i in range(2, N // 2 + 2)]                    # star: shortcuts lose to the chain
+roads += [(i, i + 1, 1) for i in range(N // 2, 1, -1)]
+add(N, [0] * N, roads)
+add(N, rnd_c(N), rnd_roads(N, MAXM))                                      # several components
+roads = deep(N // 2, MAXM - N // 4, 100, MAXW)                           # half the town unreachable
+roads += [(ri(N // 2 + 1, N), ri(N // 2 + 1, N), ri(1, MAXW)) for _ in range(N // 4)]
+add(N, rnd_c(N, 100), roads)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

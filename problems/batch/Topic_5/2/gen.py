@@ -1,84 +1,83 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(50202)
-MAXR = MAXC = 1000
+random.seed(40402)
+MAXN, MAXT, MAXG = 150_000, 10**9, 10**9
 tests = []
 
 
-def add(g):
-    r, c = len(g), len(g[0])
-    assert 1 <= r <= MAXR and 1 <= c <= MAXC
-    assert all(len(row) == c and all(ch in "0123456789#" for ch in row) for row in g)
-    tests.append(f"{r} {c}\n" + "".join(row + "\n" for row in g))
+def ri(lo, hi):
+    """uniform integer in [lo, hi] (deterministic, faster than randint)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def rnd(r, c, pblock, digits="0123456789"):
-    g = []
-    for _ in range(r):
-        g.append("".join("#" if random.random() < pblock else random.choice(digits) for _ in range(c)))
-    return g
+def add(G, a, shuffle=True):
+    a = list(a)
+    if shuffle:
+        random.shuffle(a)
+    n = len(a)
+    assert 1 <= n <= MAXN and 1 <= G <= MAXG
+    assert all(0 <= s < e <= MAXT for s, e in a)
+    tests.append(f"{n} {G}\n" + "".join(f"{s} {e}\n" for s, e in a))
 
 
-def put(g, i, j, ch):
-    g[i] = g[i][:j] + ch + g[i][j + 1:]
+def rnd(n, T, maxlen):
+    out = []
+    for _ in range(n):
+        s = ri(0, T - 1)
+        out.append((s, min(T, s + ri(1, maxlen))))
+    return out
 
 
 # samples
-add(["3#21", "5196", "2#8#", "1403"])
-add(["12#", "3#4", "#56"])
-add(["7"])
-add(["#5", "55"])
-add(["9", "0", "9"])
-add(["1#99", "1#99", "1111"])
-# hidden: small (the brute force checks these)
-add(["5", "#", "5"])
-add(["123456789"])
-g = rnd(6, 7, 0.2); put(g, 0, 0, "3"); put(g, 5, 6, "4"); add(g)
-g = rnd(9, 9, 0.25); put(g, 0, 0, "1"); put(g, 8, 8, "1"); add(g)
-g = rnd(11, 12, 0.15); put(g, 0, 0, "0"); put(g, 10, 11, "9"); add(g)
-add(["0" * 6 + "#" + "9" * 5] * 11 + ["0" * 6 + "#" + "9" * 5])   # unreachable
-add(["1" * 12] * 12)
-g = ["0" * 5 + "#" + "9" * 6 for _ in range(11)] + ["0" * 12]  # the 9s cannot be reached
-add(g)
-
-
-def wall(r, c, col, gap):
-    """column col is blocked except in row gap; the part right of it is full of 9s"""
-    g = []
-    for i in range(r):
-        left = "".join(random.choice("01") for _ in range(col))
-        mid = "0" if i == gap else "#"
-        right = "9" * (c - col - 1)
-        g.append(left + mid + right)
-    return g
-
-
+add(10, [(95, 110), (0, 30), (200, 230), (60, 90), (35, 50)], False)
+add(1, [(0, 100), (10, 20), (30, 40), (106, 110), (100, 105)], False)
+add(5, [(3, 8)], False)
+add(1000, [(500, 600), (0, 1), (2000, 2001)], False)
+add(3, [(4, 6), (4, 6), (1, 2)], False)
+add(2, [(10, 20), (1, 9), (22, 30), (11, 12)], False)
+# hidden: small
+add(MAXG, [(0, MAXT)])
+add(1, [(0, 1), (1, 2), (2, 3), (4, 5)])
+add(2, [(0, 10), (2, 3), (5, 6), (11, 12), (14, 15)])   # nested: compare with the largest end
+add(3, rnd(8, 40, 5))
+add(5, rnd(30, 300, 8))
+add(20, rnd(100, 10_000, 50))
+add(100, rnd(500, 10**6, 500))
+add(1, rnd(800, 2000, 3))
+a = [(0, 1000)] + [(ri(0, 990), 0) for _ in range(300)]
+a = [(s, s + ri(1, 9)) if e == 0 else (s, e) for s, e in a] + [(1000 + 7 * i, 1003 + 7 * i) for i in range(300)]
+add(4, a)
+add(MAXG, rnd(1000, MAXT, 10))                          # everything in one group
 # hidden: large
-add(rnd(MAXR, MAXC, 0.0))
-add(["9" * MAXC] * MAXR)
-g = rnd(MAXR, MAXC, 0.2); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)
-g = rnd(MAXR, MAXC, 0.25); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)
-g = rnd(MAXR, MAXC, 0.4); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)   # most likely -1
-add(wall(MAXR, MAXC, 500, MAXR - 1))       # pass along the last row only
-g = wall(MAXR, MAXC, 500, MAXR - 1); put(g, MAXR - 1, 500, "#"); add(g)   # no way at all
-g = wall(MAXR, MAXC, 300, 0); add(g)       # the gap is on the first row
-g = rnd(MAXR, MAXC, 0.05); put(g, MAXR - 1, MAXC - 1, "#"); add(g)
-g = rnd(MAXR, MAXC, 0.05); put(g, 0, 0, "#"); add(g)
-g = []                                     # a narrow open band along the diagonal
-for i in range(MAXR):
-    g.append("".join(random.choice("123456789") if abs(i - j) <= 2 else "#" for j in range(MAXC)))
-add(g)
-g = []                                     # wide band, everything outside is blocked
-for i in range(MAXR):
-    g.append("".join(random.choice("0123456789") if abs(i - j) <= 40 else "#" for j in range(MAXC)))
-add(g)
-add(rnd(1, MAXC, 0.0))
-add([random.choice("0123456789") for _ in range(MAXR)])
-add(rnd(MAXR, MAXC, 0.1, "09"))
+N = MAXN
+add(1000, rnd(N, MAXT, 4000))
+add(6000, rnd(N, MAXT, 2000))
+add(1, rnd(N, MAXT, 6000))
+a = [(i * 6000, i * 6000 + 3000) for i in range(N)]     # gaps of exactly G: N separate groups
+add(3000, a)
+a = [(i * 6000, i * 6000 + 3000 + (i % 2)) for i in range(N)]  # gaps alternate G and G - 1
+add(3000, a, False)
+a = []
+for blk in range(N // 50):                              # long appointment covering 49 short ones, then a gap
+    base = blk * 6000
+    a.append((base, base + 5000))
+    for j in range(49):
+        s = base + ri(0, 4000)
+        a.append((s, s + ri(1, 100)))
+add(900, a)
+a = [(MAXT - 1 - 6000 * i - 3000, MAXT - 1 - 6000 * i) for i in range(N)]
+add(2999, a, False)                                     # reverse sorted input
+add(MAXG, rnd(N, MAXT, 1))                              # all one group
+a = [(ri(0, 10) * 1000, 0) for _ in range(N)]
+a = [(s, s + 500) for s, _ in a]                        # heavy duplicates
+add(500, a)
+add(10, [(ri(0, MAXT - 1), MAXT) for _ in range(N)])    # all end at the latest time
+add(2, [(2 * i, 2 * i + 1) for i in range(N)])          # touching nothing, gap 1 < G
+add(5000, rnd(N, MAXT, 500))
 
 for t in tests:
-    assert t.endswith("\n")
+    assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

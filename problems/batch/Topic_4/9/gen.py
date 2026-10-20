@@ -1,73 +1,85 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40109)
-MAXN, MAXC = 200_000, 10**6
+random.seed(30109)
+MAXN = 200_000
+MAXT = 10**9
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(segs):
-    n = len(segs)
+def add(lec):
+    n = len(lec)
     assert 1 <= n <= MAXN
-    assert all(0 <= l < r <= MAXC for (l, r) in segs)
-    tests.append(f"{n}\n" + "".join(f"{l} {r}\n" for (l, r) in segs))
+    assert all(0 <= s < e <= MAXT for s, e in lec)
+    tests.append(f"{n}\n" + "".join(f"{s} {e}\n" for s, e in lec))
 
 
-def rnd_seg(lo, hi, minlen=1):
-    l = ri(lo, hi - minlen)
-    return (l, ri(l + minlen, hi))
+def rnd(n, tmax, lenmax):
+    res = []
+    for _ in range(n):
+        s = ri(0, tmax - 1)
+        res.append((s, min(tmax, s + ri(1, lenmax))))
+    return res
+
+
+def adv(n, h):
+    """h long lectures that end late, then n - h short ones in a row while all long ones still run"""
+    lec = [(ri(0, h), ri(MAXT // 2, MAXT)) for _ in range(h)]
+    step = (MAXT // 2 - h - 10) // (n - h)
+    lec += [(h + 1 + k * step, h + 1 + k * step + ri(1, step)) for k in range(n - h)]
+    random.shuffle(lec)
+    return lec
 
 
 # samples
-add([(0, 10), (2, 5), (4, 8)])
-add([(3, 6), (1, 7), (7, 9)])
-add([(0, MAXC)])
-add([(5, 9), (5, 9), (5, 9)])
-add([(10, 20), (0, 4), (12, 13), (2, 15), (30, 31)])
-add([(1, 9), (2, 8), (3, 7), (4, 6)])
+add([(1, 4), (2, 5), (4, 7), (5, 6)])
+add([(1, 5), (1, 3), (2, 4), (6, 8)])
+add([(0, 1000000000)])
+add([(3, 9), (1, 2), (3, 4), (0, 3), (2, 6)])
+add([(7, 9), (1, 3), (5, 7), (3, 5)])
+add([(2, 8), (0, 4), (6, 7), (1, 3), (3, 6), (0, 2), (4, 10)])
 # hidden: small
-add([(0, 1)])
-add([(0, 5), (5, 10), (0, 10), (3, 4)])
-add([rnd_seg(0, 10) for _ in range(8)])
-add([rnd_seg(0, 30) for _ in range(40)])
-add([rnd_seg(0, 1000) for _ in range(500)])
-add([rnd_seg(0, MAXC) for _ in range(3000)])
-add([rnd_seg(0, 10**4) for _ in range(10000)])
-add([rnd_seg(0, 100) for _ in range(5000)])
-# hidden: maximum size (most paints span a large part of the wall: painting piece by piece is too slow)
-N, H = MAXN, MAXN // 2
-
-
-def wide(k):
-    return [(ri(0, MAXC // 4), ri(3 * MAXC // 4, MAXC)) for _ in range(k)]
-
-
-add([rnd_seg(0, MAXC) for _ in range(N)])
-s = wide(N)
-add(s)
-s.sort(key=lambda t: t[1] - t[0])                                         # short first: long ones bury them
-add(s)
-s.sort(key=lambda t: t[0] - t[1])                                         # long first: nested windows stay visible
-add(s)
-add([(i * 2, MAXC - i * 2) for i in range(N)])                            # nested, outer first
-add([(MAXC // 2 - 10**5 - i * 2, MAXC // 2 + 10**5 + i * 2) for i in range(N)])   # nested, inner first
-add(wide(N - 1) + [(0, MAXC)])                                            # the last paint covers everything
-s = wide(N)
-for i in range(0, N, 1000):                                               # a few short paints on top
-    s[i] = rnd_seg(0, MAXC, 1)
-add(s)
-s = wide(H) + [rnd_seg(0, MAXC) for _ in range(H)]
-random.shuffle(s)
-add(s)
-add([(0, MAXC)] * H)                                                      # only the last one is visible
-add([(i * 6, i * 6 + 1000) for i in range(H)])                            # overlapping staircase
-add([(MAXC - i * 6 - 1000, MAXC - i * 6) for i in range(H)])              # staircase the other way
-add([rnd_seg(0, 2000) for _ in range(H)])                                 # many equal endpoints
-add([(x, x + ri(1, 10)) for x in (ri(0, MAXC - 10) for _ in range(H))])   # tiny paints
+add([(5, 6), (5, 6)])
+for n, tmax, ln in ((6, 10, 4), (8, 15, 6), (10, 20, 5), (12, 12, 12), (40, 50, 10), (300, 1000, 100)):
+    add(rnd(n, tmax, ln))
+add([(i, i + 1) for i in range(30)][::-1])                       # touching only: one room
+add(rnd(12000, MAXT, MAXT // 20))
+# hidden: large
+N = 150_000                                                     # 10-digit times: about 3 MB
+add(rnd(N, MAXT, MAXT))                                         # tens of thousands of rooms
+add(adv(N, N // 2))
+add([(0, MAXT)] * MAXN)                                         # every lecture at once
+add([(i, 2 * MAXN - i) for i in range(MAXN)][::-1])                   # nested
+add([(3 * i, 3 * i + 3) for i in range(MAXN)])                   # back to back
+h = MAXN // 2                                                   # many long lectures, then short ones that
+add([(0, MAXT)] * h + [(2 * i + 1, 2 * i + 2) for i in range(MAXN - h)])   # all need the room after them
+h = N // 2
+lec = [(0, MAXT - i) for i in range(h)]                         # rooms become free one by one from the top
+lec += [(MAXT - h + 2 * i, MAXT - h + 2 * i + 1) for i in range(1, (N - h) // 2)]
+add(lec[:N])
+add(rnd(N, MAXT, 5000))                                         # few rooms
+add(rnd(MAXN, 10**6, 10**4))                                      # thousands of rooms, many equal times
+add(rnd(MAXN, 1000, 1000))                                       # many equal start times (index order)
+lec = []
+for i in range(MAXN // 2):                                      # pairs [a, b), [b, c): touching does not clash
+    a = 4 * i
+    lec += [(a, a + 2), (a + 2, a + 4)]
+random.shuffle(lec)
+add(lec)
+lec = rnd(N // 2, MAXT // 2, MAXT // 2) + [(MAXT // 2 + ri(0, 1000), MAXT) for _ in range(N // 2)]
+random.shuffle(lec)
+add(lec)                                                        # every room frees, then the smallest numbers reuse
+add(adv(N, N // 3))
+h = MAXN // 3                                                   # like adv() with small times, at full size
+lec = [(ri(0, h), 10**6 + ri(0, 10**6)) for _ in range(h)]
+lec += [(h + 1 + 2 * k, h + 2 + 2 * k + ri(0, 1)) for k in range(MAXN - h)]
+random.shuffle(lec)
+add(lec)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
