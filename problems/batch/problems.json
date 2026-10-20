@@ -1538,5 +1538,285 @@
   "tier": 3,
   "dir": "Topic_11/20",
   "samples": 5
+ },
+ "1201": {
+  "title": "รายชื่อแขกงานวันเกิด",
+  "en": "Party Guest List",
+  "tier": 1,
+  "dir": "Topic_12/1",
+  "samples": 5
+ },
+ "1202": {
+  "title": "กติกาการเข้าแถว",
+  "en": "Line-up Rules",
+  "tier": 1,
+  "dir": "Topic_12/2",
+  "samples": 6
+ },
+ "1203": {
+  "title": "จำนวนเฉพาะที่เป็น palindrome",
+  "en": "Prime Palindromes",
+  "tier": 1,
+  "dir": "Topic_12/3",
+  "samples": 5
+ },
+ "1204": {
+  "title": "แผง switch ไฟ",
+  "en": "Switch Panel",
+  "tier": 1,
+  "dir": "Topic_12/4",
+  "samples": 5
+ },
+ "1205": {
+  "title": "สมการผลรวมเลขโดด",
+  "en": "Digit-Sum Equation",
+  "tier": 1,
+  "dir": "Topic_12/5",
+  "samples": 5
+ },
+ "1206": {
+  "title": "ผลบวกกำลังสามสองจำนวน",
+  "en": "Sum of Two Cubes",
+  "tier": 1,
+  "dir": "Topic_12/6",
+  "samples": 5
+ },
+ "1207": {
+  "title": "ครบสี่ซุ้มอาหาร",
+  "en": "Four Stalls",
+  "tier": 1,
+  "dir": "Topic_12/7",
+  "samples": 5
+ },
+ "1208": {
+  "title": "พลิกเหรียญทั้งแถวทั้งหลัก",
+  "en": "Flipping Coins on a Board",
+  "tier": 2,
+  "dir": "Topic_12/8",
+  "samples": 6
+ },
+ "1209": {
+  "title": "เติมเครื่องหมายให้ถึงเป้า",
+  "en": "Hitting the Target",
+  "tier": 2,
+  "dir": "Topic_12/9",
+  "samples": 6
+ },
+ "1210": {
+  "title": "ลูกเต๋ากลิ้งไม่รู้จบ",
+  "en": "Rolling Die Marathon",
+  "tier": 2,
+  "dir": "Topic_12/10",
+  "samples": 5
+ },
+ "1211": {
+  "title": "แบ่งถุงให้หนักเท่ากัน",
+  "en": "Splitting Bags Evenly",
+  "tier": 2,
+  "dir": "Topic_12/11",
+  "samples": 5
+ },
+ "1212": {
+  "title": "สร้างเลขจากไพ่",
+  "en": "Make the Number",
+  "tier": 2,
+  "dir": "Topic_12/12",
+  "samples": 5
+ },
+ "1213": {
+  "title": "ไขกฎของวงกลม",
+  "en": "Which Ring Rule?",
+  "tier": 2,
+  "dir": "Topic_12/13",
+  "samples": 6
+ },
+ "1214": {
+  "title": "ตรายางหมุนได้",
+  "en": "Stamp with Rotations",
+  "tier": 2,
+  "dir": "Topic_12/14",
+  "samples": 5
+ },
+ "1215": {
+  "title": "แบ่งสมบัติสองพี่น้อง",
+  "en": "Splitting the Treasure",
+  "tier": 2,
+  "dir": "Topic_12/15",
+  "samples": 6
+ },
+ "1216": {
+  "title": "แก้และตรวจ sudoku",
+  "en": "Sudoku Checker and Solver",
+  "tier": 2,
+  "dir": "Topic_12/16",
+  "samples": 5
+ },
+ "1217": {
+  "title": "ปูกระดานด้วยชิ้นส่วน",
+  "en": "Covering the Board with Pieces",
+  "tier": 3,
+  "dir": "Topic_12/17",
+  "samples": 5
+ },
+ "1218": {
+  "title": "ตัดหญ้าให้ครบทุกช่อง",
+  "en": "Mowing Every Square",
+  "tier": 3,
+  "dir": "Topic_12/18",
+  "samples": 6
+ },
+ "1219": {
+  "title": "ขนสินค้าสี่สิบชิ้น",
+  "en": "Knapsack of Forty",
+  "tier": 3,
+  "dir": "Topic_12/19",
+  "samples": 6
+ },
+ "1220": {
+  "title": "กลุ่มเพื่อนสนิทที่ใหญ่ที่สุด",
+  "en": "Largest Friendly Group",
+  "tier": 3,
+  "dir": "Topic_12/20",
+  "samples": 5
+ },
+ "1301": {
+  "title": "อาณานิคมแบคทีเรีย",
+  "en": "Bacteria Colony",
+  "tier": 1,
+  "dir": "Topic_13/1",
+  "samples": 5
+ },
+ "1302": {
+  "title": "กรรมการสองคน",
+  "en": "Two Judges",
+  "tier": 1,
+  "dir": "Topic_13/2",
+  "samples": 5
+ },
+ "1303": {
+  "title": "สับไพ่ซ้ำ ๆ",
+  "en": "Repeated Shuffle",
+  "tier": 1,
+  "dir": "Topic_13/3",
+  "samples": 5
+ },
+ "1304": {
+  "title": "หอคอยฮานอยหลังเดิน k ครั้ง",
+  "en": "Tower of Hanoi After k Moves",
+  "tier": 1,
+  "dir": "Topic_13/4",
+  "samples": 5
+ },
+ "1305": {
+  "title": "แผนที่ quadtree",
+  "en": "Quadtree Map",
+  "tier": 1,
+  "dir": "Topic_13/5",
+  "samples": 5
+ },
+ "1306": {
+  "title": "รอยพับบนแถบกระดาษ",
+  "en": "Creases on a Paper Strip",
+  "tier": 1,
+  "dir": "Topic_13/6",
+  "samples": 5
+ },
+ "1307": {
+  "title": "จำนวนคี่ในสามเหลี่ยมปาสคาล",
+  "en": "Odd Numbers in the Triangle",
+  "tier": 2,
+  "dir": "Topic_13/7",
+  "samples": 5
+ },
+ "1308": {
+  "title": "ฟาร์มกระต่าย",
+  "en": "Rabbit Farm",
+  "tier": 2,
+  "dir": "Topic_13/8",
+  "samples": 5
+ },
+ "1309": {
+  "title": "นับเส้นทางที่ใช้ถนนพอดี K สาย",
+  "en": "Walks of Length K",
+  "tier": 2,
+  "dir": "Topic_13/9",
+  "samples": 6
+ },
+ "1310": {
+  "title": "ทาสีรั้วด้วยแปรง",
+  "en": "Brush Strokes on a Fence",
+  "tier": 2,
+  "dir": "Topic_13/10",
+  "samples": 6
+ },
+ "1311": {
+  "title": "ช่วงวันที่กำไรรวมอยู่ในเกณฑ์",
+  "en": "Sums in a Range",
+  "tier": 2,
+  "dir": "Topic_13/11",
+  "samples": 6
+ },
+ "1312": {
+  "title": "เดินตามเส้นโค้ง Hilbert",
+  "en": "Hilbert Curve Walk",
+  "tier": 2,
+  "dir": "Topic_13/12",
+  "samples": 5
+ },
+ "1313": {
+  "title": "เครื่องคิดเลขที่ยกกำลังได้",
+  "en": "Calculator with Powers",
+  "tier": 2,
+  "dir": "Topic_13/13",
+  "samples": 6
+ },
+ "1314": {
+  "title": "ค่าลำดับที่ k ในรายการยักษ์",
+  "en": "The Middle of a Huge List",
+  "tier": 2,
+  "dir": "Topic_13/14",
+  "samples": 5
+ },
+ "1315": {
+  "title": "แผนออมเงินทวีคูณ",
+  "en": "Savings Plan",
+  "tier": 2,
+  "dir": "Topic_13/15",
+  "samples": 5
+ },
+ "1316": {
+  "title": "string ที่ดี",
+  "en": "Good Strings",
+  "tier": 2,
+  "dir": "Topic_13/16",
+  "samples": 5
+ },
+ "1317": {
+  "title": "เพลงท่อนซ้ำ",
+  "en": "Repeating Chorus",
+  "tier": 3,
+  "dir": "Topic_13/17",
+  "samples": 5
+ },
+ "1318": {
+  "title": "กลับด้านทีละระดับ",
+  "en": "Mirror Levels",
+  "tier": 3,
+  "dir": "Topic_13/18",
+  "samples": 5
+ },
+ "1319": {
+  "title": "อันดับเรียงติดกัน",
+  "en": "Consecutive Ranks",
+  "tier": 3,
+  "dir": "Topic_13/19",
+  "samples": 5
+ },
+ "1320": {
+  "title": "บินให้ครบ K เที่ยว",
+  "en": "Exactly K Flights",
+  "tier": 3,
+  "dir": "Topic_13/20",
+  "samples": 5
  }
 }

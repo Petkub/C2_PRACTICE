@@ -1,7 +1,7 @@
 # C2_PRACTICE: POSN Camp 2 Topic Practice Judge
 
 A terminal judge that students run on their own machines to practice for the POSN Computer Olympiad Camp 2,
-organised by topic: 11 topics x 20 problems (easy to hard), folders `Topic_K`. In the judge, the data files and
+organised by topic: 13 topics x 20 problems (easy to hard), folders `Topic_K`. In the judge, the data files and
 options keep the mock-exam names (`sets.json`, `--set K`): a "set" here is a topic.
 Sibling repos `C1_MOCK`, `C1_PRACTICE` (Camp 1) and `C2_MOCK` (Camp 2 mock exams) share the same judge; fix shared bugs in all four.
 Default memory limit 256 MB (Camp 2), not C1's 64 MB.
