@@ -1,5 +1,9 @@
 POSN Practice Judge - changes
 
+2.1  A big test left over from an older version of a problem is rebuilt, so it is never judged with old data.
+2.0  13 topics in study order: 1 brute force, 2 prefix sums, 3 binary search, 4 greedy, 5 sweep line,
+     6-7 DP, 8 graphs, 9 divide and conquer, 10 shortest paths, 11 DSU/MST, 12 trees, 13 segment/Fenwick trees.
+1.1  Topics 12 (brute force) and 13 (divide and conquer); figures in the statements.
 1.0  C2 Practice: 11 topics x 20 problems (easy to hard: 1-7 easy, 8-16 medium, 17-20 hard). Same judge as the
      Camp 1 practice and the Camp 2 mock exams; big tests are built on your computer the first time a problem is
      judged (small download). Memory limit 256 MB.

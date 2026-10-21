@@ -467,6 +467,42 @@ def test_generated_tests():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_stale_tests():
+    """An update that changes a problem's tests leaves the old files of its big tests behind (the updater never
+    deletes): a big input whose sha256 differs is rebuilt, and an old .out of a hash-only test is ignored."""
+    print("Stale tests")
+    tmp = tempfile.mkdtemp(prefix="judge_stale_")
+    try:
+        subprocess.run([sys.executable, os.path.join(REPO, "tools", "build_dist.py"), "--out", tmp, "--no-zip"],
+                       check=True, stdout=subprocess.DEVNULL)
+        batch = os.path.join(tmp, "C2_Practice", "Judge", "problems", "batch")
+        pdir = t = None
+        for m in sorted(glob.glob(os.path.join(batch, "Topic_*", "*", "manifest.json"))):
+            with open(m, encoding="utf-8") as f:
+                big = [x for x in json.load(f)["tests"] if not x["in_file"] and not x["out_file"]]
+            if big:
+                pdir, t = os.path.dirname(m), big[0]
+                break
+        fin = os.path.join(pdir, t["name"] + ".in")
+        for path in (fin, fin[:-3] + ".out"):          # what an older version of the problem left behind
+            with open(path, "wb") as f:
+                f.write(b"stale\n")
+        st = judge.Style(color=False, ascii_only=True, tty=False)
+        with contextlib.redirect_stdout(io.StringIO()):
+            rebuilt = judge.ensure_tests(pdir, st) and sha(fin) == t["in"]
+        src = os.path.join(tmp, "stale.cpp")            # prints exactly the old .out
+        with open(src, "w") as f:
+            f.write('#include <cstdio>\nint main() { std::puts("stale"); }\n')
+        exe, _, _, _ = judge.compile_source(src, tmp)
+        with contextlib.redirect_stdout(io.StringIO()):
+            results, _, _ = judge.run_tests(exe, pdir, st, 1.0, 0, False, quiet=True)
+        verdict = {r[0]: r[1] for r in results}.get(t["name"])
+        check(rebuilt and verdict == "WA", "old test files left by an update: big input rebuilt, old .out ignored",
+              f"rebuilt {rebuilt}, {verdict}")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def test_data():
     """Every test input has its expected output (the judge silently skips an .in without .out)."""
     print("Test data")
@@ -517,6 +553,7 @@ def main():
     test_fast_update()
     test_crlf_generator()
     test_generated_tests()
+    test_stale_tests()
     test_data()
     test_manifest()
     print()
