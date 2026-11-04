@@ -1,143 +1,145 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(132006)
-MAXN = 80
-MAXM = 10_000
-MAXK = 10**9
-MAXC = 10**9
-MAXQ = 1000
+random.seed(92020)
+MAXN = 200_000
+MAXQ = 200_000
 tests = []
 
 
-def add(n, edges, qs):
-    assert 2 <= n <= MAXN and 1 <= len(edges) <= MAXM and 1 <= len(qs) <= MAXQ
-    for a, b, c in edges:
-        assert 1 <= a <= n and 1 <= b <= n and a != b and 1 <= c <= MAXC
-    for s, t, k in qs:
-        assert 1 <= s <= n and 1 <= t <= n and 1 <= k <= MAXK
-    tests.append(f"{n} {len(edges)}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in edges)
-                 + f"{len(qs)}\n" + "".join(f"{s} {t} {k}\n" for s, t, k in qs))
+def add(f, qs):
+    """f[1..n] given as a list of length n (f[0] is lock 1)"""
+    n, q = len(f), len(qs)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(1 <= x <= n for x in f)
+    assert all(1 <= a <= n and 1 <= b <= n for a, b in qs)
+    lines = [f"{n} {q}", " ".join(map(str, f))] + [f"{a} {b}" for a, b in qs]
+    tests.append("\n".join(lines) + "\n")
 
 
-def ri(lo, hi):
-    return random.randint(lo, hi)
+def relabel(f, qs):
+    """random names for the locks (f and queries use 1-based labels)"""
+    n = len(f)
+    p = list(range(1, n + 1))
+    random.shuffle(p)
+    g = [0] * n
+    for v in range(1, n + 1):
+        g[p[v - 1] - 1] = p[f[v - 1] - 1]
+    return g, [(p[a - 1], p[b - 1]) for a, b in qs]
 
 
-# K = 2^30 - 1 - 2^j (j = 27, 28, 29) and 2^29 - 1 have 29 one bits: the most squarings to combine
-HEAVY = [(1 << 30) - 1 - (1 << j) for j in (27, 28, 29)] + [(1 << 29) - 1]
-assert all(k <= MAXK and bin(k).count("1") == 29 for k in HEAVY)
-
-
-def rand_k(kind=None):
-    """a number of flights of a random kind: uniform, many one bits, small, a power of two, the maximum"""
-    k = ri(0, 9) if kind is None else kind
-    if k <= 3:
-        return ri(1, MAXK)
-    if k <= 5:     # many one bits (all bits of a random length, with a few cleared)
-        b = ri(20, 29)
-        v = (1 << b) - 1
-        for _ in range(ri(0, 2)):
-            v &= ~(1 << ri(0, b - 1))
-        return random.choice(HEAVY) if ri(0, 2) == 0 else max(1, v)
-    if k == 6:
-        return ri(1, 50)
-    if k == 7:
-        return 1 << ri(0, 29)
-    if k == 8:
-        return MAXK - ri(0, 3)
-    return ri(MAXK // 2, MAXK)
-
-
-def rand_edges(n, m, cmax, cmin=1):
+def rand_q(n, q, same=0.02):
+    rnd = random.random
     out = []
-    for _ in range(m):
-        a = ri(1, n)
-        b = ri(1, n - 1)
-        if b >= a:
-            b += 1
-        out.append((a, b, ri(cmin, cmax)))
+    for _ in range(q):
+        a = int(rnd() * n) + 1
+        b = a if rnd() < same else int(rnd() * n) + 1
+        out.append((a, b))
     return out
 
 
-def rand_q(n, q, kmax=MAXK, kind=None):
-    return [(ri(1, n), ri(1, n), rand_k(kind) if kmax == MAXK else ri(1, kmax)) for _ in range(q)]
+def tree_loop(n, parent_of):
+    """lock 1 drains into itself, lock v > 1 drains into parent_of(v) < v"""
+    f = [1] + [parent_of(v) for v in range(2, n + 1)]
+    return f
 
 
-def all_pairs(n, kmax):
-    return [(s, t, ri(1, kmax)) for s in range(1, n + 1) for t in range(1, n + 1)]
+def depths(f):
+    """steps until reaching lock 1 for a tree_loop (parents have smaller numbers)"""
+    d = [0] * (len(f) + 1)
+    for v in range(2, len(f) + 1):
+        d[v] = d[f[v - 1]] + 1
+    return d
 
 
-def bipartite(n, m, cmax):
-    """flights only between odd and even cities: the parity of K decides which pairs are possible"""
-    out = []
-    while len(out) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a % 2 != b % 2:
-            out.append((a, b, ri(1, cmax)))
-    return out
+def deep_pairs(f, q, top):
+    """pairs among the `top` deepest locks (they meet late or only near the root)"""
+    d = depths(f)
+    order = sorted(range(1, len(f) + 1), key=lambda v: -d[v])[:top]
+    return [(random.choice(order), random.choice(order)) for _ in range(q)]
 
 
-def cycle_layers(n, L, m, cmax):
-    """city i belongs to layer i mod L; flights only go from layer j to layer j + 1 (mod L)"""
-    out = []
-    for i in range(1, n + 1):                       # make every layer reachable
-        j = i % n + 1
-        while (j % L) != ((i + 1) % L):
-            j = j % n + 1
-        out.append((i, j, ri(1, cmax)))
-    while len(out) < m:
-        a, b = ri(1, n), ri(1, n)
-        if b % L == (a + 1) % L and a != b:
-            out.append((a, b, ri(1, cmax)))
-    return out
+def rho(n, tails, cyc):
+    """one cycle of length cyc (locks 1..cyc), the other locks form `tails` chains entering it"""
+    f = [0] * n
+    for v in range(1, cyc + 1):
+        f[v - 1] = v % cyc + 1
+    rest = list(range(cyc + 1, n + 1))
+    chains = [rest[i::tails] for i in range(tails)]
+    for ch in chains:
+        if not ch:
+            continue
+        f[ch[0] - 1] = random.randint(1, cyc)
+        for x, y in zip(ch[1:], ch):
+            f[x - 1] = y
+    return f
 
 
-def dag(n, m, cmax):
-    out = []
-    while len(out) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a < b:
-            out.append((a, b, ri(1, cmax)))
-    return out
+def comps(n, k):
+    """k components: each a cycle with random trees hanging from it"""
+    f = [0] * n
+    cuts = sorted(random.sample(range(1, n), k - 1)) if k > 1 else []
+    for lo, hi in zip([0] + cuts, cuts + [n]):
+        size = hi - lo
+        cyc = random.randint(1, max(1, min(size, 50)))
+        for i in range(cyc):
+            f[lo + i] = lo + (i + 1) % cyc + 1
+        for i in range(cyc, size):
+            f[lo + i] = lo + random.randint(max(0, i - 3), i - 1) + 1   # long thin trees
+    return f
 
 
 # samples
-add(3, [(1, 2, 5), (2, 3, 3), (3, 1, 4), (2, 1, 1)], [(1, 3, 4), (2, 2, 2)])
-add(2, [(1, 2, 7), (2, 1, 3)], [(1, 2, 3), (1, 1, 3), (1, 1, 2)])
-add(2, [(1, 2, MAXC), (2, 1, MAXC)], [(1, 1, MAXK), (2, 1, MAXK - 1)])
-add(3, [(1, 2, 3), (1, 2, 1)], [(1, 2, 1), (2, 1, 1)])
-add(4, [(4, 3, 12), (3, 2, 18), (3, 1, 1), (2, 4, 14), (4, 2, 18)], [(4, 4, 7), (3, 3, 6)])
-# hidden: small K (the brute force adds one flight at a time)
-add(2, [(1, 2, 4)], [(s, t, k) for s in (1, 2) for t in (1, 2) for k in (1, 2, 3)])
-add(3, rand_edges(3, 6, 10), all_pairs(3, 20) + all_pairs(3, 7))
-add(5, rand_edges(5, 12, 100), all_pairs(5, 60))
-add(6, bipartite(6, 15, 1000), all_pairs(6, 40) + all_pairs(6, 41))
-add(8, cycle_layers(8, 3, 20, 50), all_pairs(8, 100))
-add(10, rand_edges(10, 40, MAXC), all_pairs(10, 1000))
-add(10, dag(10, 30, 100), [(s, t, ri(1, 10)) for s in range(1, 11) for t in range(1, 11)])
-add(12, rand_edges(12, 30, 10), rand_q(12, 300, 999))
-add(20, rand_edges(20, 200, MAXC, MAXC - 10), rand_q(20, 300, 2000))
-add(30, cycle_layers(30, 7, 150, 1000), rand_q(30, 500, 300))
-add(MAXN, rand_edges(MAXN, 500, MAXC), rand_q(MAXN, 300, 400))
-# hidden: large (every query has its own K up to 10^9)
-add(MAXN, rand_edges(MAXN, MAXM, MAXC), rand_q(MAXN, MAXQ))
-add(MAXN, rand_edges(MAXN, MAXM, MAXC, MAXC - 1000), rand_q(MAXN, MAXQ, kind=4))
-add(MAXN, rand_edges(MAXN, 250, 1000), rand_q(MAXN, MAXQ))
-add(MAXN, bipartite(MAXN, MAXM, MAXC), rand_q(MAXN, MAXQ))
-add(MAXN, bipartite(MAXN, 1500, 10**6), rand_q(MAXN, MAXQ, kind=0))
-add(MAXN, cycle_layers(MAXN, 7, MAXM, MAXC), rand_q(MAXN, MAXQ))
-add(MAXN, cycle_layers(MAXN, MAXN, MAXN, MAXC), rand_q(MAXN, MAXQ))                 # one big ring
-add(MAXN, cycle_layers(MAXN, 10, 400, 100), rand_q(MAXN, MAXQ, kind=4))
-add(MAXN, dag(MAXN, MAXM, MAXC), [(ri(1, MAXN), ri(1, MAXN), rand_k(6) if i % 2 else rand_k()) for i in range(MAXQ)])
-add(MAXN, [(i, i % MAXN + 1, MAXC) for i in range(1, MAXN + 1)] + [(i % MAXN + 1, i, MAXC) for i in range(1, MAXN + 1)],
-    [(ri(1, MAXN), ri(1, MAXN), random.choice(HEAVY + [MAXK, MAXK - 1]) if i % 4 == 0 else rand_k(ri(8, 9)))
-     for i in range(MAXQ)])                                                        # answers up to 10^18
-add(MAXN, rand_edges(MAXN, MAXM, MAXC), [(ri(1, MAXN), ri(1, MAXN), rand_k(ri(6, 7))) for _ in range(MAXQ)])
-add(MAXN, rand_edges(MAXN, MAXM, 100), [(ri(1, MAXN), ri(1, MAXN), random.choice(HEAVY) if i % 4 == 0 else rand_k(4))
-                                         for i in range(MAXQ)])
-add(MAXN, rand_edges(MAXN, 120, MAXC) + [(1, 2, 1), (2, 1, 1)], rand_q(MAXN, MAXQ))
-add(MAXN, rand_edges(MAXN, MAXM, MAXC), [(s, s, rand_k()) for s in (ri(1, MAXN) for _ in range(MAXQ))])
+add([2, 3, 4, 5, 3, 4], [(1, 4), (6, 3), (2, 2), (3, 4)])
+add([2, 3, 3, 3, 4], [(1, 5), (1, 3), (2, 4)])
+add([1], [(1, 1)])
+add([2, 3, 4, 1], [(1, 3), (2, 2), (4, 1)])
+add([3, 3, 5, 3, 2, 8, 6, 7], [(1, 2), (4, 1), (6, 7), (8, 5), (3, 4)])
+# hidden: small (the brute force checks them)
+add([2, 1], [(1, 2), (2, 1), (1, 1)])
+add([1, 1], [(1, 2), (2, 1), (2, 2)])
+n = 10
+add([random.randint(1, n) for _ in range(n)], [(a, b) for a in range(1, n + 1) for b in range(1, n + 1)])
+n = 200
+add([random.randint(1, n) for _ in range(n)], rand_q(n, 2000))
+add(*relabel(comps(300, 4), rand_q(300, 3000)))
+add(*relabel(rho(1000, 3, 7), rand_q(1000, 3000)))
+f = tree_loop(1000, lambda v: v - 1)                   # a path into a lock that drains into itself
+add(*relabel(f, rand_q(1000, 3000)))
+f = tree_loop(5000, lambda v: max(1, v - random.randint(1, 3)))
+add(*relabel(f, deep_pairs(f, 10000, 300)))
+add(*relabel(rho(8000, 2, 4000), rand_q(8000, 10000)))
+add(*relabel(comps(10000, 30), rand_q(10000, 10000)))
+# hidden: large
+N = MAXN
+Q = 100_000
+f = tree_loop(N, lambda v: v - 1)                      # one long path: meeting up to minute N - 1
+qs = [(N, 1), (1, N), (N, N - 1), (N, 2)] + [(random.randint(N // 2, N), random.randint(1, N)) for _ in range(Q - 4)]
+add(*relabel(f, qs))
+f = tree_loop(N, lambda v: 1 if v == 3 * N // 4 + 1 else v - 1)
+add(*relabel(f, deep_pairs(f, Q, 2000)))              # two long branches
+f = tree_loop(N, lambda v: v - 1 if v % 5 else max(1, v - 2))   # deep with short side steps
+add(*relabel(f, deep_pairs(f, Q, 3000)))
+f = tree_loop(N, lambda v: max(1, v - random.choice([1, 1, 1, 2])))
+add(*relabel(f, deep_pairs(f, Q, 5000)))
+f = tree_loop(N, lambda v: max(1, v - random.choice([1, 1, 1, 2, 50])))
+add(*relabel(f, deep_pairs(f, Q, 20000)))
+f = tree_loop(N, lambda v: random.randint(max(1, v - 10), v - 1))
+add(*relabel(f, rand_q(N, Q)))
+add(*relabel(rho(N, 2, N // 2), rand_q(N, Q)))         # two long tails into a long cycle: many -1
+add(*relabel(rho(N, 1, 6), rand_q(N, Q)))               # a long tail into a short cycle
+add(*relabel(rho(N, 1000, 1000), rand_q(N, Q)))
+add(*relabel(comps(N, 20), rand_q(N, Q)))
+add(*relabel([v % N + 1 for v in range(1, N + 1)], rand_q(N, Q, 0.3)))   # one big cycle
+add([random.randint(1, N) for _ in range(N)], rand_q(N, Q))              # random drains
+f = rho(N, 1, 3)                                        # a long tail with short side chains
+for v in range(170_004, N + 1):
+    f[v - 1] = random.randint(4, v - 1)
+add(*relabel(f, [(random.randint(150_000, N), random.randint(100_000, N)) for _ in range(Q)]))
+f = tree_loop(N, lambda v: v - 1 if v <= 180_000 else random.randint(1, v - 1))
+add(*relabel(f, deep_pairs(f, Q, 40_000)))
+f = tree_loop(50_000, lambda v: 1)                     # a star: everything meets by minute 1
+add(*relabel(f, rand_q(50_000, MAXQ)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(11018)
-MAXN, MAXC = 100_000, 10**9
+random.seed(13018)
+MAXN, MAXQ = 10**6, 200_000
 tests = []
 
 
@@ -10,82 +10,96 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(rects):
-    n = len(rects)
-    assert 1 <= n <= MAXN
-    assert all(0 <= x1 < x2 <= MAXC and 0 <= y1 < y2 <= MAXC for x1, y1, x2, y2 in rects)
-    t = f"{n}\n" + "".join(f"{x1} {y1} {x2} {y2}\n" for x1, y1, x2, y2 in rects)
-    assert len(t) <= 3_300_000
-    tests.append(t)
+def add(n, ops):
+    q = len(ops)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    made, lifted, lines = 0, set(), []
+    for op in ops:
+        if op[0] == 'O':
+            k = op[1]
+            assert 1 <= k <= made and k not in lifted
+            lifted.add(k)
+            lines.append(f"O {k}")
+        else:
+            l, r = op[1], op[2]
+            assert 1 <= l <= r <= n
+            made += op[0] == 'C'
+            lines.append(f"{op[0]} {l} {r}")
+    tests.append(f"{n} {q}\n" + "\n".join(lines) + "\n")
 
 
-def rnd_rect(c, maxside):
-    x1, y1 = ri(0, c - 1), ri(0, c - 1)
-    return (x1, y1, min(c, x1 + ri(1, maxside)), min(c, y1 + ri(1, maxside)))
+def ops_of(n, q, close, lift, ask, pc, po, recent=0, cap=None):
+    """each operation: a closure close() with probability pc, lifting an active closure with probability po
+    (one of the `recent` newest active ones if recent > 0, else any), otherwise a question ask();
+    at most `cap` closures are active at once"""
+    ops, active, made = [], [], 0
+    for _ in range(q):
+        r = random.random()
+        if r < pc and (cap is None or len(active) < cap) or (r < pc + po and not active):
+            made += 1
+            active.append(made)
+            ops.append(('C',) + close())
+        elif r < pc + po and active:
+            j = len(active) - ri(1, min(recent, len(active))) if recent else ri(0, len(active) - 1)
+            active[j], active[-1] = active[-1], active[j]
+            ops.append(('O', active.pop()))
+        else:
+            ops.append(('?',) + ask())
+    return ops
 
 
-def big_square(c, margin):
-    """a rectangle that spans most of [0, c] in both directions"""
-    return (ri(0, margin), ri(0, margin), ri(c - margin, c), ri(c - margin, c))
+def any_rng(n):
+    def f():
+        l = ri(1, n)
+        return l, ri(l, n)
+    return f
 
 
-def tall(c, width, margin):
-    x1 = ri(0, c - width)
-    return (x1, ri(0, margin), x1 + ri(1, width), ri(c - margin, c))
+def long_rng(n, slack):
+    def f():
+        return ri(1, slack), ri(n - slack + 1, n)
+    return f
 
 
-def wide(c, height, margin):
-    y1 = ri(0, c - height)
-    return (ri(0, margin), y1, ri(c - margin, c), y1 + ri(1, height))
+def short_rng(n, d):
+    def f():
+        l = ri(1, n)
+        return l, min(n, l + ri(0, d))
+    return f
+
+
+def mixed_rng(n, d):
+    f, g = short_rng(n, d), any_rng(n)
+    return lambda: f() if random.random() < 0.7 else g()
 
 
 # samples
-add([(1, 1, 5, 4), (3, 2, 7, 6)])
-add([(0, 0, 4, 4), (1, 1, 3, 3), (4, 0, 6, 2)])
-add([(0, 0, MAXC, MAXC)])
-add([(0, 0, 2, 2), (0, 0, 2, 2), (0, 0, 2, 2)])
-add([(0, 1, 6, 2), (2, 0, 3, 5), (1, 0, 4, 3), (5, 0, 6, 6)])
-# hidden: small
-add([(0, 0, 1, 1), (1, 0, 2, 1), (0, 1, 1, 2), (1, 1, 2, 2)])          # touching only
-add([rnd_rect(10, 5) for _ in range(8)])
-add([rnd_rect(30, 12) for _ in range(40)])
-add([rnd_rect(MAXC, MAXC) for _ in range(300)])
-add([rnd_rect(10**6, 10**5) for _ in range(1500)])
-add([(i, i, 2000 - i, 2000 - i) for i in range(1000)])                  # nested
-add([tall(10**5, 100, 10**4) if i % 2 else wide(10**5, 100, 10**4) for i in range(1500)])
+add(10, [('C', 2, 5), ('C', 4, 8), ('?', 1, 10), ('O', 1), ('?', 1, 10), ('?', 3, 9)])
+add(5, [('C', 1, 5), ('C', 1, 5), ('O', 2), ('?', 2, 4), ('O', 1), ('?', 2, 4)])
+add(1, [('?', 1, 1), ('C', 1, 1), ('?', 1, 1), ('O', 1), ('?', 1, 1)])
+add(8, [('C', 1, 8), ('C', 3, 4), ('O', 1), ('?', 1, 8), ('C', 2, 7), ('?', 1, 8)])
+add(MAXN, [('C', 1, MAXN), ('?', 1, MAXN), ('O', 1), ('?', MAXN // 2, MAXN)])
+# hidden: small (the brute force checks these)
+for n, q, pc, po, d in ((1, 8, 0.4, 0.3, 1), (6, 30, 0.35, 0.25, 3), (12, 60, 0.35, 0.25, 6),
+                        (40, 300, 0.3, 0.25, 15), (200, 2000, 0.35, 0.3, 60), (2000, 3000, 0.4, 0.3, 300)):
+    add(n, ops_of(n, q, mixed_rng(n, d), None, any_rng(n), pc, po, recent=random.choice((0, 3))))
+n = 3000                                                    # stacked copies of the same few closures
+spots = [(ri(1, 1000), ri(1500, 3000)) for _ in range(4)] + [(1, n)]
+add(n, ops_of(n, 3000, lambda: random.choice(spots), None, any_rng(n), 0.4, 0.35))
 # hidden: maximum size
-N, C = MAXN, 999_999
-add([big_square(C, 10**5) for _ in range(N)])
-add([tall(C, 3000, 10**5) if i % 2 else wide(C, 3000, 10**5) for i in range(N)])
-add([rnd_rect(C, 10**5) for _ in range(N)])
-add([(i * 4 + ri(0, 3), i * 4 + ri(0, 3), C - i * 4 - ri(0, 3), C - i * 4 - ri(0, 3)) for i in range(N)])  # nested
-add([(0, 0, MAXC, MAXC)] * 65_000)                                       # the largest areas
-add([big_square(MAXC, 10**8) for _ in range(65_000)])
-tiles = []                                                              # a grid of tiles touching at the edges
-for i in range(316):
-    for j in range(316):
-        tiles.append((i * 3163, j * 3163, (i + 1) * 3163, (j + 1) * 3163))
-random.shuffle(tiles)
-add(tiles)
-add([tall(C, 20, 4 * 10**5) for _ in range(N)])                         # thin strips, many overlap
-xs = sorted(random.sample(range(C + 1), 40))
-rects = []
-for _ in range(N):                                                      # many posters start/end at the same x
-    a, b = sorted(random.sample(xs, 2))
-    y1 = ri(0, 2 * 10**5)
-    rects.append((a, y1, b, ri(8 * 10**5, C)))
-add(rects)
-rects = []
-for i in range(N):                                                      # a staircase: each overlaps the next
-    s = i * 9
-    rects.append((s, s // 2, s + 1 + ri(0, 2 * 10**5), min(C, s // 2 + 1 + ri(4 * 10**5, 6 * 10**5))))
-add(rects)
-add([big_square(C, 4 * 10**5) if i % 10 == 0 else rnd_rect(C, 2000) for i in range(N)])
-rects = []
-for i in range(N // 2):                                                 # crossing pairs: double cover only where they cross
-    rects.append(tall(C, 5, 2 * 10**5))
-    rects.append(wide(C, 5, 2 * 10**5))
-add(rects)
+N, Q = MAXN, MAXQ
+add(N, ops_of(N, Q, long_rng(N, 1000), None, long_rng(N, 1000), 0.3, 0.25, recent=5))
+add(N, ops_of(N, Q, any_rng(N), None, long_rng(N, 100), 0.5, 0.0, cap=N))   # nothing is lifted
+add(N, ops_of(N, Q, short_rng(N, 20), None, long_rng(N, 10), 0.55, 0.05))   # many short closures, open cells left
+add(N, ops_of(N, Q, short_rng(N, 3000), None, any_rng(N), 0.4, 0.2, cap=60_000))
+add(N, ops_of(N, Q, long_rng(N, N // 3), None, long_rng(N, 10), 0.45, 0.2, recent=2))   # the middle mostly closed
+add(N, ops_of(N, Q, lambda: (1, N), None, any_rng(N), 0.3, 0.3))            # the whole road, many layers
+add(N, ops_of(N, Q, mixed_rng(N, 10**5), None, long_rng(N, 5000), 0.45, 0.35, recent=50))
+tiles = [(i * 1000 + 1, i * 1000 + 1000) for i in range(N // 1000)]          # a tiling: all closed or one tile open
+add(N, ops_of(N, Q, lambda: random.choice(tiles), None, long_rng(N, 3), 0.5, 0.45, cap=900))
+add(N, ops_of(N, Q, lambda: (ri(1, 50), N - ri(0, 49)), None, lambda: (ri(1, 100), N - ri(0, 99)), 0.4, 0.15))
+add(N, ops_of(N, Q, any_rng(N), None, short_rng(N, 1000), 0.4, 0.3, recent=3))
+add(300_000, ops_of(300_000, Q, mixed_rng(300_000, 50), None, any_rng(300_000), 0.5, 0.3))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

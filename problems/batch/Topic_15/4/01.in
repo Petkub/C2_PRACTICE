@@ -1,0 +1,9 @@
+5
+name = Pet Shop
+[Owner]
+  Name=Somchai
+[OWNER]
+name = Somsri
+2
+.NAME
+owner.name

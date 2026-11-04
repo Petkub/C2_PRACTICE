@@ -1,0 +1,16 @@
+7 8
+docs/
+  a.txt 100
+  img/
+    cat.png 2000
+    dog.png 3000
+  b.txt 5
+music/
+docs
+docs/img
+docs/a.txt
+music
+img
+docs/img/cat.png/x
+docs/b.txt
+docs/music

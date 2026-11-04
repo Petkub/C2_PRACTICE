@@ -1,0 +1,8 @@
+4 3
+the cat sat
+on a mat
+it was warm
+the end
+MOVE 2 3 4
+DEL 1
+MOVE 3 3 0

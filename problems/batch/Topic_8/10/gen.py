@@ -1,169 +1,86 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(7010)
-MAXR = MAXC = 1000
+random.seed(81010)
+MAXN, MAXS = 100000, 10**9
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def add(tr):
+    n = len(tr)
+    assert 1 <= n <= MAXN
+    assert all(len(t) == 3 and min(t) >= 1 and max(t) <= MAXS for t in tr)
+    tests.append(f"{n}\n" + "\n".join(map("%d %d %d".__mod__, tr)) + "\n")
 
 
-def add(rows):
-    r, c = len(rows), len(rows[0])
-    assert 1 <= r <= MAXR and 1 <= c <= MAXC and r * c >= 2
-    assert all(len(x) == c and set(x) <= set(".#ST") for x in rows)
-    text = "".join(rows)
-    assert text.count("S") == 1 and text.count("T") == 1
-    tests.append(f"{r} {c}\n" + "".join(x + "\n" for x in rows))
+def shuffle(a):
+    """Fisher-Yates with random.random() (faster than random.shuffle, still deterministic)"""
+    rnd = random.random
+    for i in range(len(a) - 1, 0, -1):
+        j = int(rnd() * (i + 1))
+        a[i], a[j] = a[j], a[i]
+    return a
 
 
-def place(g, s=None, t=None):
-    """put S and T on free cells (random ones unless given; T next to a wall or the border, so that
-    the robot may stop there), return the rows as strings"""
-    r, c = len(g), len(g[0])
-
-    def blocked(i, j):
-        return not (0 <= i < r and 0 <= j < c) or g[i][j] == "#"
-
-    for ch, pos in (("S", s), ("T", t)):
-        if pos is None:
-            while True:
-                i, j = ri(0, r - 1), ri(0, c - 1)
-                if g[i][j] == "." and (ch == "S" or any(blocked(i + a, j + b)
-                                                        for a, b in ((0, 1), (1, 0), (0, -1), (-1, 0)))):
-                    break
-        else:
-            i, j = pos
-        g[i][j] = ch
-    return ["".join(x) for x in g]
+def triples(s):
+    return [(s[i], s[i + 1], s[i + 2]) for i in range(len(s) - 2)]
 
 
-def solve(rows):
-    """reference BFS (slow, small grids only)"""
-    r, c = len(rows), len(rows[0])
-    for i in range(r):
-        for j in range(c):
-            if rows[i][j] == "S":
-                s = (i, j)
-    dist = {s: 0}
-    q = [s]
-    for i, j in q:
-        if rows[i][j] == "T":
-            return dist[(i, j)]
-        for a, b in ((0, 1), (1, 0), (0, -1), (-1, 0)):
-            x, y = i, j
-            while 0 <= x + a < r and 0 <= y + b < c and rows[x + a][y + b] != "#":
-                x, y = x + a, y + b
-            if (x, y) not in dist:
-                dist[(x, y)] = dist[(i, j)] + 1
-                q.append((x, y))
-    return -1
+def route(n, stops):
+    """a random route of n + 2 stops drawn from the list stops"""
+    k = len(stops)
+    rnd = random.random
+    return [stops[int(rnd() * k)] for _ in range(n + 2)]
 
 
-def reachable_small(r, c, d):
-    """random grid whose answer is not -1"""
-    while True:
-        rows = place(rnd(r, c, d))
-        if solve(rows) >= 0:
-            return rows
-
-
-def corners(g):
-    """S = first free cell of the top row, T = last free cell of the bottom row"""
-    r, c = len(g), len(g[0])
-    sj = next(j for j in range(c) if g[0][j] == ".")
-    tj = next(j for j in range(c - 1, -1, -1) if g[r - 1][j] == ".")
-    return place(g, (0, sj), (r - 1, tj))
-
-
-def rnd(r, c, dens):
-    return [["#" if random.random() < dens else "." for _ in range(c)] for _ in range(r)]
-
-
-def serpentine(r, c):
-    """corridors on even rows joined at alternating ends: the robot zigzags all the way down"""
-    g = [["."] * c for _ in range(r)]
-    for i in range(1, r, 2):
-        for j in range(c):
-            g[i][j] = "#"
-        g[i][c - 1 if i % 4 == 1 else 0] = "."
-    return g
+def log(s):
+    return shuffle(triples(s))
 
 
 # samples
-add(["S..#.",
-     "..#..",
-     ".....",
-     "#...T",
-     "....#"])
-add(["S....",
-     "..T..",
-     "....."])
-add(["#S#",
-     "#T.",
-     "..."])
-add(["S..T#."])
-add(["..#...",
-     "S...#.",
-     "#.....",
-     "...T.#"])
-add(["T......",
-     ".#####.",
-     ".#...#.",
-     ".#.S.#.",
-     ".#...#.",
-     ".......",
-     ])
-# hidden: small (checked by repeated relaxation)
-add(["ST"])
-add(["S", ".", "T"])
-add(["S.T."])                                                  # T is passed over, never a stop
-add(["T.S", "...", "..."])
-for r, c, d in ((6, 6, 0.2), (8, 10, 0.3), (12, 12, 0.15), (15, 20, 0.35), (20, 20, 0.1),
-                (30, 30, 0.25), (40, 50, 0.4), (60, 60, 0.05)):
-    add(reachable_small(r, c, d))
-add(place(rnd(30, 30, 0.3)))
-add(place(serpentine(41, 30), (0, 0), (40, 29)))
-add(reachable_small(150, 200, 0.3))
-# hidden: large
-R, C = MAXR, MAXC
-add(place(rnd(R, C, 0.02), (0, 0), (R - 1, C - 1)))
-add(corners(rnd(R, C, 0.1)))
-add(corners(rnd(R, C, 0.2)))
-add(corners(rnd(R, C, 0.25)))
-add(corners(rnd(R, C, 0.08)))
-add(corners(rnd(R, C, 0.4)))
-add(place([["."] * C for _ in range(R)], (R // 2, C // 2), (R // 2 - 1, C // 2 + 7)))   # empty room: -1
-add(place([["."] * C for _ in range(R)], (R // 2, C // 3), (R - 1, 0)))                 # empty room: 2
-add(place(serpentine(R - 1, C), (0, 0), (R - 2, C - 1 if (R - 2) % 4 == 0 else 0)))
-g = serpentine(R - 1, C)                                        # target in the middle of a corridor
-add(place(g, (0, 0), (R // 2 + (R // 2) % 2, C // 2)))
-g = rnd(R, C, 0.003)                                            # sparse posts: long slides
-add(corners(g))
-g = rnd(R, C, 0.1)
-for j in range(C):                                              # a wall across the middle with few gaps
-    g[R // 2][j] = "#"
-for _ in range(4):
-    j = ri(1, C - 1)
-    for i in range(R):                                          # a clear column through each gap
-        g[i][j] = "."
-g[0][0] = "."
-add(place(g, (0, 0), (R - 1, j)))
-g = rnd(R, C, 0.25)
-for j in range(C):                                              # a closed wall: unreachable half
-    g[R // 2][j] = "#"
-for (i, j) in ((ri(0, R // 2 - 1), ri(0, C - 1)), (ri(R // 2 + 1, R - 1), ri(0, C - 1))):
-    g[i][j] = "."
-s_pos = None
-add(place(g))
-g = [["."] * C for _ in range(R)]                               # a staircase: right and down move one cell each
-for i in range(R - 2):
-    g[i][i + 2] = "#"
-    g[i + 2][i + 1] = "#"
-add(place(g, (0, 0), (R - 1, C - 1)))
+add([(2, 3, 2), (1, 2, 3), (2, 3, 1), (3, 2, 3)])
+add([(9, 5, 7), (7, 5, 9), (5, 9, 5), (5, 7, 5)])
+add([(1, 2, 1), (3, 4, 3), (2, 1, 2), (4, 3, 4)])
+add([(7, 7, 7)])
+add([(1, 1, 2), (1, 1, 1), (2, 1, 1), (1, 2, 1), (1, 1, 1)])
+add([(3, 1000000000, 3), (1000000000, 3, 5), (1000000000, 3, 1000000000)])
+# hidden: small (brute tries every order)
+add([(1, 2, 3), (3, 4, 5)])
+add([(MAXS, MAXS, MAXS)] * 6)
+add(log(route(7, [1, 2])))
+add(shuffle(triples([1, 2, 2, 1, 2, 1]) + [(1, 3, 1), (3, 1, 3)]))   # the loop 1 3 1 3 shares stop 1 but no pair
+add([(3, 3, 3), (1, 1, 1), (2, 2, 2)])                              # three separate loops
+# hidden: medium (brute builds the answer stop by stop)
+add(log(route(300, [1, 2, 3])))
+s = route(400, list(range(1, 21)))
+add(log(s + s[:2]))                                     # closed: the route ends with its first two stops
+add(log(route(200, [10, 20])) + [(20, 20, 20)])          # one triple too many
+add(log(route(150, [1, 2])) + log([3, 4] * 80))         # two pieces
+add(shuffle(triples(route(500, list(range(1, 21)))) + [(21, 21, 21), (22, 22, 22)]))   # a route and two lone loops
+c = route(98, [6, 7])                                    # a route and a separate closed loop
+add(shuffle(triples(route(500, [1, 2, 3, 4, 5])) + triples(c + c[:2])))
+# hidden: largest
+N = MAXN
+add(log(route(N, [1, 2, 3])))
+add(log(route(N, list(range(1, 11)))))
+add(log(route(N, list(range(MAXS - 299, MAXS + 1)))))
+add(log(route(N, random.sample(range(1, MAXS + 1), 50000))))
+add([(MAXS, MAXS, MAXS)] * (N - 10000))                # all the same stop (largest file)
+s = route(N - 2, [7, 8, 9])                              # closed route
+add(log(s + s[:2]))
+s = [random.choice([1, 2]) for _ in range(30)]          # a short loop repeated, cut at a random place
+s = (s * (N // 30 + 3))[13:13 + N + 2]
+add(log(s))
+add(log(list(range(MAXS, MAXS - N - 2, -1))))            # every stop different, decreasing
+add(log(route(N, [1, MAXS])))
+s = route(N - 1000, [1, 2])                              # a route, and the loop 1 3 1 3 ... (stop 1 shared, no pair)
+add(shuffle(triples(s) + triples([1, 3] * 501)))
+a = route(N // 2 - 2, [1, 2, 3])                         # two closed routes on different stops
+b = route(N // 2 - 2, [4, 5, 6])
+add(shuffle(triples(a + a[:2]) + triples(b + b[:2])))
+c = route(998, [8, 9])                                   # a route and a separate closed loop
+add(shuffle(triples(route(N - 1000, [1, 2, 3, 4])) + triples(c + c[:2])))
+add(shuffle([(x, x, x) for x in random.sample(range(1, MAXS + 1), N)]))   # N separate loops
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

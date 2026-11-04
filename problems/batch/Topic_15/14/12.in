@@ -1,0 +1,13 @@
+12 50
+ y: ;KEJ
+  add   llobynccp   -3
+ add hdsyap   11
+   sub   llobynccp  -15
+    jnz hdsyap   y
+    print -5
+  set  hdsyap hdsyap
+jnz   llobynccp y
+    jnz   1   y
+ rjpgjd:
+jnz hdsyap   y
+  mul  llobynccp   hdsyap ; :N3cY\

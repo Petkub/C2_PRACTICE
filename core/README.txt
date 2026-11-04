@@ -9,7 +9,7 @@ Inside a topic folder (e.g. Topic_3):
   python3 ../Judge/judge.py 5             the same (just the problem number)
 
 From the Judge folder (or use ../Judge/judge.py from a topic folder):
-  python3 judge.py --list                 list all 11 topics and their problems
+  python3 judge.py --list                 list all 15 topics and their problems
   python3 judge.py --set 3                show topic 3
   python3 judge.py --set 3 FOLDER         judge a whole topic (files 1.cpp ... 20.cpp in FOLDER)
   python3 judge.py my.cpp 3-5             judge one solution: topic 3, problem 5

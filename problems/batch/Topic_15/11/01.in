@@ -1,0 +1,8 @@
+4 3
+docs/
+  a.txt 100
+  img/
+    cat.png 20
+docs
+docs/img
+img

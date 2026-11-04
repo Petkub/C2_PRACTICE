@@ -1,0 +1,13 @@
+12 50000000
+set outer 1500
+o:
+ set inner 11000
+ i:
+   add total inner
+   sub inner 1
+   jnz inner i
+ print outer
+ sub outer 1
+ jnz outer o
+print total
+halt

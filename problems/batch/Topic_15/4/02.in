@@ -1,0 +1,9 @@
+5
+[db]
+user=
+#user = root
+
+  pass =  a;b #c
+2
+db.user
+db.pass

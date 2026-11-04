@@ -1,5 +1,10 @@
 POSN Practice Judge - changes
 
+3.0  Two new topics: 14 number theory and counting, 15 strings and parsing (40 problems). Follows the POSN 2569
+     Camp 2 syllabus: new problems in 7/7, 7/16, 8/3, 8/10, 9/8, 9/9, 9/20, 13/14 and 13/18 (the old ones used
+     content outside the syllabus or repeated another problem); new solutions for 5/17 and 9/17 (tests unchanged).
+     Topic 13 and the LCA problems of topic 12 are marked (เสริม): optional content of the syllabus.
+     A formula in a statement never breaks across two lines.
 2.1  A big test left over from an older version of a problem is rebuilt, so it is never judged with old data.
 2.0  13 topics in study order: 1 brute force, 2 prefix sums, 3 binary search, 4 greedy, 5 sweep line,
      6-7 DP, 8 graphs, 9 divide and conquer, 10 shortest paths, 11 DSU/MST, 12 trees, 13 segment/Fenwick trees.
