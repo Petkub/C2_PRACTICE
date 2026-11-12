@@ -1111,6 +1111,10 @@ def judge_one(src, pdir, num, meta, st, tl, show_diff, stop):
             f"Limits   {tl:.1f} s · {MEM_LIMIT[0]} MB per test"]
     box(st, head, st.dim)
     print()
+    if is_empty_source(src):        # g++ would only say "undefined reference to main"
+        print("  " + st.yellow(f"{os.path.basename(src)} is empty. Write your program in it, save it, and judge again."))
+        print()
+        return 0
     print("  " + st.dim("Compiling ..."), end="" if st.tty else "\n", flush=True)
     tmp = tempfile.mkdtemp(prefix="judge_")
     try:
@@ -1198,8 +1202,22 @@ TEMPLATE_WORDS = ("#include <bits/stdc++.h> using namespace std; int32_t main() 
                   "cin.tie(0); ios::sync_with_stdio(0); return 0; }").split()
 
 
+def is_empty_source(src):
+    """True for a .cpp with nothing in it but whitespace (the starter files are empty)."""
+    try:
+        with open(src, "rb") as f:
+            data = f.read(4096)
+            more = f.read(1)
+    except OSError:
+        return False
+    return not more and not data.decode("utf-8", "replace").lstrip("\ufeff").strip()
+
+
 def is_template(src):
-    """True if src is still the untouched N.cpp template (whitespace ignored)."""
+    """True if src is still the untouched N.cpp starter: empty, or the main() template of older versions
+    (whitespace ignored)."""
+    if is_empty_source(src):
+        return True
     try:
         with open(src, "rb") as f:
             data = f.read(4096)
@@ -1247,7 +1265,7 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
             scores.append(0)
             continue
         if is_template(src):
-            print("  " + st.dim(f"{i}.cpp is still the empty template - skipped (0 points)"))
+            print("  " + st.dim(f"{i}.cpp is still empty - skipped (0 points)"))
             scores.append(0)
             continue
         pdir, _ = find_problem(str(n), meta)

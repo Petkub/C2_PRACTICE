@@ -178,12 +178,22 @@ def test_student_package():
         count = len(next(s for s in judge.load_sets() if s["set"] == 1)["problems"])
         templates = [os.path.join(set1, f"{i}.cpp") for i in range(1, count + 1)]
         check(all(judge.is_template(t) for t in templates), f"Topic_2/1.cpp ... {count}.cpp are empty templates")
+        check(all(os.path.getsize(t) == 0 for t in templates), "the starter .cpp files are empty files")
+        old = os.path.join(root, "old_template.cpp")          # the main() starter of older versions
+        with open(old, "w") as f:
+            f.write("#include <bits/stdc++.h>\nusing namespace std;\n\nint32_t main() {\n"
+                    "    cin.tie(0); ios::sync_with_stdio(0);\n\n    return 0;\n}\n")
+        check(judge.is_template(old), "the old main() starter still counts as untouched")
+        os.remove(old)
         shutil.copy(os.path.join(SAMPLES, "batch", "profit_ok.cpp"), os.path.join(set1, "1.cpp"))
         student_judge = os.path.join(os.pardir, "Judge", "judge.py")
         code, out, _ = run_judge(["1", "--no-color"], cwd=set1, judge_path=student_judge)
         check(code == 0 and "ACCEPTED" in out, "inside Topic_2: judge.py 1", f"exit {code}\n{out}")
         code, out, _ = run_judge(["--no-color"], cwd=set1, judge_path=student_judge)
-        check(code == 0 and "Total" in out and "Problem 1" in out, "inside Topic_2: judge.py (whole set)",
+        check(code == 0 and "Total" in out and "still empty - skipped" in out and "Problem 1" in out, "inside Topic_2: judge.py (whole set)",
+              f"exit {code}\n{out}")
+        code, out, _ = run_judge(["2.cpp", "--no-color"], cwd=set1, judge_path=student_judge)
+        check(code == 0 and "2.cpp is empty" in out and "Compil" not in out, "an empty .cpp: plain message, no compile",
               f"exit {code}\n{out}")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

@@ -47,7 +47,7 @@ C2_PRACTICE/
     communication/<name>/{problem.json, manager.cpp, stub/, tests/}
   student/                      # student-side files outside Judge/ (copied by build_dist.py)
     README.txt, .vscode/, Topic_K/Topic_K.pdf
-    set_files/{Makefile, judge.bat, template.cpp}   # put in every Topic_K; template.cpp -> 1.cpp ... 20.cpp
+    set_files/{Makefile, judge.bat, template.cpp}   # put in every Topic_K; template.cpp (empty) -> 1.cpp ... 20.cpp
   samples/                      # known-verdict programs used as regression tests
     batch/profit_ok.cpp, profit_nowrap.cpp, profit_loop.cpp, profit_crash.cpp, profit_syntax.cpp   # problem 2-1
     interactive/guess_ok.cpp, guess_noflush.cpp, guess_linear.cpp, guess_crash.cpp
