@@ -3,13 +3,13 @@
 POSN Camp 2 Practice Judge
 ==========================
 
-Usage (inside a Topic_K folder, e.g. Topic_3, with the judge in ../Judge)
-  python3 ../Judge/judge.py                    judge the whole topic (1.cpp ... 20.cpp in this folder)
+Usage (inside a topic folder, e.g. 04_Binary_Search, with the judge in ../Judge)
+  python3 ../Judge/judge.py                    judge the whole topic (1.cpp, 2.cpp, ... in this folder)
   python3 ../Judge/judge.py 5.cpp              judge problem 5 of this topic   (or just: python3 ../Judge/judge.py 5)
 
 Usage (anywhere)
   python3 judge.py SOLUTION.cpp K-P            judge one solution for topic K, problem P   (e.g. 3-5)
-  python3 judge.py --set K FOLDER              judge a whole practice topic (files 1.cpp ... 20.cpp in FOLDER)
+  python3 judge.py --set K FOLDER              judge a whole practice topic (files 1.cpp, 2.cpp, ... in FOLDER)
   python3 judge.py --set K                     show the problems of practice topic K
   python3 judge.py --list                      list all topics and problems
 
@@ -215,6 +215,15 @@ def load_meta():
     return {}
 
 
+def set_of(k, sets=None):
+    """The topic numbered k in sets.json ("set": k), else None. Older packages list topics 1..K in order."""
+    sets = load_sets() if sets is None else sets
+    for s in sets:
+        if s.get("set") == k:
+            return s
+    return None
+
+
 def load_sets():
     p = data_file("sets.json")
     if os.path.exists(p):
@@ -251,8 +260,9 @@ def find_problem(arg, meta):
     if len(parts) == 2 and all(x.isdecimal() for x in parts):
         k, p = int(parts[0]), int(parts[1])
         sets = load_sets()
-        if 1 <= k <= len(sets) and 1 <= p <= len(sets[k - 1]["problems"]):
-            return find_problem(str(sets[k - 1]["problems"][p - 1]), meta)
+        s = set_of(k, sets)
+        if s is not None and 1 <= p <= len(s["problems"]):
+            return find_problem(str(s["problems"][p - 1]), meta)
         return None, None
     if arg.isdecimal():                 # a bank id: never a folder of the current directory
         n = int(arg)
@@ -1227,13 +1237,13 @@ def is_template(src):
 
 
 def cmd_set(k, folder, meta, sets, st, tl, show_diff):
-    if not (1 <= k <= len(sets)):
-        print(st.red(f"Topic {k} does not exist (1-{len(sets)})."))
+    if set_of(k, sets) is None:
+        print(st.red(f"Topic {k} does not exist (1-{max([x.get('set', 0) for x in sets] or [0])})."))
         return 1
     if folder is not None and not os.path.isdir(folder):
         print(st.red(f"Folder not found: {folder}"))
         return 1
-    s = sets[k - 1]
+    s = set_of(k, sets)
     probs = s["problems"]
     head = [title(st, f"POSN Camp 2 · Practice Topic {k}"),
             f"{s.get('level_en', '')}",
@@ -1246,7 +1256,7 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
     if folder is None:
         print()
         if student_layout():
-            print(st.dim(f"  Save your solutions as 1.cpp ... {len(probs)}.cpp in folder Topic_{k}, then run there:"))
+            print(st.dim(f"  Save your solutions as 1.cpp ... {len(probs)}.cpp in folder {topic_folder(k)}, then run there:"))
             print(f"  {PY} ../Judge/judge.py")
         else:
             print(st.dim(f"  Save your solutions as 1.cpp ... {len(probs)}.cpp in one folder, then run:"))
@@ -1309,13 +1319,24 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
     return 0
 
 
-TOPIC_DIR = re.compile(r"^topic[ _-]?0*([0-9]+)$", re.IGNORECASE)
+TOPIC_DIR = re.compile(r"^([0-9]{2})_[A-Za-z0-9_]+")     # v4 topic folders: 04_Binary_Search (also "... - Copy")
+
+
+def topic_folder(k):
+    """The folder name of topic k (sets.json "dir", e.g. 04_Binary_Search)."""
+    sets = load_sets()
+    s = set_of(k)
+    return s.get("dir", f"Topic_{k}") if s is not None else f"Topic_{k}"
 
 
 def topic_set_of(folder):
-    """Set number K of a folder named Topic_K (Topic_3, topic-03, ...), else None."""
+    """Topic number K of a topic folder (04_Binary_Search -> 4), else None. Old Topic_K folders (before v4.0)
+    are not topics any more: their numbers mean other topics now."""
     m = TOPIC_DIR.match(os.path.basename(os.path.abspath(folder).rstrip("/\\")))
-    return int(m.group(1)) if m else None
+    if not m:
+        return None
+    k = int(m.group(1))
+    return k if set_of(k) is not None else None
 
 
 def prog_name():
@@ -1324,14 +1345,21 @@ def prog_name():
 
 
 def not_a_topic_folder(st, folder, name):
-    """The set number comes from the folder name Topic_K; explain what to do when the folder has another name."""
+    """The topic comes from the folder name (04_Binary_Search); explain what to do when the folder has another name."""
     base = os.path.basename(os.path.abspath(folder).rstrip("/\\"))
-    print(st.red(f"Cannot tell which topic this is: the folder '{base}' is not named Topic_K (e.g. Topic_3)."))
-    print(st.dim("  Rename the folder to Topic_K (K = topic number), or give the topic yourself, e.g. for topic 3:"))
+    if os.path.isfile(os.path.join(folder, "README_MOVED.txt")) or re.match(r"^topic[ _-]?[0-9]+$", base, re.I):
+        print(st.red(f"'{base}' is an old topic folder: the topics were reorganised in v4 (see README_MOVED.txt)."))
+        print(st.dim("  The topics are now the numbered folders 01_... 26_...; your written files moved there."))
+        print(st.dim("  To judge this code against a problem there, copy it into that topic's folder, or give the"))
+        print(st.dim("  problem yourself, e.g. topic 4 problem 2:"))
+        print(f"  {PY} {prog_name()} \"{name or '2.cpp'}\" 4-2")
+        return 1
+    print(st.red(f"Cannot tell which topic this is: the folder '{base}' is not named like 04_Binary_Search."))
+    print(st.dim("  Rename the folder back (its name starts with the topic number), or give the topic yourself, e.g. for topic 4:"))
     if name is None:
-        print(f"  {PY} {prog_name()} --set 3 .")
+        print(f"  {PY} {prog_name()} --set 4 .")
     else:
-        print(f"  {PY} {prog_name()} \"{name}\" 3-{name[:-4] if name[:-4].isdecimal() else 5}")
+        print(f"  {PY} {prog_name()} \"{name}\" 4-{name[:-4] if name[:-4].isdecimal() else 5}")
     return 1
 
 
@@ -1391,6 +1419,45 @@ def self_update(st, argv):
         return None
 
 
+def finish_bootstrap(st):
+    """An updater before 4.0 could only install the judge itself (its path rules reject 04_Binary_Search ...): this
+    run's updater adds the new topic folders at once, even right after the restart (JUDGE_NO_UPDATE) or a recent check."""
+    if updater is None or not hasattr(updater, "bootstrapped") or not updater.bootstrapped(ROOT):
+        return
+    r = updater.check(ROOT, notify=lambda text: print("  " + st.dim(text), flush=True))
+    if r.status == "updated":
+        print("  " + st.dim(f"Judge {r.message}: the new topic folders are in place"))
+
+
+MOVED = []                              # [(from, to)] moved by show_moves in this run (paths from the package folder)
+
+
+def moved_to(path):
+    """Where this run's moves took the file at path, or None."""
+    rel = os.path.relpath(os.path.abspath(path), os.path.dirname(ROOT)).replace(os.sep, "/")
+    return next((dst for src, dst in MOVED if src == rel), None)
+
+
+def show_moves(st):
+    """After an update that reorganised the topics, the student's files follow their problems (once)."""
+    if updater is None or not hasattr(updater, "follow_moves") or not student_layout():
+        return
+    moved = updater.follow_moves(ROOT)
+    tidied = list(getattr(updater, "TIDIED", []))
+    if not moved:
+        if tidied:
+            print("  " + st.yellow(st.bold("The topics were reorganised: the new topics are the folders 01_... 26_...")))
+            for folder, what in tidied:
+                print("    " + f"{folder:<10} {'removed (only empty starters)' if what == 'removed' else '-> ' + what}")
+            print("  " + st.dim("(nothing you wrote was moved or deleted)"))
+        return
+    MOVED.extend(moved)
+    print("  " + st.yellow(st.bold("The topics were reorganised: your files moved with their problems")))
+    for src, dst in moved:
+        print("    " + f"{src:<14} -> {dst}")
+    print("  " + st.dim("(nothing you wrote was deleted; an old folder that still holds your files gets README_MOVED.txt)"))
+
+
 def main():
     argv = sys.argv[1:]
     original_argv = list(argv)
@@ -1437,6 +1504,8 @@ def main():
     code = self_update(st, original_argv)
     if code is not None:
         return code
+    show_moves(st)
+    finish_bootstrap(st)
     meta = load_meta()
     if os.name != "nt":
         raise_stack_limit()     # Windows: the stack size is set when linking (compile_source)
@@ -1477,16 +1546,16 @@ def main():
     if not pos:
         k = topic_set_of(os.getcwd())
         if k is None:
-            if glob.glob("[1-9].cpp"):  # a topic folder that was copied or renamed, e.g. "Topic_3 - Copy"
+            if glob.glob("[1-9].cpp") or os.path.isfile("README_MOVED.txt"):  # a renamed copy, or an old Topic_K
                 return not_a_topic_folder(st, os.getcwd(), None)
             return usage()
-        pos = ["."]                     # run inside Topic_K: judge the whole set
+        pos = ["."]                     # run inside a topic folder: judge the whole topic
     if len(pos) == 1:
         a = pos[0]
         if a.isdecimal() and not os.path.exists(a) and topic_set_of(os.getcwd()) is not None:
-            a = pos[0] = f"{int(a)}.cpp"    # inside Topic_3: 'judge.py 5' = 'judge.py 5.cpp' (like make 5 / judge 5)
+            a = pos[0] = f"{int(a)}.cpp"    # inside 04_Binary_Search: 'judge.py 5' = 'judge.py 5.cpp' (like make 5)
         k = topic_set_of(a) if os.path.isdir(a) else None
-        if k is not None:               # judge.py Topic_3  ->  --set 3 Topic_3
+        if k is not None:               # judge.py 04_Binary_Search  ->  --set 4 04_Binary_Search
             if not shutil.which("g++"):
                 print(st.red("g++ not found. Please install a C++ compiler and add it to PATH."))
                 return 1
@@ -1494,13 +1563,17 @@ def main():
         k = topic_set_of(os.path.dirname(os.path.abspath(a))) if os.path.isfile(a) else None
         name = os.path.basename(a)
         if k is not None and name.lower().endswith(".cpp") and name[:-4].isdecimal():
-            pos = [a, f"{k}-{int(name[:-4])}"]      # Topic_3/5.cpp  ->  5.cpp 3-5
+            pos = [a, f"{k}-{int(name[:-4])}"]      # 04_Binary_Search/5.cpp  ->  5.cpp 4-5
         elif not os.path.exists(a) and (a.lower().endswith(".cpp") or topic_set_of(os.getcwd()) is not None):
             print(st.red(f"Source file not found: {a}"))
-            print(st.dim("  Check the file name (e.g. 5.cpp, not 5.cpp.txt) and that you are in the Topic_K folder."))
+            dst = moved_to(a)
+            if dst:
+                print(st.yellow(f"  It just moved with its problem to {dst}: open it there."))
+            else:
+                print(st.dim("  Check the file name (e.g. 5.cpp, not 5.cpp.txt) and that you are in the topic's folder."))
             return 1
         elif os.path.isfile(a) and name.lower().endswith(".cpp"):
-            if k is None:               # e.g. Topic_3 - Copy/5.cpp
+            if k is None:               # e.g. a renamed folder, or an old Topic_3/5.cpp
                 return not_a_topic_folder(st, os.path.dirname(os.path.abspath(a)), name)
             print(st.red(f"Cannot tell the problem number from the file name '{name}'."))   # e.g. 5_brute.cpp
             print(st.dim(f"  Name it 1.cpp, 2.cpp, ..., or give the problem as K-P, e.g.:"))
@@ -1508,7 +1581,7 @@ def main():
             return 1
         else:
             return usage("expected SOLUTION.cpp and a problem (e.g. 3-5), "
-                         "or run it inside a Topic_K folder (files 1.cpp, 2.cpp, ...)")
+                         "or run it inside a topic folder such as 04_Binary_Search (files 1.cpp, 2.cpp, ...)")
     if len(pos) != 2:
         return usage("expected SOLUTION.cpp and a problem (e.g. 3-5)")
     src, parg = pos
@@ -1517,17 +1590,19 @@ def main():
         src, parg = parg, src           # arguments given in the other order
     if not os.path.isfile(src):
         print(st.red(f"Source file not found: {src}"))
+        if moved_to(src):
+            print(st.yellow(f"  It just moved with its problem to {moved_to(src)}: open it there."))
         return 1
     if student_layout() and parg.isdecimal():
         k = topic_set_of(os.path.dirname(os.path.abspath(src)))
         if k is None:
             return usage(f"use K-P to name a problem (e.g. 3-{parg} for topic 3, problem {parg})")
-        parg = f"{k}-{int(parg)}"         # inside Topic_3: '5.cpp 5' means problem 3-5
+        parg = f"{k}-{int(parg)}"         # inside 04_Binary_Search: '5.cpp 5' means problem 4-5
     pdir, num = find_problem(parg, meta)
     if not pdir:
         sets = load_sets()
         print(st.red(f"Problem not found: {parg}"))
-        print(st.dim(f"  Use K-P with topic K = 1-{len(sets)} and problem P = 1-{max(len(s['problems']) for s in sets)} (e.g. 3-5); see --list."))
+        print(st.dim(f"  Use K-P with topic K = 1-{max([x.get('set', 0) for x in sets] or [0])} and problem P = 1-{max(len(s['problems']) for s in sets)} (e.g. 3-5); see --list."))
         return 1
     if not shutil.which("g++"):
         print(st.red("g++ not found. Please install a C++ compiler and add it to PATH."))

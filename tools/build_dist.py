@@ -10,9 +10,9 @@ Layout produced:
   C2_Practice/README.txt, Guide.pdf, .vscode/    from student/
   C2_Practice/Judge/                             exactly the files listed in manifest.json (core/ + problems/),
                                                plus manifest.json itself (the installed version for updater.py)
-  C2_Practice/Topic_K/Topic_K.pdf                  from student/Topic_K/
-  C2_Practice/Topic_K/Makefile, judge.bat         from student/set_files/
-  C2_Practice/Topic_K/1.cpp ... 20.cpp            empty template (student/set_files/template.cpp)
+  C2_Practice/<NN_Name>/<NN_Name>.pdf          from student/<NN_Name>/ (e.g. 04_Binary_Search)
+  C2_Practice/<NN_Name>/Makefile, judge.bat     from student/set_files/ (Makefile_<n> for a topic of n != 20)
+  C2_Practice/<NN_Name>/1.cpp ... n.cpp         empty template (student/set_files/template.cpp)
 The zip holds the contents of C2_Practice/ without the folder itself (see make_zip).
 The manifest is rebuilt first, so the zip and manifest.json always agree.
 """
@@ -62,7 +62,7 @@ def copy_package_files(root):
     pairs = build_manifest.managed_files() + build_manifest.set_files()
     for rel, src in pairs:
         copy_file(os.path.join(REPO, src), os.path.join(root, *rel.split("/")))
-    return len({rel.split("/")[0] for rel, _ in pairs if rel.startswith("Topic_")})
+    return len({rel.split("/")[0] for rel, _ in pairs if rel.split("/")[0][:2].isdigit()})
 
 
 def make_zip(root):

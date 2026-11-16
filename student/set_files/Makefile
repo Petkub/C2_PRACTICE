@@ -1,4 +1,4 @@
-# Linux / macOS, inside this Topic folder:
+# Linux / macOS, inside this topic folder:
 #   make      judge the whole set (1.cpp ... 20.cpp)
 #   make 5    judge problem 5 only
 PYTHON ?= python3

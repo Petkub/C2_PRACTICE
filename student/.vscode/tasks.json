@@ -3,7 +3,7 @@
   "tasks": [
     {
       "label": "Judge this problem",
-      "detail": "Ctrl+Shift+B (Cmd+Shift+B on Mac) while editing e.g. Topic_3/5.cpp",
+      "detail": "Ctrl+Shift+B (Cmd+Shift+B on Mac) while editing e.g. 04_Binary_Search/5.cpp",
       "type": "process",
       "command": "python3",
       "windows": { "command": "python" },
@@ -15,7 +15,7 @@
     },
     {
       "label": "Judge whole set",
-      "detail": "judge 1.cpp ... 20.cpp of the set you are editing",
+      "detail": "judge 1.cpp, 2.cpp, ... of the topic you are editing",
       "type": "process",
       "command": "python3",
       "windows": { "command": "python" },

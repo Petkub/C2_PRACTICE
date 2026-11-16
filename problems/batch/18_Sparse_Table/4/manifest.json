@@ -1,0 +1,131 @@
+{
+ "version": 1,
+ "tests": [
+  {
+   "name": "01",
+   "in": "9e667601e1767536261c68adf984aeac652275eb3f4544574c215a4fe01848f4",
+   "out": "5ba6c354d0459cc6a60261569fde5b196ec02e080b20b08d622afb27dee7e5f2",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "02",
+   "in": "ac1cfe6175f63d727e37dd2943377d4b7a8b37e399c5de23c986a2b674492ad2",
+   "out": "bffa207c4fc210fcf99b20b2fcd48ce0a4ae3118f7be86449c2e57a460fc7b93",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "03",
+   "in": "13c694c32b59bfd13c429cff892040f13342b74270069a46d1a9a86d5b006f8c",
+   "out": "782f44d2087f7122ee71274d743700e7dd3f3949d5f40df6d24535d5ef81c5d8",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "04",
+   "in": "6fc1f0a980892328664986150763a5a7884287455b80cd686b4debc458b4a606",
+   "out": "8da0eb3708338dd504c7c471939a02e18a4e83036da9955bb3e352d578a7d084",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "05",
+   "in": "ba8ca6d778943ee407d6eb5f472be59c810605d09e9bd2c671eea0b54412bdaf",
+   "out": "6ba2bd37eccfab0520b92bffb3d7de5a0ceb339bc2bf7aee27d0b120d2ea7196",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "06",
+   "in": "3a98b8e897a76e117a21551a5e5a9e3215afff0f4ccb0af70b375962887eb472",
+   "out": "f42651e4e7603240b75d701ab693b7934ec7d2fd9c0a974feb4579628bf5eefa",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "07",
+   "in": "a07a7a82319bc6e77c09148fe7c6a3883d08675a5b92c85cec0ee19214fbca3d",
+   "out": "51872cec8cda06349f340370126b54f2c38af19e51589f1919093919d8c0d370",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "08",
+   "in": "6a9163d13585ba8b8afbaac5e364e050ce50c0a7669c0f452d559d049c40480a",
+   "out": "63cb15885e4a087605a65008e5088045c40201819e6acf91ad5e16ba039ec9e6",
+   "in_file": true,
+   "out_file": false
+  },
+  {
+   "name": "09",
+   "in": "de98eea904867576499e7977a05cb0d425e5d3dba9732da685fd16f720be4e1a",
+   "out": "938af3d0afdb46031e937c8769bb055278f97e52a0dc190f5c51869f6f60efea",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "10",
+   "in": "66f2c6f001e82f98c53ece893fd04a6f9eafc148adbc965cd7592cbdc4397326",
+   "out": "9f386aa51ae1fc47336ab96ad4bced7084796b56ffbbd5f5908332b0cafe8ad3",
+   "in_file": true,
+   "out_file": true
+  },
+  {
+   "name": "11",
+   "in": "41cd7661add6e90c90ebb8932dfdfa61f62e79b9e4e1b99b213be21f09e60797",
+   "out": "2e9808b5e52713d2b5abcc71c786e70388e9feac021ef53374d0f0c173fe0e4e",
+   "in_file": false,
+   "out_file": false
+  },
+  {
+   "name": "12",
+   "in": "76995fad5268416ac4168ee26520be6ef92c355d5d13c13a72fa5bdca033832f",
+   "out": "b0f28b97649248ecd206451c2eff0585ec78c5e8e4607fa2303777de3de8777c",
+   "in_file": false,
+   "out_file": false
+  },
+  {
+   "name": "13",
+   "in": "396aed17c50897304daa02f09dfab2fd5bef4913036ddfa5e1c8900b65be073f",
+   "out": "715af65573d4a9aa33b460e9a2e042445ffe176d071b9303d1dd2ea0f189af40",
+   "in_file": false,
+   "out_file": false
+  },
+  {
+   "name": "14",
+   "in": "198c0b4e6f1b52f50ec015ce505d0f7df7aa542cac0b3a99b0a9a66d134be000",
+   "out": "c1e7a43de7b9401eb020e0fbbc286bc30ace96da2e990377da0bc03add5aa3e7",
+   "in_file": false,
+   "out_file": false
+  },
+  {
+   "name": "15",
+   "in": "e47acee4fc4ed95403b2ee7fcc707f967507ed6cbea27e993a36d19c9f8c580f",
+   "out": "154122f869578b22fc2e1157eccda41d71e34fee9716e00c6397d5b774653607",
+   "in_file": false,
+   "out_file": false
+  },
+  {
+   "name": "16",
+   "in": "c8082ec2785210707668c989be27baafb9e5eb5336286eb6dab508c7af06f0ff",
+   "out": "b2cc8de226e8dc5e7b8817f9e6c94823dcb657c0e1f7d79c55431a0dace32ce6",
+   "in_file": false,
+   "out_file": false
+  },
+  {
+   "name": "17",
+   "in": "94abad5904289eae0ace081cfe5d87a1fd244e6d67e331afa2043f1db41dc606",
+   "out": "1735c3679e0c3734e07a9b03531f6c4e49eb7c0d8e900f22e1d714adda87881a",
+   "in_file": false,
+   "out_file": false
+  },
+  {
+   "name": "18",
+   "in": "5aaf885124b13f6252f1aaf7cb82a4e7ded3e71e0879ea500d9caed51e3c6338",
+   "out": "19936f31777ac39db18db420d3d9262af81e059138983561bd6f7a3f1208a5a7",
+   "in_file": false,
+   "out_file": false
+  }
+ ]
+}

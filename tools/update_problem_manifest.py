@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Update a problem's own manifest.json (problems/batch/Topic_K/N/manifest.json) after adding or changing tests.
+Update a problem's own manifest.json (problems/batch/<NN_Name>/N/manifest.json) after adding or changing tests.
 That file lists every test with the SHA-256 of its input and of its (normalized) output, and whether the files
 are shipped in the zip or rebuilt by gen.py on the student's computer. The judge refuses a test that is not in it.
 
-  python3 tools/update_problem_manifest.py Topic_1/1          one problem
+  python3 tools/update_problem_manifest.py 01_Brute_Force_and_Implementation/1   one problem
   python3 tools/update_problem_manifest.py --all             every problem
   python3 tools/update_problem_manifest.py --check --all     exit 1 if any manifest is stale (used by CI)
 
@@ -66,7 +66,7 @@ def dumps(man):
 
 def problems(args):
     if "--all" in args:
-        return sorted(os.path.join(BATCH, k, n) for k in os.listdir(BATCH) if k.startswith("Topic_")
+        return sorted(os.path.join(BATCH, k, n) for k in os.listdir(BATCH) if k[:2].isdigit() and "_" in k
                       for n in os.listdir(os.path.join(BATCH, k)) if n.isdecimal())
     return [os.path.join(BATCH, *a.split("/")) for a in args if not a.startswith("--")]
 

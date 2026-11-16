@@ -10,9 +10,9 @@ an odd path) means: keep the current version and say nothing. A failed update ne
 
 Rules
   - writes only inside Judge/ and only the files listed in the manifest; never deletes anything
-  - never reads or writes student files (Topic_K/N.cpp, progress.json). Outside Judge/ it only handles
-    "managed" files the students do not edit (Topic_K.pdf, Makefile, judge.bat, README.txt, Guide.pdf,
-    Progress.md, .vscode/) and "create-only" files (Topic_K/N.cpp templates of a new set, added only when
+  - never reads or writes student files (<topic folder>/N.cpp), except the one-time moves below. Outside Judge/ it
+    only handles "managed" files the students do not edit (<topic>.pdf, Makefile, judge.bat, README.txt, Guide.pdf,
+    Progress.md, .vscode/) and "create-only" files (<topic folder>/N.cpp templates of a new topic, added only when
     missing). The old copy of every replaced file goes to Judge/.backup/ (package files under _package/)
   - updates only an installed package (Judge/judge.py and Judge/manifest.json exist), never the source repo
 
@@ -20,9 +20,19 @@ Speed: files are downloaded in parallel (each one retried), and a whole problem 
 when many of its files are needed, so a new set of problems takes a few requests instead of thousands. Every file
 taken from a bundle is still checked against its own hash in the manifest.
 
-Manifest format 2: the top level is what judges older than 2.3 read (their updater downloads one file at a time).
-For them it lists only the new judge.py / updater.py and the files that did not change since the last format-1
-release, so an old judge first takes this updater (two files) and this updater then reads "full", the real version.
+Moves (v4.0, the C2_MOCK mechanism, asked for by the teacher in C2_PRACTICE_SRC/plans/V4_RESTRUCTURE.md section 3):
+when the topics are reorganised, a student's file follows its problem (Topic_3/5.cpp -> 04_Binary_Search/5.cpp).
+The manifest lists "moves": {sha256 of an older release's problems.json: [[from, to], ...]}. An old updater installs
+the new release and keeps the old problems.json in Judge/.backup/; follow_moves() (called by judge.py at every start)
+recognises it by its hash and moves the files once (Judge/.moves_done remembers it). A file moves only when the
+student wrote something in it (an empty or untouched starter stays); a written file is never overwritten (a clash
+goes to <topic folder>/old/ under a free name) and nothing is deleted. An old Topic_K folder is removed only when
+nothing of the student's is left in it; otherwise it keeps everything and gets README_MOVED.txt.
+
+Manifest format 3 (v4.0): updaters before 4.0 reject the new folder names, so the real manifest is under "full_v4"
+and "full" (and the top level) is a bootstrap view: every Judge/ file but only the package files their path rules
+accept, with "bootstrap": true. An old judge installs it (so it gets this updater) and the new judge.py then calls
+check() again at once, which installs "full_v4".
 
 Recovery:  python3 ../Judge/updater.py      force a check and re-download changed or damaged files
 """
@@ -55,8 +65,12 @@ STAMP = ".update_check"             # Judge/.update_check: time of the last chec
 BACKUP = ".backup"
 TMP = ".update_tmp"
 NEVER_UPDATE = {"manifest.json", "progress.json", "progress.json.tmp"}
-SET_FILE = re.compile(r"^Topic_[0-9]+/[0-9]+\.cpp$")                 # create-only: a student's own files
-MANAGED_FILE = re.compile(r"^(Topic_[0-9]+/(Makefile|judge\.bat|Topic_[0-9]+\.pdf)|Guide\.pdf|README\.txt"
+TOPIC_DIR = r"(?:Topic_[0-9]+|[0-9]{2}_[A-Za-z0-9_]+)"     # a topic folder: Topic_3 (before 4.0) or 04_Binary_Search
+SET_FILE = re.compile(r"^" + TOPIC_DIR + r"/[0-9]+\.cpp$")                  # create-only: a student's own files
+OLD_FILE = re.compile(r"^" + TOPIC_DIR + r"/old/[0-9]+_[A-Za-z0-9]+\.cpp$")  # where the file of a dropped problem goes
+MOVES_DONE = ".moves_done"          # Judge/.moves_done: hashes of the old problems.json whose moves were applied
+STARTER_BODY = "cin.tie(0);ios::sync_with_stdio(0);return0;}"
+MANAGED_FILE = re.compile(r"^(" + TOPIC_DIR + r"/(Makefile|judge\.bat|" + TOPIC_DIR + r"\.pdf)|Guide\.pdf|README\.txt"
                           r"|Progress\.md|\.vscode/(tasks|settings)\.json)$")   # replaced when they change
 
 
@@ -133,7 +147,7 @@ def judge_path(rel):
 
 
 def set_path(rel):
-    """Path (relative to the folder holding Judge/) of a create-only Topic_K file, or None."""
+    """Path (relative to the folder holding Judge/) of a create-only topic-folder file, or None."""
     return os.path.join(*rel.split("/")) if isinstance(rel, str) and SET_FILE.match(rel) else None
 
 
@@ -163,9 +177,21 @@ def is_hash(s):
 
 
 def view(manifest):
-    """The part of a manifest this updater acts on: "full" in format 2, else the manifest itself."""
-    full = manifest.get("full") if isinstance(manifest, dict) else None
-    return full if isinstance(full, dict) else manifest
+    """The part of a manifest this updater acts on: "full_v4" (v4 layout), else "full", else the manifest itself.
+    Updaters before 4.0 read "full" (or the top level): for them it is a bootstrap view without the new topic folder
+    files (their path rules reject those), so they install this updater, which then reads "full_v4"."""
+    if not isinstance(manifest, dict):
+        return manifest
+    for key in ("full_v4", "full"):
+        if isinstance(manifest.get(key), dict):
+            return manifest[key]
+    return manifest
+
+
+def bootstrapped(judge_dir=ROOT):
+    """True when an updater before 4.0 installed the bootstrap view: the topic folder files are still to come."""
+    local = load_json(os.path.join(judge_dir, "manifest.json"))
+    return isinstance(local, dict) and bool(local.get("bootstrap"))
 
 
 def plan_bundles(remote):
@@ -333,6 +359,154 @@ def checked_recently(judge_dir):
         return False
 
 
+# ----------------------------------------------------------------------------- moves (student files follow problems)
+def is_starter(path):
+    """True for an empty file or the untouched main() template of versions before 6.0.2 (same test as judge.py)."""
+    try:
+        with open(path, "rb") as f:
+            data = f.read(65537)
+    except OSError:
+        return False
+    if len(data) > 65536:
+        return False
+    text = "".join(data.decode("utf-8", "replace").lstrip("\ufeff").split())
+    return not text or text.endswith("intmain(){" + STARTER_BODY) or text.endswith("int32_tmain(){" + STARTER_BODY)
+
+
+def good_moves(pairs):
+    return (isinstance(pairs, list) and all(isinstance(m, list) and len(m) == 2 and isinstance(m[0], str)
+            and isinstance(m[1], str) and SET_FILE.match(m[0]) and (SET_FILE.match(m[1]) or OLD_FILE.match(m[1]))
+            for m in pairs))
+
+
+def free_name(path):
+    """path, or path with -2, -3 ... before .cpp when it is taken."""
+    stem, i = path[:-4], 2
+    while os.path.exists(path):
+        path, i = f"{stem}-{i}.cpp", i + 1
+    return path
+
+
+def apply_moves(base, pairs):
+    """Move each written source file to its destination; returns [(from, to)] as package paths (to may differ
+    from the plan when the destination holds written code: then <topic folder>/old/)."""
+    held = []
+    for src, dst in pairs:                       # 1. every file that moves goes to a hidden name first (swaps)
+        s = os.path.join(base, *src.split("/"))
+        t = os.path.join(os.path.dirname(s), ".moving_" + os.path.basename(s))
+        if os.path.exists(t):                    # an earlier run stopped half-way
+            held.append((src, dst, t))
+        elif os.path.isfile(s) and not is_starter(s):
+            os.replace(s, t)
+            held.append((src, dst, t))
+    done = []
+    for src, dst, t in held:                     # 2. into place; never over written code
+        d = os.path.join(base, *dst.split("/"))
+        if os.path.exists(d) and not (os.path.isfile(d) and is_starter(d)):
+            k, n = dst.split("/")[0], src.split("/")[-1][:-4]
+            d = free_name(os.path.join(base, k, "old", f"{n}_moved.cpp"))
+        os.makedirs(os.path.dirname(d), exist_ok=True)
+        os.replace(t, d)
+        done.append((src, os.path.relpath(d, base).replace(os.sep, "/")))
+    return done
+
+
+def refill_starters(base, manifest, vacated):
+    """Put an empty starter back where a file moved away (the slot now holds another problem)."""
+    empty = sha256(b"")
+    for rel in vacated:
+        spec = (manifest.get("create_only") or {}).get(rel)
+        p = os.path.join(base, *rel.split("/"))
+        if good_spec(spec) and spec[0] == empty and not os.path.exists(p):
+            open(p, "wb").close()
+
+
+OLD_SET_FILES = re.compile(r"^(Makefile|judge\.bat|Topic_[0-9]+\.pdf)$")
+
+
+def current_set_folders(judge_dir):
+    """The topic folders (01_Brute_Force_and_Implementation ...) of the installed sets.json."""
+    sets = load_json(os.path.join(judge_dir, "problems", "batch", "sets.json")) or []
+    return {s["dir"] for s in sets if isinstance(s, dict) and isinstance(s.get("dir"), str)}
+
+
+OLD_SET_FOLDER = re.compile(r"^Topic_[0-9]+$")
+TIDIED = []                             # old set folders tidied in this run: [(folder, "removed" | "README_MOVED.txt")]
+
+
+def tidy_old_folders(base, judge_dir, pairs, done):
+    """A set folder of the old layout that is no longer a set: removed when nothing the student wrote is left in it
+    (only its Makefile, judge.bat, PDF and empty starters), else it gets README_MOVED.txt saying where things went.
+    pairs=None (a release without a moves list): every old-style Topic_<number> folder; nothing moved."""
+    keep = current_set_folders(judge_dir)
+    if not keep:
+        return
+    if pairs is None:
+        folders = {d for d in os.listdir(base) if OLD_SET_FOLDER.match(d) and os.path.isdir(os.path.join(base, d))}
+    else:
+        folders = {src.split("/")[0] for src, _ in pairs}
+    for folder in sorted(folders - keep):
+        d = os.path.join(base, folder)
+        if not os.path.isdir(d):
+            continue
+        names = os.listdir(d)
+        ours = [n for n in names if OLD_SET_FILES.match(n) or (re.match(r"^[0-9]+\.cpp$", n)
+                                                                and is_starter(os.path.join(d, n)))]
+        if len(ours) == len(names):
+            for n in ours:
+                os.remove(os.path.join(d, n))
+            os.rmdir(d)
+            TIDIED.append((folder, "removed"))
+            continue
+        note = os.path.join(d, "README_MOVED.txt")
+        if not os.path.exists(note):
+            with open(note, "w", encoding="utf-8") as f:
+                if pairs is None:
+                    f.write("เรื่องต่าง ๆ ถูกจัดใหม่ (v4): โฟลเดอร์นี้ไม่ใช่เรื่องแล้ว เรื่องใหม่อยู่ใน 01_... ถึง 26_...\n"
+                            "ไฟล์ในโฟลเดอร์นี้ไม่ได้ถูกย้ายหรือลบ ถ้าจะส่งโค้ดเดิมกับโจทย์ในเรื่องใหม่ ให้คัดลอกไปเอง\n"
+                            "The topics were reorganised (v4): this folder is no longer a topic; the topics are now\n"
+                            "the numbered folders 01_... 26_... Nothing here was moved or deleted. To judge old code\n"
+                            "against a problem there, copy it there yourself.\n")
+                else:
+                    lines = [f"{src} -> {dst}" for src, dst in done if src.startswith(folder + "/")]
+                    f.write("เรื่องต่าง ๆ ถูกจัดใหม่ (v4): โฟลเดอร์นี้ไม่ใช่เรื่องแล้ว ไฟล์ที่เขียนไว้ย้ายไปอยู่กับโจทย์ของมัน\n"
+                            "The topics were reorganised (v4): this folder is no longer a topic. Written files moved\n"
+                            "with their problems; anything left here is yours and was not touched.\n\n"
+                            + "\n".join(lines) + "\n")
+            TIDIED.append((folder, "README_MOVED.txt"))
+
+
+def follow_moves(judge_dir=ROOT):
+    """Once after an update that reorganised the sets: move the student's files to their problems' new places.
+    Returns [(from, to)]; never raises (a failure leaves the files where they are)."""
+    try:
+        old = file_sha(os.path.join(judge_dir, BACKUP, "problems", "batch", "problems.json"))
+        if old is None:
+            return []
+        marker = os.path.join(judge_dir, MOVES_DONE)
+        try:
+            with open(marker, encoding="utf-8") as f:
+                if old in f.read().split():
+                    return []
+        except OSError:
+            pass
+        manifest = load_json(os.path.join(judge_dir, "manifest.json"))
+        pairs = ((manifest or {}).get("moves") or {}).get(old)
+        done = []
+        if good_moves(pairs):
+            base = os.path.dirname(judge_dir)
+            done = apply_moves(base, pairs)
+            refill_starters(base, manifest, [src for src, _ in done])
+            tidy_old_folders(base, judge_dir, pairs, done)
+        elif (manifest or {}).get("moves"):              # an older release without a moves list
+            tidy_old_folders(os.path.dirname(judge_dir), judge_dir, None, done)
+        with open(marker, "a", encoding="utf-8") as f:
+            f.write(old + "\n")
+        return done
+    except Exception:
+        return []
+
+
 # ----------------------------------------------------------------------------- main entry
 def check(judge_dir=ROOT, force=False, notify=None):
     """Update Judge/ if the repo has a newer version. Returns a Result; never raises. notify(text) is called
@@ -340,7 +514,7 @@ def check(judge_dir=ROOT, force=False, notify=None):
     local = load_json(os.path.join(judge_dir, "manifest.json"))
     if not os.path.isfile(os.path.join(judge_dir, "judge.py")) or local is None:
         return Result("skipped", "not an installed Judge package (no manifest.json next to judge.py)")
-    if not force and checked_recently(judge_dir):
+    if not force and checked_recently(judge_dir) and not local.get("bootstrap"):
         return Result("skipped", "checked recently")
     version = str(local.get("version", "?"))
     tmp = os.path.join(judge_dir, TMP)

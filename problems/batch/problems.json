@@ -3,2127 +3,3010 @@
   "title": "รายชื่อแขกงานวันเกิด",
   "en": "Party Guest List",
   "tier": 1,
-  "dir": "Topic_1/1",
+  "dir": "01_Brute_Force_and_Implementation/1",
   "samples": 5
  },
  "102": {
   "title": "กติกาการเข้าแถว",
   "en": "Line-up Rules",
   "tier": 1,
-  "dir": "Topic_1/2",
+  "dir": "01_Brute_Force_and_Implementation/2",
   "samples": 6
  },
  "103": {
   "title": "จำนวนเฉพาะที่เป็น palindrome",
   "en": "Prime Palindromes",
   "tier": 1,
-  "dir": "Topic_1/3",
+  "dir": "01_Brute_Force_and_Implementation/3",
   "samples": 5
  },
  "104": {
   "title": "แผง switch ไฟ",
   "en": "Switch Panel",
   "tier": 1,
-  "dir": "Topic_1/4",
+  "dir": "01_Brute_Force_and_Implementation/4",
   "samples": 5
  },
  "105": {
   "title": "สมการผลรวมเลขโดด",
   "en": "Digit-Sum Equation",
   "tier": 1,
-  "dir": "Topic_1/5",
+  "dir": "01_Brute_Force_and_Implementation/5",
   "samples": 5
  },
  "106": {
   "title": "ผลบวกกำลังสามสองจำนวน",
   "en": "Sum of Two Cubes",
   "tier": 1,
-  "dir": "Topic_1/6",
+  "dir": "01_Brute_Force_and_Implementation/6",
   "samples": 5
  },
  "107": {
   "title": "ครบสี่ซุ้มอาหาร",
   "en": "Four Stalls",
   "tier": 1,
-  "dir": "Topic_1/7",
+  "dir": "01_Brute_Force_and_Implementation/7",
   "samples": 5
  },
  "108": {
   "title": "พลิกเหรียญทั้งแถวทั้งหลัก",
   "en": "Flipping Coins on a Board",
   "tier": 2,
-  "dir": "Topic_1/8",
+  "dir": "01_Brute_Force_and_Implementation/8",
   "samples": 6
  },
  "109": {
   "title": "เติมเครื่องหมายให้ถึงเป้า",
   "en": "Hitting the Target",
   "tier": 2,
-  "dir": "Topic_1/9",
+  "dir": "01_Brute_Force_and_Implementation/9",
   "samples": 6
  },
  "110": {
   "title": "ลูกเต๋ากลิ้งไม่รู้จบ",
   "en": "Rolling Die Marathon",
   "tier": 2,
-  "dir": "Topic_1/10",
+  "dir": "01_Brute_Force_and_Implementation/10",
   "samples": 5
  },
  "111": {
   "title": "แบ่งถุงให้หนักเท่ากัน",
   "en": "Splitting Bags Evenly",
   "tier": 2,
-  "dir": "Topic_1/11",
+  "dir": "01_Brute_Force_and_Implementation/11",
   "samples": 5
  },
  "112": {
   "title": "สร้างเลขจากไพ่",
   "en": "Make the Number",
   "tier": 2,
-  "dir": "Topic_1/12",
+  "dir": "01_Brute_Force_and_Implementation/12",
   "samples": 5
  },
  "113": {
   "title": "ไขกฎของวงกลม",
   "en": "Which Ring Rule?",
   "tier": 2,
-  "dir": "Topic_1/13",
+  "dir": "01_Brute_Force_and_Implementation/13",
   "samples": 6
  },
  "114": {
   "title": "ตรายางหมุนได้",
   "en": "Stamp with Rotations",
   "tier": 2,
-  "dir": "Topic_1/14",
+  "dir": "01_Brute_Force_and_Implementation/14",
   "samples": 5
  },
  "115": {
   "title": "แบ่งสมบัติสองพี่น้อง",
   "en": "Splitting the Treasure",
   "tier": 2,
-  "dir": "Topic_1/15",
+  "dir": "01_Brute_Force_and_Implementation/15",
   "samples": 6
  },
  "116": {
   "title": "แก้และตรวจ sudoku",
   "en": "Sudoku Checker and Solver",
   "tier": 2,
-  "dir": "Topic_1/16",
+  "dir": "01_Brute_Force_and_Implementation/16",
   "samples": 5
  },
  "117": {
   "title": "ปูกระดานด้วยชิ้นส่วน",
   "en": "Covering the Board with Pieces",
   "tier": 3,
-  "dir": "Topic_1/17",
+  "dir": "01_Brute_Force_and_Implementation/17",
   "samples": 5
  },
  "118": {
   "title": "ตัดหญ้าให้ครบทุกช่อง",
   "en": "Mowing Every Square",
   "tier": 3,
-  "dir": "Topic_1/18",
+  "dir": "01_Brute_Force_and_Implementation/18",
   "samples": 6
  },
  "119": {
   "title": "ขนสินค้าสี่สิบชิ้น",
   "en": "Knapsack of Forty",
   "tier": 3,
-  "dir": "Topic_1/19",
+  "dir": "01_Brute_Force_and_Implementation/19",
   "samples": 6
  },
  "120": {
   "title": "กลุ่มเพื่อนสนิทที่ใหญ่ที่สุด",
   "en": "Largest Friendly Group",
   "tier": 3,
-  "dir": "Topic_1/20",
+  "dir": "01_Brute_Force_and_Implementation/20",
   "samples": 5
  },
  "201": {
-  "title": "กำไรรอบปี",
-  "en": "Profit Around the Year",
-  "tier": 1,
-  "dir": "Topic_2/1",
-  "samples": 5
- },
- "202": {
-  "title": "สวนผลไม้",
-  "en": "Orchard Squares",
-  "tier": 1,
-  "dir": "Topic_2/2",
-  "samples": 5
- },
- "203": {
-  "title": "ทาสีหลายชั้น",
-  "en": "Paint Layers",
-  "tier": 1,
-  "dir": "Topic_2/3",
-  "samples": 5
- },
- "204": {
-  "title": "ช่วง K วันที่ดีที่สุด",
-  "en": "Best K Days",
-  "tier": 1,
-  "dir": "Topic_2/4",
-  "samples": 6
- },
- "205": {
-  "title": "คู่ที่ใกล้กัน",
-  "en": "Close Pairs",
-  "tier": 1,
-  "dir": "Topic_2/5",
-  "samples": 5
- },
- "206": {
-  "title": "ตัดออกหนึ่งวัน",
-  "en": "Remove One Day",
-  "tier": 1,
-  "dir": "Topic_2/6",
-  "samples": 6
- },
- "207": {
-  "title": "เที่ยวในงบ",
-  "en": "Trips Within Budget",
-  "tier": 1,
-  "dir": "Topic_2/7",
-  "samples": 6
- },
- "208": {
-  "title": "นั่งติดกัน",
-  "en": "Seating Friends Together",
-  "tier": 2,
-  "dir": "Topic_2/8",
-  "samples": 6
- },
- "209": {
-  "title": "ผ้าใบซ้อนกัน",
-  "en": "Overlapping Tarps",
-  "tier": 2,
-  "dir": "Topic_2/9",
-  "samples": 5
- },
- "210": {
-  "title": "สะสมแสตมป์",
-  "en": "Collect All Stamps",
-  "tier": 2,
-  "dir": "Topic_2/10",
-  "samples": 6
- },
- "211": {
-  "title": "เสมอกันสามทาง",
-  "en": "Three-way Tie",
-  "tier": 2,
-  "dir": "Topic_2/11",
-  "samples": 6
- },
- "212": {
-  "title": "ยกพื้นให้ได้ระดับ",
-  "en": "Raising Platforms",
-  "tier": 2,
-  "dir": "Topic_2/12",
-  "samples": 6
- },
- "213": {
-  "title": "บันไดบล็อก",
-  "en": "Staircase Blocks",
-  "tier": 2,
-  "dir": "Topic_2/13",
-  "samples": 5
- },
- "214": {
-  "title": "รถเมล์วงแหวน",
-  "en": "Ring Bus Route",
-  "tier": 2,
-  "dir": "Topic_2/14",
-  "samples": 6
- },
- "215": {
-  "title": "ที่ดินสี่เหลี่ยมจัตุรัส",
-  "en": "Largest Affordable Square",
-  "tier": 2,
-  "dir": "Topic_2/15",
-  "samples": 6
- },
- "216": {
-  "title": "เรียงใหม่เป็น palindrome",
-  "en": "Rearrangeable Palindromes",
-  "tier": 2,
-  "dir": "Topic_2/16",
-  "samples": 6
- },
- "217": {
-  "title": "หันหน้าเข้าหากัน",
-  "en": "Facing Pairs",
-  "tier": 3,
-  "dir": "Topic_2/17",
-  "samples": 5
- },
- "218": {
-  "title": "ช่วงที่กำไรเฉลี่ยถึงเป้า",
-  "en": "Longest Profitable Period",
-  "tier": 3,
-  "dir": "Topic_2/18",
-  "samples": 6
- },
- "219": {
-  "title": "สี่เหลี่ยมผลรวมพอดี",
-  "en": "Target-Sum Rectangles",
-  "tier": 3,
-  "dir": "Topic_2/19",
-  "samples": 6
- },
- "220": {
-  "title": "ชุดคำสั่งไฟประดับ",
-  "en": "Batches of Light Commands",
-  "tier": 3,
-  "dir": "Topic_2/20",
-  "samples": 5
- },
- "301": {
-  "title": "การแสดง ณ นาทีที่ t",
-  "en": "Shows at Minute t",
-  "tier": 1,
-  "dir": "Topic_3/1",
-  "samples": 6
- },
- "302": {
-  "title": "วันแรกที่เงินออมถึงเป้า",
-  "en": "First Day of Savings",
-  "tier": 1,
-  "dir": "Topic_3/2",
-  "samples": 6
- },
- "303": {
-  "title": "กองกระป๋อง",
-  "en": "Stacks of Cans",
-  "tier": 1,
-  "dir": "Topic_3/3",
-  "samples": 5
- },
- "304": {
-  "title": "สถานีที่ใกล้ที่สุด",
-  "en": "Nearest Station",
-  "tier": 1,
-  "dir": "Topic_3/4",
-  "samples": 6
- },
- "305": {
-  "title": "ตัดเชือก",
-  "en": "Cutting Ropes",
-  "tier": 1,
-  "dir": "Topic_3/5",
-  "samples": 6
- },
- "306": {
-  "title": "เครื่องจักรในโรงงาน",
-  "en": "Machines at Work",
-  "tier": 1,
-  "dir": "Topic_3/6",
-  "samples": 6
- },
- "307": {
-  "title": "หมายเลขตั๋วที่ยังเหลือ",
-  "en": "Missing Ticket Numbers",
-  "tier": 1,
-  "dir": "Topic_3/7",
-  "samples": 6
- },
- "308": {
-  "title": "แผนการอ่านหนังสือ",
-  "en": "Reading Plan",
-  "tier": 2,
-  "dir": "Topic_3/8",
-  "samples": 6
- },
- "309": {
-  "title": "ติดตั้ง router",
-  "en": "Placing Routers",
-  "tier": 2,
-  "dir": "Topic_3/9",
-  "samples": 6
- },
- "310": {
-  "title": "ชุดอาหารราคาลำดับที่ K",
-  "en": "K-th Cheapest Meal Set",
-  "tier": 2,
-  "dir": "Topic_3/10",
-  "samples": 6
- },
- "311": {
-  "title": "รถโดยสารออกตรงชั่วโมง",
-  "en": "Buses Leave on the Hour",
-  "tier": 2,
-  "dir": "Topic_3/11",
-  "samples": 6
- },
- "312": {
-  "title": "ช่วงด่านเฉลี่ยสูงสุด",
-  "en": "Best Average Stretch",
-  "tier": 2,
-  "dir": "Topic_3/12",
-  "samples": 6
- },
- "313": {
-  "title": "ฝึกทีมให้เก่งทั่วกัน",
-  "en": "Raising the Weakest",
-  "tier": 2,
-  "dir": "Topic_3/13",
-  "samples": 6
- },
- "314": {
-  "title": "ช่อดอกไม้",
-  "en": "Flower Bouquets",
-  "tier": 2,
-  "dir": "Topic_3/14",
-  "samples": 6
- },
- "315": {
-  "title": "รางพักตู้สินค้า",
-  "en": "Fewest Tracks",
-  "tier": 2,
-  "dir": "Topic_3/15",
-  "samples": 6
- },
- "316": {
-  "title": "จุดนัดพบ",
-  "en": "Meeting Points Within Budget",
-  "tier": 2,
-  "dir": "Topic_3/16",
-  "samples": 5
- },
- "317": {
-  "title": "เส้นทางวิ่งอันดับที่ K",
-  "en": "K-th Shortest Running Route",
-  "tier": 3,
-  "dir": "Topic_3/17",
-  "samples": 6
- },
- "318": {
-  "title": "ซื้อมากจ่ายเพิ่ม",
-  "en": "Market With Rising Fees",
-  "tier": 3,
-  "dir": "Topic_3/18",
-  "samples": 6
- },
- "319": {
-  "title": "รดน้ำต้นกล้า",
-  "en": "Watering the Seedlings",
-  "tier": 3,
-  "dir": "Topic_3/19",
-  "samples": 6
- },
- "320": {
-  "title": "คะแนนกลางสูงสุด",
-  "en": "Largest Median",
-  "tier": 3,
-  "dir": "Topic_3/20",
-  "samples": 6
- },
- "401": {
-  "title": "เทศกาลภาพยนตร์",
-  "en": "Film Festival",
-  "tier": 1,
-  "dir": "Topic_4/1",
-  "samples": 6
- },
- "402": {
-  "title": "ไปกลับด้วยน้ำมันเต็มถัง",
-  "en": "Full-Tank Round Trip",
-  "tier": 1,
-  "dir": "Topic_4/2",
-  "samples": 6
- },
- "403": {
-  "title": "ขนมสำหรับเด็ก",
-  "en": "Snacks for Children",
-  "tier": 1,
-  "dir": "Topic_4/3",
-  "samples": 6
- },
- "404": {
-  "title": "รอตรวจที่คลินิก",
-  "en": "Waiting at the Clinic",
-  "tier": 1,
-  "dir": "Topic_4/4",
-  "samples": 6
- },
- "405": {
-  "title": "กระโดดข้ามหิน",
-  "en": "Hopping Stones",
-  "tier": 1,
-  "dir": "Topic_4/5",
-  "samples": 6
- },
- "406": {
-  "title": "ต่อเชือก",
-  "en": "Joining Ropes",
-  "tier": 1,
-  "dir": "Topic_4/6",
-  "samples": 6
- },
- "407": {
-  "title": "สองเมือง",
-  "en": "Two Cities",
-  "tier": 1,
-  "dir": "Topic_4/7",
-  "samples": 6
- },
- "408": {
-  "title": "ลำดับงานซ่อมตามความสำคัญ",
-  "en": "Weighted Waiting",
-  "tier": 2,
-  "dir": "Topic_4/8",
-  "samples": 6
- },
- "409": {
-  "title": "จัดห้องบรรยาย",
-  "en": "Assigning Rooms",
-  "tier": 2,
-  "dir": "Topic_4/9",
-  "samples": 6
- },
- "410": {
-  "title": "แวะเติมน้ำมันให้น้อยครั้ง",
-  "en": "Limited Fuel Stops",
-  "tier": 2,
-  "dir": "Topic_4/10",
-  "samples": 6
- },
- "411": {
-  "title": "เรียงกองหนังสือ",
-  "en": "Sorting the Book Pile",
-  "tier": 2,
-  "dir": "Topic_4/11",
-  "samples": 6
- },
- "412": {
-  "title": "คู่ s-h มากที่สุด",
-  "en": "Most SH Pairs",
-  "tier": 2,
-  "dir": "Topic_4/12",
-  "samples": 6
- },
- "413": {
-  "title": "ค่าปรับสูงสุดให้น้อยที่สุด",
-  "en": "Smallest Largest Fine",
-  "tier": 2,
-  "dir": "Topic_4/13",
-  "samples": 6
- },
- "414": {
-  "title": "ห้ามซ้ำติดกันเกิน K ตัว",
-  "en": "No Long Runs",
-  "tier": 2,
-  "dir": "Topic_4/14",
-  "samples": 6
- },
- "415": {
-  "title": "ไฟส่องถนน",
-  "en": "Lighting the Road",
-  "tier": 2,
-  "dir": "Topic_4/15",
-  "samples": 6
- },
- "416": {
-  "title": "ตัดแล้วทาสี",
-  "en": "Cut, Then Paint",
-  "tier": 2,
-  "dir": "Topic_4/16",
-  "samples": 6
- },
- "417": {
-  "title": "ซื้อถูกขายแพง",
-  "en": "Buy Low, Sell High",
-  "tier": 3,
-  "dir": "Topic_4/17",
-  "samples": 6
- },
- "418": {
-  "title": "เปิดร้านไม่ติดกัน",
-  "en": "Non-adjacent Stalls",
-  "tier": 3,
-  "dir": "Topic_4/18",
-  "samples": 6
- },
- "419": {
-  "title": "ซ่อมบันได",
-  "en": "Fixing the Stairs",
-  "tier": 3,
-  "dir": "Topic_4/19",
-  "samples": 6
- },
- "420": {
-  "title": "หอคอยกายกรรมคู่",
-  "en": "Acrobat Pairs Tower",
-  "tier": 3,
-  "dir": "Topic_4/20",
-  "samples": 6
- },
- "501": {
-  "title": "ทาสีเสารั้วรอบสวน",
-  "en": "Painted Fence Posts",
-  "tier": 1,
-  "dir": "Topic_5/1",
-  "samples": 6
- },
- "502": {
-  "title": "ช่วงทำงานของครู",
-  "en": "Work Sessions",
-  "tier": 1,
-  "dir": "Topic_5/2",
-  "samples": 6
- },
- "503": {
-  "title": "คู่ที่ได้พบกัน",
-  "en": "Pairs Who Meet",
-  "tier": 1,
-  "dir": "Topic_5/3",
-  "samples": 6
- },
- "504": {
-  "title": "ช่วงปิดปรับปรุงระบบ",
-  "en": "Maintenance Window",
-  "tier": 1,
-  "dir": "Topic_5/4",
-  "samples": 6
- },
- "505": {
-  "title": "โคมไฟที่สว่างที่สุด",
-  "en": "Brightest Street Lamp",
-  "tier": 1,
-  "dir": "Topic_5/5",
-  "samples": 6
- },
- "506": {
-  "title": "อันดับในตารางคะแนน",
-  "en": "Leaderboard Ranks",
-  "tier": 1,
-  "dir": "Topic_5/6",
-  "samples": 6
- },
- "507": {
-  "title": "ห้องประชุมถูกจองซ้อน",
-  "en": "First Double Booking",
-  "tier": 1,
-  "dir": "Topic_5/7",
-  "samples": 6
- },
- "508": {
-  "title": "ปูพรมในห้องโถง",
-  "en": "Carpets in the Hall",
-  "tier": 2,
-  "dir": "Topic_5/8",
-  "samples": 5
- },
- "509": {
-  "title": "ทาสีทับตามลำดับ",
-  "en": "Painting in Order",
-  "tier": 2,
-  "dir": "Topic_5/9",
-  "samples": 6
- },
- "510": {
-  "title": "รถทัวร์รับส่งเป็นช่วง",
-  "en": "Bus Capacity",
-  "tier": 2,
-  "dir": "Topic_5/10",
-  "samples": 5
- },
- "511": {
-  "title": "ดูหนังกับเพื่อน K คน",
-  "en": "K Viewers at the Festival",
-  "tier": 2,
-  "dir": "Topic_5/11",
-  "samples": 6
- },
- "512": {
-  "title": "การจองที่ครอบกัน",
-  "en": "Nested Bookings",
-  "tier": 2,
-  "dir": "Topic_5/12",
-  "samples": 6
- },
- "513": {
-  "title": "ไม่ว่างพร้อมกัน",
-  "en": "Both Busy",
-  "tier": 2,
-  "dir": "Topic_5/13",
-  "samples": 5
- },
- "514": {
-  "title": "จุดที่สว่างที่สุด",
-  "en": "The Brightest Point",
-  "tier": 2,
-  "dir": "Topic_5/14",
-  "samples": 6
- },
- "515": {
-  "title": "งานสั้นได้ก่อน",
-  "en": "Shortest Job First",
-  "tier": 2,
-  "dir": "Topic_5/15",
-  "samples": 5
- },
- "516": {
-  "title": "โรงแรมที่ไม่มีใครดีกว่า",
-  "en": "Pareto Hotels",
-  "tier": 2,
-  "dir": "Topic_5/16",
-  "samples": 6
- },
- "517": {
-  "title": "คู่ที่ใกล้ที่สุด",
-  "en": "Closest Pair",
-  "tier": 3,
-  "dir": "Topic_5/17",
-  "samples": 5
- },
- "518": {
-  "title": "นั่งห่างกันไว้",
-  "en": "Keeping Distance",
-  "tier": 3,
-  "dir": "Topic_5/18",
-  "samples": 5
- },
- "519": {
-  "title": "ขอบของโปสเตอร์",
-  "en": "Outline of the Posters",
-  "tier": 3,
-  "dir": "Topic_5/19",
-  "samples": 6
- },
- "520": {
-  "title": "เส้นขอบฟ้าของเมือง",
-  "en": "City Skyline",
-  "tier": 3,
-  "dir": "Topic_5/20",
-  "samples": 6
- },
- "601": {
-  "title": "กบกระโดดข้ามหิน",
-  "en": "Frog on the Stones",
-  "tier": 1,
-  "dir": "Topic_6/1",
-  "samples": 6
- },
- "602": {
-  "title": "เดินเก็บผลไม้ในสวน",
-  "en": "Orchard Path",
-  "tier": 1,
-  "dir": "Topic_6/2",
-  "samples": 6
- },
- "603": {
-  "title": "ร้านสาขาริมถนน",
-  "en": "Street of Shops",
-  "tier": 1,
-  "dir": "Topic_6/3",
-  "samples": 6
- },
- "604": {
-  "title": "จ่ายด้วยคูปองให้น้อยใบที่สุด",
-  "en": "Fewest Coupons",
-  "tier": 1,
-  "dir": "Topic_6/4",
-  "samples": 6
- },
- "605": {
-  "title": "ปิดเทอมใหญ่",
-  "en": "Summer Holiday",
-  "tier": 1,
-  "dir": "Topic_6/5",
-  "samples": 6
- },
- "606": {
-  "title": "จัดเป้เดินป่า",
-  "en": "Backpack",
-  "tier": 1,
-  "dir": "Topic_6/6",
-  "samples": 6
- },
- "607": {
-  "title": "ข้อความร่วมที่มีค่าที่สุด",
-  "en": "Most Valuable Common Thread",
-  "tier": 1,
-  "dir": "Topic_6/7",
-  "samples": 6
- },
- "608": {
-  "title": "ขนสินค้าขึ้นรถบรรทุก",
-  "en": "Loading the Truck",
-  "tier": 2,
-  "dir": "Topic_6/8",
-  "samples": 5
- },
- "609": {
-  "title": "แก้ข้อความราคาแพง",
-  "en": "Costly Edits",
-  "tier": 2,
-  "dir": "Topic_6/9",
-  "samples": 6
- },
- "610": {
-  "title": "ตัดริบบิ้นขาย",
-  "en": "Ribbon Pieces",
-  "tier": 2,
-  "dir": "Topic_6/10",
-  "samples": 6
- },
- "611": {
-  "title": "คะแนนที่สูงขึ้น",
-  "en": "Rising Scores",
-  "tier": 2,
-  "dir": "Topic_6/11",
-  "samples": 6
- },
- "612": {
-  "title": "แบ่งทีมชักเย่อ",
-  "en": "Fair Tug of War",
-  "tier": 2,
-  "dir": "Topic_6/12",
-  "samples": 6
- },
- "613": {
-  "title": "palindrome ที่ซ่อนอยู่",
-  "en": "Hidden Palindrome",
-  "tier": 2,
-  "dir": "Topic_6/13",
-  "samples": 6
- },
- "614": {
-  "title": "ซื้อขายแล้วต้องพัก",
-  "en": "Trading with Rest",
-  "tier": 2,
-  "dir": "Topic_6/14",
-  "samples": 6
- },
- "615": {
-  "title": "เส้นทางที่ถูกที่สุด",
-  "en": "Cheapest Route Printed",
-  "tier": 2,
-  "dir": "Topic_6/15",
-  "samples": 6
- },
- "616": {
-  "title": "สินค้ามีจำกัด",
-  "en": "Limited Stock",
-  "tier": 2,
-  "dir": "Topic_6/16",
-  "samples": 6
- },
- "617": {
-  "title": "คนเก็บผลไม้สองคน",
-  "en": "Two Pickers",
-  "tier": 3,
-  "dir": "Topic_6/17",
-  "samples": 6
- },
- "618": {
-  "title": "รวมสอง string ให้สั้นที่สุด",
-  "en": "Shortest Merge",
-  "tier": 3,
-  "dir": "Topic_6/18",
-  "samples": 6
- },
- "619": {
-  "title": "รับงานสองเมือง",
-  "en": "Paid Gigs",
-  "tier": 3,
-  "dir": "Topic_6/19",
-  "samples": 6
- },
- "620": {
-  "title": "ตัดป้ายเป็น palindrome",
-  "en": "Palindrome Pieces",
-  "tier": 3,
-  "dir": "Topic_6/20",
-  "samples": 6
- },
- "701": {
-  "title": "เส้นทางผ่านจุดชมวิว",
-  "en": "Paths Past a Viewpoint",
-  "tier": 1,
-  "dir": "Topic_7/1",
-  "samples": 6
- },
- "702": {
-  "title": "ไฟประดับไม่ร้อนเกิน",
-  "en": "No Long Streaks",
-  "tier": 1,
-  "dir": "Topic_7/2",
-  "samples": 6
- },
- "703": {
-  "title": "ใช้บัตรของขวัญให้พอดี",
-  "en": "Subsets Summing to S",
-  "tier": 1,
-  "dir": "Topic_7/3",
-  "samples": 6
- },
- "704": {
-  "title": "ลำดับการคูณ matrix",
-  "en": "Multiplying Tables",
-  "tier": 1,
-  "dir": "Topic_7/4",
-  "samples": 6
- },
- "705": {
-  "title": "แจกงานให้พนักงาน",
-  "en": "Assigning Jobs",
-  "tier": 1,
-  "dir": "Topic_7/5",
-  "samples": 6
- },
- "706": {
-  "title": "เดินหมากตามตัวเลข",
-  "en": "Ordered Sums on a Board",
-  "tier": 1,
-  "dir": "Topic_7/6",
-  "samples": 6
- },
- "707": {
-  "title": "ขายโหลขนมจากปลายแถว",
-  "en": "Selling From Both Ends",
-  "tier": 1,
-  "dir": "Topic_7/7",
-  "samples": 5
- },
- "708": {
-  "title": "ส่งของให้ครบทุกเมือง",
-  "en": "Visiting Every Town",
-  "tier": 2,
-  "dir": "Topic_7/8",
-  "samples": 5
- },
- "709": {
-  "title": "ผลรวมเลขโดดหารลงตัว",
-  "en": "Digit Sum Divisible",
-  "tier": 2,
-  "dir": "Topic_7/9",
-  "samples": 6
- },
- "710": {
-  "title": "แบ่งลูกอม",
-  "en": "Sharing Candies",
-  "tier": 2,
-  "dir": "Topic_7/10",
-  "samples": 6
- },
- "711": {
-  "title": "ลบตัวอักษรให้หมด",
-  "en": "Clearing the String",
-  "tier": 2,
-  "dir": "Topic_7/11",
-  "samples": 6
- },
- "712": {
-  "title": "กระโดดเก็บแต้ม",
-  "en": "Hopping for Points",
-  "tier": 2,
-  "dir": "Topic_7/12",
-  "samples": 6
- },
- "713": {
-  "title": "รูปแบบขึ้นลง",
-  "en": "Up-Down Pattern",
-  "tier": 2,
-  "dir": "Topic_7/13",
-  "samples": 6
- },
- "714": {
-  "title": "แบ่งทีมให้สมดุล",
-  "en": "Balanced Teams of Sums",
-  "tier": 2,
-  "dir": "Topic_7/14",
-  "samples": 6
- },
- "715": {
-  "title": "เติมวงเล็บ",
-  "en": "Filling the Brackets",
-  "tier": 2,
-  "dir": "Topic_7/15",
-  "samples": 6
- },
- "716": {
-  "title": "ใส่วงเล็บให้ได้หลักหน่วย",
-  "en": "Bracketing for the Last Digit",
-  "tier": 2,
-  "dir": "Topic_7/16",
-  "samples": 6
- },
- "717": {
-  "title": "ปูพื้นห้องที่มีเสา",
-  "en": "Domino Floor with Pillars",
-  "tier": 3,
-  "dir": "Topic_7/17",
-  "samples": 6
- },
- "718": {
-  "title": "แบ่งเพื่อนขึ้นรถตู้",
-  "en": "Friends in K Vans",
-  "tier": 3,
-  "dir": "Topic_7/18",
-  "samples": 6
- },
- "719": {
-  "title": "เรือขนสินค้า",
-  "en": "Ferry Trips",
-  "tier": 3,
-  "dir": "Topic_7/19",
-  "samples": 6
- },
- "720": {
-  "title": "หารด้วยผลรวมเลขโดดของตัวเอง",
-  "en": "Divisible by Its Own Digit Sum",
-  "tier": 3,
-  "dir": "Topic_7/20",
-  "samples": 5
- },
- "801": {
-  "title": "กลุ่มเพื่อน",
-  "en": "Friend Circles",
-  "tier": 1,
-  "dir": "Topic_8/1",
-  "samples": 6
- },
- "802": {
-  "title": "ขับกลับบ้าน",
-  "en": "Driving Home",
-  "tier": 1,
-  "dir": "Topic_8/2",
-  "samples": 6
- },
- "803": {
-  "title": "วาดรูปเส้นเดียว",
-  "en": "One-Stroke Drawing",
-  "tier": 1,
-  "dir": "Topic_8/3",
-  "samples": 6
- },
- "804": {
-  "title": "โรงพยาบาลที่ใกล้ที่สุด",
-  "en": "Nearest Hospital",
-  "tier": 1,
-  "dir": "Topic_8/4",
-  "samples": 6
- },
- "805": {
-  "title": "แบ่งสองทีม",
-  "en": "Two Teams",
-  "tier": 1,
-  "dir": "Topic_8/5",
-  "samples": 6
- },
- "806": {
-  "title": "แพ็กเกจพึ่งพากันเป็นวง",
-  "en": "Circular Dependencies",
-  "tier": 1,
-  "dir": "Topic_8/6",
-  "samples": 6
- },
- "807": {
-  "title": "ลำดับการทำงาน",
-  "en": "Task Order",
-  "tier": 1,
-  "dir": "Topic_8/7",
-  "samples": 6
- },
- "808": {
-  "title": "นับเส้นทางถนนทางเดียว",
-  "en": "Counting One-Way Routes",
-  "tier": 2,
-  "dir": "Topic_8/8",
-  "samples": 6
- },
- "809": {
-  "title": "กุญแจรหัสหลายวงล้อ",
-  "en": "Multi-Wheel Combination Lock",
-  "tier": 2,
-  "dir": "Topic_8/9",
-  "samples": 6
- },
- "810": {
-  "title": "เส้นทางรถเมล์จากบันทึกสามป้าย",
-  "en": "Bus Route From Triples",
-  "tier": 2,
-  "dir": "Topic_8/10",
-  "samples": 6
- },
- "811": {
-  "title": "เส้นทางวนรอบที่สั้นที่สุด",
-  "en": "Shortest Loop",
-  "tier": 2,
-  "dir": "Topic_8/11",
-  "samples": 6
- },
- "812": {
-  "title": "เพิ่มคู่แข่งขัน",
-  "en": "Adding Rival Pairs",
-  "tier": 2,
-  "dir": "Topic_8/12",
-  "samples": 6
- },
- "813": {
-  "title": "หนีไฟป่า",
-  "en": "Escaping the Wildfire",
-  "tier": 2,
-  "dir": "Topic_8/13",
-  "samples": 6
- },
- "814": {
-  "title": "บันไดคำ เติม ลบ เปลี่ยน",
-  "en": "Word Ladder with Inserts and Deletes",
-  "tier": 2,
-  "dir": "Topic_8/14",
-  "samples": 6
- },
- "815": {
-  "title": "จดหมายลูกโซ่",
-  "en": "Chain Letters",
-  "tier": 2,
-  "dir": "Topic_8/15",
-  "samples": 6
- },
- "816": {
-  "title": "เลี้ยวให้น้อยที่สุด",
-  "en": "Fewest Turns",
-  "tier": 2,
-  "dir": "Topic_8/16",
-  "samples": 6
- },
- "817": {
-  "title": "กุญแจกับประตู",
-  "en": "Keys and Doors",
-  "tier": 3,
-  "dir": "Topic_8/17",
-  "samples": 6
- },
- "818": {
-  "title": "robot ฝาแฝด",
-  "en": "Twin Robots",
-  "tier": 3,
-  "dir": "Topic_8/18",
-  "samples": 6
- },
- "819": {
-  "title": "อันดับที่แน่นอน",
-  "en": "When Is the Ranking Certain?",
-  "tier": 3,
-  "dir": "Topic_8/19",
-  "samples": 6
- },
- "820": {
-  "title": "หลบยามเดินตรวจ",
-  "en": "Guards on Patrol",
-  "tier": 3,
-  "dir": "Topic_8/20",
-  "samples": 6
- },
- "901": {
-  "title": "อาณานิคมแบคทีเรีย",
-  "en": "Bacteria Colony",
-  "tier": 1,
-  "dir": "Topic_9/1",
-  "samples": 5
- },
- "902": {
-  "title": "กรรมการสองคน",
-  "en": "Two Judges",
-  "tier": 1,
-  "dir": "Topic_9/2",
-  "samples": 5
- },
- "903": {
-  "title": "สับไพ่ซ้ำ ๆ",
-  "en": "Repeated Shuffle",
-  "tier": 1,
-  "dir": "Topic_9/3",
-  "samples": 5
- },
- "904": {
-  "title": "หอคอยฮานอยหลังเดิน k ครั้ง",
-  "en": "Tower of Hanoi After k Moves",
-  "tier": 1,
-  "dir": "Topic_9/4",
-  "samples": 5
- },
- "905": {
-  "title": "แผนที่ quadtree",
-  "en": "Quadtree Map",
-  "tier": 1,
-  "dir": "Topic_9/5",
-  "samples": 5
- },
- "906": {
-  "title": "รอยพับบนแถบกระดาษ",
-  "en": "Creases on a Paper Strip",
-  "tier": 1,
-  "dir": "Topic_9/6",
-  "samples": 5
- },
- "907": {
-  "title": "จำนวนคี่ในสามเหลี่ยมปาสคาล",
-  "en": "Odd Numbers in the Triangle",
-  "tier": 2,
-  "dir": "Topic_9/7",
-  "samples": 5
- },
- "908": {
-  "title": "วันแรกแพงกว่าวันสุดท้าย",
-  "en": "First Beats Last",
-  "tier": 2,
-  "dir": "Topic_9/8",
-  "samples": 5
- },
- "909": {
-  "title": "ผลรวมความแกว่งของอุณหภูมิ",
-  "en": "Total Temperature Swing",
-  "tier": 2,
-  "dir": "Topic_9/9",
-  "samples": 5
- },
- "910": {
-  "title": "ทาสีรั้วด้วยแปรง",
-  "en": "Brush Strokes on a Fence",
-  "tier": 2,
-  "dir": "Topic_9/10",
-  "samples": 6
- },
- "911": {
-  "title": "ช่วงวันที่กำไรรวมอยู่ในเกณฑ์",
-  "en": "Sums in a Range",
-  "tier": 2,
-  "dir": "Topic_9/11",
-  "samples": 6
- },
- "912": {
-  "title": "เดินตามเส้นโค้ง Hilbert",
-  "en": "Hilbert Curve Walk",
-  "tier": 2,
-  "dir": "Topic_9/12",
-  "samples": 5
- },
- "913": {
-  "title": "เครื่องคิดเลขที่ยกกำลังได้",
-  "en": "Calculator with Powers",
-  "tier": 2,
-  "dir": "Topic_9/13",
-  "samples": 6
- },
- "914": {
-  "title": "ค่าลำดับที่ k ในรายการยักษ์",
-  "en": "The Middle of a Huge List",
-  "tier": 2,
-  "dir": "Topic_9/14",
-  "samples": 5
- },
- "915": {
-  "title": "แผนออมเงินทวีคูณ",
-  "en": "Savings Plan",
-  "tier": 2,
-  "dir": "Topic_9/15",
-  "samples": 5
- },
- "916": {
-  "title": "string ที่ดี",
-  "en": "Good Strings",
-  "tier": 2,
-  "dir": "Topic_9/16",
-  "samples": 5
- },
- "917": {
-  "title": "เพลงท่อนซ้ำ",
-  "en": "Repeating Chorus",
-  "tier": 3,
-  "dir": "Topic_9/17",
-  "samples": 5
- },
- "918": {
-  "title": "กลับด้านทีละระดับ",
-  "en": "Mirror Levels",
-  "tier": 3,
-  "dir": "Topic_9/18",
-  "samples": 5
- },
- "919": {
-  "title": "อันดับเรียงติดกัน",
-  "en": "Consecutive Ranks",
-  "tier": 3,
-  "dir": "Topic_9/19",
-  "samples": 5
- },
- "920": {
-  "title": "เรือกระดาษสองลำ",
-  "en": "Two Paper Boats",
-  "tier": 3,
-  "dir": "Topic_9/20",
-  "samples": 5
- },
- "1001": {
-  "title": "เวลาส่งของ",
-  "en": "Delivery Times",
-  "tier": 1,
-  "dir": "Topic_10/1",
-  "samples": 5
- },
- "1002": {
-  "title": "ถามเส้นทางรถเมล์",
-  "en": "Bus Map Queries",
-  "tier": 1,
-  "dir": "Topic_10/2",
-  "samples": 5
- },
- "1003": {
-  "title": "สถานีดับเพลิงที่ใกล้ที่สุด",
-  "en": "Nearest Fire Station",
-  "tier": 1,
-  "dir": "Topic_10/3",
-  "samples": 5
- },
- "1004": {
-  "title": "ค่าผ่านทางติดลบ",
-  "en": "Negative Tolls",
-  "tier": 1,
-  "dir": "Topic_10/4",
-  "samples": 6
- },
- "1005": {
-  "title": "ทุ่งโคลน",
-  "en": "Muddy Field",
-  "tier": 1,
-  "dir": "Topic_10/5",
-  "samples": 6
- },
- "1006": {
-  "title": "แวะที่ทำการไปรษณีย์",
-  "en": "Via the Post Office",
-  "tier": 1,
-  "dir": "Topic_10/6",
-  "samples": 5
- },
- "1007": {
-  "title": "เมืองที่โดดเดี่ยวที่สุด",
-  "en": "Most Isolated Town",
-  "tier": 1,
-  "dir": "Topic_10/7",
-  "samples": 5
- },
- "1008": {
-  "title": "คูปองลดครึ่งราคา",
-  "en": "Half-Price Ticket",
-  "tier": 2,
-  "dir": "Topic_10/8",
-  "samples": 5
- },
- "1009": {
-  "title": "สำรวจเส้นทางสั้นที่สุด",
-  "en": "Shortest Path Census",
-  "tier": 2,
-  "dir": "Topic_10/9",
-  "samples": 5
- },
- "1010": {
-  "title": "บินไม่เกิน k เที่ยว",
-  "en": "At Most K Flights",
-  "tier": 2,
-  "dir": "Topic_10/10",
-  "samples": 5
- },
- "1011": {
-  "title": "ถนนที่ได้ใช้",
-  "en": "Useful Roads",
-  "tier": 2,
-  "dir": "Topic_10/11",
-  "samples": 5
- },
- "1012": {
-  "title": "รถไฟฟ้าหลายสาย",
-  "en": "Metro with Transfers",
-  "tier": 2,
-  "dir": "Topic_10/12",
-  "samples": 5
- },
- "1013": {
-  "title": "ทางลัดติดลบ",
-  "en": "Negative Shortcuts",
-  "tier": 2,
-  "dir": "Topic_10/13",
-  "samples": 5
- },
- "1014": {
-  "title": "เส้นทางอันดับสอง",
-  "en": "Second Best Route",
-  "tier": 2,
-  "dir": "Topic_10/14",
-  "samples": 5
- },
- "1015": {
-  "title": "ออกเดินทางช้าที่สุด",
-  "en": "Latest Departure",
-  "tier": 2,
-  "dir": "Topic_10/15",
-  "samples": 5
- },
- "1016": {
-  "title": "ใครเก่งกว่าใคร",
-  "en": "Who Beats Whom",
-  "tier": 2,
-  "dir": "Topic_10/16",
-  "samples": 5
- },
- "1017": {
-  "title": "ราคาน้ำมัน",
-  "en": "Fuel Prices",
-  "tier": 3,
-  "dir": "Topic_10/17",
-  "samples": 5
- },
- "1018": {
-  "title": "เส้นทางถูกที่สุด K อันดับ",
-  "en": "K Cheapest Routes",
-  "tier": 3,
-  "dir": "Topic_10/18",
-  "samples": 5
- },
- "1019": {
-  "title": "ทางแยกที่เลี่ยงไม่ได้",
-  "en": "Unavoidable Crossings",
-  "tier": 3,
-  "dir": "Topic_10/19",
-  "samples": 5
- },
- "1020": {
-  "title": "เส้นทางของทีมแพทย์",
-  "en": "Restricted Transfers",
-  "tier": 3,
-  "dir": "Topic_10/20",
-  "samples": 5
- },
- "1101": {
-  "title": "เป็นเพื่อนกันหรือยัง",
-  "en": "Are We Friends?",
-  "tier": 1,
-  "dir": "Topic_11/1",
-  "samples": 5
- },
- "1102": {
-  "title": "ชุมชนที่โตขึ้น",
-  "en": "Growing Groups",
-  "tier": 1,
-  "dir": "Topic_11/2",
-  "samples": 5
- },
- "1103": {
-  "title": "เครือข่ายที่ถูกที่สุด",
-  "en": "Cheapest Network",
-  "tier": 1,
-  "dir": "Topic_11/3",
-  "samples": 5
- },
- "1104": {
-  "title": "เดินสายไฟให้ครบทุกเสา",
-  "en": "Dense Wiring",
-  "tier": 1,
-  "dir": "Topic_11/4",
-  "samples": 5
- },
- "1105": {
-  "title": "สายแรกที่เกิดวง",
-  "en": "First Redundant Cable",
-  "tier": 1,
-  "dir": "Topic_11/5",
-  "samples": 5
- },
- "1106": {
-  "title": "ห้องสมุดหรือถนน",
-  "en": "Roads or Libraries",
-  "tier": 1,
-  "dir": "Topic_11/6",
-  "samples": 5
- },
- "1107": {
-  "title": "สายที่ต้องใช้",
-  "en": "Required Links",
-  "tier": 1,
-  "dir": "Topic_11/7",
-  "samples": 5
- },
- "1108": {
-  "title": "คำบอกเล่าเรื่องทีม",
-  "en": "Team Statements",
-  "tier": 2,
-  "dir": "Topic_11/8",
-  "samples": 5
- },
- "1109": {
-  "title": "ถนนรับน้ำหนัก",
-  "en": "Weight-Limited Roads",
-  "tier": 2,
-  "dir": "Topic_11/9",
-  "samples": 5
- },
- "1110": {
-  "title": "แบ่งกลุ่มรังนก",
-  "en": "Grouping Nests",
-  "tier": 2,
-  "dir": "Topic_11/10",
-  "samples": 5
- },
- "1111": {
-  "title": "หาที่จอดที่ใกล้ที่สุด",
-  "en": "Nearest Free Spot",
-  "tier": 2,
-  "dir": "Topic_11/11",
-  "samples": 5
- },
- "1112": {
-  "title": "น้ำซึมผ่านแผ่นกรอง",
-  "en": "Percolation",
-  "tier": 2,
-  "dir": "Topic_11/12",
-  "samples": 5
- },
- "1113": {
-  "title": "รวมบัญชีผู้ใช้",
-  "en": "Merging Accounts",
-  "tier": 2,
-  "dir": "Topic_11/13",
-  "samples": 5
- },
- "1114": {
-  "title": "ไฟฟ้าเข้าทุกหมู่บ้าน",
-  "en": "Power for Every Village",
-  "tier": 2,
-  "dir": "Topic_11/14",
-  "samples": 5
- },
- "1115": {
-  "title": "ปั่นจักรยานข้ามหมู่บ้าน",
-  "en": "Pairs Under a Limit",
-  "tier": 2,
-  "dir": "Topic_11/15",
-  "samples": 5
- },
- "1116": {
-  "title": "เครือข่ายหนึ่งเดียว",
-  "en": "One and Only Network",
-  "tier": 2,
-  "dir": "Topic_11/16",
-  "samples": 5
- },
- "1117": {
-  "title": "อุโมงค์ลัดระหว่างดาว",
-  "en": "Cheap Tunnels Between Stars",
-  "tier": 3,
-  "dir": "Topic_11/17",
-  "samples": 5
- },
- "1118": {
-  "title": "เครือข่ายอันดับสอง",
-  "en": "Second Best Network",
-  "tier": 3,
-  "dir": "Topic_11/18",
-  "samples": 5
- },
- "1119": {
-  "title": "สร้างถนนวันละสาย",
-  "en": "Building Day by Day",
-  "tier": 3,
-  "dir": "Topic_11/19",
-  "samples": 5
- },
- "1120": {
-  "title": "วงได้ไม่เกินหนึ่ง",
-  "en": "One Cycle Allowed",
-  "tier": 3,
-  "dir": "Topic_11/20",
-  "samples": 5
- },
- "1201": {
-  "title": "รุ่นในตระกูล",
-  "en": "Family Generations",
-  "tier": 1,
-  "dir": "Topic_12/1",
-  "samples": 5
- },
- "1202": {
-  "title": "น้ำที่ไหลผ่านบ้าน",
-  "en": "Water Through Each House",
-  "tier": 1,
-  "dir": "Topic_12/2",
-  "samples": 5
- },
- "1203": {
-  "title": "เส้นทางเดินป่าที่ยาวที่สุด",
-  "en": "Longest Trail",
-  "tier": 1,
-  "dir": "Topic_12/3",
-  "samples": 5
- },
- "1204": {
-  "title": "สายอาจารย์ย้อนขึ้นไป",
-  "en": "K Generations Up",
-  "tier": 1,
-  "dir": "Topic_12/4",
-  "samples": 5,
-  "ext": true
- },
- "1205": {
-  "title": "งานเลี้ยงของบริษัท",
-  "en": "Party Invitations",
-  "tier": 1,
-  "dir": "Topic_12/5",
-  "samples": 5
- },
- "1206": {
-  "title": "ต้นน้ำและปลายน้ำ",
-  "en": "Upstream or Downstream",
-  "tier": 1,
-  "dir": "Topic_12/6",
-  "samples": 5
- },
- "1207": {
-  "title": "โรงพยาบาลกลางจังหวัด",
-  "en": "Town Centre",
-  "tier": 1,
-  "dir": "Topic_12/7",
-  "samples": 6
- },
- "1208": {
-  "title": "ระยะทางระหว่างหมู่บ้าน",
-  "en": "Distance Queries",
-  "tier": 2,
-  "dir": "Topic_12/8",
-  "samples": 5,
-  "ext": true
- },
- "1209": {
-  "title": "เมืองที่ไกลที่สุด",
-  "en": "Farthest From Each",
-  "tier": 2,
-  "dir": "Topic_12/9",
-  "samples": 5
- },
- "1210": {
-  "title": "ตั้งด่านตรวจ",
-  "en": "Placing Checkpoints",
-  "tier": 2,
-  "dir": "Topic_12/10",
-  "samples": 6
- },
- "1211": {
-  "title": "สะพานที่รับน้ำหนักได้น้อยที่สุด",
-  "en": "Weakest Bridge on the Way",
-  "tier": 2,
-  "dir": "Topic_12/11",
-  "samples": 5,
-  "ext": true
- },
- "1212": {
-  "title": "โบนัสตามสายงาน",
-  "en": "Bonuses Up and Down",
-  "tier": 2,
-  "dir": "Topic_12/12",
-  "samples": 5
- },
- "1213": {
-  "title": "คู่บ้านที่ห่างกันพอดี",
-  "en": "Pairs at Distance K",
-  "tier": 2,
-  "dir": "Topic_12/13",
-  "samples": 5
- },
- "1214": {
-  "title": "จุดพักที่คนผ่านมากที่สุด",
-  "en": "Busiest Junctions",
-  "tier": 2,
-  "dir": "Topic_12/14",
-  "samples": 5,
-  "ext": true
- },
- "1215": {
-  "title": "ระยะทางจากบ้านถึงร้านค้าทุกคู่",
-  "en": "Every House to Every Shop",
-  "tier": 2,
-  "dir": "Topic_12/15",
-  "samples": 5
- },
- "1216": {
-  "title": "จุดนัดพบของสามเพื่อน",
-  "en": "Meeting of Three",
-  "tier": 2,
-  "dir": "Topic_12/16",
-  "samples": 5,
-  "ext": true
- },
- "1217": {
-  "title": "ทีมโครงการพิเศษ",
-  "en": "Project Team",
-  "tier": 3,
-  "dir": "Topic_12/17",
-  "samples": 5
- },
- "1218": {
-  "title": "ส่งเอกสารขึ้นตามสายงาน",
-  "en": "Climbing the Hierarchy",
-  "tier": 3,
-  "dir": "Topic_12/18",
-  "samples": 5,
-  "ext": true
- },
- "1219": {
-  "title": "เมืองที่ถูกปิด",
-  "en": "One City Closed",
-  "tier": 3,
-  "dir": "Topic_12/19",
-  "samples": 5
- },
- "1220": {
-  "title": "หุ่นยนต์ส่งของอยู่ที่ไหน",
-  "en": "Steps Along the Path",
-  "tier": 3,
-  "dir": "Topic_12/20",
-  "samples": 5,
-  "ext": true
- },
- "1301": {
-  "title": "สมุดบัญชีร้านค้า",
-  "en": "Shop Ledger",
-  "tier": 1,
-  "dir": "Topic_13/1",
-  "samples": 5,
-  "ext": true
- },
- "1302": {
-  "title": "ราคาดิ่งแรง",
-  "en": "Big Drops",
-  "tier": 1,
-  "dir": "Topic_13/2",
-  "samples": 6,
-  "ext": true
- },
- "1303": {
-  "title": "ร้านที่ถูกที่สุดในช่วง",
-  "en": "Lowest Price in a Range",
-  "tier": 1,
-  "dir": "Topic_13/3",
-  "samples": 5,
-  "ext": true
- },
- "1304": {
-  "title": "ขึ้นเงินเดือนเป็นช่วง",
-  "en": "Range Raises",
-  "tier": 1,
-  "dir": "Topic_13/4",
-  "samples": 5,
-  "ext": true
- },
- "1305": {
-  "title": "บัตรใบที่ K ในกล่อง",
-  "en": "K-th Card in the Box",
-  "tier": 1,
-  "dir": "Topic_13/5",
-  "samples": 5,
-  "ext": true
- },
- "1306": {
-  "title": "ต้นกล้าในแปลงนา",
-  "en": "Seedlings in the Field",
-  "tier": 1,
-  "dir": "Topic_13/6",
-  "samples": 5,
-  "ext": true
- },
- "1307": {
-  "title": "ใส่ปุ๋ยแปลงผัก",
-  "en": "Fertilising the Plots",
-  "tier": 1,
-  "dir": "Topic_13/7",
-  "samples": 5,
-  "ext": true
- },
- "1308": {
-  "title": "ช่วงกำไรที่ดีที่สุดเมื่อแก้บัญชี",
-  "en": "Best Run With Updates",
-  "tier": 2,
-  "dir": "Topic_13/8",
-  "samples": 5,
-  "ext": true
- },
- "1309": {
-  "title": "อาหารกี่ประเภทในช่วงถนน",
-  "en": "Distinct in a Range",
-  "tier": 2,
-  "dir": "Topic_13/9",
-  "samples": 5,
-  "ext": true
- },
- "1310": {
-  "title": "รื้อแปลงปลูกผักใหม่",
-  "en": "Replanting the Plots",
-  "tier": 2,
-  "dir": "Topic_13/10",
-  "samples": 5,
-  "ext": true
- },
- "1311": {
-  "title": "เบิกได้ไม่เกินเพดาน",
-  "en": "Capped Claims",
-  "tier": 2,
-  "dir": "Topic_13/11",
-  "samples": 5,
-  "ext": true
- },
- "1312": {
-  "title": "หาที่พักให้คณะทัวร์",
-  "en": "Rooms for Tour Groups",
-  "tier": 2,
-  "dir": "Topic_13/12",
-  "samples": 5,
-  "ext": true
- },
- "1313": {
-  "title": "วงเล็บที่จับคู่ได้ในช่วง",
-  "en": "Bracket Queries",
-  "tier": 2,
-  "dir": "Topic_13/13",
-  "samples": 5,
-  "ext": true
- },
- "1314": {
-  "title": "ไม้วัดประจำช่วง",
-  "en": "Measuring Sticks",
-  "tier": 2,
-  "dir": "Topic_13/14",
-  "samples": 5,
-  "ext": true
- },
- "1315": {
-  "title": "นับทางขึ้นเขาที่ยาวที่สุด",
-  "en": "Counting Longest Climbs",
-  "tier": 2,
-  "dir": "Topic_13/15",
-  "samples": 5,
-  "ext": true
- },
- "1316": {
-  "title": "จองที่นั่งรถไฟเป็นช่วง",
-  "en": "Booking Train Seats",
-  "tier": 2,
-  "dir": "Topic_13/16",
-  "samples": 5,
-  "ext": true
- },
- "1317": {
-  "title": "เทดินเป็นทางลาด",
-  "en": "Ramps of Soil",
-  "tier": 3,
-  "dir": "Topic_13/17",
-  "samples": 5,
-  "ext": true
- },
- "1318": {
-  "title": "ปิดช่องจราจร",
-  "en": "Lane Closures",
-  "tier": 3,
-  "dir": "Topic_13/18",
-  "samples": 5,
-  "ext": true
- },
- "1319": {
-  "title": "ทางด่วนสามเลน",
-  "en": "Three-Lane Expressway",
-  "tier": 3,
-  "dir": "Topic_13/19",
-  "samples": 5,
-  "ext": true
- },
- "1320": {
-  "title": "จานเพาะเชื้อ",
-  "en": "Add, Multiply, Sum",
-  "tier": 3,
-  "dir": "Topic_13/20",
-  "samples": 5,
-  "ext": true
- },
- "1401": {
-  "title": "จับคู่หารลงตัว",
-  "en": "Pairs That Share the Bill",
-  "tier": 1,
-  "dir": "Topic_14/1",
-  "samples": 5
- },
- "1402": {
-  "title": "ทศนิยมซ้ำ",
-  "en": "Recurring Decimals",
-  "tier": 1,
-  "dir": "Topic_14/2",
-  "samples": 5
- },
- "1403": {
-  "title": "รอยตัดผ่านกระเบื้อง",
-  "en": "Cut Across the Tiles",
-  "tier": 1,
-  "dir": "Topic_14/3",
-  "samples": 5
- },
- "1404": {
-  "title": "จำนวนพร่อง จำนวนสมบูรณ์ จำนวนเกิน",
-  "en": "Abundant Numbers in Ranges",
-  "tier": 1,
-  "dir": "Topic_14/4",
-  "samples": 5
- },
- "1405": {
-  "title": "มีเลขนำโชคอย่างน้อยหนึ่งตัว",
-  "en": "At Least One Lucky Digit",
-  "tier": 1,
-  "dir": "Topic_14/5",
-  "samples": 5
- },
- "1406": {
-  "title": "ตาชั่งสองแขน",
-  "en": "Weights on Both Pans",
-  "tier": 1,
-  "dir": "Topic_14/6",
-  "samples": 5
- },
- "1407": {
-  "title": "แยกตัวประกอบจำนวนใหญ่",
-  "en": "Factorising Big Numbers",
-  "tier": 1,
-  "dir": "Topic_14/7",
-  "samples": 5
- },
- "1408": {
-  "title": "ตัวหารกำลังสมบูรณ์ของ N!",
-  "en": "Power Divisors of a Factorial",
-  "tier": 2,
-  "dir": "Topic_14/8",
-  "samples": 5
- },
- "1409": {
-  "title": "ผลรวม ห.ร.ม. ของทุกช่วง",
-  "en": "Total of All Subarray GCDs",
-  "tier": 2,
-  "dir": "Topic_14/9",
-  "samples": 5
- },
- "1410": {
-  "title": "ทำให้เท่ากันทีละจำนวนเฉพาะ",
-  "en": "Equal by Prime Steps",
-  "tier": 2,
-  "dir": "Topic_14/10",
-  "samples": 5
- },
- "1411": {
-  "title": "เลขท้าย K หลัก",
-  "en": "The Last K Digits",
-  "tier": 2,
-  "dir": "Topic_14/11",
-  "samples": 5
- },
- "1412": {
-  "title": "พหุคูณจากแม่พิมพ์ตัวเลข",
-  "en": "Smallest Multiple From Allowed Digits",
-  "tier": 2,
-  "dir": "Topic_14/12",
-  "samples": 6
- },
- "1413": {
-  "title": "เศษที่วนซ้ำ",
-  "en": "Repeating Remainders",
-  "tier": 2,
-  "dir": "Topic_14/13",
-  "samples": 5
- },
- "1414": {
-  "title": "ธงแดงไม่ติดกัน",
-  "en": "No Two Reds Together",
-  "tier": 2,
-  "dir": "Topic_14/14",
-  "samples": 6
- },
- "1415": {
-  "title": "ตัวประกอบเฉพาะในช่วง",
-  "en": "Prime Factors in a Window",
-  "tier": 2,
-  "dir": "Topic_14/15",
-  "samples": 5
- },
- "1416": {
-  "title": "แบ่งที่ดินรูปหลายเหลี่ยมนูน",
-  "en": "Slicing a Convex Plot",
-  "tier": 2,
-  "dir": "Topic_14/16",
-  "samples": 5
- },
- "1417": {
-  "title": "ห.ร.ม. ของทุกทีม",
-  "en": "GCD of Every Team",
-  "tier": 3,
-  "dir": "Topic_14/17",
-  "samples": 5
- },
- "1418": {
-  "title": "ทอนเงินที่บูทขายตั๋ว",
-  "en": "Change at the Ticket Booth",
-  "tier": 3,
-  "dir": "Topic_14/18",
-  "samples": 5
- },
- "1419": {
-  "title": "คู่พจน์ที่อยู่ติดกัน",
-  "en": "The Diatomic Sequence",
-  "tier": 3,
-  "dir": "Topic_14/19",
-  "samples": 5
- },
- "1420": {
-  "title": "ระยะทางเป็นจำนวนเต็ม",
-  "en": "Whole-Number Distances",
-  "tier": 3,
-  "dir": "Topic_14/20",
-  "samples": 5
- },
- "1501": {
   "title": "จัดข้อความให้เรียบร้อย",
   "en": "Tidying the Text",
   "tier": 1,
-  "dir": "Topic_15/1",
+  "dir": "02_Strings_and_Parsing/1",
   "samples": 6
  },
- "1502": {
+ "202": {
   "title": "ค้นหาคำที่สลับตัวอักษร",
   "en": "Scrambled Word Search",
   "tier": 1,
-  "dir": "Topic_15/2",
+  "dir": "02_Strings_and_Parsing/2",
   "samples": 5
  },
- "1503": {
+ "203": {
   "title": "เลื่อนตัวอักษรเป็นช่วง",
   "en": "Caesar Shifts on Ranges",
   "tier": 1,
-  "dir": "Topic_15/3",
+  "dir": "02_Strings_and_Parsing/3",
   "samples": 5
  },
- "1504": {
+ "204": {
   "title": "ไฟล์ตั้งค่า",
   "en": "Config File",
   "tier": 1,
-  "dir": "Topic_15/4",
+  "dir": "02_Strings_and_Parsing/4",
   "samples": 5
  },
- "1505": {
+ "205": {
   "title": "ป้ายไฟวิ่งกลับด้าน",
   "en": "Reversible Ticker",
   "tier": 1,
-  "dir": "Topic_15/5",
+  "dir": "02_Strings_and_Parsing/5",
   "samples": 5
  },
- "1506": {
+ "206": {
   "title": "ย้ายย่อหน้า",
   "en": "Moving Paragraphs",
   "tier": 1,
-  "dir": "Topic_15/6",
+  "dir": "02_Strings_and_Parsing/6",
   "samples": 5
  },
- "1507": {
+ "207": {
   "title": "ชิ้นส่วนวงเล็บสมดุล",
   "en": "Balanced Bracket Pieces",
   "tier": 1,
-  "dir": "Topic_15/7",
+  "dir": "02_Strings_and_Parsing/7",
   "samples": 5
  },
- "1508": {
+ "208": {
   "title": "กรองคำต้องห้าม",
   "en": "Censoring",
   "tier": 2,
-  "dir": "Topic_15/8",
+  "dir": "02_Strings_and_Parsing/8",
   "samples": 5
  },
- "1509": {
+ "209": {
   "title": "นับคำค้น",
   "en": "Keyword Counter",
   "tier": 2,
-  "dir": "Topic_15/9",
+  "dir": "02_Strings_and_Parsing/9",
   "samples": 5
  },
- "1510": {
+ "210": {
   "title": "ข้อผิดพลาดกระจุกตัว",
   "en": "Error Bursts",
   "tier": 2,
-  "dir": "Topic_15/10",
+  "dir": "02_Strings_and_Parsing/10",
   "samples": 5
  },
- "1511": {
+ "211": {
   "title": "พื้นที่ดิสก์",
   "en": "Disk Usage",
   "tier": 2,
-  "dir": "Topic_15/11",
+  "dir": "02_Strings_and_Parsing/11",
   "samples": 5
  },
- "1512": {
+ "212": {
   "title": "ซ่อมสาย DNA",
   "en": "Repairing the Strand",
   "tier": 2,
-  "dir": "Topic_15/12",
+  "dir": "02_Strings_and_Parsing/12",
   "samples": 5
  },
- "1513": {
+ "213": {
   "title": "จับเวลาการทำงานของ function",
   "en": "Profiler",
   "tier": 2,
-  "dir": "Topic_15/13",
+  "dir": "02_Strings_and_Parsing/13",
   "samples": 5
  },
- "1514": {
+ "214": {
   "title": "เครื่องจักรจิ๋ว",
   "en": "Tiny Machine",
   "tier": 2,
-  "dir": "Topic_15/14",
+  "dir": "02_Strings_and_Parsing/14",
   "samples": 5
  },
- "1515": {
+ "215": {
   "title": "เอกสารที่แก้ไขร่วมกัน",
   "en": "Shared Document",
   "tier": 2,
-  "dir": "Topic_15/15",
+  "dir": "02_Strings_and_Parsing/15",
   "samples": 5
  },
- "1516": {
+ "216": {
   "title": "palindrome ในช่วง",
   "en": "Palindromes in a Range",
   "tier": 2,
-  "dir": "Topic_15/16",
+  "dir": "02_Strings_and_Parsing/16",
   "samples": 5
  },
- "1517": {
+ "217": {
   "title": "ต่อป้ายผ้า",
   "en": "Splicing Two Banners",
   "tier": 3,
-  "dir": "Topic_15/17",
+  "dir": "02_Strings_and_Parsing/17",
   "samples": 6
  },
- "1518": {
+ "218": {
   "title": "ข้อความสั้นที่สุด",
   "en": "Shortest Snippet",
   "tier": 3,
-  "dir": "Topic_15/18",
+  "dir": "02_Strings_and_Parsing/18",
   "samples": 6
  },
- "1519": {
+ "219": {
   "title": "พลิกคำตัดสิน",
   "en": "Flipping the Verdict",
   "tier": 3,
-  "dir": "Topic_15/19",
+  "dir": "02_Strings_and_Parsing/19",
   "samples": 6
  },
- "1520": {
+ "220": {
   "title": "ข้อความที่คล้ายกัน",
   "en": "Similar Passages",
   "tier": 3,
-  "dir": "Topic_15/20",
+  "dir": "02_Strings_and_Parsing/20",
   "samples": 6
+ },
+ "301": {
+  "title": "กำไรรอบปี",
+  "en": "Profit Around the Year",
+  "tier": 1,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/1",
+  "samples": 5
+ },
+ "302": {
+  "title": "สวนผลไม้",
+  "en": "Orchard Squares",
+  "tier": 1,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/2",
+  "samples": 5
+ },
+ "303": {
+  "title": "ทาสีหลายชั้น",
+  "en": "Paint Layers",
+  "tier": 1,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/3",
+  "samples": 5
+ },
+ "304": {
+  "title": "ช่วง K วันที่ดีที่สุด",
+  "en": "Best K Days",
+  "tier": 1,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/4",
+  "samples": 6
+ },
+ "305": {
+  "title": "คู่ที่ใกล้กัน",
+  "en": "Close Pairs",
+  "tier": 1,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/5",
+  "samples": 5
+ },
+ "306": {
+  "title": "ตัดออกหนึ่งวัน",
+  "en": "Remove One Day",
+  "tier": 1,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/6",
+  "samples": 6
+ },
+ "307": {
+  "title": "เที่ยวในงบ",
+  "en": "Trips Within Budget",
+  "tier": 1,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/7",
+  "samples": 6
+ },
+ "308": {
+  "title": "นั่งติดกัน",
+  "en": "Seating Friends Together",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/8",
+  "samples": 6
+ },
+ "309": {
+  "title": "ผ้าใบซ้อนกัน",
+  "en": "Overlapping Tarps",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/9",
+  "samples": 5
+ },
+ "310": {
+  "title": "สะสมแสตมป์",
+  "en": "Collect All Stamps",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/10",
+  "samples": 6
+ },
+ "311": {
+  "title": "เสมอกันสามทาง",
+  "en": "Three-way Tie",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/11",
+  "samples": 6
+ },
+ "312": {
+  "title": "ยกพื้นให้ได้ระดับ",
+  "en": "Raising Platforms",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/12",
+  "samples": 6
+ },
+ "313": {
+  "title": "บันไดบล็อก",
+  "en": "Staircase Blocks",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/13",
+  "samples": 5
+ },
+ "314": {
+  "title": "รถเมล์วงแหวน",
+  "en": "Ring Bus Route",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/14",
+  "samples": 6
+ },
+ "315": {
+  "title": "ที่ดินสี่เหลี่ยมจัตุรัส",
+  "en": "Largest Affordable Square",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/15",
+  "samples": 6
+ },
+ "316": {
+  "title": "เรียงใหม่เป็น palindrome",
+  "en": "Rearrangeable Palindromes",
+  "tier": 2,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/16",
+  "samples": 6
+ },
+ "317": {
+  "title": "หันหน้าเข้าหากัน",
+  "en": "Facing Pairs",
+  "tier": 3,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/17",
+  "samples": 5
+ },
+ "318": {
+  "title": "ช่วงที่กำไรเฉลี่ยถึงเป้า",
+  "en": "Longest Profitable Period",
+  "tier": 3,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/18",
+  "samples": 6
+ },
+ "319": {
+  "title": "สี่เหลี่ยมผลรวมพอดี",
+  "en": "Target-Sum Rectangles",
+  "tier": 3,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/19",
+  "samples": 6
+ },
+ "320": {
+  "title": "ชุดคำสั่งไฟประดับ",
+  "en": "Batches of Light Commands",
+  "tier": 3,
+  "dir": "03_Prefix_Sums_and_Two_Pointers/20",
+  "samples": 5
+ },
+ "401": {
+  "title": "การแสดง ณ นาทีที่ t",
+  "en": "Shows at Minute t",
+  "tier": 1,
+  "dir": "04_Binary_Search/1",
+  "samples": 6
+ },
+ "402": {
+  "title": "วันแรกที่เงินออมถึงเป้า",
+  "en": "First Day of Savings",
+  "tier": 1,
+  "dir": "04_Binary_Search/2",
+  "samples": 6
+ },
+ "403": {
+  "title": "กองกระป๋อง",
+  "en": "Stacks of Cans",
+  "tier": 1,
+  "dir": "04_Binary_Search/3",
+  "samples": 5
+ },
+ "404": {
+  "title": "สถานีที่ใกล้ที่สุด",
+  "en": "Nearest Station",
+  "tier": 1,
+  "dir": "04_Binary_Search/4",
+  "samples": 6
+ },
+ "405": {
+  "title": "ตัดเชือก",
+  "en": "Cutting Ropes",
+  "tier": 1,
+  "dir": "04_Binary_Search/5",
+  "samples": 6
+ },
+ "406": {
+  "title": "เครื่องจักรในโรงงาน",
+  "en": "Machines at Work",
+  "tier": 1,
+  "dir": "04_Binary_Search/6",
+  "samples": 6
+ },
+ "407": {
+  "title": "หมายเลขตั๋วที่ยังเหลือ",
+  "en": "Missing Ticket Numbers",
+  "tier": 1,
+  "dir": "04_Binary_Search/7",
+  "samples": 6
+ },
+ "408": {
+  "title": "แผนการอ่านหนังสือ",
+  "en": "Reading Plan",
+  "tier": 2,
+  "dir": "04_Binary_Search/8",
+  "samples": 6
+ },
+ "409": {
+  "title": "ติดตั้ง router",
+  "en": "Placing Routers",
+  "tier": 2,
+  "dir": "04_Binary_Search/9",
+  "samples": 6
+ },
+ "410": {
+  "title": "ชุดอาหารราคาลำดับที่ K",
+  "en": "K-th Cheapest Meal Set",
+  "tier": 2,
+  "dir": "04_Binary_Search/10",
+  "samples": 6
+ },
+ "411": {
+  "title": "รถโดยสารออกตรงชั่วโมง",
+  "en": "Buses Leave on the Hour",
+  "tier": 2,
+  "dir": "04_Binary_Search/11",
+  "samples": 6
+ },
+ "412": {
+  "title": "ช่วงด่านเฉลี่ยสูงสุด",
+  "en": "Best Average Stretch",
+  "tier": 2,
+  "dir": "04_Binary_Search/12",
+  "samples": 6
+ },
+ "413": {
+  "title": "ฝึกทีมให้เก่งทั่วกัน",
+  "en": "Raising the Weakest",
+  "tier": 2,
+  "dir": "04_Binary_Search/13",
+  "samples": 6
+ },
+ "414": {
+  "title": "ช่อดอกไม้",
+  "en": "Flower Bouquets",
+  "tier": 2,
+  "dir": "04_Binary_Search/14",
+  "samples": 6
+ },
+ "415": {
+  "title": "รางพักตู้สินค้า",
+  "en": "Fewest Tracks",
+  "tier": 2,
+  "dir": "04_Binary_Search/15",
+  "samples": 6
+ },
+ "416": {
+  "title": "จุดนัดพบ",
+  "en": "Meeting Points Within Budget",
+  "tier": 2,
+  "dir": "04_Binary_Search/16",
+  "samples": 5
+ },
+ "417": {
+  "title": "เส้นทางวิ่งอันดับที่ K",
+  "en": "K-th Shortest Running Route",
+  "tier": 3,
+  "dir": "04_Binary_Search/17",
+  "samples": 6
+ },
+ "418": {
+  "title": "ซื้อมากจ่ายเพิ่ม",
+  "en": "Market With Rising Fees",
+  "tier": 3,
+  "dir": "04_Binary_Search/18",
+  "samples": 6
+ },
+ "419": {
+  "title": "รดน้ำต้นกล้า",
+  "en": "Watering the Seedlings",
+  "tier": 3,
+  "dir": "04_Binary_Search/19",
+  "samples": 6
+ },
+ "420": {
+  "title": "คะแนนกลางสูงสุด",
+  "en": "Largest Median",
+  "tier": 3,
+  "dir": "04_Binary_Search/20",
+  "samples": 6
+ },
+ "501": {
+  "title": "เทศกาลภาพยนตร์",
+  "en": "Film Festival",
+  "tier": 1,
+  "dir": "05_Greedy/1",
+  "samples": 6
+ },
+ "502": {
+  "title": "ไปกลับด้วยน้ำมันเต็มถัง",
+  "en": "Full-Tank Round Trip",
+  "tier": 1,
+  "dir": "05_Greedy/2",
+  "samples": 6
+ },
+ "503": {
+  "title": "ขนมสำหรับเด็ก",
+  "en": "Snacks for Children",
+  "tier": 1,
+  "dir": "05_Greedy/3",
+  "samples": 6
+ },
+ "504": {
+  "title": "รอตรวจที่คลินิก",
+  "en": "Waiting at the Clinic",
+  "tier": 1,
+  "dir": "05_Greedy/4",
+  "samples": 6
+ },
+ "505": {
+  "title": "กระโดดข้ามหิน",
+  "en": "Hopping Stones",
+  "tier": 1,
+  "dir": "05_Greedy/5",
+  "samples": 6
+ },
+ "506": {
+  "title": "ต่อเชือก",
+  "en": "Joining Ropes",
+  "tier": 1,
+  "dir": "05_Greedy/6",
+  "samples": 6
+ },
+ "507": {
+  "title": "สองเมือง",
+  "en": "Two Cities",
+  "tier": 1,
+  "dir": "05_Greedy/7",
+  "samples": 6
+ },
+ "508": {
+  "title": "ลำดับงานซ่อมตามความสำคัญ",
+  "en": "Weighted Waiting",
+  "tier": 2,
+  "dir": "05_Greedy/8",
+  "samples": 6
+ },
+ "509": {
+  "title": "จัดห้องบรรยาย",
+  "en": "Assigning Rooms",
+  "tier": 2,
+  "dir": "05_Greedy/9",
+  "samples": 6
+ },
+ "510": {
+  "title": "แวะเติมน้ำมันให้น้อยครั้ง",
+  "en": "Limited Fuel Stops",
+  "tier": 2,
+  "dir": "05_Greedy/10",
+  "samples": 6
+ },
+ "511": {
+  "title": "เรียงกองหนังสือ",
+  "en": "Sorting the Book Pile",
+  "tier": 2,
+  "dir": "05_Greedy/11",
+  "samples": 6
+ },
+ "512": {
+  "title": "คู่ s-h มากที่สุด",
+  "en": "Most SH Pairs",
+  "tier": 2,
+  "dir": "05_Greedy/12",
+  "samples": 6
+ },
+ "513": {
+  "title": "ค่าปรับสูงสุดให้น้อยที่สุด",
+  "en": "Smallest Largest Fine",
+  "tier": 2,
+  "dir": "05_Greedy/13",
+  "samples": 6
+ },
+ "514": {
+  "title": "ห้ามซ้ำติดกันเกิน K ตัว",
+  "en": "No Long Runs",
+  "tier": 2,
+  "dir": "05_Greedy/14",
+  "samples": 6
+ },
+ "515": {
+  "title": "ไฟส่องถนน",
+  "en": "Lighting the Road",
+  "tier": 2,
+  "dir": "05_Greedy/15",
+  "samples": 6
+ },
+ "516": {
+  "title": "ตัดแล้วทาสี",
+  "en": "Cut, Then Paint",
+  "tier": 2,
+  "dir": "05_Greedy/16",
+  "samples": 6
+ },
+ "517": {
+  "title": "ซื้อถูกขายแพง",
+  "en": "Buy Low, Sell High",
+  "tier": 3,
+  "dir": "05_Greedy/17",
+  "samples": 6
+ },
+ "518": {
+  "title": "เปิดร้านไม่ติดกัน",
+  "en": "Non-adjacent Stalls",
+  "tier": 3,
+  "dir": "05_Greedy/18",
+  "samples": 6
+ },
+ "519": {
+  "title": "ซ่อมบันได",
+  "en": "Fixing the Stairs",
+  "tier": 3,
+  "dir": "05_Greedy/19",
+  "samples": 6
+ },
+ "520": {
+  "title": "หอคอยกายกรรมคู่",
+  "en": "Acrobat Pairs Tower",
+  "tier": 3,
+  "dir": "05_Greedy/20",
+  "samples": 6
+ },
+ "601": {
+  "title": "ทาสีเสารั้วรอบสวน",
+  "en": "Painted Fence Posts",
+  "tier": 1,
+  "dir": "06_Sorting_and_Sweep_Line/1",
+  "samples": 6
+ },
+ "602": {
+  "title": "ช่วงทำงานของครู",
+  "en": "Work Sessions",
+  "tier": 1,
+  "dir": "06_Sorting_and_Sweep_Line/2",
+  "samples": 6
+ },
+ "603": {
+  "title": "คู่ที่ได้พบกัน",
+  "en": "Pairs Who Meet",
+  "tier": 1,
+  "dir": "06_Sorting_and_Sweep_Line/3",
+  "samples": 6
+ },
+ "604": {
+  "title": "ช่วงปิดปรับปรุงระบบ",
+  "en": "Maintenance Window",
+  "tier": 1,
+  "dir": "06_Sorting_and_Sweep_Line/4",
+  "samples": 6
+ },
+ "605": {
+  "title": "โคมไฟที่สว่างที่สุด",
+  "en": "Brightest Street Lamp",
+  "tier": 1,
+  "dir": "06_Sorting_and_Sweep_Line/5",
+  "samples": 6
+ },
+ "606": {
+  "title": "อันดับในตารางคะแนน",
+  "en": "Leaderboard Ranks",
+  "tier": 1,
+  "dir": "06_Sorting_and_Sweep_Line/6",
+  "samples": 6
+ },
+ "607": {
+  "title": "ห้องประชุมถูกจองซ้อน",
+  "en": "First Double Booking",
+  "tier": 1,
+  "dir": "06_Sorting_and_Sweep_Line/7",
+  "samples": 6
+ },
+ "608": {
+  "title": "ปูพรมในห้องโถง",
+  "en": "Carpets in the Hall",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/8",
+  "samples": 5
+ },
+ "609": {
+  "title": "ทาสีทับตามลำดับ",
+  "en": "Painting in Order",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/9",
+  "samples": 6
+ },
+ "610": {
+  "title": "รถทัวร์รับส่งเป็นช่วง",
+  "en": "Bus Capacity",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/10",
+  "samples": 5
+ },
+ "611": {
+  "title": "ดูหนังกับเพื่อน K คน",
+  "en": "K Viewers at the Festival",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/11",
+  "samples": 6
+ },
+ "612": {
+  "title": "การจองที่ครอบกัน",
+  "en": "Nested Bookings",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/12",
+  "samples": 6
+ },
+ "613": {
+  "title": "ไม่ว่างพร้อมกัน",
+  "en": "Both Busy",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/13",
+  "samples": 5
+ },
+ "614": {
+  "title": "จุดที่สว่างที่สุด",
+  "en": "The Brightest Point",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/14",
+  "samples": 6
+ },
+ "615": {
+  "title": "งานสั้นได้ก่อน",
+  "en": "Shortest Job First",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/15",
+  "samples": 5
+ },
+ "616": {
+  "title": "โรงแรมที่ไม่มีใครดีกว่า",
+  "en": "Pareto Hotels",
+  "tier": 2,
+  "dir": "06_Sorting_and_Sweep_Line/16",
+  "samples": 6
+ },
+ "617": {
+  "title": "คู่ที่ใกล้ที่สุด",
+  "en": "Closest Pair",
+  "tier": 3,
+  "dir": "06_Sorting_and_Sweep_Line/17",
+  "samples": 5
+ },
+ "618": {
+  "title": "นั่งห่างกันไว้",
+  "en": "Keeping Distance",
+  "tier": 3,
+  "dir": "06_Sorting_and_Sweep_Line/18",
+  "samples": 5
+ },
+ "619": {
+  "title": "ขอบของโปสเตอร์",
+  "en": "Outline of the Posters",
+  "tier": 3,
+  "dir": "06_Sorting_and_Sweep_Line/19",
+  "samples": 6
+ },
+ "620": {
+  "title": "เส้นขอบฟ้าของเมือง",
+  "en": "City Skyline",
+  "tier": 3,
+  "dir": "06_Sorting_and_Sweep_Line/20",
+  "samples": 6
+ },
+ "701": {
+  "title": "จับคู่หารลงตัว",
+  "en": "Pairs That Share the Bill",
+  "tier": 1,
+  "dir": "07_Number_Theory_and_Counting/1",
+  "samples": 5
+ },
+ "702": {
+  "title": "ทศนิยมซ้ำ",
+  "en": "Recurring Decimals",
+  "tier": 1,
+  "dir": "07_Number_Theory_and_Counting/2",
+  "samples": 5
+ },
+ "703": {
+  "title": "รอยตัดผ่านกระเบื้อง",
+  "en": "Cut Across the Tiles",
+  "tier": 1,
+  "dir": "07_Number_Theory_and_Counting/3",
+  "samples": 5
+ },
+ "704": {
+  "title": "จำนวนพร่อง จำนวนสมบูรณ์ จำนวนเกิน",
+  "en": "Abundant Numbers in Ranges",
+  "tier": 1,
+  "dir": "07_Number_Theory_and_Counting/4",
+  "samples": 5
+ },
+ "705": {
+  "title": "มีเลขนำโชคอย่างน้อยหนึ่งตัว",
+  "en": "At Least One Lucky Digit",
+  "tier": 1,
+  "dir": "07_Number_Theory_and_Counting/5",
+  "samples": 5
+ },
+ "706": {
+  "title": "ตาชั่งสองแขน",
+  "en": "Weights on Both Pans",
+  "tier": 1,
+  "dir": "07_Number_Theory_and_Counting/6",
+  "samples": 5
+ },
+ "707": {
+  "title": "แยกตัวประกอบจำนวนใหญ่",
+  "en": "Factorising Big Numbers",
+  "tier": 1,
+  "dir": "07_Number_Theory_and_Counting/7",
+  "samples": 5
+ },
+ "708": {
+  "title": "ตัวหารกำลังสมบูรณ์ของ N!",
+  "en": "Power Divisors of a Factorial",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/8",
+  "samples": 5
+ },
+ "709": {
+  "title": "ผลรวม ห.ร.ม. ของทุกช่วง",
+  "en": "Total of All Subarray GCDs",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/9",
+  "samples": 5
+ },
+ "710": {
+  "title": "ทำให้เท่ากันทีละจำนวนเฉพาะ",
+  "en": "Equal by Prime Steps",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/10",
+  "samples": 5
+ },
+ "711": {
+  "title": "เลขท้าย K หลัก",
+  "en": "The Last K Digits",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/11",
+  "samples": 5
+ },
+ "712": {
+  "title": "พหุคูณจากแม่พิมพ์ตัวเลข",
+  "en": "Smallest Multiple From Allowed Digits",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/12",
+  "samples": 6
+ },
+ "713": {
+  "title": "เศษที่วนซ้ำ",
+  "en": "Repeating Remainders",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/13",
+  "samples": 5
+ },
+ "714": {
+  "title": "ธงแดงไม่ติดกัน",
+  "en": "No Two Reds Together",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/14",
+  "samples": 6
+ },
+ "715": {
+  "title": "ตัวประกอบเฉพาะในช่วง",
+  "en": "Prime Factors in a Window",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/15",
+  "samples": 5
+ },
+ "716": {
+  "title": "แบ่งที่ดินรูปหลายเหลี่ยมนูน",
+  "en": "Slicing a Convex Plot",
+  "tier": 2,
+  "dir": "07_Number_Theory_and_Counting/16",
+  "samples": 5
+ },
+ "717": {
+  "title": "ห.ร.ม. ของทุกทีม",
+  "en": "GCD of Every Team",
+  "tier": 3,
+  "dir": "07_Number_Theory_and_Counting/17",
+  "samples": 5
+ },
+ "718": {
+  "title": "ทอนเงินที่บูทขายตั๋ว",
+  "en": "Change at the Ticket Booth",
+  "tier": 3,
+  "dir": "07_Number_Theory_and_Counting/18",
+  "samples": 5
+ },
+ "719": {
+  "title": "คู่พจน์ที่อยู่ติดกัน",
+  "en": "The Diatomic Sequence",
+  "tier": 3,
+  "dir": "07_Number_Theory_and_Counting/19",
+  "samples": 5
+ },
+ "720": {
+  "title": "ระยะทางเป็นจำนวนเต็ม",
+  "en": "Whole-Number Distances",
+  "tier": 3,
+  "dir": "07_Number_Theory_and_Counting/20",
+  "samples": 5
+ },
+ "801": {
+  "title": "อาณานิคมแบคทีเรีย",
+  "en": "Bacteria Colony",
+  "tier": 1,
+  "dir": "08_Divide_and_Conquer/1",
+  "samples": 5
+ },
+ "802": {
+  "title": "กรรมการสองคน",
+  "en": "Two Judges",
+  "tier": 1,
+  "dir": "08_Divide_and_Conquer/2",
+  "samples": 5
+ },
+ "803": {
+  "title": "สับไพ่ซ้ำ ๆ",
+  "en": "Repeated Shuffle",
+  "tier": 1,
+  "dir": "08_Divide_and_Conquer/3",
+  "samples": 5
+ },
+ "804": {
+  "title": "หอคอยฮานอยหลังเดิน k ครั้ง",
+  "en": "Tower of Hanoi After k Moves",
+  "tier": 1,
+  "dir": "08_Divide_and_Conquer/4",
+  "samples": 5
+ },
+ "805": {
+  "title": "แผนที่ quadtree",
+  "en": "Quadtree Map",
+  "tier": 1,
+  "dir": "08_Divide_and_Conquer/5",
+  "samples": 5
+ },
+ "806": {
+  "title": "รอยพับบนแถบกระดาษ",
+  "en": "Creases on a Paper Strip",
+  "tier": 1,
+  "dir": "08_Divide_and_Conquer/6",
+  "samples": 5
+ },
+ "807": {
+  "title": "จำนวนคี่ในสามเหลี่ยมปาสคาล",
+  "en": "Odd Numbers in the Triangle",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/7",
+  "samples": 5
+ },
+ "808": {
+  "title": "วันแรกแพงกว่าวันสุดท้าย",
+  "en": "First Beats Last",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/8",
+  "samples": 5
+ },
+ "809": {
+  "title": "ผลรวมความแกว่งของอุณหภูมิ",
+  "en": "Total Temperature Swing",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/9",
+  "samples": 5
+ },
+ "810": {
+  "title": "ทาสีรั้วด้วยแปรง",
+  "en": "Brush Strokes on a Fence",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/10",
+  "samples": 6
+ },
+ "811": {
+  "title": "ช่วงวันที่กำไรรวมอยู่ในเกณฑ์",
+  "en": "Sums in a Range",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/11",
+  "samples": 6
+ },
+ "812": {
+  "title": "เดินตามเส้นโค้ง Hilbert",
+  "en": "Hilbert Curve Walk",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/12",
+  "samples": 5
+ },
+ "813": {
+  "title": "เครื่องคิดเลขที่ยกกำลังได้",
+  "en": "Calculator with Powers",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/13",
+  "samples": 6
+ },
+ "814": {
+  "title": "ค่าลำดับที่ k ในรายการยักษ์",
+  "en": "The Middle of a Huge List",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/14",
+  "samples": 5
+ },
+ "815": {
+  "title": "แผนออมเงินทวีคูณ",
+  "en": "Savings Plan",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/15",
+  "samples": 5
+ },
+ "816": {
+  "title": "string ที่ดี",
+  "en": "Good Strings",
+  "tier": 2,
+  "dir": "08_Divide_and_Conquer/16",
+  "samples": 5
+ },
+ "817": {
+  "title": "เพลงท่อนซ้ำ",
+  "en": "Repeating Chorus",
+  "tier": 3,
+  "dir": "08_Divide_and_Conquer/17",
+  "samples": 5
+ },
+ "818": {
+  "title": "กลับด้านทีละระดับ",
+  "en": "Mirror Levels",
+  "tier": 3,
+  "dir": "08_Divide_and_Conquer/18",
+  "samples": 5
+ },
+ "819": {
+  "title": "อันดับเรียงติดกัน",
+  "en": "Consecutive Ranks",
+  "tier": 3,
+  "dir": "08_Divide_and_Conquer/19",
+  "samples": 5
+ },
+ "820": {
+  "title": "เรือกระดาษสองลำ",
+  "en": "Two Paper Boats",
+  "tier": 3,
+  "dir": "08_Divide_and_Conquer/20",
+  "samples": 5
+ },
+ "901": {
+  "title": "กบกระโดดข้ามหิน",
+  "en": "Frog on the Stones",
+  "tier": 1,
+  "dir": "09_DP_I_Foundations/1",
+  "samples": 6
+ },
+ "902": {
+  "title": "เดินเก็บผลไม้ในสวน",
+  "en": "Orchard Path",
+  "tier": 1,
+  "dir": "09_DP_I_Foundations/2",
+  "samples": 6
+ },
+ "903": {
+  "title": "ร้านสาขาริมถนน",
+  "en": "Street of Shops",
+  "tier": 1,
+  "dir": "09_DP_I_Foundations/3",
+  "samples": 6
+ },
+ "904": {
+  "title": "จ่ายด้วยคูปองให้น้อยใบที่สุด",
+  "en": "Fewest Coupons",
+  "tier": 1,
+  "dir": "09_DP_I_Foundations/4",
+  "samples": 6
+ },
+ "905": {
+  "title": "ปิดเทอมใหญ่",
+  "en": "Summer Holiday",
+  "tier": 1,
+  "dir": "09_DP_I_Foundations/5",
+  "samples": 6
+ },
+ "906": {
+  "title": "จัดเป้เดินป่า",
+  "en": "Backpack",
+  "tier": 1,
+  "dir": "09_DP_I_Foundations/6",
+  "samples": 6
+ },
+ "907": {
+  "title": "เส้นทางผ่านจุดชมวิว",
+  "en": "Paths Past a Viewpoint",
+  "tier": 1,
+  "dir": "09_DP_I_Foundations/7",
+  "samples": 6
+ },
+ "908": {
+  "title": "ขนสินค้าขึ้นรถบรรทุก",
+  "en": "Loading the Truck",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/8",
+  "samples": 5
+ },
+ "909": {
+  "title": "ตัดริบบิ้นขาย",
+  "en": "Ribbon Pieces",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/9",
+  "samples": 6
+ },
+ "910": {
+  "title": "คะแนนที่สูงขึ้น",
+  "en": "Rising Scores",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/10",
+  "samples": 6
+ },
+ "911": {
+  "title": "แบ่งทีมชักเย่อ",
+  "en": "Fair Tug of War",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/11",
+  "samples": 6
+ },
+ "912": {
+  "title": "ซื้อขายแล้วต้องพัก",
+  "en": "Trading with Rest",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/12",
+  "samples": 6
+ },
+ "913": {
+  "title": "สินค้ามีจำกัด",
+  "en": "Limited Stock",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/13",
+  "samples": 6
+ },
+ "914": {
+  "title": "ใช้บัตรของขวัญให้พอดี",
+  "en": "Subsets Summing to S",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/14",
+  "samples": 6
+ },
+ "915": {
+  "title": "เติมวงเล็บ",
+  "en": "Filling the Brackets",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/15",
+  "samples": 6
+ },
+ "916": {
+  "title": "เดินในนาขั้นบันได",
+  "en": "Terraced Rice Fields",
+  "tier": 2,
+  "dir": "09_DP_I_Foundations/16",
+  "samples": 6
+ },
+ "917": {
+  "title": "คนเก็บผลไม้สองคน",
+  "en": "Two Pickers",
+  "tier": 3,
+  "dir": "09_DP_I_Foundations/17",
+  "samples": 6
+ },
+ "918": {
+  "title": "ทำลายคำต้องห้าม",
+  "en": "Breaking the Banned Word",
+  "tier": 3,
+  "dir": "09_DP_I_Foundations/18",
+  "samples": 6
+ },
+ "919": {
+  "title": "ทางเดินกระเบื้องสามสี",
+  "en": "Three-Colour Tile Path",
+  "tier": 3,
+  "dir": "09_DP_I_Foundations/19",
+  "samples": 6
+ },
+ "920": {
+  "title": "รหัสยาว K ที่ไม่ซ้ำกัน",
+  "en": "Distinct Codes of Length K",
+  "tier": 3,
+  "dir": "09_DP_I_Foundations/20",
+  "samples": 6
+ },
+ "1001": {
+  "title": "ข้อความร่วมที่มีค่าที่สุด",
+  "en": "Most Valuable Common Thread",
+  "tier": 1,
+  "dir": "10_DP_II_Classic_Patterns/1",
+  "samples": 6
+ },
+ "1002": {
+  "title": "แก้ข้อความราคาแพง",
+  "en": "Costly Edits",
+  "tier": 1,
+  "dir": "10_DP_II_Classic_Patterns/2",
+  "samples": 6
+ },
+ "1003": {
+  "title": "ลำดับการคูณ matrix",
+  "en": "Multiplying Tables",
+  "tier": 1,
+  "dir": "10_DP_II_Classic_Patterns/3",
+  "samples": 6
+ },
+ "1004": {
+  "title": "ขายโหลขนมจากปลายแถว",
+  "en": "Selling From Both Ends",
+  "tier": 1,
+  "dir": "10_DP_II_Classic_Patterns/4",
+  "samples": 5
+ },
+ "1005": {
+  "title": "palindrome ที่ซ่อนอยู่",
+  "en": "Hidden Palindrome",
+  "tier": 1,
+  "dir": "10_DP_II_Classic_Patterns/5",
+  "samples": 6
+ },
+ "1006": {
+  "title": "แถวที่สูงขึ้นเรื่อย ๆ",
+  "en": "Rising Line-up",
+  "tier": 1,
+  "dir": "10_DP_II_Classic_Patterns/6",
+  "samples": 5
+ },
+ "1007": {
+  "title": "เส้นทางสกีที่ยาวที่สุด",
+  "en": "Longest Ski Run",
+  "tier": 1,
+  "dir": "10_DP_II_Classic_Patterns/7",
+  "samples": 5
+ },
+ "1008": {
+  "title": "เส้นทางที่ถูกที่สุด",
+  "en": "Cheapest Route Printed",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/8",
+  "samples": 6
+ },
+ "1009": {
+  "title": "ลบตัวอักษรให้หมด",
+  "en": "Clearing the String",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/9",
+  "samples": 6
+ },
+ "1010": {
+  "title": "แบ่งทีมให้สมดุล",
+  "en": "Balanced Teams of Sums",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/10",
+  "samples": 6
+ },
+ "1011": {
+  "title": "ใส่วงเล็บให้ได้หลักหน่วย",
+  "en": "Bracketing for the Last Digit",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/11",
+  "samples": 6
+ },
+ "1012": {
+  "title": "ตัดป้ายเป็น palindrome",
+  "en": "Palindrome Pieces",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/12",
+  "samples": 6
+ },
+ "1013": {
+  "title": "ชาหรือกาแฟรอบโต๊ะกลม",
+  "en": "Tea or Coffee Around the Table",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/13",
+  "samples": 6
+ },
+ "1014": {
+  "title": "เรือไต่ตัวเลข",
+  "en": "Rook Climb",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/14",
+  "samples": 5
+ },
+ "1015": {
+  "title": "ช่วงขาขึ้นที่เริ่มเร็วที่สุด",
+  "en": "The Earliest Longest Climb",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/15",
+  "samples": 5
+ },
+ "1016": {
+  "title": "จัดย่อหน้าให้สวย",
+  "en": "Neat Paragraph",
+  "tier": 2,
+  "dir": "10_DP_II_Classic_Patterns/16",
+  "samples": 5
+ },
+ "1017": {
+  "title": "รวมสอง string ให้สั้นที่สุด",
+  "en": "Shortest Merge",
+  "tier": 3,
+  "dir": "10_DP_II_Classic_Patterns/17",
+  "samples": 6
+ },
+ "1018": {
+  "title": "รอบเดินเครื่องสูบน้ำ",
+  "en": "Pump Rota",
+  "tier": 3,
+  "dir": "10_DP_II_Classic_Patterns/18",
+  "samples": 5
+ },
+ "1019": {
+  "title": "จุดพักที่ขาดไม่ได้",
+  "en": "Essential Checkpoints",
+  "tier": 3,
+  "dir": "10_DP_II_Classic_Patterns/19",
+  "samples": 5
+ },
+ "1020": {
+  "title": "ย่อข้อความด้วยวงเล็บ",
+  "en": "Folding the Message",
+  "tier": 3,
+  "dir": "10_DP_II_Classic_Patterns/20",
+  "samples": 5
+ },
+ "1101": {
+  "title": "ไฟประดับไม่ร้อนเกิน",
+  "en": "No Long Streaks",
+  "tier": 1,
+  "dir": "11_DP_III_Faster_Transitions/1",
+  "samples": 6
+ },
+ "1102": {
+  "title": "เดินหมากตามตัวเลข",
+  "en": "Ordered Sums on a Board",
+  "tier": 1,
+  "dir": "11_DP_III_Faster_Transitions/2",
+  "samples": 6
+ },
+ "1103": {
+  "title": "รับงานสองเมือง",
+  "en": "Paid Gigs",
+  "tier": 1,
+  "dir": "11_DP_III_Faster_Transitions/3",
+  "samples": 6
+ },
+ "1104": {
+  "title": "เพลงต่อกันไม่ซ้ำแนว",
+  "en": "No Genre Twice in a Row",
+  "tier": 1,
+  "dir": "11_DP_III_Faster_Transitions/4",
+  "samples": 6
+ },
+ "1105": {
+  "title": "บัตรโดยสารรายช่วง",
+  "en": "Bus Passes",
+  "tier": 1,
+  "dir": "11_DP_III_Faster_Transitions/5",
+  "samples": 6
+ },
+ "1106": {
+  "title": "รวมสองแถวเป็นแถวเดียว",
+  "en": "Merging Two Queues",
+  "tier": 1,
+  "dir": "11_DP_III_Faster_Transitions/6",
+  "samples": 6
+ },
+ "1107": {
+  "title": "กระโดดเฉียงลงขวา",
+  "en": "Diagonal Leaps",
+  "tier": 1,
+  "dir": "11_DP_III_Faster_Transitions/7",
+  "samples": 6
+ },
+ "1108": {
+  "title": "แบ่งลูกอม",
+  "en": "Sharing Candies",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/8",
+  "samples": 6
+ },
+ "1109": {
+  "title": "กระโดดเก็บแต้ม",
+  "en": "Hopping for Points",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/9",
+  "samples": 6
+ },
+ "1110": {
+  "title": "รูปแบบขึ้นลง",
+  "en": "Up-Down Pattern",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/10",
+  "samples": 6
+ },
+ "1111": {
+  "title": "ข้อความที่ต่างกันไม่มาก",
+  "en": "Close Enough Texts",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/11",
+  "samples": 6
+ },
+ "1112": {
+  "title": "จ้างยามให้ครบทุกชั่วโมง",
+  "en": "Covering the Night Shift",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/12",
+  "samples": 6
+ },
+ "1113": {
+  "title": "ตัดผ้าย้อมสี",
+  "en": "Cutting the Dyed Cloth",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/13",
+  "samples": 6
+ },
+ "1114": {
+  "title": "กัปตันกับคนจดคะแนน",
+  "en": "Captains and Scorekeepers",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/14",
+  "samples": 6
+ },
+ "1115": {
+  "title": "ช่วงดีพอดี K ช่วง",
+  "en": "Exactly K Good Stretches",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/15",
+  "samples": 6
+ },
+ "1116": {
+  "title": "เสาที่ไม่สูงเท่ากัน",
+  "en": "Poles You Can Tell Apart",
+  "tier": 2,
+  "dir": "11_DP_III_Faster_Transitions/16",
+  "samples": 6
+ },
+ "1117": {
+  "title": "เรือขนสินค้า",
+  "en": "Ferry Trips",
+  "tier": 3,
+  "dir": "11_DP_III_Faster_Transitions/17",
+  "samples": 6
+ },
+ "1118": {
+  "title": "ช็อกโกแลตอัลมอนด์คนละเม็ด",
+  "en": "One Almond Each",
+  "tier": 3,
+  "dir": "11_DP_III_Faster_Transitions/18",
+  "samples": 6
+ },
+ "1119": {
+  "title": "ทยอยขายลังสินค้า K วัน",
+  "en": "Selling Crates Over K Days",
+  "tier": 3,
+  "dir": "11_DP_III_Faster_Transitions/19",
+  "samples": 6
+ },
+ "1120": {
+  "title": "กระถางดอกไม้ไม่ซ้ำสีติดกันยาว",
+  "en": "Flower Pots Without Long Runs",
+  "tier": 3,
+  "dir": "11_DP_III_Faster_Transitions/20",
+  "samples": 6
+ },
+ "1201": {
+  "title": "กลุ่มเพื่อน",
+  "en": "Friend Circles",
+  "tier": 1,
+  "dir": "12_Graph_Traversal/1",
+  "samples": 6
+ },
+ "1202": {
+  "title": "ขับกลับบ้าน",
+  "en": "Driving Home",
+  "tier": 1,
+  "dir": "12_Graph_Traversal/2",
+  "samples": 6
+ },
+ "1203": {
+  "title": "วาดรูปเส้นเดียว",
+  "en": "One-Stroke Drawing",
+  "tier": 1,
+  "dir": "12_Graph_Traversal/3",
+  "samples": 6
+ },
+ "1204": {
+  "title": "โรงพยาบาลที่ใกล้ที่สุด",
+  "en": "Nearest Hospital",
+  "tier": 1,
+  "dir": "12_Graph_Traversal/4",
+  "samples": 6
+ },
+ "1205": {
+  "title": "แบ่งสองทีม",
+  "en": "Two Teams",
+  "tier": 1,
+  "dir": "12_Graph_Traversal/5",
+  "samples": 6
+ },
+ "1206": {
+  "title": "แพ็กเกจพึ่งพากันเป็นวง",
+  "en": "Circular Dependencies",
+  "tier": 1,
+  "dir": "12_Graph_Traversal/6",
+  "samples": 6
+ },
+ "1207": {
+  "title": "ลำดับการทำงาน",
+  "en": "Task Order",
+  "tier": 1,
+  "dir": "12_Graph_Traversal/7",
+  "samples": 6
+ },
+ "1208": {
+  "title": "นับเส้นทางถนนทางเดียว",
+  "en": "Counting One-Way Routes",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/8",
+  "samples": 6
+ },
+ "1209": {
+  "title": "กุญแจรหัสหลายวงล้อ",
+  "en": "Multi-Wheel Combination Lock",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/9",
+  "samples": 6
+ },
+ "1210": {
+  "title": "เส้นทางรถเมล์จากบันทึกสามป้าย",
+  "en": "Bus Route From Triples",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/10",
+  "samples": 6
+ },
+ "1211": {
+  "title": "เส้นทางวนรอบที่สั้นที่สุด",
+  "en": "Shortest Loop",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/11",
+  "samples": 6
+ },
+ "1212": {
+  "title": "เพิ่มคู่แข่งขัน",
+  "en": "Adding Rival Pairs",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/12",
+  "samples": 6
+ },
+ "1213": {
+  "title": "หนีไฟป่า",
+  "en": "Escaping the Wildfire",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/13",
+  "samples": 6
+ },
+ "1214": {
+  "title": "บันไดคำ เติม ลบ เปลี่ยน",
+  "en": "Word Ladder with Inserts and Deletes",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/14",
+  "samples": 6
+ },
+ "1215": {
+  "title": "จดหมายลูกโซ่",
+  "en": "Chain Letters",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/15",
+  "samples": 6
+ },
+ "1216": {
+  "title": "เลี้ยวให้น้อยที่สุด",
+  "en": "Fewest Turns",
+  "tier": 2,
+  "dir": "12_Graph_Traversal/16",
+  "samples": 6
+ },
+ "1217": {
+  "title": "กุญแจกับประตู",
+  "en": "Keys and Doors",
+  "tier": 3,
+  "dir": "12_Graph_Traversal/17",
+  "samples": 6
+ },
+ "1218": {
+  "title": "robot ฝาแฝด",
+  "en": "Twin Robots",
+  "tier": 3,
+  "dir": "12_Graph_Traversal/18",
+  "samples": 6
+ },
+ "1219": {
+  "title": "อันดับที่แน่นอน",
+  "en": "When Is the Ranking Certain?",
+  "tier": 3,
+  "dir": "12_Graph_Traversal/19",
+  "samples": 6
+ },
+ "1220": {
+  "title": "หลบยามเดินตรวจ",
+  "en": "Guards on Patrol",
+  "tier": 3,
+  "dir": "12_Graph_Traversal/20",
+  "samples": 6
+ },
+ "1301": {
+  "title": "เวลาส่งของ",
+  "en": "Delivery Times",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/1",
+  "samples": 5
+ },
+ "1302": {
+  "title": "ถามเส้นทางรถเมล์",
+  "en": "Bus Map Queries",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/2",
+  "samples": 5
+ },
+ "1303": {
+  "title": "สถานีดับเพลิงที่ใกล้ที่สุด",
+  "en": "Nearest Fire Station",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/3",
+  "samples": 5
+ },
+ "1304": {
+  "title": "ค่าผ่านทางติดลบ",
+  "en": "Negative Tolls",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/4",
+  "samples": 6
+ },
+ "1305": {
+  "title": "ทุ่งโคลน",
+  "en": "Muddy Field",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/5",
+  "samples": 6
+ },
+ "1306": {
+  "title": "แวะที่ทำการไปรษณีย์",
+  "en": "Via the Post Office",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/6",
+  "samples": 5
+ },
+ "1307": {
+  "title": "เมืองที่โดดเดี่ยวที่สุด",
+  "en": "Most Isolated Town",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/7",
+  "samples": 5
+ },
+ "1308": {
+  "title": "คูปองลดครึ่งราคา",
+  "en": "Half-Price Ticket",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/8",
+  "samples": 5
+ },
+ "1309": {
+  "title": "สำรวจเส้นทางสั้นที่สุด",
+  "en": "Shortest Path Census",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/9",
+  "samples": 5
+ },
+ "1310": {
+  "title": "บินไม่เกิน k เที่ยว",
+  "en": "At Most K Flights",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/10",
+  "samples": 5
+ },
+ "1311": {
+  "title": "ถนนที่ได้ใช้",
+  "en": "Useful Roads",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/11",
+  "samples": 5
+ },
+ "1312": {
+  "title": "รถไฟฟ้าหลายสาย",
+  "en": "Metro with Transfers",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/12",
+  "samples": 5
+ },
+ "1313": {
+  "title": "ทางลัดติดลบ",
+  "en": "Negative Shortcuts",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/13",
+  "samples": 5
+ },
+ "1314": {
+  "title": "เส้นทางอันดับสอง",
+  "en": "Second Best Route",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/14",
+  "samples": 5
+ },
+ "1315": {
+  "title": "ออกเดินทางช้าที่สุด",
+  "en": "Latest Departure",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/15",
+  "samples": 5
+ },
+ "1316": {
+  "title": "ใครเก่งกว่าใคร",
+  "en": "Who Beats Whom",
+  "tier": 2,
+  "dir": "13_Shortest_Paths/16",
+  "samples": 5
+ },
+ "1317": {
+  "title": "ราคาน้ำมัน",
+  "en": "Fuel Prices",
+  "tier": 3,
+  "dir": "13_Shortest_Paths/17",
+  "samples": 5
+ },
+ "1318": {
+  "title": "เส้นทางถูกที่สุด K อันดับ",
+  "en": "K Cheapest Routes",
+  "tier": 3,
+  "dir": "13_Shortest_Paths/18",
+  "samples": 5
+ },
+ "1319": {
+  "title": "ทางแยกที่เลี่ยงไม่ได้",
+  "en": "Unavoidable Crossings",
+  "tier": 3,
+  "dir": "13_Shortest_Paths/19",
+  "samples": 5
+ },
+ "1320": {
+  "title": "เส้นทางของทีมแพทย์",
+  "en": "Restricted Transfers",
+  "tier": 3,
+  "dir": "13_Shortest_Paths/20",
+  "samples": 5
+ },
+ "1401": {
+  "title": "เป็นเพื่อนกันหรือยัง",
+  "en": "Are We Friends?",
+  "tier": 1,
+  "dir": "14_DSU_and_MST/1",
+  "samples": 5
+ },
+ "1402": {
+  "title": "ชุมชนที่โตขึ้น",
+  "en": "Growing Groups",
+  "tier": 1,
+  "dir": "14_DSU_and_MST/2",
+  "samples": 5
+ },
+ "1403": {
+  "title": "เครือข่ายที่ถูกที่สุด",
+  "en": "Cheapest Network",
+  "tier": 1,
+  "dir": "14_DSU_and_MST/3",
+  "samples": 5
+ },
+ "1404": {
+  "title": "เดินสายไฟให้ครบทุกเสา",
+  "en": "Dense Wiring",
+  "tier": 1,
+  "dir": "14_DSU_and_MST/4",
+  "samples": 5
+ },
+ "1405": {
+  "title": "สายแรกที่เกิดวง",
+  "en": "First Redundant Cable",
+  "tier": 1,
+  "dir": "14_DSU_and_MST/5",
+  "samples": 5
+ },
+ "1406": {
+  "title": "ห้องสมุดหรือถนน",
+  "en": "Roads or Libraries",
+  "tier": 1,
+  "dir": "14_DSU_and_MST/6",
+  "samples": 5
+ },
+ "1407": {
+  "title": "สายที่ต้องใช้",
+  "en": "Required Links",
+  "tier": 1,
+  "dir": "14_DSU_and_MST/7",
+  "samples": 5
+ },
+ "1408": {
+  "title": "คำบอกเล่าเรื่องทีม",
+  "en": "Team Statements",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/8",
+  "samples": 5
+ },
+ "1409": {
+  "title": "ถนนรับน้ำหนัก",
+  "en": "Weight-Limited Roads",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/9",
+  "samples": 5
+ },
+ "1410": {
+  "title": "แบ่งกลุ่มรังนก",
+  "en": "Grouping Nests",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/10",
+  "samples": 5
+ },
+ "1411": {
+  "title": "หาที่จอดที่ใกล้ที่สุด",
+  "en": "Nearest Free Spot",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/11",
+  "samples": 5
+ },
+ "1412": {
+  "title": "น้ำซึมผ่านแผ่นกรอง",
+  "en": "Percolation",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/12",
+  "samples": 5
+ },
+ "1413": {
+  "title": "รวมบัญชีผู้ใช้",
+  "en": "Merging Accounts",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/13",
+  "samples": 5
+ },
+ "1414": {
+  "title": "ไฟฟ้าเข้าทุกหมู่บ้าน",
+  "en": "Power for Every Village",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/14",
+  "samples": 5
+ },
+ "1415": {
+  "title": "ปั่นจักรยานข้ามหมู่บ้าน",
+  "en": "Pairs Under a Limit",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/15",
+  "samples": 5
+ },
+ "1416": {
+  "title": "เครือข่ายหนึ่งเดียว",
+  "en": "One and Only Network",
+  "tier": 2,
+  "dir": "14_DSU_and_MST/16",
+  "samples": 5
+ },
+ "1417": {
+  "title": "อุโมงค์ลัดระหว่างดาว",
+  "en": "Cheap Tunnels Between Stars",
+  "tier": 3,
+  "dir": "14_DSU_and_MST/17",
+  "samples": 5
+ },
+ "1418": {
+  "title": "เครือข่ายอันดับสอง",
+  "en": "Second Best Network",
+  "tier": 3,
+  "dir": "14_DSU_and_MST/18",
+  "samples": 5
+ },
+ "1419": {
+  "title": "สร้างถนนวันละสาย",
+  "en": "Building Day by Day",
+  "tier": 3,
+  "dir": "14_DSU_and_MST/19",
+  "samples": 5
+ },
+ "1420": {
+  "title": "วงได้ไม่เกินหนึ่ง",
+  "en": "One Cycle Allowed",
+  "tier": 3,
+  "dir": "14_DSU_and_MST/20",
+  "samples": 5
+ },
+ "1501": {
+  "title": "รุ่นในตระกูล",
+  "en": "Family Generations",
+  "tier": 1,
+  "dir": "15_Trees/1",
+  "samples": 5
+ },
+ "1502": {
+  "title": "น้ำที่ไหลผ่านบ้าน",
+  "en": "Water Through Each House",
+  "tier": 1,
+  "dir": "15_Trees/2",
+  "samples": 5
+ },
+ "1503": {
+  "title": "เส้นทางเดินป่าที่ยาวที่สุด",
+  "en": "Longest Trail",
+  "tier": 1,
+  "dir": "15_Trees/3",
+  "samples": 5
+ },
+ "1504": {
+  "title": "สายอาจารย์ย้อนขึ้นไป",
+  "en": "K Generations Up",
+  "tier": 1,
+  "dir": "15_Trees/4",
+  "samples": 5,
+  "ext": true
+ },
+ "1505": {
+  "title": "งานเลี้ยงของบริษัท",
+  "en": "Party Invitations",
+  "tier": 1,
+  "dir": "15_Trees/5",
+  "samples": 5
+ },
+ "1506": {
+  "title": "ต้นน้ำและปลายน้ำ",
+  "en": "Upstream or Downstream",
+  "tier": 1,
+  "dir": "15_Trees/6",
+  "samples": 5
+ },
+ "1507": {
+  "title": "โรงพยาบาลกลางจังหวัด",
+  "en": "Town Centre",
+  "tier": 1,
+  "dir": "15_Trees/7",
+  "samples": 6
+ },
+ "1508": {
+  "title": "ระยะทางระหว่างหมู่บ้าน",
+  "en": "Distance Queries",
+  "tier": 2,
+  "dir": "15_Trees/8",
+  "samples": 5,
+  "ext": true
+ },
+ "1509": {
+  "title": "เมืองที่ไกลที่สุด",
+  "en": "Farthest From Each",
+  "tier": 2,
+  "dir": "15_Trees/9",
+  "samples": 5
+ },
+ "1510": {
+  "title": "ตั้งด่านตรวจ",
+  "en": "Placing Checkpoints",
+  "tier": 2,
+  "dir": "15_Trees/10",
+  "samples": 6
+ },
+ "1511": {
+  "title": "สะพานที่รับน้ำหนักได้น้อยที่สุด",
+  "en": "Weakest Bridge on the Way",
+  "tier": 2,
+  "dir": "15_Trees/11",
+  "samples": 5,
+  "ext": true
+ },
+ "1512": {
+  "title": "โบนัสตามสายงาน",
+  "en": "Bonuses Up and Down",
+  "tier": 2,
+  "dir": "15_Trees/12",
+  "samples": 5
+ },
+ "1513": {
+  "title": "คู่บ้านที่ห่างกันพอดี",
+  "en": "Pairs at Distance K",
+  "tier": 2,
+  "dir": "15_Trees/13",
+  "samples": 5
+ },
+ "1514": {
+  "title": "จุดพักที่คนผ่านมากที่สุด",
+  "en": "Busiest Junctions",
+  "tier": 2,
+  "dir": "15_Trees/14",
+  "samples": 5,
+  "ext": true
+ },
+ "1515": {
+  "title": "ระยะทางจากบ้านถึงร้านค้าทุกคู่",
+  "en": "Every House to Every Shop",
+  "tier": 2,
+  "dir": "15_Trees/15",
+  "samples": 5
+ },
+ "1516": {
+  "title": "จุดนัดพบของสามเพื่อน",
+  "en": "Meeting of Three",
+  "tier": 2,
+  "dir": "15_Trees/16",
+  "samples": 5,
+  "ext": true
+ },
+ "1517": {
+  "title": "ทีมโครงการพิเศษ",
+  "en": "Project Team",
+  "tier": 3,
+  "dir": "15_Trees/17",
+  "samples": 5
+ },
+ "1518": {
+  "title": "ส่งเอกสารขึ้นตามสายงาน",
+  "en": "Climbing the Hierarchy",
+  "tier": 3,
+  "dir": "15_Trees/18",
+  "samples": 5,
+  "ext": true
+ },
+ "1519": {
+  "title": "เมืองที่ถูกปิด",
+  "en": "One City Closed",
+  "tier": 3,
+  "dir": "15_Trees/19",
+  "samples": 5
+ },
+ "1520": {
+  "title": "หุ่นยนต์ส่งของอยู่ที่ไหน",
+  "en": "Steps Along the Path",
+  "tier": 3,
+  "dir": "15_Trees/20",
+  "samples": 5,
+  "ext": true
+ },
+ "1601": {
+  "title": "บ้านเตี้ยกว่าที่ใกล้ที่สุด",
+  "en": "Nearest Lower House",
+  "tier": 1,
+  "dir": "16_Monotonic_Stack_and_Queue/1",
+  "samples": 5
+ },
+ "1602": {
+  "title": "ค่าสูงสุดย้อนหลัง",
+  "en": "Recent Peak Reading",
+  "tier": 1,
+  "dir": "16_Monotonic_Stack_and_Queue/2",
+  "samples": 5
+ },
+ "1603": {
+  "title": "ภาพวาดบนกำแพงต่างระดับ",
+  "en": "Mural on a Stepped Wall",
+  "tier": 1,
+  "dir": "16_Monotonic_Stack_and_Queue/3",
+  "samples": 5
+ },
+ "1604": {
+  "title": "หอที่สูงกว่าถัดไปรอบทะเลสาบ",
+  "en": "Taller Tower Around the Lake",
+  "tier": 1,
+  "dir": "16_Monotonic_Stack_and_Queue/4",
+  "samples": 5
+ },
+ "1605": {
+  "title": "ค่าเช่าห้องจัดงาน",
+  "en": "Renting the Hall",
+  "tier": 2,
+  "dir": "16_Monotonic_Stack_and_Queue/5",
+  "samples": 5
+ },
+ "1606": {
+  "title": "ก่อกำแพงด้วยหินก้อนน้อยที่สุด",
+  "en": "Fewest Blocks for the Wall",
+  "tier": 2,
+  "dir": "16_Monotonic_Stack_and_Queue/6",
+  "samples": 5
+ },
+ "1607": {
+  "title": "ถังเล็กแต่เติมให้ถูก",
+  "en": "Small Tank, Cheap Fuel",
+  "tier": 2,
+  "dir": "16_Monotonic_Stack_and_Queue/7",
+  "samples": 5
+ },
+ "1608": {
+  "title": "บดหินทีละคู่",
+  "en": "Crushing the Stones",
+  "tier": 2,
+  "dir": "16_Monotonic_Stack_and_Queue/8",
+  "samples": 5
+ },
+ "1609": {
+  "title": "ซื้อวันต่ำสุดขายวันสูงสุด",
+  "en": "Lowest First, Highest Last",
+  "tier": 2,
+  "dir": "16_Monotonic_Stack_and_Queue/9",
+  "samples": 5
+ },
+ "1610": {
+  "title": "ถอนต้นกล้าทุกคืน",
+  "en": "Thinning the Seedlings",
+  "tier": 3,
+  "dir": "16_Monotonic_Stack_and_Queue/10",
+  "samples": 5
+ },
+ "1611": {
+  "title": "ช่วงสั้นที่สุดที่ทำยอดถึงเป้า",
+  "en": "Shortest Stretch to the Target",
+  "tier": 3,
+  "dir": "16_Monotonic_Stack_and_Queue/11",
+  "samples": 5
+ },
+ "1612": {
+  "title": "แปลงว่างที่ให้ผลผลิตมากที่สุด",
+  "en": "Richest Free Plot",
+  "tier": 3,
+  "dir": "16_Monotonic_Stack_and_Queue/12",
+  "samples": 5
+ },
+ "1701": {
+  "title": "สมุดบัญชีร้านค้า",
+  "en": "Shop Ledger",
+  "tier": 1,
+  "dir": "17_Fenwick_and_Segment_Tree/1",
+  "samples": 5
+ },
+ "1702": {
+  "title": "ราคาดิ่งแรง",
+  "en": "Big Drops",
+  "tier": 1,
+  "dir": "17_Fenwick_and_Segment_Tree/2",
+  "samples": 6
+ },
+ "1703": {
+  "title": "ร้านที่ถูกที่สุดในช่วง",
+  "en": "Lowest Price in a Range",
+  "tier": 1,
+  "dir": "17_Fenwick_and_Segment_Tree/3",
+  "samples": 5
+ },
+ "1704": {
+  "title": "ขึ้นเงินเดือนเป็นช่วง",
+  "en": "Range Raises",
+  "tier": 1,
+  "dir": "17_Fenwick_and_Segment_Tree/4",
+  "samples": 5
+ },
+ "1705": {
+  "title": "บัตรใบที่ K ในกล่อง",
+  "en": "K-th Card in the Box",
+  "tier": 1,
+  "dir": "17_Fenwick_and_Segment_Tree/5",
+  "samples": 5
+ },
+ "1706": {
+  "title": "ต้นกล้าในแปลงนา",
+  "en": "Seedlings in the Field",
+  "tier": 1,
+  "dir": "17_Fenwick_and_Segment_Tree/6",
+  "samples": 5
+ },
+ "1707": {
+  "title": "ใส่ปุ๋ยแปลงผัก",
+  "en": "Fertilising the Plots",
+  "tier": 1,
+  "dir": "17_Fenwick_and_Segment_Tree/7",
+  "samples": 5
+ },
+ "1708": {
+  "title": "ช่วงกำไรที่ดีที่สุดเมื่อแก้บัญชี",
+  "en": "Best Run With Updates",
+  "tier": 2,
+  "dir": "17_Fenwick_and_Segment_Tree/8",
+  "samples": 5
+ },
+ "1709": {
+  "title": "อาหารกี่ประเภทในช่วงถนน",
+  "en": "Distinct in a Range",
+  "tier": 2,
+  "dir": "17_Fenwick_and_Segment_Tree/9",
+  "samples": 5
+ },
+ "1710": {
+  "title": "เบิกได้ไม่เกินเพดาน",
+  "en": "Capped Claims",
+  "tier": 2,
+  "dir": "17_Fenwick_and_Segment_Tree/10",
+  "samples": 5
+ },
+ "1711": {
+  "title": "หาที่พักให้คณะทัวร์",
+  "en": "Rooms for Tour Groups",
+  "tier": 2,
+  "dir": "17_Fenwick_and_Segment_Tree/11",
+  "samples": 5
+ },
+ "1712": {
+  "title": "วงเล็บที่จับคู่ได้ในช่วง",
+  "en": "Bracket Queries",
+  "tier": 2,
+  "dir": "17_Fenwick_and_Segment_Tree/12",
+  "samples": 5
+ },
+ "1713": {
+  "title": "ไม้วัดประจำช่วง",
+  "en": "Measuring Sticks",
+  "tier": 2,
+  "dir": "17_Fenwick_and_Segment_Tree/13",
+  "samples": 5
+ },
+ "1714": {
+  "title": "นับทางขึ้นเขาที่ยาวที่สุด",
+  "en": "Counting Longest Climbs",
+  "tier": 2,
+  "dir": "17_Fenwick_and_Segment_Tree/14",
+  "samples": 5
+ },
+ "1715": {
+  "title": "ทางด่วนสามเลน",
+  "en": "Three-Lane Expressway",
+  "tier": 3,
+  "dir": "17_Fenwick_and_Segment_Tree/15",
+  "samples": 5
+ },
+ "1801": {
+  "title": "ตัดไม้เป็นท่อนเท่ากัน",
+  "en": "Equal Pieces",
+  "tier": 1,
+  "dir": "18_Sparse_Table/1",
+  "samples": 5
+ },
+ "1802": {
+  "title": "สุ่มตรวจสิบห้าล้านครั้ง",
+  "en": "Fifteen Million Spot Checks",
+  "tier": 1,
+  "dir": "18_Sparse_Table/2",
+  "samples": 5
+ },
+ "1803": {
+  "title": "ประมูลแบบจ่ายราคาอันดับสอง",
+  "en": "Second-Price Auction",
+  "tier": 1,
+  "dir": "18_Sparse_Table/3",
+  "samples": 5
+ },
+ "1804": {
+  "title": "ขึ้นเขาลงห้วย",
+  "en": "Up the Hill, Down the Gully",
+  "tier": 1,
+  "dir": "18_Sparse_Table/4",
+  "samples": 5
+ },
+ "1805": {
+  "title": "สะพานเตี้ย",
+  "en": "Low Bridges",
+  "tier": 2,
+  "dir": "18_Sparse_Table/5",
+  "samples": 5
+ },
+ "1806": {
+  "title": "เวทีที่แข็งแรงที่สุด",
+  "en": "The Strongest Stage",
+  "tier": 2,
+  "dir": "18_Sparse_Table/6",
+  "samples": 5
+ },
+ "1807": {
+  "title": "ที่ดินราบเรียบ",
+  "en": "A Level Plot",
+  "tier": 2,
+  "dir": "18_Sparse_Table/7",
+  "samples": 5
+ },
+ "1808": {
+  "title": "ซ้อมดนตรี",
+  "en": "Band Rehearsal",
+  "tier": 2,
+  "dir": "18_Sparse_Table/8",
+  "samples": 5
+ },
+ "1809": {
+  "title": "เลือกไพ่ให้ได้ลำดับที่ดีที่สุด",
+  "en": "The Best Hand",
+  "tier": 2,
+  "dir": "18_Sparse_Table/9",
+  "samples": 5
+ },
+ "1810": {
+  "title": "ช่วงไม่ซ้ำที่ยาวที่สุด",
+  "en": "Longest Distinct Run in a Range",
+  "tier": 3,
+  "dir": "18_Sparse_Table/10",
+  "samples": 5
+ },
+ "1811": {
+  "title": "ซื้อตั๋วรถไฟให้น้อยที่สุด",
+  "en": "Fewest Train Tickets",
+  "tier": 3,
+  "dir": "18_Sparse_Table/11",
+  "samples": 5
+ },
+ "1812": {
+  "title": "เรียงให้ห่างเท่ากัน",
+  "en": "Evenly Spaced Cards",
+  "tier": 3,
+  "dir": "18_Sparse_Table/12",
+  "samples": 5
+ },
+ "1901": {
+  "title": "จองที่นั่งรถไฟเป็นช่วง",
+  "en": "Booking Train Seats",
+  "tier": 1,
+  "dir": "19_Lazy_Segment_Tree/1",
+  "samples": 5
+ },
+ "1902": {
+  "title": "รื้อแปลงปลูกผักใหม่",
+  "en": "Replanting the Plots",
+  "tier": 1,
+  "dir": "19_Lazy_Segment_Tree/2",
+  "samples": 5
+ },
+ "1903": {
+  "title": "กระดานคะแนนรายรอบ",
+  "en": "Scoreboard Rounds",
+  "tier": 1,
+  "dir": "19_Lazy_Segment_Tree/3",
+  "samples": 5
+ },
+ "1904": {
+  "title": "ปรับหน้าดินให้เรียบ",
+  "en": "Levelling the Land",
+  "tier": 1,
+  "dir": "19_Lazy_Segment_Tree/4",
+  "samples": 5
+ },
+ "1905": {
+  "title": "แต้มสะสมของสมาชิก",
+  "en": "Membership Points",
+  "tier": 2,
+  "dir": "19_Lazy_Segment_Tree/5",
+  "samples": 5
+ },
+ "1906": {
+  "title": "น้ำท่วมจากจุดรั่ว",
+  "en": "Flood From a Breach",
+  "tier": 2,
+  "dir": "19_Lazy_Segment_Tree/6",
+  "samples": 5
+ },
+ "1907": {
+  "title": "ควบคุมอุณหภูมิห้อง",
+  "en": "Room Temperature Control",
+  "tier": 2,
+  "dir": "19_Lazy_Segment_Tree/7",
+  "samples": 5
+ },
+ "1908": {
+  "title": "ไฟประดับงานวัด",
+  "en": "Festival Lights",
+  "tier": 2,
+  "dir": "19_Lazy_Segment_Tree/8",
+  "samples": 5
+ },
+ "1909": {
+  "title": "บัตรผ่านเทศกาลดนตรี",
+  "en": "Festival Pass",
+  "tier": 2,
+  "dir": "19_Lazy_Segment_Tree/9",
+  "samples": 5
+ },
+ "1910": {
+  "title": "เทดินเป็นทางลาด",
+  "en": "Ramps of Soil",
+  "tier": 3,
+  "dir": "19_Lazy_Segment_Tree/10",
+  "samples": 5
+ },
+ "1911": {
+  "title": "ปิดช่องจราจร",
+  "en": "Lane Closures",
+  "tier": 3,
+  "dir": "19_Lazy_Segment_Tree/11",
+  "samples": 5
+ },
+ "1912": {
+  "title": "จานเพาะเชื้อ",
+  "en": "Add, Multiply, Sum",
+  "tier": 3,
+  "dir": "19_Lazy_Segment_Tree/12",
+  "samples": 5
+ },
+ "2001": {
+  "title": "เส้นทางชมวิวที่ดีที่สุด",
+  "en": "Best Scenic Trail",
+  "tier": 1,
+  "dir": "20_Tree_DP/1",
+  "samples": 5
+ },
+ "2002": {
+  "title": "นับเส้นทางไล่ระดับ",
+  "en": "Rising Routes",
+  "tier": 1,
+  "dir": "20_Tree_DP/2",
+  "samples": 6
+ },
+ "2003": {
+  "title": "game ส่งงานลงตามสายงาน",
+  "en": "Jump Down Game",
+  "tier": 1,
+  "dir": "20_Tree_DP/3",
+  "samples": 5
+ },
+ "2004": {
+  "title": "ติดตั้ง Wi-Fi ให้ทั่วหมู่บ้าน",
+  "en": "Wi-Fi for Every House",
+  "tier": 1,
+  "dir": "20_Tree_DP/4",
+  "samples": 5
+ },
+ "2005": {
+  "title": "ระดับเงินเดือนตามสายงาน",
+  "en": "Salary Levels",
+  "tier": 2,
+  "dir": "20_Tree_DP/5",
+  "samples": 5
+ },
+ "2006": {
+  "title": "ซุ้มที่ห่างกันพอ",
+  "en": "Stalls Kept Apart",
+  "tier": 2,
+  "dir": "20_Tree_DP/6",
+  "samples": 5
+ },
+ "2007": {
+  "title": "โคมไฟคู่",
+  "en": "Paired Lanterns",
+  "tier": 2,
+  "dir": "20_Tree_DP/7",
+  "samples": 5
+ },
+ "2008": {
+  "title": "นับวิธีจับคู่ที่ดีที่สุด",
+  "en": "Counting Best Pairings",
+  "tier": 2,
+  "dir": "20_Tree_DP/8",
+  "samples": 6
+ },
+ "2009": {
+  "title": "หมู่บ้านเงียบ K แห่ง",
+  "en": "K Quiet Villages",
+  "tier": 2,
+  "dir": "20_Tree_DP/9",
+  "samples": 5
+ },
+ "2010": {
+  "title": "แบ่งเขตไม่ให้กว้างเกิน",
+  "en": "Districts of Small Width",
+  "tier": 3,
+  "dir": "20_Tree_DP/10",
+  "samples": 5
+ },
+ "2011": {
+  "title": "ออกเยี่ยมบ้าน",
+  "en": "Home Visits",
+  "tier": 3,
+  "dir": "20_Tree_DP/11",
+  "samples": 5
+ },
+ "2012": {
+  "title": "โรงงานกับร้านค้า",
+  "en": "Factories and Shops",
+  "tier": 3,
+  "dir": "20_Tree_DP/12",
+  "samples": 5
+ },
+ "2101": {
+  "title": "นัดพบบนภูเขา",
+  "en": "Uphill and Downhill",
+  "tier": 1,
+  "dir": "21_Rerooting/1",
+  "samples": 5
+ },
+ "2102": {
+  "title": "พัสดุชิ้นสุดท้าย",
+  "en": "The Last Parcel",
+  "tier": 1,
+  "dir": "21_Rerooting/2",
+  "samples": 5
+ },
+ "2103": {
+  "title": "น้ำไหลไปถึงไหน",
+  "en": "Where the Water Goes",
+  "tier": 1,
+  "dir": "21_Rerooting/3",
+  "samples": 5
+ },
+ "2104": {
+  "title": "เมืองหลวงกับถนนทางเดียว",
+  "en": "One-Way Roads to the Capital",
+  "tier": 1,
+  "dir": "21_Rerooting/4",
+  "samples": 5
+ },
+ "2105": {
+  "title": "ค่าส่งตามกำลังสองของระยะทาง",
+  "en": "Squared Distance Fares",
+  "tier": 2,
+  "dir": "21_Rerooting/5",
+  "samples": 5
+ },
+ "2106": {
+  "title": "หลังพายุ",
+  "en": "After the Storm",
+  "tier": 2,
+  "dir": "21_Rerooting/6",
+  "samples": 5
+ },
+ "2107": {
+  "title": "ต้องได้รับเชิญ",
+  "en": "Must Be Invited",
+  "tier": 2,
+  "dir": "21_Rerooting/7",
+  "samples": 5
+ },
+ "2108": {
+  "title": "ลำดับของลำน้ำ",
+  "en": "Order of the River",
+  "tier": 2,
+  "dir": "21_Rerooting/8",
+  "samples": 5
+ },
+ "2109": {
+  "title": "ภายใน K ถนน",
+  "en": "Within K Roads",
+  "tier": 2,
+  "dir": "21_Rerooting/9",
+  "samples": 5
+ },
+ "2110": {
+  "title": "เลือกที่ตั้งคลังข้าว",
+  "en": "Choosing the Rice Depot",
+  "tier": 3,
+  "dir": "21_Rerooting/10",
+  "samples": 5
+ },
+ "2111": {
+  "title": "รื้อหนึ่งสร้างหนึ่ง",
+  "en": "Cut One Road, Build One Road",
+  "tier": 3,
+  "dir": "21_Rerooting/11",
+  "samples": 5
+ },
+ "2112": {
+  "title": "หมู่บ้านรอบถนนวงแหวน",
+  "en": "Ring Road Villages",
+  "tier": 3,
+  "dir": "21_Rerooting/12",
+  "samples": 5
+ },
+ "2201": {
+  "title": "ยอดขายของสาขาในเครือ",
+  "en": "Branch Sales",
+  "tier": 1,
+  "dir": "22_Euler_Tour/1",
+  "samples": 5
+ },
+ "2202": {
+  "title": "ระยะทางถึงเมืองหลวง",
+  "en": "Distance to the Capital",
+  "tier": 1,
+  "dir": "22_Euler_Tour/2",
+  "samples": 5
+ },
+ "2203": {
+  "title": "แต้มสะสมของทายาทรุ่นที่ K",
+  "en": "Points of the K-th Generation",
+  "tier": 1,
+  "dir": "22_Euler_Tour/3",
+  "samples": 5
+ },
+ "2204": {
+  "title": "คะแนนสูงสุดในทีม",
+  "en": "Top Score in the Team",
+  "tier": 1,
+  "dir": "22_Euler_Tour/4",
+  "samples": 5
+ },
+ "2205": {
+  "title": "ค่าคอมมิชชันตามสายงาน",
+  "en": "Commissions Up the Chain",
+  "tier": 2,
+  "dir": "22_Euler_Tour/5",
+  "samples": 5
+ },
+ "2206": {
+  "title": "ร้านที่ K ในเส้นทางตรวจ",
+  "en": "The Inspector's K-th Stop",
+  "tier": 2,
+  "dir": "22_Euler_Tour/6",
+  "samples": 5
+ },
+ "2207": {
+  "title": "ลูกหลานไม่เกิน K รุ่น",
+  "en": "Within K Generations",
+  "tier": 2,
+  "dir": "22_Euler_Tour/7",
+  "samples": 5
+ },
+ "2208": {
+  "title": "ใครเซ็นอนุมัติ",
+  "en": "Who Signs the Form",
+  "tier": 2,
+  "dir": "22_Euler_Tour/8",
+  "samples": 5
+ },
+ "2209": {
+  "title": "ด่านราคาถูกบนทางกลับบ้าน",
+  "en": "Cheap Tolls on the Way Home",
+  "tier": 2,
+  "dir": "22_Euler_Tour/9",
+  "samples": 5
+ },
+ "2210": {
+  "title": "ย้ายเมืองหลวง",
+  "en": "Moving the Capital",
+  "tier": 3,
+  "dir": "22_Euler_Tour/10",
+  "samples": 5
+ },
+ "2211": {
+  "title": "โคมไฟบนต้นคริสต์มาส",
+  "en": "Christmas Tree Lamps",
+  "tier": 3,
+  "dir": "22_Euler_Tour/11",
+  "samples": 5
+ },
+ "2212": {
+  "title": "พันธุ์ข้าวทั้งสองฝั่ง",
+  "en": "Varieties on Both Sides",
+  "tier": 3,
+  "dir": "22_Euler_Tour/12",
+  "samples": 5
+ },
+ "2301": {
+  "title": "รถไอศกรีมผ่านบ้านไหม",
+  "en": "On the Way",
+  "tier": 1,
+  "dir": "23_LCA_and_Binary_Lifting/1",
+  "samples": 5
+ },
+ "2302": {
+  "title": "แก้เส้นทางส่งของ",
+  "en": "Editing the Delivery Route",
+  "tier": 1,
+  "dir": "23_LCA_and_Binary_Lifting/2",
+  "samples": 5
+ },
+ "2303": {
+  "title": "เดินหมากรอบกระดาน",
+  "en": "Board Game Marathon",
+  "tier": 1,
+  "dir": "23_LCA_and_Binary_Lifting/3",
+  "samples": 5
+ },
+ "2304": {
+  "title": "คนดูขบวนแห่",
+  "en": "Parade Watchers",
+  "tier": 1,
+  "dir": "23_LCA_and_Binary_Lifting/4",
+  "samples": 5
+ },
+ "2305": {
+  "title": "ขนลังตามลำดับ",
+  "en": "Loading Trucks in Order",
+  "tier": 2,
+  "dir": "23_LCA_and_Binary_Lifting/5",
+  "samples": 5
+ },
+ "2306": {
+  "title": "เมืองถนนวงแหวน",
+  "en": "Ring Road Town",
+  "tier": 2,
+  "dir": "23_LCA_and_Binary_Lifting/6",
+  "samples": 5
+ },
+ "2307": {
+  "title": "เดินทางเดียวให้ครบทุกจุด",
+  "en": "Every Sight on One Walk",
+  "tier": 2,
+  "dir": "23_LCA_and_Binary_Lifting/7",
+  "samples": 5
+ },
+ "2308": {
+  "title": "ตัดสองเส้นให้ขาด",
+  "en": "Two Cuts to Split",
+  "tier": 2,
+  "dir": "23_LCA_and_Binary_Lifting/8",
+  "samples": 5
+ },
+ "2309": {
+  "title": "คู่ที่ไกลที่สุดเมื่อเมืองทยอยเข้าร่วม",
+  "en": "Farthest Pair as Towns Join",
+  "tier": 2,
+  "dir": "23_LCA_and_Binary_Lifting/9",
+  "samples": 5
+ },
+ "2310": {
+  "title": "ร้านสองร้านในเมืองเดียว",
+  "en": "Two Shops, One Town",
+  "tier": 3,
+  "dir": "23_LCA_and_Binary_Lifting/10",
+  "samples": 5
+ },
+ "2311": {
+  "title": "ผู้อนุมัติการประชุมคู่",
+  "en": "Approvers for Joint Meetings",
+  "tier": 3,
+  "dir": "23_LCA_and_Binary_Lifting/11",
+  "samples": 5
+ },
+ "2312": {
+  "title": "ปั๊มราคาถูกปั๊มแรกบนทาง",
+  "en": "First Cheap Station on the Way",
+  "tier": 3,
+  "dir": "23_LCA_and_Binary_Lifting/12",
+  "samples": 5
+ },
+ "2401": {
+  "title": "กลุ่มที่ติดตามถึงกัน",
+  "en": "Mutual Followers",
+  "tier": 1,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/1",
+  "samples": 6
+ },
+ "2402": {
+  "title": "สายเคเบิลสำคัญ",
+  "en": "Critical Cables",
+  "tier": 1,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/2",
+  "samples": 6
+ },
+ "2403": {
+  "title": "ทางแยกสำคัญ",
+  "en": "Key Junctions",
+  "tier": 1,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/3",
+  "samples": 6
+ },
+ "2404": {
+  "title": "งานเลี้ยงที่ประหยัดที่สุด",
+  "en": "The Cheapest Party",
+  "tier": 1,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/4",
+  "samples": 6
+ },
+ "2405": {
+  "title": "เก็บสมบัติในอุโมงค์ทางเดียว",
+  "en": "Treasure in One-Way Tunnels",
+  "tier": 2,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/5",
+  "samples": 6
+ },
+ "2406": {
+  "title": "สร้างถนนทางเดียวเพิ่ม",
+  "en": "One-Way Roads to Add",
+  "tier": 2,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/6",
+  "samples": 6
+ },
+ "2407": {
+  "title": "จุดประทัดให้ระเบิดครบ",
+  "en": "Firecracker Chain",
+  "tier": 2,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/7",
+  "samples": 6
+ },
+ "2408": {
+  "title": "ปิดทางแยกหนึ่งแห่ง",
+  "en": "Closing One Junction",
+  "tier": 2,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/8",
+  "samples": 6
+ },
+ "2409": {
+  "title": "ถนนที่ทุกเส้นทางต้องผ่าน",
+  "en": "Roads Every Route Uses",
+  "tier": 2,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/9",
+  "samples": 5
+ },
+ "2410": {
+  "title": "เปลี่ยนเป็นถนนทางเดียวทั้งเมือง",
+  "en": "Making the City One-Way",
+  "tier": 3,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/10",
+  "samples": 6
+ },
+ "2411": {
+  "title": "ขี่สวนทางได้หนึ่งครั้ง",
+  "en": "One Wrong-Way Ride",
+  "tier": 3,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/11",
+  "samples": 6
+ },
+ "2412": {
+  "title": "กำหนดทิศถนนในตาราง",
+  "en": "Street Directions",
+  "tier": 3,
+  "dir": "24_SCC_Bridges_and_Articulation_Points/12",
+  "samples": 5
+ },
+ "2501": {
+  "title": "กล่องคำศัพท์",
+  "en": "Word Box",
+  "tier": 1,
+  "dir": "25_Trie/1",
+  "samples": 5
+ },
+ "2502": {
+  "title": "ชื่อย่อที่สั้นที่สุด",
+  "en": "Shortest Nicknames",
+  "tier": 1,
+  "dir": "25_Trie/2",
+  "samples": 5
+ },
+ "2503": {
+  "title": "คู่รหัสที่ต่างกันที่สุด",
+  "en": "Most Different Pair",
+  "tier": 1,
+  "dir": "25_Trie/3",
+  "samples": 5
+ },
+ "2504": {
+  "title": "จับคู่กุญแจถอดรหัส",
+  "en": "Matching the Keys",
+  "tier": 1,
+  "dir": "25_Trie/4",
+  "samples": 5
+ },
+ "2505": {
+  "title": "ตัดคำ",
+  "en": "Splitting a Text into Words",
+  "tier": 2,
+  "dir": "25_Trie/5",
+  "samples": 5
+ },
+ "2506": {
+  "title": "คะแนนความคล้ายของคำ",
+  "en": "Similarity Scores",
+  "tier": 2,
+  "dir": "25_Trie/6",
+  "samples": 5
+ },
+ "2507": {
+  "title": "ช่วงสั้นที่ XOR มากที่สุด",
+  "en": "Short Stretch with Largest XOR",
+  "tier": 2,
+  "dir": "25_Trie/7",
+  "samples": 5
+ },
+ "2508": {
+  "title": "เครื่องพิมพ์คำ",
+  "en": "Word Printer",
+  "tier": 2,
+  "dir": "25_Trie/8",
+  "samples": 5
+ },
+ "2509": {
+  "title": "รหัสที่ใกล้เป็นอันดับที่ k",
+  "en": "K-th Closest Code",
+  "tier": 2,
+  "dir": "25_Trie/9",
+  "samples": 5
+ },
+ "2510": {
+  "title": "XOR มากที่สุดในช่วง",
+  "en": "Largest XOR in a Range",
+  "tier": 3,
+  "dir": "25_Trie/10",
+  "samples": 5
+ },
+ "2511": {
+  "title": "จับคู่คำศัพท์",
+  "en": "Pairing Words",
+  "tier": 3,
+  "dir": "25_Trie/11",
+  "samples": 5
+ },
+ "2512": {
+  "title": "mex หลังการ XOR",
+  "en": "Mex After Flips",
+  "tier": 3,
+  "dir": "25_Trie/12",
+  "samples": 5
+ },
+ "2601": {
+  "title": "แจกงานให้พนักงาน",
+  "en": "Assigning Jobs",
+  "tier": 1,
+  "dir": "26_Bitmask_and_Digit_DP/1",
+  "samples": 6
+ },
+ "2602": {
+  "title": "ส่งของให้ครบทุกเมือง",
+  "en": "Visiting Every Town",
+  "tier": 2,
+  "dir": "26_Bitmask_and_Digit_DP/2",
+  "samples": 5
+ },
+ "2603": {
+  "title": "ผลรวมเลขโดดหารลงตัว",
+  "en": "Digit Sum Divisible",
+  "tier": 2,
+  "dir": "26_Bitmask_and_Digit_DP/3",
+  "samples": 6
+ },
+ "2604": {
+  "title": "ปูพื้นห้องที่มีเสา",
+  "en": "Domino Floor with Pillars",
+  "tier": 3,
+  "dir": "26_Bitmask_and_Digit_DP/4",
+  "samples": 6
+ },
+ "2605": {
+  "title": "แบ่งเพื่อนขึ้นรถตู้",
+  "en": "Friends in K Vans",
+  "tier": 3,
+  "dir": "26_Bitmask_and_Digit_DP/5",
+  "samples": 6
+ },
+ "2606": {
+  "title": "หารด้วยผลรวมเลขโดดของตัวเอง",
+  "en": "Divisible by Its Own Digit Sum",
+  "tier": 3,
+  "dir": "26_Bitmask_and_Digit_DP/6",
+  "samples": 5
  }
 }
