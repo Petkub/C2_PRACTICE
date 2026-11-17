@@ -100,21 +100,26 @@ def add(n, es, checked=False):
     tests.append(f"{n}\n" + "".join(f"{u} {v}\n" for u, v in es))
 
 
-def build(n, kind):
-    par = shape(n, kind)
+def build(n, kind, hub=0):
+    """hub > 0: the shape gets n - hub nodes and a random node of it gets hub more leaves"""
+    par = shape(n - hub, kind)
+    at = ri(0, n - hub - 1)
+    par += [at] * hub
     lab = labels(n)
     assert shape_ok(par, lab)
     add(n, edge_list(par, lab), checked=True)
 
 
-def comb(n, legs, leg):
-    """a path of n - legs * leg nodes, with `legs` paths of `leg` nodes hanging at random spine nodes"""
-    spine = n - legs * leg
+def comb(n, legs, leg, hub=0):
+    """a path of n - legs * leg - hub nodes, with `legs` paths of `leg` nodes hanging at random spine nodes
+    and hub leaves at one more random spine node"""
+    spine = n - legs * leg - hub
     par = [-1] + [i - 1 for i in range(1, spine)]
     for _ in range(legs):
         at = ri(0, spine - 1)
         for j in range(leg):
             par.append(at if j == 0 else len(par) - 1)
+    par += [ri(0, spine - 1)] * hub
     lab = labels(n)
     assert shape_ok(par, lab)
     add(n, edge_list(par, lab), checked=True)
@@ -136,18 +141,24 @@ build(20, "cater")
 build(500, "random")
 build(5000, "spider")
 build(20000, "deep")
-# hidden: maximum size
+# hidden: maximum size (every one has a node of degree >= 40 000)
 N = MAXN
-build(N, "path")
+
+
+def H():
+    return ri(40_000, 45_000)
+
+
+build(N, "path", H())
 build(N, "star")
-build(N, "random")
-build(N, "deep")
-build(N, "binary")
-build(N, "cater")
-build(N, "spider")
+build(N, "random", H())
+build(N, "deep", H())
+build(N, "binary", H())
+build(N, "cater", H())
+build(N, "spider", H())
 build(N, "broom")
-comb(N, 30000, 3)
-comb(N, 50000, 1)
+comb(N, 30000, 3, H())
+comb(N, 50000, 1, H())
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,89 +1,73 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30113)
+random.seed(30112)
 MAXN = 100_000
-MAXT = 10**6
-MAXD = 10**11
-MAXW = 1000
+MAXL = 1_000_000
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
-
-
-def add(jobs):
-    n = len(jobs)
+def add(strs):
+    n = len(strs)
     assert 1 <= n <= MAXN
-    assert all(1 <= t <= MAXT and 1 <= d <= MAXD and 1 <= w <= MAXW for t, d, w in jobs)
-    tests.append(f"{n}\n" + "".join(f"{t} {d} {w}\n" for t, d, w in jobs))
+    assert all(len(t) >= 1 and set(t) <= {"s", "h"} for t in strs)
+    assert sum(len(t) for t in strs) <= MAXL
+    tests.append(f"{n}\n" + "".join(t + "\n" for t in strs))
 
 
-def rnd(n, tmax, slack, wmax=MAXW):
-    """durations 1..tmax, deadlines spread over [1, total * slack], weights 1..wmax"""
-    ts = [ri(1, tmax) for _ in range(n)]
-    hi = max(1, min(MAXD, int(sum(ts) * slack)))
-    return [(t, ri(1, hi), ri(1, wmax)) for t in ts]
+def word(length, ps):
+    """random string of s/h where each letter is s with probability ps"""
+    return "".join("s" if random.random() < ps else "h" for _ in range(length))
 
 
-def tight(n, tmax, extra, wmax=MAXW):
-    """a schedule with no fine exists: deadlines = finish times in a random order + a little"""
-    ts = [ri(1, tmax) for _ in range(n)]
-    now, res = 0, []
-    for t in ts:
-        now += t
-        res.append((t, min(MAXD, now + ri(0, extra)), ri(1, wmax)))
-    random.shuffle(res)
-    return res
+def rnd(n, lmax, total=None):
+    """n strings, each with its own share of s; lengths 1..lmax (scaled to fit total)"""
+    lens = [random.randint(1, lmax) for _ in range(n)]
+    if total is not None and sum(lens) > total:
+        f = total / sum(lens)
+        lens = [max(1, int(x * f)) for x in lens]
+    return [word(L, random.random()) for L in lens]
 
 
 # samples
-add([(2, 2, 1), (2, 3, 5), (3, 10, 2)])
-add([(5, 5, 3), (1, 10, 7)])
-add([(MAXT, 1, MAXW)])
-add([(2, 6, 1), (3, 6, 4), (1, 6, 2), (4, 3, 3)])
-add([(1, 2, 1), (10, 13, 2), (5, 9, 3)])
-add([(4, 7, 2), (2, 15, 1), (6, 9, 5), (3, 4, 1), (5, 20, 3), (1, 11, 4)])
+add(["h", "ssh", "hhs"])
+add(["hhh", "s"])
+add(["shh", "h", "ss"])
+add(["hs", "hs", "sh", "s"])
+add(["hhss"])
+add(["shs", "hhh", "sssh", "hsh", "s", "hhsh"])
 # hidden: small (every order is tried)
-add([(1, 1, 1)])
-add([(2, 1, 1), (1, 3, 9)])
-for n, wmax in ((5, 3), (10, 1000), (14, 1000), (16, 50)):
-    add(rnd(n, 10, 0.8, wmax))
-add(tight(16, 20, 2))
-add([(ri(1, MAXT), ri(1, 10**7), ri(1, MAXW)) for _ in range(16)])
-add([(ri(1, 5), 7, ri(1, 9)) for _ in range(12)])               # equal deadlines
-add(rnd(16, 10, 0.6, 1))                                        # all weights 1
-add(rnd(3000, 1000, 0.5))
+add(["s"])
+add(["h", "s"])
+for n in (5, 8, 10, 12, 14, 16, 16):
+    add(rnd(n, 8))
+add(["s" * 3 + "h", "s" * 6 + "h" * 2, "sh", "ssh", "hs", "h" * 3, "s" * 9 + "h" * 3, "hhhs"])   # equal ratios
+add(rnd(16, 2000))
+add(rnd(2000, 10))
 # hidden: large
-N = MAXN
-add(rnd(N, MAXT, 1.0))
-add(rnd(N, MAXT, 0.3))
-add(tight(N, MAXT, 0))                                          # answer 0, only one good order up to ties
-add(tight(N, 10**4, 3))
-add([(ri(1, 10**4), 10**8, ri(1, MAXW)) for _ in range(N)])     # all deadlines equal
-add([(MAXT, ri(1, 10**6), MAXW) for _ in range(N)])             # the largest fines
-add(rnd(N, MAXT, 0.7, 1))                                       # all weights 1
-jobs = [(N - i, i + 1, ri(1, MAXW)) for i in range(N)]          # long jobs have early deadlines
-add(jobs)
-jobs = []
-for i in range(N):                                              # costly jobs with later deadlines
-    t = ri(1, 10**4)
-    if i % 10 == 0:
-        jobs.append((t, ri(10**7, 10**8), MAXW))
-    else:
-        jobs.append((t, ri(1, 10**8), 1))
-random.shuffle(jobs)
-add(jobs)
-jobs = []
-for i in range(N):                                              # weights 1 or 1000
-    t = ri(1, 10**5)
-    jobs.append((t, ri(1, 4 * 10**9), random.choice((1, MAXW))))
-add(jobs)
-add(tight(N, MAXT, 10**6))
-add(rnd(N, 999, 0.7))
-add([(MAXT, MAXD, MAXW)] * N)                                   # everything finishes exactly on time
+add(rnd(MAXN, 19, MAXL))                                         # many short strings
+add(rnd(MAXN, 10, MAXL))
+add([word(10, 0.5) for _ in range(MAXN)])
+add([word(MAXL // 20, random.random()) for _ in range(20)])      # long strings: s_a * h_b beyond 32 bits
+add([word(MAXL // 4, p) for p in (0.3, 0.7, 0.45, 0.55)])
+strs = []                                                        # many s or many h, not the best ratio
+for _ in range(MAXN // 2):
+    strs.append("s" * random.randint(5, 10) + "h" * random.randint(5, 10))
+    strs.append("s" * random.randint(1, 2) + "h" * random.randint(0, 1))
+add(strs)
+add(["h" * 5 + "s" * 5] * MAXN)                                  # all the same
+add(["s"] * (MAXN // 2) + ["h"] * (MAXN // 2))                   # all s first is the answer
+add(["h"] * (MAXN // 2) + ["s" * 18] * (MAXN // 2))              # the largest answer
+strs = [word(random.randint(1, 3), random.random()) for _ in range(MAXN - 8)]
+strs += [word(90000, random.random()) for _ in range(8)]
+random.shuffle(strs)
+add(strs)
+add(rnd(MAXN, 19, MAXL))
+strs = []
+for _ in range(MAXN):                                            # ratios very close to each other
+    k = random.randint(4, 5)
+    strs.append(word(2 * k + random.randint(-1, 1), 0.5))
+add(strs)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

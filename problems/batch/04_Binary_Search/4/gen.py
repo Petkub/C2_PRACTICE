@@ -1,9 +1,9 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(20204)
+random.seed(40402)
 MAXN = 200_000
-MAXV = 10**9
+MAXC = 10**9
 tests = []
 
 
@@ -12,73 +12,84 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, b):
-    n, q = len(a), len(b)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXN
-    assert all(-MAXV <= x <= MAXV for x in a + b)
-    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, b)) + "\n")
+def need(a, C):
+    """answer by the pair formula (small tests only)"""
+    best = 0
+    for j in range(len(a)):
+        s = a[j]
+        for i in range(j + 1, len(a)):
+            s += a[i]
+            if s > C:
+                best = max(best, -(-(s - C) // (i - j)))
+    return best
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def from_start(a, C):
+    best, s = 0, 0
+    for i, x in enumerate(a):
+        s += x
+        if i and s > C:
+            best = max(best, -(-(s - C) // i))
+    return best
 
 
-def around(a, q, spread):
-    """houses on, next to and between the stations"""
-    s = sorted(set(a))
+def add(C, a, sample=False):
+    n = len(a)
+    assert 1 <= n <= MAXN and 1 <= C <= MAXC
+    assert all(0 <= x <= C for x in a)
+    if sample:  # samples: counting from minute 1 only gives the right answer too
+        assert need(a, C) == from_start(a, C)
+    tests.append(f"{n} {C}\n" + " ".join(map(str, a)) + "\n")
+
+
+def calm(n, top):
+    """a quiet stretch: small arrivals"""
+    return [ri(0, top) for _ in range(n)]
+
+
+def ramp(n, top):
+    """arrivals that grow along the day"""
+    return [ri(0, max(1, top * (i + 1) // n)) for i in range(n)]
+
+
+def bursts(n, C, rate, length):
+    """busy stretches of about `rate` parcels a minute, with quiet minutes in between"""
     res = []
-    for _ in range(q):
-        k = ri(0, len(s) - 1)
-        r = random.random()
-        if r < 0.3 and k + 1 < len(s):
-            v = (s[k] + s[k + 1]) // 2 + ri(0, 1)       # in the middle of a gap (ties)
-        elif r < 0.5:
-            v = s[k]
-        else:
-            v = s[k] + ri(-spread, spread)
-        res.append(max(-MAXV, min(MAXV, v)))
-    return res
+    while len(res) < n:
+        k = ri(1, length)
+        res += [min(C, ri(rate // 2, rate * 3 // 2)) for _ in range(k)]
+        res += [ri(0, rate // 10) for _ in range(ri(1, length))]
+    return res[:n]
 
 
 # samples
-add([1, 8, 4, 15], [3, 8, 10, 20, 0])
-add([6, 6, -2], [-10, 2, 7])
-add([0], [-MAXV, MAXV, 0, 7])
-add([-MAXV, -MAXV], [MAXV, -999_999_999, -MAXV])
-add([10, -5, 3, 3, 20], [4, -100, 12, 16, 3, 0])
-add([7, 1], [4, 5, 1, 7])
-# hidden: small
-add([5], [5])
-add([3, 3, 3], rnd(20, -10, 10))
-a = rnd(100, -1000, 1000)
-add(a, around(a, 200, 5))
-a = rnd(3000, -MAXV, MAXV)
-add(a, around(a, 3000, 10**6) + rnd(1000, -MAXV, MAXV))
-a = rnd(2000, 0, 100)
-add(a, rnd(2000, -500, 600))
-add([MAXV] * 1000, [-MAXV] * 1000 + [MAXV])
-a = [ri(-50, 50) * 1000 for _ in range(1000)]
-add(a, around(a, 2000, 600))
-# hidden: maximum size (positions up to 10^6 in absolute value keep the files near 3 MB)
-N, H = MAXN, 10**6
-a = rnd(N, -H, H)
-add(a, rnd(N, -H, H))
-a = rnd(N, -H, H)
-add(a, around(a, N, 3))
-a = rnd(N, -H, -H + 1000)                              # every house to the right of every station
-add(a, rnd(N, H - 1000, H))
-a = rnd(N, H - 1000, H)                                # every house to the left of every station
-add(a, rnd(N, -H, -H + 1000))
-a = [ri(-1000, 1000) * 1000 for _ in range(N)]         # many repeats, houses in the middle of gaps
-add(a, around(a, N, 500))
-a = [ri(-H, H) // 2 * 2 for _ in range(N)]
-add(a, [x + 1 for x in rnd(N, -H, H - 2)])
-add([0] * N, rnd(N, -H, H))
-# the largest distances
-add([MAXV] * N, [-MAXV] * 100_000)
-add(rnd(N, MAXV - 10**6, MAXV), rnd(100_000, -MAXV, -MAXV + 10**6))
-a = rnd(100_000, -MAXV, MAXV)
-add(a, around(a, 100_000, 10**7))
+add(10, [9, 8, 7, 3, 2], sample=True)
+add(9, [2, 3, 4], sample=True)
+add(10, [10, 9, 6, 8, 1, 0], sample=True)
+add(5, [5, 5, 5, 5], sample=True)
+add(MAXC, [MAXC, MAXC, MAXC], sample=True)
+# hidden: small (checked by brute force)
+add(1, [0])
+add(7, [7])
+add(10, [4, 8, 9, 3, 7])                                         # the belt empties after minute 1
+add(10, [6, 6, 0, 0, 9, 9, 9])
+add(20, ramp(30, 20))
+add(1000, bursts(300, 1000, 300, 6))
+add(MAXC, [ri(0, MAXC) for _ in range(2000)])
+add(5000, calm(1500, 50) + ramp(1500, 5000))
+add(MAXC, [MAXC] * 3000)
+add(123456, [0] * 2999 + [123456])
+# hidden: maximum size
+N = MAXN
+add(10**6, calm(N // 2, 1000) + ramp(N // 2, 10**6))
+add(MAXC, calm(N // 2, 10**4) + [ri(0, MAXC) for _ in range(N // 2)])
+add(5 * 10**8, ramp(N, 5 * 10**8))
+add(10**7, calm(N // 3, 100) + bursts(N - N // 3, 10**7, 3 * 10**6, 50))
+add(MAXC, calm(N // 2, 10**5) + bursts(N // 2, MAXC, 6 * 10**8, 5))
+add(10**8, ramp(N // 2, 10**6) + ramp(N // 2, 10**8))
+add(2 * 10**6, calm(N - 1000, 5000) + [2 * 10**6] * 1000)       # one long rush at the end
+add(MAXC, [x * 1000 for x in ramp(N, 10**6)])
+add(3 * 10**5, calm(N // 2, 10**4) + [ri(10**5, 3 * 10**5) for _ in range(N // 2)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

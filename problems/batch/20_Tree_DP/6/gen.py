@@ -101,9 +101,12 @@ def add(w, es, checked=False):
     tests.append(f"{n}\n" + " ".join(map(str, w)) + "\n" + "".join(f"{u} {v}\n" for u, v in es))
 
 
-def build(n, kind, val):
-    """val(i, depth, children) gives the value of the i-th created node"""
-    par = shape(n, kind)
+def build(n, kind, val, hub=0):
+    """val(i, depth, children) gives the value of the i-th created node;
+    hub > 0: the shape gets n - hub nodes and a random node of it gets hub more leaves"""
+    par = shape(n - hub, kind)
+    at = ri(0, n - hub - 1)
+    par += [at] * hub
     dep = [0] * n
     nch = [0] * n
     for i in range(1, n):
@@ -146,20 +149,26 @@ build(300, "random", uni(1, 100))
 build(2000, "binary", lvl)
 build(8000, "spider", leafy)
 build(20000, "random", uni(1, MAXW))
-# hidden: maximum size
+# hidden: maximum size (every one has a node of degree >= 70 000)
 N = MAXN
-build(N, "path", uni(MAXW, MAXW))               # the largest answer
-build(N, "path", uni(1, MAXW))
+
+
+def H():
+    return ri(72_000, 78_000)
+
+
+build(N, "path", uni(MAXW, MAXW), H())          # the largest answer
+build(N, "path", uni(1, MAXW), H())
 build(N, "star", leafy)
-build(N, "random", uni(1, MAXW))
-build(N, "random", leafy)
-build(N, "binary", lvl)
-build(N, "binary", leafy)
-build(N, "cater", leafy)
-build(N, "deep", uni(1, MAXW))
-build(N, "spider", lvl)
-build(N, "broom", leafy)
-build(N, "midstar", uni(1, MAXW))
+build(N, "random", uni(1, MAXW), H())
+build(N, "random", leafy, H())
+build(N, "binary", lvl, H())
+build(N, "binary", leafy, H())
+build(N, "cater", leafy, H())
+build(N, "deep", uni(1, MAXW), H())
+build(N, "spider", lvl, H())
+build(N, "broom", leafy, H())
+build(N, "midstar", uni(1, MAXW), H())
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,81 +1,74 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random, string
 
-random.seed(150202)
-MAXN = 10 ** 6
-LOW = string.ascii_lowercase
+random.seed(150303)
+MAXN = 5 * 10 ** 5
+MAXM = 10 ** 5
+MAXK = 10 ** 9
+PRINT = [chr(c) for c in range(33, 127)]
+ALNUM = string.ascii_letters + string.digits
 tests = []
 
 
-def add(t, p):
-    assert 1 <= len(p) <= len(t) <= MAXN
-    assert set(t) <= set(LOW + "?") and set(p) <= set(LOW)
-    tests.append(t + "\n" + p + "\n")
+def add(s, ops):
+    n = len(s)
+    assert 1 <= n <= MAXN and 1 <= len(ops) <= MAXM
+    assert all(33 <= ord(c) <= 126 for c in s)
+    for l, r, k in ops:
+        assert 1 <= l <= r <= n and -MAXK <= k <= MAXK
+    tests.append(f"{s}\n{len(ops)}\n" + "".join(f"{l} {r} {k}\n" for l, r, k in ops))
 
 
-def rnd(n, alpha, weights=None):
-    return "".join(random.choices(alpha, weights=weights, k=n))
+def rs(n, alpha=PRINT, w=None):
+    return "".join(random.choices(alpha, weights=w, k=n))
 
 
-def shuffled(s):
-    l = list(s)
-    random.shuffle(l)
-    return "".join(l)
+def rop(n, kr=MAXK, minlen=1):
+    l = random.randint(1, n - minlen + 1)
+    r = random.randint(l + minlen - 1, n)
+    return (l, r, random.randint(-kr, kr))
 
 
-def planted(n, p, copies, alpha, qprob=0.2):
-    # random text with shuffled copies of p (some letters turned into '?') at random places
-    t = list(rnd(n, alpha))
-    m = len(p)
-    for _ in range(copies):
-        s = random.randint(0, n - m)
-        for i, c in enumerate(shuffled(p)):
-            t[s + i] = "?" if random.random() < qprob else c
-    return "".join(t)
+def wide(n, k):
+    # a range covering most of the string
+    l = random.randint(1, max(1, n // 20))
+    r = random.randint(n - n // 20, n)
+    return (l, r, k)
 
 
 # samples
-add("xbacbabc?d", "abc")
-add("cc?a?cc", "cab")
-add("hello", "world")
-add("aaaa", "aa")
-add("ab?ba?c", "abc")
+add("Hello,World9", [(1, 5, 1), (7, 12, -2)])
+add("zZ9a", [(1, 4, 1), (1, 3, 27)])
+add("a-b_c", [(1, 5, -1000000000)])
+add("Code2026!", [(1, 9, 5), (3, 6, -30), (5, 5, 1000000000), (1, 1, -1)])
+add("x", [(1, 1, 7), (1, 1, -7)])
 # hidden: small (brute checks these)
-add("a", "a")
-add("?", "z")
-add("b", "a")
-add(rnd(30, "ab?"), "abaab")
-add(rnd(2000, "abc?", [3, 3, 3, 1]), "a" * 230 + "b" * 240 + "c" * 230)
-add(planted(5000, shuffled(LOW), 40, LOW + "?"), shuffled(LOW))
-p = rnd(100, "abcdefgh")
-add(planted(10000, p, 60, "abcdefgh?"), p)
-add(rnd(20000, "?" * 30 + "xy"), rnd(10000, "xy"))
-add(rnd(40000, "ab?", [45, 45, 10]), "a" * 450 + "b" * 550)
+add("~", [(1, 1, MAXK)])
+add("0", [(1, 1, -1)] * 3)
+add(rs(30), [rop(30, 60) for _ in range(30)])
+add(rs(50, ALNUM), [rop(50) for _ in range(50)])
+add(rs(200, "az09AZ"), [rop(200, 100) for _ in range(300)])
+add(rs(2000), [rop(2000) for _ in range(2000)])
+add(rs(5000, ALNUM + "#"), [wide(5000, random.choice([MAXK, -MAXK])) for _ in range(5000)])
+add(rs(3000, "z9Z"), [(1, 3000, 26 * random.randint(1, 38 * 10 ** 6)) for _ in range(3000)])
 # hidden: large
-m = MAXN // 2
-add("?" * MAXN, rnd(m, LOW))                                                    # every window
-p = "a" * (m // 2) + "b" * (m - m // 2)
-add(rnd(MAXN, "ab"), p)                                                         # near the border
-p = rnd(400000, LOW[:10])
-add("b" * (MAXN - len(p)) + shuffled(p), p)                                     # only the last window
-p = rnd(300000, LOW[:6])
-add(planted(MAXN, p, 6, LOW[:6] + "?", 0.1), p)
-add("".join("b" if i % (m // 2) == 0 else random.choice("a?") for i in range(MAXN)), "a" * m)  # never
-p = rnd(MAXN, LOW[:3])
-add(shuffled(p[:-1] + "d"), p)                                                  # one window, one letter over
-add(shuffled(p[:-5] + "?????"), p)                                              # one window, a hit
-pa = int(0.6 * 0.45 * MAXN)
-add(rnd(MAXN, "ab?", [45, 45, 10]), "a" * pa + "b" * (600000 - pa))
-add(rnd(MAXN, "abc?", [30, 30, 30, 10]), "a" * 135000 + "b" * 135000 + "c" * 180000)
-add(rnd(MAXN, LOW + "?"), rnd(1, LOW))
-add(planted(MAXN, shuffled(LOW), 5000, LOW, 0.0), shuffled(LOW))
-t = rnd(MAXN, LOW + "?")
-add(t, t[300000:300000 + m].replace("?", "a"))                                      # a window of t itself
-add(rnd(MAXN, "ab?", [40, 40, 20]), "a" * 100000 + "b" * 100000)                   # shorter P, many hits
-add(rnd(MAXN, "abcd?", [24, 24, 24, 24, 4]), "".join(sorted(rnd(150000, "abcd"))))
+n, m = MAXN, MAXM
+add(rs(n, ALNUM), [(1, n, MAXK)] * m)                                       # totals 10^14
+add(rs(n, ALNUM), [(1, n, -MAXK)] * m)
+add(rs(n), [wide(n, random.randint(-MAXK, MAXK)) for _ in range(m)])
+add(rs(n, "z9Z!"), [wide(n, 26 * random.randint(-38 * 10 ** 6, 38 * 10 ** 6)) for _ in range(m)])
+add(rs(n, "a0A"), [wide(n, 10 * random.randint(-10 ** 8, 10 ** 8)) for _ in range(m)])
+add(rs(n, "mM5"), [wide(n, random.choice([MAXK, -MAXK, MAXK - 1, 1 - MAXK])) for _ in range(m)])
+add(rs(n, ALNUM), [rop(n) for _ in range(m)])
+add(rs(n), [rop(n, MAXK, n // 2) for _ in range(m)])
+add(rs(n, ALNUM), [(l, l + random.randint(0, 9), random.randint(-MAXK, MAXK))
+                   for l in (random.randint(1, n - 10) for _ in range(m))])        # short ranges
+add(rs(n, "z"), [(1, n, 1)] * (m // 2) + [(1, n, -1)] * (m // 2 - 1) + [(n // 2, n, 1)])
+add(rs(n, string.ascii_lowercase), [(random.randint(1, 100), random.randint(n - 100, n), random.randint(-MAXK, MAXK))
+                                    for _ in range(m)])
 
 for t in tests:
-    assert t.endswith("\n") and " " not in t
+    assert t.endswith("\n") and "  " not in t and " \n" not in t
     assert not t.encode().translate(None, bytes(range(32, 127)) + b"\n")
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):

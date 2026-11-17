@@ -1,83 +1,71 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
-from itertools import accumulate
 
-random.seed(20202)
-MAXN = 200_000
-MAXD = 10**9
-MAXX = 10**15
+random.seed(40203)
+MAXS = 10**6
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def add(s, t, D):
+    assert 1 <= len(t) <= len(s) <= MAXS and 1 <= D <= len(s)
+    assert all("a" <= c <= "z" for c in s + t)
+    tests.append(f"{s}\n{t}\n{D}\n")
 
 
-def add(d, xs):
-    n, q = len(d), len(xs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXN
-    assert all(0 <= v <= MAXD for v in d)
-    assert all(1 <= x <= MAXX for x in xs)
-    tests.append(f"{n} {q}\n" + " ".join(map(str, d)) + "\n" + " ".join(map(str, xs)) + "\n")
+def zone(n, letters, weights, D, breaks, noise="x"):
+    """n letters: random ones, with `breaks` runs of D + 1 noise letters (they cut every chain) at random places"""
+    z = random.choices(letters, weights, k=n - breaks * (D + 1))
+    for _ in range(breaks):
+        p = random.randrange(n + 1)
+        z[p:p] = [noise] * (D + 1)
+    return "".join(z)
 
 
-def goals(d, q, late=False, missing=0.0):
-    """mix of goals exactly on a total, one above a total, and above the grand total"""
-    pre = list(accumulate(d))
-    total = pre[-1]
-    lo = len(d) * 9 // 10 if late else 0
-    res = []
-    for _ in range(q):
-        if random.random() < missing:
-            res.append(min(MAXX, total + ri(1, 10**6)))
-            continue
-        v = pre[ri(lo, len(d) - 1)] + random.choice((0, 0, 1, -1))
-        res.append(min(MAXX, max(1, v)))
-    return res
+def runs(total, letter, D, lens):
+    """runs of `letter` (lengths from lens) separated by gaps longer than D"""
+    out = []
+    for k in lens:
+        out.append(letter * k)
+        out.append("x" * (D + random.randint(1, 3)))
+    s = "".join(out)
+    return s[:total]
 
 
 # samples
-add([3, 0, 4, 1, 5], [3, 4, 13, 14, 1])
-add([0, 0, 2, 0, 2], [2, 3, 4, 5])
-add([MAXD] * 3, [3 * MAXD, 1, 2 * MAXD + 1])
-add([0], [1])
-add([5, 2, 0, 0, 7, 1], [8, 7, 15, 6, 16, 14])
-add([0, 0, 0, 9], [9, 10, 1])
-# hidden: small
-add([7], [7, 8, 1, MAXX])
-add([0] * 10, [1, 2])
-d = [ri(0, 3) for _ in range(30)]
-add(d, list(range(1, sum(d) + 3)))
-d = [random.choice((0, 0, 0, ri(1, 100))) for _ in range(500)]
-add(d, goals(d, 500, missing=0.1))
-d = [ri(0, MAXD) for _ in range(3000)]
-add(d, goals(d, 3000, missing=0.1))
-d = [MAXD] * 4000
-add(d, goals(d, 4000) + [MAXX])
-# hidden: maximum size (goals near the end or above the total, so scanning day by day is slow)
-N = MAXN
-d = [ri(0, 50_000) for _ in range(N)]                   # totals pass 2^31
-add(d, goals(d, N, late=True, missing=0.2))
-d = [random.choice((0, 0, 0, 0, ri(1, 50_000))) for _ in range(N)]   # many repeated totals
-add(d, goals(d, N, late=True, missing=0.1))
-d = [0] * (N - 1) + [MAXD]                             # every goal reached only on the last day
-add(d, [ri(1, MAXD) for _ in range(N)])
-d = [ri(0, 50_000) for _ in range(N)]
-add(d, [MAXX] * 120_000)                                   # never reached
-d = [MAXD] * N                                         # the largest totals
-add(d, goals(d, 80_000, late=True, missing=0.1))
-d = [ri(0, 9) for _ in range(N)]
-add(d, goals(d, N, late=True))
-d = [ri(0, 50_000) for _ in range(N)]
-add(d, goals(d, N, missing=0.3))
-d = [1] * N
-add(d, [N - ri(0, 1000) for _ in range(N - 1)] + [N + 1])  # answers near the end and one -1
-d = [ri(0, 1) * ri(0, 99_999) for _ in range(N)]
-add(d, goals(d, N, late=True, missing=0.05))
+add("hhheeelllllloooo", "hello", 16)
+add("yyxyeeesssxy", "yes", 1)
+add("pqrrqp", "pqp", 3)
+add("zzzyzzz", "zy", 1)
+add("abc", "abd", 1)
+# hidden: small (checked by brute force)
+add("a", "a", 1)
+add("ab", "ba", 2)
+add("aaxxaaaxa", "a", 2)                                          # the longest chain starts right after a gap
+add("aaxaaxxaaa", "a", 1)
+add("hhxheeyellxlllooo", "hello", 2)                              # two groups of l need two chains
+add("abcabcabc", "abc", 3)
+add(zone(60, "abx", [3, 3, 2], 2, 3), "ab", 2)
+add(zone(200, "ab", [1, 1], 1, 0), "aba", 1)
+add(zone(300, "nox", [4, 4, 1], 3, 6), "no", 3)
+add(zone(150, "ab", [2, 1], 4, 4) + zone(150, "ab", [1, 2], 4, 4), "ab", 4)
+add(zone(2000, "abcx", [1, 1, 1, 1], 5, 10), "cab", 5)
+add(zone(3000, "lox", [5, 5, 1], 4, 20), "lol", 4)
+add(runs(3000, "q", 2, [random.randint(1, 60) for _ in range(80)]), "q", 2)
+# hidden: maximum size
+N = MAXS
+add(zone(N // 2, "abx", [8, 1, 1], 10, 30) + zone(N // 2, "abx", [1, 8, 1], 10, 30), "ab", 10)
+add(zone(N // 3, "ab", [5, 1], 6, 50) + zone(N // 3, "ab", [1, 5], 6, 50) + zone(N - 2 * (N // 3), "ab", [5, 1], 6, 50), "aba", 6)
+add(runs(N, "z", 1, [random.randint(1, 500) for _ in range(2400)] + [60000] + [random.randint(1, 500) for _ in range(1400)]), "z", 1)
+add("".join(zone(N // 5, "helox", w, 20, 8) for w in ([9, 1, 1, 1, 1], [1, 9, 1, 1, 1], [1, 1, 9, 1, 1], [1, 1, 9, 1, 1], [1, 1, 1, 9, 1])), "hello", 20)
+add(zone(N, "ab", [1, 1], N, 0), "ab", N)                           # no limit at all
+add(zone(N, "abx", [3, 3, 1], 30, 0), "ba", 30)
+add(zone(N // 2, "abx", [12, 3, 1], 20, 100) + zone(N // 2, "abx", [3, 12, 1], 20, 100), "aab", 20)
+add(zone(N, "mnx", [10, 10, 1], 30, 30), "mnm", 30)
+add(runs(N // 2, "c", 3, [random.randint(1000, 30000) for _ in range(40)]) + "d" * (N // 2), "cd", 3)
+add(zone(N, "ytx", [6, 6, 1], 25, 30), "tty", 25)
 
 for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
+    assert t.endswith("\n") and " " not in t
 print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):

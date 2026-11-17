@@ -1,9 +1,2 @@
-5
-[db]
-user=
-#user = root
-
-  pass =  a;b #c
-2
-db.user
-db.pass
+8
+-5 -2 2 -2 2 5 -7 7

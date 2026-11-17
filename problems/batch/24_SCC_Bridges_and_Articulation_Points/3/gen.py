@@ -84,6 +84,16 @@ def extra(n, e, k):
     return e
 
 
+def drop(e, k):
+    """remove k random roads (the city usually falls apart into several parts)"""
+    e = list(e)
+    for _ in range(k):
+        j = int(rnd() * len(e))
+        e[j] = e[-1]
+        e.pop()
+    return e
+
+
 # samples
 add(7, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (6, 4), (6, 7)])
 add(6, [(1, 2), (1, 3), (1, 4), (5, 6)])
@@ -99,17 +109,20 @@ for n, m in ((6, 6), (8, 8), (10, 11), (12, 13)):
     add(n, extra(n, [], m))
 add(2000, relabel(2000, extra(2000, tree(2000, "random"), 300)))
 add(1500, relabel(1500, cactus(1500, 1, 5)))
+add(3000, relabel(3000, drop(tree(3000, "random"), 3), fix=(1,)))
 # hidden: maximum size
 N = MAXN
 add(N, relabel(N, path(N), fix=(1,)))                                  # junction 1 at an end: not key
-add(N, relabel(N, path(N)))                                            # junction 1 somewhere inside
+add(N, relabel(N, drop(path(N), 1)))                                   # two paths
 add(N, relabel(N, path(N) + [(N, 1)]))                                 # one long cycle: none
-add(150_000, relabel(150_000, cactus(150_000, 2, 6)))
+add(150_000, relabel(150_000, cactus(75_000, 2, 6) + [(a + 75_000, b + 75_000) for a, b in cactus(75_000, 2, 6)]))
 add(N, relabel(N, tree(N, "star"), fix=(1,)))                          # the centre is junction 1 (root rule)
 add(N, relabel(N, tree(N, "star"), fix=(2,)))                          # junction 1 is a leaf
-add(N, relabel(N, tree(N, "binary"), fix=(1,)))
-add(N - 1000, relabel(N - 1000, extra(N - 1000, tree(N - 1000, "deep"), 1000)))
-add(N // 2, relabel(N // 2, extra(N // 2, tree(N // 2, "random"), N // 2)))
+h = N // 2
+add(N, relabel(N, tree(h, "binary") + [(a + h, b + h) for a, b in tree(h, "binary")], fix=(1,)))  # two
+add(N - 1000, relabel(N - 1000, drop(extra(N - 1000, tree(N - 1000, "deep"), 1000), 300)))
+add(N // 2, relabel(N // 2, drop(extra(N // 4, tree(N // 4, "random"), N // 4), 1000)
+                                + [(a + N // 4, b + N // 4) for a, b in extra(N // 4, tree(N // 4, "random"), N // 4)]))
 add(N, relabel(N, extra(N, [], MAXM)))                                 # random, many separate groups
 
 for t in tests:

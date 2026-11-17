@@ -30,6 +30,8 @@ def shape(n, kind):
             p = i - 1 if i <= half else ri(1, half)
         elif kind == "broom":                       # a long handle ending in a star
             p = i - 1 if i <= half else half
+        elif kind == "longchains":                  # 20 chains of length n / 20 glued at random
+            p = i - 1 if (i - 1) % max(2, n // 20) else ri(1, i - 1)
         elif kind == "chains":                      # chains of length about sqrt(n) glued at random
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
@@ -100,10 +102,12 @@ def big(kind, q, vhi, deep, n=MAXN, few=None):
 # samples
 add(7, [5, 3, 8, 6, 2, 4, 7], [0, 0, 1, 1, 2, 2, 3, 5], [(7, 5), (6, 4), (4, 10), (1, 4)])
 add(4, [2, 2, 9, 1], [0, 0, 1, 2, 3], [(4, 2), (3, 1), (4, 9)])
-add(2, [MAXV, MAXV], [0, 0, 1], [(2, MAXV), (2, MAXV - 1)])
+add(2, [MAXV, MAXV], [0, 0, 1], [(2, MAXV), (1, MAXV)])
 add(5, [1, 2, 3, 4, 5], [0, 0, 1, 1, 1, 1], [(5, 5), (3, 2), (1, 1)])
-add(6, [4, 4, 4, 4, 4, 4], [0, 0, 6, 1, 2, 3, 1], [(4, 4), (5, 3), (5, 4)])
+add(6, [4, 4, 4, 4, 4, 3], [0, 0, 6, 1, 2, 3, 1], [(4, 4), (5, 3), (5, 4)])
 # hidden: small and medium
+add(2, [MAXV, MAXV], [0, 0, 1], [(2, MAXV), (2, MAXV - 1), (1, 1)])
+add(6, [4, 4, 4, 4, 4, 4], [0, 0, 6, 1, 2, 3, 1], [(4, 4), (5, 3), (5, 4), (6, 5)])
 for n, kind, q in ((3, "path", 6), (10, "random", 20), (30, "deep", 40), (40, "star", 60), (80, "caterpillar", 100),
                    (300, "binary", 300), (500, "chains", 1000)):
     p, lab = tree(n, kind)
@@ -113,6 +117,8 @@ for n, kind in ((5000, "path"), (8000, "broom"), (8000, "deep")):
     p, lab = tree(n, kind)
     a = [ri(1, MAXV) for _ in range(n)]
     add(n, a, p, rqs(n, 8000, a, lab, 1000))
+# hidden: a shallow tree (short ways home)
+big("random", 50_000, 10**6, None, n=20_000)
 # hidden: maximum size (questions from the deepest towns)
 big("path", MAXQ, 10**6, 5_000)
 big("path", 60_000, MAXV, 1_000)
@@ -120,10 +126,12 @@ big("path", MAXQ, 10**6, 20_000, few=10)                  # only 10 different to
 big("deep", MAXQ, 10**6, 10_000)
 big("caterpillar", MAXQ, 10**6, 30_000)
 big("broom", MAXQ, 10**6, 40_000)
-big("chains", MAXQ, 10**6, 20_000)
-big("random", MAXQ, 10**6, None)
-big("binary", MAXQ, 10**6, 50_000)
+big("longchains", MAXQ, 10**6, 20_000)
 big("deep", MAXQ, 1_000, 30_000)
+big("deep", MAXQ, 10**6, 2_000)
+big("caterpillar", MAXQ, 10**6, 5_000, few=1000)
+big("broom", MAXQ, 10**6, 1_000)
+big("longchains", 80_000, MAXV, 1_000)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

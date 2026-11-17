@@ -44,14 +44,14 @@ def bands(r, c):
     return g
 
 
-# samples
+# samples (5)
 add([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 add([[-5, 9, -1, 9], [9, -1, 9, -5], [-9, -9, -9, -9]])
 add([[3, -4, 2, -1, 5]])
 add([[2], [-3], [4], [-1]])
-add([[-2, 6, -1], [4, -8, 3], [5, 1, -7], [-3, 2, 2]])
 add([[0, -1, 7, -2, 3], [6, 2, -5, 4, -6], [-1, -9, 8, 1, 2]])
 # hidden: small (brute.cpp checks these)
+add([[-2, 6, -1], [4, -8, 3], [5, 1, -7], [-3, 2, 2]])
 add([[7]])
 add([[-1000]])
 add(rnd(2, 2))
@@ -61,19 +61,21 @@ add(zigzag(9, 12))
 add(rnd(1, 40))
 add(rnd(40, 1))
 add(bands(60, 60))
+add(rnd(1, 30000))
+add(rnd(30000, 1))
 # hidden: maximum size (wide grids first: an O(R C^2) row scan is far too slow there)
 add(rnd(5, 100000))
 add(zigzag(4, 125000))
 add(bands(2, 250000))
-add(rnd(1, 500000))
+add(rnd(2, 250000))
 add(zigzag(10, 50000))
 add(bands(20, 25000))
 add([[-1000] * 100000 for _ in range(5)])
 add([[1000] * 50000 for _ in range(10)])
 add(rnd(40, 12500))
 add(zigzag(25, 20000))
-add(rnd(500000, 1))
-add(bands(100, 5000))
+add(zigzag(3, 166666))
+add(bands(50, 10000))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

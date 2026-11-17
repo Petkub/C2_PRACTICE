@@ -1,58 +1,53 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(11015)
-MAXN, MAXK, MAXV = 200_000, 300, 10**9
+random.seed(11014)
+MAXN = 1_000_000
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(s):
+    n = len(s)
+    assert 1 <= n <= MAXN and set(s) <= set("01")
+    tests.append(f"{n}\n{s}\n")
 
 
-def add(K, a):
-    n = len(a)
-    assert 1 <= n <= MAXN and 1 <= K <= min(n, MAXK) and all(abs(x) <= MAXV for x in a)
-    tests.append(f"{n} {K}\n" + " ".join(map(str, a)) + "\n")
-
-
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def rs(n, p):
+    return "".join("1" if random.random() < p else "0" for _ in range(n))
 
 
 # samples
-add(2, [3, -1, 4, -9, 2, 6, -5, 1])
-add(2, [-5, -2, -8, -1])
-add(1, [2, -3, 5, -1, 4])
-add(3, [1, 2, 3])
-add(2, [5, -10, 5, -10, 5])
-add(3, [-1, 7, -2, 7, -100, 3, -3, 4, -6])
-# hidden: small (the brute tries everything)
-add(1, [-MAXV])
-add(1, [MAXV, -1, MAXV])
-add(3, rnd(10, -10, 10))
-add(4, rnd(12, -100, 100))
-add(2, rnd(12, -5, 1))
-add(5, rnd(11, -MAXV, MAXV))
+add("101")
+add("00")
+add("1")
+add("111")
+add("0110")
+add("1001101")
+# hidden: small (the brute tries every split)
+add("0")
+add("10")
+add("1" * 18)
+add(rs(17, 0.5))
+add(rs(18, 0.2))
+add("0" * 9 + "1" + "0" * 8)
 # hidden: medium
-add(20, rnd(2000, -1000, 1000))
-add(10, rnd(1500, -MAXV, MAXV // 2))
+add(rs(3000, 0.5))
+add(rs(5000, 0.05))
 # hidden: maximum size
-N, K = MAXN, MAXK
-add(K, rnd(N, -MAXV, MAXV))
-add(K, rnd(N, -MAXV, MAXV // 20))                      # mostly negative
-add(K, rnd(N, -MAXV, -1))                              # all negative: the K largest days
-add(K, [MAXV] * N)                                     # 2 * 10^14
-add(K, [MAXV if i % 2 == 0 else -MAXV for i in range(N)])
-add(1, rnd(N, -MAXV, MAXV))                            # one stretch
-add(K, rnd(N, -10**6, 10**6))
-add(K - 1, [(MAXV if i % 1000 < 3 else -ri(1, 10**6)) for i in range(N)])
-add(K, [ri(-MAXV, MAXV) if i % 7 else -MAXV for i in range(N)])
-add(150, rnd(N, -10**4, 10**4))
-add(K, [ri(1, 1000) if (i // 500) % 2 else -ri(1, 1000) for i in range(N)])   # 200 good blocks, K = 300
+N = MAXN
+add("1" * N)
+add(rs(N, 0.5))
+add(rs(N, 0.01))
+add(rs(N, 0.99))
+add("0" * (N // 2) + "1" + "0" * (N - N // 2 - 1))   # one captain: N/2 * ... single team only
+add("10" * (N // 2))
+add("0" + "1" * (N - 2) + "0")
+add("0" * N)                                       # no captain at all: 0
+add(rs(N - 1, 0.3))
+add("".join("1" if i % 997 == 0 else "0" for i in range(N)))
 
 for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
+    assert t.endswith("\n") and " " not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

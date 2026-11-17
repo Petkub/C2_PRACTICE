@@ -67,7 +67,7 @@ add(7, periodic(2500, 2500, 40), rand_w(2500, 1, 20))
 # hidden: maximum size
 N = MAXN
 add(50_000, uniform(N, N), rand_w(N))
-add(30_000, uniform(N, 50_000), rand_w(50_000))
+add(5_000, uniform(N, 100_000), rand_w(100_000))
 add(2_000, local(N, N, 30), rand_w(N, 1, 5_000))
 add(500, phases(N, N, 200), rand_w(N, 1, 2_000))
 add(1_000, periodic(N, N, 1000), rand_w(N, 1, 10_000))
@@ -78,6 +78,7 @@ add(5_000, local(N, 20_000, 200), rand_w(20_000, 1, 40_000))
 add(100, phases(N, N, 5_000), rand_w(N, 1, 300))
 add(20_000, [i % N + 1 for i in range(N)], rand_w(N, 1, 40_000))   # every day a different band
 add(40_000, local(N, 50_000, 3_000), rand_w(50_000, 1, 80_000))
+add(1_000, local(N, N, 20_000), rand_w(N, 50_000, MAXW))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

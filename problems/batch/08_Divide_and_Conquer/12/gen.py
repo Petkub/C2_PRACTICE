@@ -1,73 +1,61 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(131201)
-MAXN = 30
-MAXQ = 100000
+random.seed(131101)
+MAXN = 200000
+MAXA = 10**9
+MAXLR = 10**15
 tests = []
 
 
-def add(n, qs):
-    assert 1 <= n <= MAXN and 1 <= len(qs) <= MAXQ
-    side = 1 << n
-    for q in qs:
-        if q[0] == 1:
-            assert len(q) == 2 and 0 <= q[1] < side * side
-        else:
-            assert q[0] == 2 and len(q) == 3 and 0 <= q[1] < side and 0 <= q[2] < side
-    tests.append(f"{n} {len(qs)}\n" + "".join(" ".join(map(str, q)) + "\n" for q in qs))
+def add(a, lo, hi):
+    assert 1 <= len(a) <= MAXN and all(-MAXA <= x <= MAXA for x in a)
+    assert -MAXLR <= lo <= hi <= MAXLR
+    tests.append(f"{len(a)} {lo} {hi}\n" + " ".join(map(str, a)) + "\n")
 
 
-def rq(n, p1=0.5):
-    side = 1 << n
-    if random.random() < p1:
-        return (1, random.randrange(side * side))
-    return (2, random.randrange(side), random.randrange(side))
+def rnd(n, lo, hi):
+    return [random.randint(lo, hi) for _ in range(n)]
 
 
-def edge_q(n):
-    """steps next to the borders of the quadrants of every level, cells on borders and diagonals"""
-    side = 1 << n
-    k = random.randint(0, n - 1)
-    r = random.random()
-    if r < 0.4:
-        d = random.randint(0, 3) * 4**k + random.choice((-1, 0, 1)) + random.randrange(side * side // 4**(k + 1) or 1) * 4**(k + 1)
-        return (1, min(max(d, 0), side * side - 1))
-    s = 1 << k
-    x = random.randrange(side) // (2 * s) * (2 * s) + random.choice((s - 1, s, 0, 2 * s - 1))
-    if r < 0.7:
-        y = random.choice((x, side - 1 - x, 0, side - 1, random.randrange(side)))
-    else:
-        y = random.randrange(side) // (2 * s) * (2 * s) + random.choice((s - 1, s))
-    return (2, min(x, side - 1), min(y, side - 1))
+def walk(n, drift, step):
+    """values around drift: prefix sums wander like a random walk"""
+    return [max(-MAXA, min(MAXA, drift + random.randint(-step, step))) for _ in range(n)]
 
 
 # samples
-add(2, [(1, 6), (1, 13), (2, 3, 3), (2, 0, 2)])
-add(1, [(1, 3), (2, 0, 1), (2, 1, 1)])
-add(3, [(1, 21), (2, 4, 3), (2, 7, 0)])
-add(30, [(1, 5), (2, 0, 2**30 - 1), (2, 2**30 - 1, 0)])
-add(5, [(1, 500), (2, 31, 16), (1, 1023)])
-# hidden: small (the brute force walks the whole curve)
-add(1, [(1, d) for d in range(4)] + [(2, x, y) for x in range(2) for y in range(2)])
-add(3, [(1, d) for d in range(64)] + [(2, x, y) for x in range(8) for y in range(8)])
-add(4, [(1, d) for d in range(256)][::-1] + [(2, x, y) for y in range(16) for x in range(16)])
-add(7, [rq(7) for _ in range(3000)])
-add(9, [edge_q(9) for _ in range(5000)])
-add(11, [rq(11) for _ in range(20000)])
+add([3, -1, 2, -4, 5], 2, 3)
+add([-5, 2, -5], -4, -1)
+add([0, 0, 0, 0], 0, 0)
+add([1, 2, 3], 7, 100)
+add([MAXA] * 3, 2 * MAXA, 3 * MAXA)
+add([4, -7, 1, 0, 6, -2, -3, 5], -2, 2)
+# hidden: small and medium (the brute force checks these)
+add([5], 5, 5)
+add([-MAXA], -MAXLR, MAXLR)
+add(rnd(10, -5, 5), -3, 3)
+add(rnd(300, -10, 10), 0, 0)
+add(rnd(2000, -MAXA, MAXA), -10**10, 10**10)
+add(rnd(3000, -3, 3), -5, 2)
+add(rnd(20000, -MAXA, MAXA), 0, 10**11)
+add(rnd(20000, 1, 100), 500, 1000)
 # hidden: large
-add(30, [rq(30) for _ in range(MAXQ)])
-add(30, [rq(30, 1.0) for _ in range(MAXQ)])
-add(30, [rq(30, 0.0) for _ in range(MAXQ)])
-add(30, [edge_q(30) for _ in range(MAXQ)])
-add(29, [rq(29) for _ in range(MAXQ)])
-add(25, [edge_q(25) for _ in range(MAXQ)])
-add(20, [rq(20) for _ in range(MAXQ)])
-add(16, [rq(16) for _ in range(MAXQ)])
-add(14, [rq(14) for _ in range(MAXQ)])
-add(30, [(1, 4**30 - 1 - i) for i in range(MAXQ // 2)] + [(2, 2**30 - 1 - i, i) for i in range(MAXQ // 2)])
-add(28, [(2, x, x) for x in random.sample(range(2**28), MAXQ)])
-add(30, [(1, random.randrange(4**15)) for _ in range(MAXQ)])
+N = MAXN
+add(rnd(N, -MAXA, MAXA), -10**12, 10**12)
+add(rnd(N, -MAXA, MAXA), 3 * 10**11, 2 * 10**12)
+add(rnd(N, -MAXA, MAXA), 777, 777)
+add(rnd(N, -3, 3), -1, 1)
+add(rnd(N, -1, 1), 0, 0)
+add([0] * N, 0, 0)                                                  # every period counts
+add([MAXA] * N, 5 * 10**13, 5 * 10**13)                             # periods of one exact length
+add([-MAXA] * N, -MAXLR, -10**14)
+add(rnd(N, -MAXA, MAXA), -MAXLR, MAXLR)
+add(rnd(N, 0, MAXA), 10**13, 10**14)
+add(walk(N, 3, 1000), -10**5, 10**6)
+add(walk(N, -50, 100), -10**6, -10**4)
+add([MAXA if i % 2 == 0 else -MAXA for i in range(N)], 0, MAXA)
+add(rnd(N, -MAXA, MAXA), 10**15 - 1, MAXLR)                         # nothing
+add([random.choice((-MAXA, MAXA)) for _ in range(N)], -2 * MAXA, 2 * MAXA)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

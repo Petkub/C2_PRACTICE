@@ -101,9 +101,12 @@ def add(c, es, checked=False):
     tests.append(f"{n}\n" + " ".join(map(str, c)) + "\n" + "".join(f"{u} {v}\n" for u, v in es))
 
 
-def build(n, kind, val):
-    """val(i, depth, is_leaf, leaf_parent) gives the cost of the i-th created node"""
-    par = shape(n, kind)
+def build(n, kind, val, hub=0):
+    """val(i, depth, is_leaf, leaf_parent) gives the cost of the i-th created node;
+    hub > 0: the shape gets n - hub nodes and a random node of it gets hub more leaves"""
+    par = shape(n - hub, kind)
+    at = ri(0, n - hub - 1)
+    par += [at] * hub
     dep = [0] * n
     nch = [0] * n
     for i in range(1, n):
@@ -152,20 +155,26 @@ build(20, "random", uni(1, 3))
 build(500, "random", bait)
 build(3000, "binary", levels)
 build(10000, "spider", uni(1, MAXC))
-# hidden: maximum size
+# hidden: maximum size (every one has a node of degree >= 70 000)
 N = MAXN
-build(N, "path", uni(MAXC, MAXC))               # the largest answer
-build(N, "path", uni(1, MAXC))
-build(N, "path", levels)
+
+
+def H():
+    return ri(72_000, 78_000)
+
+
+build(N, "path", uni(MAXC, MAXC), H())          # the largest answer
+build(N, "path", uni(1, MAXC), H())
+build(N, "path", levels, H())
 build(N, "star", uni(1, MAXC))
 build(N, "star", lambda i, d, leaf, lp: MAXC if i == 0 else ri(1, 10**4))
-build(N, "random", uni(1, MAXC))
-build(N, "random", bait)
-build(N, "binary", levels)
-build(N, "cater", bait)
-build(N, "deep", uni(1, 100))
-build(N, "spider", bait)
-build(N, "broom", uni(1, 1))
+build(N, "random", uni(1, MAXC), H())
+build(N, "random", bait, H())
+build(N, "binary", levels, H())
+build(N, "cater", bait, H())
+build(N, "deep", uni(1, 100), H())
+build(N, "spider", bait, H())
+build(N, "broom", uni(1, 1), H())
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

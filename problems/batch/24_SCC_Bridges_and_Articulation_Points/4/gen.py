@@ -77,14 +77,58 @@ def rc(n, lo=1, hi=MAXC):
     return [ri(lo, hi) for _ in range(n)]
 
 
+def spine(sp_n, size_fn, sinks, m):
+    """a spine of groups (cycles of size_fn() members, numbered 1..sp_n) where each group needs the next one,
+    and sink groups (sinks = list of cost lists, each one a cycle) needed only from the last 2000 spine members:
+    every closure from the spine walks the rest of the spine. Extra rules go forward along the spine or from the
+    spine to a sink, up to m rules. Returns (n, c, edges) with costs 1..9 on the spine."""
+    e, bl, start = [], [], 1
+    while start <= sp_n:
+        sz = min(size_fn(), sp_n - start + 1)
+        bl.append((start, start + sz - 1))
+        if sz >= 2:
+            e += [(i, i + 1) for i in range(start, start + sz - 1)] + [(start + sz - 1, start)]
+        start += sz
+    for (x, y), (z, w) in zip(bl, bl[1:]):
+        e.append((ri(x, y), ri(z, w)))
+    where = [0] * (sp_n + 1)
+    for j, (x, y) in enumerate(bl):
+        for v in range(x, y + 1):
+            where[v] = j
+    c = [ri(1, 9) for _ in range(sp_n)]
+    sk, start = [], sp_n + 1
+    for costs in sinks:
+        sz = len(costs)
+        sk.append((start, start + sz - 1))
+        if sz >= 2:
+            e += [(i, i + 1) for i in range(start, start + sz - 1)] + [(start + sz - 1, start)]
+        c += costs
+        e.append((ri(max(1, sp_n - 2000), sp_n), ri(start, start + sz - 1)))
+        start += sz
+    n = start - 1
+    e.append((sp_n, sp_n + 1))                      # the last spine group is not a sink
+    while len(e) < m:
+        u = 1 + int(rnd() * sp_n)
+        if rnd() < 0.5:
+            v = 1 + int(rnd() * sp_n)
+            if where[u] < where[v]:
+                e.append((u, v))
+        elif u > sp_n - 2000:
+            x, y = sk[int(rnd() * len(sk))]
+            e.append((u, ri(x, y)))
+    assert len(e) <= m
+    return n, c, e
+
+
 # samples
 add(5, [4, 3, 5, 2, 6], [(1, 2), (2, 1), (2, 3), (4, 5)])
 add(4, [3, 3, 1, 5], [(1, 2), (2, 1), (3, 4), (4, 3)])
 add(1, [7], [])
 add(3, [2, 2, 2], [])
-add(3, [MAXC] * 3, [(1, 2), (2, 3), (3, 1)])
+add(3, [4, 4, 4], [(1, 2), (2, 3), (3, 1)])
 add(6, [5, 1, 1, 1, 4, 9], [(2, 3), (3, 4), (4, 2), (4, 5), (1, 6), (6, 1)])
 # hidden: small
+add(3, [MAXC] * 3, [(1, 2), (2, 3), (3, 1)])
 add(2, [5, 5], [(1, 2)])
 add(2, [5, 5], [(1, 2), (2, 1)])
 for n, m in ((6, 6), (8, 10), (10, 9), (12, 16), (14, 12)):
@@ -92,22 +136,28 @@ for n, m in ((6, 6), (8, 10), (10, 9), (12, 16), (14, 12)):
 e, bl = blocks(2000, 4000, lambda: ri(1, 4))
 add(*relabel(2000, rc(2000, 1, 50), e))
 add(3000, rc(3000, 1, 3), rand_edges(3000, 2500))
-# hidden: maximum size
-N = MAXN
-add(*relabel(N, rc(N), [(i, i + 1) for i in range(1, N)]))        # one long chain: only the last member is a sink
-add(*relabel(N, [MAXC] * N, [(i, i + 1) for i in range(1, N)] + [(N, 1)]))      # everyone in one group: 2 * 10^14
-e, bl = blocks(N, MAXM, lambda: ri(1, 3))
-c = rc(N, 1, 1000)
-add(*relabel(N, c, e))
+# hidden: the most expensive group (not max-size by M)
+n = 100_000
+add(*relabel(n, [MAXC] * n, [(i, i + 1) for i in range(1, n)] + [(n, 1)]))     # everyone in one group: 10^14
+add(n, [1] * n, [])                                     # nobody needs anybody: n ways
+add(n, rc(n, 1, 2), rand_edges(n, n // 2))              # many sinks, many ties
+# hidden: maximum size (every closure is long)
+N = 190_000
+add(*relabel(N, rc(N, 1, 99), [(i, i + 1) for i in range(1, N)]))  # one long chain: only the last member is a sink
+c = rc(N, 1, 9)
+for i in random.sample(range(N), 2000):
+    c[i] = MAXC
+add(*relabel(N, c, [(i, i + 1) for i in range(1, N)] + [(N, 1)]))   # everyone in one group
+add(*relabel(*spine(80_000, lambda: ri(1, 3), [[ri(1, 2), ri(1, 2)] for _ in range(22_000)], N)))
 n = 120_000                                              # 120 000 cycle rules, 80 000 rules between / inside blocks
-e, bl = blocks(n, MAXM, lambda: ri(50, 500), back=0.3)
+e, bl = blocks(n, 200_000, lambda: ri(50, 500), back=0.3)
 c = [1] * n                                              # the cheapest group is the first block, which is not a sink
 for x in range(bl[-1][0], bl[-1][1] + 1):
     c[x - 1] = MAXC
 add(*relabel(n, c, e))
-add(N, [1] * N, [])                                     # nobody needs anybody: N ways
-add(N, rc(N, 1, 2), rand_edges(N, N // 2))              # many sinks, many ties
-add(N, rc(N, 1, 10), rand_edges(N, MAXM))
+add(*relabel(*spine(110_000, lambda: ri(1, 4), [[ri(4 * 10**8, MAXC) for _ in range(ri(3, 6))]
+                                                 for _ in range(8_000)], N)))
+add(*relabel(*spine(145_000, lambda: 1, [[MAXC] * 3 for _ in range(10_000)], N)))  # many equal sinks of 3 * 10^9
 # many equal sink pairs hanging below a long chain of cheap members
 h, p = 99_000, 50_000
 e = [(i, i + 1) for i in range(1, h)]
@@ -115,15 +165,18 @@ c = [1] * h
 for j in range(p):
     a, b = h + 2 * j + 1, h + 2 * j + 2
     e += [(a, b), (b, a)]
-    c += [MAXC // 2, MAXC // 2]
+    c += [5, 5]
     if j < 1000:
         e.append((ri(h - 1000, h), a))                  # only near the end: every closure walks the chain
 e.append((h, h + 1))
 add(*relabel(h + 2 * p, c, e))
 # a chain in number order whose only sink is the last member, the most expensive one: every closure is long
-add(N, [1 + i % 1000 for i in range(N - 1)] + [MAXC], [(i, i + 1) for i in range(1, N)])
-e, bl = blocks(150_000, MAXM, lambda: 20_000)           # 8 big groups in a DAG, only the last one is a sink
-add(*relabel(150_000, rc(150_000, MAXC - 10, MAXC), e))
+add(200_000, [1 + i % 10 for i in range(199_999)] + [MAXC], [(i, i + 1) for i in range(1, 200_000)])
+e, bl = blocks(150_000, 200_000, lambda: 20_000)        # 8 big groups in a DAG, only the last one is a sink
+c = rc(150_000, 1, 9)
+for i in random.sample(range(150_000), 1500):
+    c[i] = MAXC
+add(*relabel(150_000, c, e))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

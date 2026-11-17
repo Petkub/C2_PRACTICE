@@ -1,6 +1,2 @@
-5 5
-set a -1000000000
-mul a 1000000000
-print a
-sub b a
-print b
+1
+!a

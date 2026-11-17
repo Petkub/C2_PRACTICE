@@ -1,99 +1,111 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(11804)
-MAXN = 200_000
-V = 10**9
+random.seed(30620)
+MAXNM = 500
 tests = []
 
+def add(g):
+    n, m = len(g), len(g[0])
+    assert 1 <= n <= MAXNM and 1 <= m <= MAXNM
+    assert all(len(r) == m and all(v in (0, 1) for v in r) for r in g)
+    tests.append(f"{n} {m}\n" + "\n".join("".join(map(str, r)) for r in g) + "\n")
 
-def add(k, p):
-    n = len(p)
-    assert 1 <= n <= MAXN
-    assert -V <= k <= V
-    assert all(-V <= x <= V for x in p)
-    tests.append(f"{n} {k}\n" + " ".join(map(str, p)) + "\n")
+def from_diff(n, m, D):
+    """picture whose 2D XOR difference is D ((n+1) x (m+1))"""
+    g = [[0] * m for _ in range(n)]
+    for i in range(n):
+        run, up = 0, g[i - 1] if i else [0] * m
+        row = g[i]
+        Di = D[i]
+        for j in range(m):
+            run ^= Di[j]
+            row[j] = run ^ up[j]
+    return g
 
+def stamps(n, m, k, places):
+    """picture made by k x k stamps at the given top-left cells"""
+    D = [[0] * (m + 1) for _ in range(n + 1)]
+    for a, b in places:
+        assert 0 <= a <= n - k and 0 <= b <= m - k
+        D[a][b] ^= 1; D[a + k][b] ^= 1; D[a][b + k] ^= 1; D[a + k][b + k] ^= 1
+    return from_diff(n, m, D)
 
-def from_b(k, b):
-    """profits p_i = K + b_i"""
-    add(k, [k + x for x in b])
+def random_blocks(n, m, sizes, cnt):
+    """XOR of cnt blocks, each of a random size from sizes, at random places"""
+    D = [[0] * (m + 1) for _ in range(n + 1)]
+    for _ in range(cnt):
+        k = random.choice(sizes)
+        a, b = random.randint(0, n - k), random.randint(0, m - k)
+        D[a][b] ^= 1; D[a + k][b] ^= 1; D[a][b + k] ^= 1; D[a + k][b + k] ^= 1
+    return from_diff(n, m, D)
 
+def product(f, g):
+    return [[x & y for y in g] for x in f]
 
-def rnd(n, lo, hi):
-    return [random.randint(lo, hi) for _ in range(n)]
+def segs(length, L, starts):
+    f = [0] * length
+    for p in starts:
+        for t in range(p, p + L):
+            f[t] ^= 1
+    return f
 
+def pairs1d(length, L, s, cnt):
+    """XOR of pairs [p, p + L) ^ [p + s, p + s + L): both L and s stamps need the same count"""
+    starts = []
+    for p in random.sample(range(0, min(s, length - L - s + 1)), cnt):
+        starts += [p, p + s]
+    return segs(length, L, starts)
+
+def stretch(bits, t):
+    return [int(c) for c in bits for _ in range(t)]
 
 # samples
-add(5, [3, 8, 4, 6, 1, 7])
-add(10, [4, 9, -2, 7])
-add(0, [-1, 2, -1, 2, -1, 2])
-add(3, [3, 3, 3])
-add(-2, [-5, -1, -6, 0, -4])
-add(4, [1, 9, 1, 1, 9, 1])
-# hidden (small)
-add(V, [V])
-add(V, [V - 1])
-add(-V, [-V, -V])
-add(1, [0, 2, 0, 2, 0])
-from_b(7, rnd(10, -3, 2))
-from_b(0, rnd(50, -2, 2))
-from_b(-1000, rnd(300, -10, 9))
-from_b(123456, rnd(2000, -5, 3))
-from_b(-7, rnd(3000, -3, 3))
-from_b(500_000_000, rnd(3000, -500_000_000, 500_000_000))
-b = [0] * 3000                                   # equal-length zero runs: the first one wins
-for x in range(400, 3000, 401):
-    b[x] = -1
-add(0, b)
-# large
-n = MAXN
-add(V, [V] * n)                                  # every day exactly on target
-add(-V, [V] * n)                                 # huge totals
-add(V, [-V] * n)                                 # nothing reaches the target
-from_b(-3, rnd(n, -V + 3, -1))                   # nothing, random
-add(1, [V if i % 2 == 0 else -V for i in range(n)])
-from_b(0, rnd(n, -5, 3))                         # drifting down: short answer
-from_b(-1, rnd(n, -3, 3))                        # no drift: long answer
-from_b(400_000_000, rnd(n, -V + 400_000_000, 590_000_000))
-b = [-1] * n
-b[n // 2] = 30_000                               # one spike in a falling year
-from_b(5, b)
-b = rnd(n, -1000, 1000)
-b[-1] -= sum(b)                                  # whole period exactly on average
-assert -V <= b[-1] <= V
-from_b(-12345, b)
-b = [-V] * n                                     # zero runs: 999, then 1000, 1000, 1000 ...
-pos = 0
-lens = [999] + [1000] * 150
-for L in lens:
-    pos += 1
-    for x in range(pos, pos + L):
-        b[x] = 0
-    pos += L
-from_b(0, b)
-b = []
-while len(b) < n:                                # many equal prefix-sum minima
-    b += [-1, 1] * random.randint(1, 50) + [-random.randint(1, 3)]
-from_b(-V // 2, b[:n])
-b = rnd(n, -2, 1)
-b[:5000] = [1] * 5000
-b[-5000:] = [1] * 5000
-from_b(V // 3, b)
-add(0, [V] * 40_000 + [-V] * (n - 40_000))       # big totals, answer 80000
-from_b(-V // 3, rnd(n, -4, 3))                   # drifting down: short answer
-b = [-1] * n                                     # three equal zero blocks: the first one wins
-for start in (40_000, 90_000, 150_000):
-    b[start:start + 3000] = [0] * 3000
-from_b(-V + 5, b)
-b = [-V] * n                                     # isolated good days: answer 1
-for x in random.sample(range(0, n, 2), 50):
-    b[x] = random.randint(0, 5)
-from_b(0, b)
-from_b(0, rnd(n, -V, V - 30_000_000))            # large values, downward drift
+add(stamps(4, 5, 2, [(0, 0), (1, 1), (2, 2)]))
+add([[1, 0], [0, 1]])
+add([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
+add(stamps(5, 6, 3, [(0, 0), (1, 2), (2, 1)]))
+add([[1] * 6, [1] * 6])
+# hidden: small
+add([[0]])
+add([[1]])
+add(product(stretch("1100101", 1), stretch("1100101", 1)))          # the biggest working size is not the best
+f8 = [1, 1, 0, 0, 0, 0, 1, 1]
+add(product(f8, f8))                                                # two sizes tie
+add([[random.randint(0, 1) for _ in range(8)] for _ in range(6)])
+add(stamps(12, 15, 4, [(random.randint(0, 8), random.randint(0, 11)) for _ in range(10)]))
+add(product(stretch("1100101", 10), stretch("1010011", 10)))
+add(random_blocks(60, 80, [24], 300))
+add(product(pairs1d(120, 60, 20, 15), pairs1d(100, 60, 20, 8)))
+add([[random.randint(0, 1) for _ in range(200)] for _ in range(200)])
+add([segs(MAXNM, 7, random.sample(range(MAXNM - 6), 100))])          # one row: only k = 1
+add(stamps(30, 40, 30, [(0, 3), (0, 7)]))                           # the biggest size works
+# hidden: maximum size
+N = MAXNM
+add(random_blocks(N, N, [360], 40000))
+add(random_blocks(N, N, [336], 40000))
+add(random_blocks(N, N, [324], 40000))
+add(random_blocks(N, N, [360], 25000))
+add(random_blocks(N, N, [384], 40000))
+add(product(pairs1d(N, 300, 100, 50), pairs1d(N, 300, 100, 60)))
+add(product(pairs1d(N, 288, 96, 60), pairs1d(N, 288, 96, 70)))
+add(product(pairs1d(N, 240, 80, 70), pairs1d(N, 240, 80, 75)))
+add(random_blocks(N, 490, [360], 40000))
+add(random_blocks(490, N, [336], 40000))
+add(product(pairs1d(N, 252, 84, 80), pairs1d(N, 252, 84, 60)))
+add(random_blocks(N, N, [360], 32000))
+# hidden: maximum size, every size (or almost every size) is checked to the last rows
+add([[0] * N for _ in range(N)])                                    # all white: every k works
+corner = [[0] * N for _ in range(N)]
+corner[N - 1][N - 1] = 1                                            # only k = 1, found at the very last cell
+add(corner)
+patch = [[0] * N for _ in range(N)]
+for i in range(N - 3, N):
+    for j in range(N - 4, N):
+        patch[i][j] = random.randint(0, 1)
+patch[N - 1][N - 1] = 1
+add(patch)
 
-for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

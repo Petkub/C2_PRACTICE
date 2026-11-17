@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20218)
-MAXN, MAXA, MAXC, MAXS = 200_000, 10**9, 10**6, 10**17
+random.seed(20217)
+MAXN, MAXA = 200_000, 10**9
 tests = []
 
 
@@ -10,90 +10,69 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(S, items):
-    n = len(items)
-    assert 1 <= n <= MAXN
-    assert 1 <= S <= MAXS
-    assert all(1 <= a <= MAXA and 0 <= c <= MAXC for a, c in items)
-    tests.append(f"{n} {S}\n" + "".join(f"{a} {c}\n" for a, c in items))
+def total(n, L):
+    m = n - L + 1
+    return m * (m + 1) // 2
 
 
-def f(items, k):
-    """smallest total for exactly k items"""
-    if k == 0:
-        return 0
-    return sum(sorted(a + c * k for a, c in items)[:k])
+def add(L, K, a):
+    n = len(a)
+    assert 1 <= L <= n <= MAXN
+    assert all(1 <= x <= MAXA for x in a)
+    assert 1 <= K <= total(n, L)
+    if len(tests) >= 6:                       # brute.cpp lists every route: keep small inputs small
+        assert n <= 5000 or n * 7 > 300_000
+    tests.append(f"{n} {L} {K}\n" + " ".join(map(str, a)) + "\n")
 
 
-def add_k(items, k, where="mid"):
-    """choose S so that the answer is exactly k"""
-    n = len(items)
-    lo = f(items, k)
-    hi = f(items, k + 1) - 1 if k < n else MAXS
-    hi = min(hi, MAXS)
-    lo = max(lo, 1)
-    S = {"low": lo, "high": hi, "mid": ri(lo, hi)}[where]
-    add(S, items)
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
-def rnd(n, amax=MAXA, cmax=MAXC):
-    return [(ri(1, amax), ri(0, cmax)) for _ in range(n)]
+def rk(n, L, lo_frac=0.0, hi_frac=1.0):
+    t = total(n, L)
+    return max(1, min(t, int(t * lo_frac) + ri(0, max(0, int(t * (hi_frac - lo_frac))))))
 
 
 # samples
-add(20, [(2, 1), (3, 2), (5, 1), (1, 3)])
-add(4, [(5, 0), (6, 0), (7, 0)])
-add(6, [(1, 0), (2, 0), (3, 0)])
-add(22, [(2, 1), (3, 2), (5, 1), (1, 3)])
-add(100, [(10, 4), (1, 9), (7, 2), (20, 0), (3, 5)])
-add(10**12, [(MAXA, MAXC), (MAXA, MAXC)])
+add(2, 4, [3, 1, 4, 1, 5])
+add(1, 5, [2, 2, 2])
+add(1, 1, [MAXA])
+add(4, 1, [6, 1, 8, 2])
+add(3, 7, [5, 9, 2, 6, 5, 3])
+add(1, 21, [4, 7, 1, 1, 9, 2])
 # hidden: small
-add(1, [(1, 0)])
-add(1, [(1, 1)])
-for n, am, cm in ((6, 10, 3), (10, 50, 10), (40, 1000, 30), (300, MAXA, MAXC), (2000, 1000, 1000)):
-    items = rnd(n, am, cm)
-    add_k(items, ri(1, n))
-items = rnd(2000, MAXA, MAXC)
-add_k(items, 2000, "low")
-items = [(ri(1, 10**6), 0) for _ in range(2000)]
-add_k(items, 777, "high")
-# hidden: large (answers mostly far from both 0 and N)
-N = 150_000                                           # keeps the inputs near 2.5 MB (40 MB in total)
-items = rnd(N)
-add_k(items, N // 2)
-items = rnd(N)
-add_k(items, ri(N // 4, 3 * N // 4), "low")
-items = rnd(N)
-add_k(items, ri(N // 4, 3 * N // 4), "high")
-items = [(ri(1, MAXA), ri(0, 10)) for _ in range(N)]
-add_k(items, ri(N // 3, N // 2))
-items = [(MAXA, MAXC)] * 150_000                      # largest possible totals
-add(MAXS, items)
-add(f(items, len(items)) - 1, items)
-items = [(ri(1, MAXA), 0) for _ in range(N)]          # no fee at all
-add_k(items, ri(1000, N - 1000))
-x = [ri(1, MAXC) for _ in range(N)]
-items = [(MAXA - (v - 1) * 1000, v) for v in x]       # cheap base price comes with a high fee
-add_k(items, ri(N // 4, 3 * N // 4))
-items = [(ri(MAXA // 2, MAXA), ri(MAXC // 2, MAXC)) if i % 2 else (ri(1, 1000), ri(MAXC // 2, MAXC))
-         for i in range(N)]
-add_k(items, ri(N // 4, N // 2))
-items = rnd(N)
-add_k(items, ri(1, 50))                               # small answer
-items = rnd(N)
-add_k(items, N - ri(1, 50))                           # answer close to N
-items = rnd(N)
-add(min(a + c for a, c in items) - 1, items)          # nothing affordable
-items = [(ri(1, MAXA), ri(0, MAXC // 100)) for _ in range(N)]
-add_k(items, ri(N // 3, 2 * N // 3), "high")
-items = [(ri(1, 10**6), ri(MAXC - 1000, MAXC)) for _ in range(N)]
-add_k(items, ri(N // 4, N // 2), "low")
-items = [(5 * 10**8, 2500)] * N                       # every item costs the same
-add_k(items, ri(N // 3, 2 * N // 3))
+add(1, 1, [1])
+add(2, 1, [1, 2])
+add(1, 3, [5, 5])
+for n in (8, 30, 200, 1000, 3000):
+    L = ri(1, n)
+    add(L, rk(n, L), rnd(n, 1, 10 if n < 100 else MAXA))
+add(1, total(5000, 1) // 2, [7] * 5000)
+add(2500, total(5000, 2500), rnd(5000, 1, MAXA))
+# hidden: large (K is large in most of them)
+N = MAXN
+add(1, rk(N, 1, 0.3, 0.7), rnd(N, 1, MAXA))
+add(1, total(N, 1), [MAXA] * N)                      # the whole array: 2 * 10^14
+add(1, total(N, 1) - 1, [MAXA] * N)
+add(1, total(N, 1) // 2 + 1, [1] * N)                # many equal lengths
+add(ri(1, 1000), rk(N, 1000, 0.5, 1.0), rnd(N, 1, MAXA))
+L = ri(50_000, 150_000)
+add(L, rk(N, L), rnd(N, 1, MAXA))
+add(N, 1, rnd(N, 1, MAXA))                           # only one route
+add(N // 2, rk(N, N // 2, 0.98, 1.0), rnd(N, 1, MAXA))
+add(1, total(N, 1), rnd(N, 1, MAXA))
+add(10, 1, rnd(N, 1, MAXA))                          # the cheapest window of length 10
+a = [MAXA if i % 2 else 1 for i in range(N)]
+add(2, rk(N, 2, 0.1, 0.9), a)
+a = rnd(N - N // 10, 1, 3) + rnd(N // 10, MAXA - 10, MAXA)   # cheap prefix, expensive tail
+add(1, rk(len(a), 1, 0.4, 0.6), a)
+add(5, rk(N, 5, 0.9, 1.0), rnd(N, 1, 100))
+add(3, rk(N, 3, 0.0, 0.05), sorted(rnd(N, 1, MAXA), reverse=True))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
-    with open(f"tests/{i:02d}.in", "w") as f_:
-        f_.write(t)
+    with open(f"tests/{i:02d}.in", "w") as f:
+        f.write(t)

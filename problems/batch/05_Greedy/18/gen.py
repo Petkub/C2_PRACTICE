@@ -1,9 +1,10 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30318)
+random.seed(30317)
 MAXN = 200_000
-MAXV = 10**9
+MAXP = 10**9
+MAXF = 10**9
 tests = []
 
 
@@ -12,71 +13,72 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(k, a):
-    n = len(a)
+def add(F, p):
+    n = len(p)
     assert 1 <= n <= MAXN
-    assert 1 <= k and 2 * k - 1 <= n
-    assert all(-MAXV <= x <= MAXV for x in a)
-    tests.append(f"{n} {k}\n" + " ".join(map(str, a)) + "\n")
+    assert 0 <= F <= MAXF
+    assert all(1 <= x <= MAXP for x in p)
+    tests.append(f"{n} {F}\n" + " ".join(map(str, p)) + "\n")
 
 
 def rnd(n, lo, hi):
     return [ri(lo, hi) for _ in range(n)]
 
 
-def triples(n, lo, hi):
-    """x, x + d, x again and again: the best single slot of each block is a trap"""
-    res = []
-    while len(res) < n:
-        x = ri(lo, hi - 10)
-        d = ri(1, 9)
-        res += [x, x + d, x]
-    return res[:n]
+def walk(n, start, step, lo, hi):
+    """random walk clipped to [lo, hi]"""
+    res, x = [], start
+    for _ in range(n):
+        x = min(hi, max(lo, x + ri(-step, step)))
+        res.append(x)
+    return res
 
 
-def hills(n, h):
-    """1, 2, ..., h, ..., 2, 1 repeated: long chains of changed minds"""
-    one = list(range(1, h + 1)) + list(range(h - 1, 0, -1))
+def waves(n, period, lo, hi, jitter):
+    """prices going down and up again and again (many bars held at the bottoms)"""
     res = []
-    while len(res) < n:
-        res += one
-    return res[:n]
+    for i in range(n):
+        t = i % period
+        frac = abs(2 * t - period) / period         # 1 -> 0 -> 1
+        v = lo + int((hi - lo) * frac) + ri(-jitter, jitter)
+        res.append(min(hi, max(lo, v)))
+    return res
 
 
 # samples
-add(2, [5, 6, 5, 1])
-add(3, [-1, 4, -2, 3, -5])
-add(1, [-7])
-add(2, [3, 8, 2, 7, 9, 1, 4])
-add(3, [-4, 10, 6, -3, 7, 8, -2, 5])
-add(3, [2, 9, 8, 9, 2, 1])
+add(1, [2, 8, 8, 3, 9, 9])
+add(3, [5, 7, 4, 8])
+add(1, [9, 7, 7, 4, 2])
+add(0, [3, 1, 4, 1, 5, 9, 2, 6])
+add(2, [10, 1, 7, 3, 9, 4, 12])
+add(4, [6, 6, 6, 10, 10, 10])
 # hidden (small)
-add(1, [MAXV])
-add(1, [-MAXV, -MAXV + 1])
-add(2, [1, 2, 3])
-add(4, rnd(9, -10, 10))
-add(5, triples(12, 1, 30))
-add(30, rnd(100, -MAXV, MAXV))
-add(700, rnd(2000, -1000, 1000))
-add(1000, hills(2000, 37))
-add(6000, rnd(20_000, -MAXV, MAXV))
-add(10_000, rnd(19_999, 1, MAXV))
+add(0, [1])
+add(MAXF, [1, MAXP])
+add(MAXF - 2, [1, MAXP, 1, MAXP])               # each sale earns exactly 1
+add(0, rnd(10, 1, 10))
+add(3, rnd(12, 1, 10))
+add(5, waves(40, 10, 1, 30, 2))
+add(100, rnd(300, 1, 1000))
+add(10**6, walk(2000, 5 * 10**8, 10**7, 1, MAXP))
+add(50, waves(5000, 1000, 1, 10**4, 30))
+add(7, walk(20_000, 5000, 20, 1, 10**4))
+add(0, rnd(20_000, 1, MAXP))
 # large
 N = MAXN
-add(N // 4, rnd(N, -MAXV, MAXV))
-add(N // 5, rnd(N, 1, MAXV))
-add(N // 3, rnd(N, -MAXV, MAXV))
-add(N // 4, [MAXV // 2] * N)
-add((N - 1 + 1) // 2, [MAXV] * (N - 1))                  # forced: every second slot, largest total
-add(N // 2, [-MAXV] * N)
-add(N // 3, triples(N, 1, MAXV))
-add(N // 4, triples(N, -MAXV, MAXV))
-add(N // 4, sorted(rnd(N, -MAXV, MAXV)))
-add(N // 3, [ri(MAXV - 1000, MAXV) if i % 2 else ri(-MAXV, -MAXV + 1000) for i in range(N)])
-add(N // 4, rnd(N, -5, 5))
-add(N // 4 + 7, hills(N, 1000))
-add(N // 2, rnd(N, -MAXV, MAXV))                         # an even N with K = N / 2 still leaves choices
-add(2 * N // 7, hills(N, 3))
+add(ri(0, 10**7), rnd(N, 1, MAXP))
+add(0, rnd(N, 1, 10**6))
+add(1000, walk(N, 5 * 10**5, 3000, 1, 10**6))
+add(0, list(range(N // 2, 0, -1)) + list(range(1, N // 2 + 1)))    # one deep valley
+add(10, waves(N, 50_000, 1, 10**6, 5))
+add(0, [MAXP if i % 2 else 1 for i in range(N)])
+add(MAXP - 1, [MAXP if i % 2 else 1 for i in range(N)])     # nothing pays
+add(1, list(range(1, N + 1)))
+add(0, [5] * (N - 1) + [MAXP])
+add(500, waves(N, 2000, 1, 10**6, 400))
+add(ri(10**5, 10**6), walk(N, 5 * 10**8, 10**6, 1, MAXP))
+add(3, list(range(N, 0, -1)))
+add(20, [ri(1, 50) if i < N // 2 else ri(10**6 - 50, 10**6) for i in range(N)])  # buy early, sell late
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

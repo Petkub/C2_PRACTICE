@@ -71,69 +71,94 @@ add(churn(100, "abc", 1, 5, 0.45, 0.25))
 add(churn(300, "ab", 1, 8, 0.4, 0.3))
 add(churn(1000, "abcdefghijklmnopqrstuvwxyz", 1, 6, 0.5, 0.15))
 add(churn(5000, "abc", 1, 7, 0.4, 0.3))
-# hidden: maximum size
-add(churn(MAXQ, "ab", 1, 6, 0.6, 0.1, 1, 2))                       # short queries matching very many words
-add(churn(MAXQ, "abcdefghijklmnopqrstuvwxyz", 1, 8, 0.45, 0.15))
-add(churn(MAXQ, "abc", 2, 6, 0.35, 0.35, 1, 3))                    # many deletions
-# long words with a long common part: every prefix of a word is long
-base = word("ab", 9000, 9000)
-ops, bag = [], []
-for i in range(100):
-    if i % 10 == 9 and bag:
-        ops.append(("-", bag.pop(random.randrange(len(bag)))))
-    elif i % 2 == 0:
-        w = base + word("ab", 1, 800)
-        ops.append(("+", w))
-        bag.append(w)
-    else:
-        w = random.choice(bag) if bag else base
-        ops.append(("?", w[:random.randint(8500, len(w))] + word("ab", 0, 3)))
-add(ops)
+# hidden: maximum size. Every one ends with operations on one word of length 36 000 (its prefixes are long),
+# and several first store about 2.2 * 10^5 letters of distinct words (more than 2 * 10^5 trie nodes)
+
+
+def tail(ops, L=36_000, alpha="ab"):
+    """fill the rest of the length budget with +, -, ? of one long word W and long prefixes of it"""
+    room = MAXC - sum(len(w) for _, w in ops)
+    W = word(alpha, L, L)
+    ops.append(("+", W))
+    room -= L
+    have = 1
+    while room >= L + 1 and len(ops) < MAXQ:
+        r = random.random()
+        if r < 0.6:
+            t = W[:random.randint(L - 300, L)]
+            if len(t) < L and random.random() < 0.5:
+                t += random.choice(alpha)
+            ops.append(("?", t))
+        elif r < 0.8 or have == 1:
+            ops.append(("+", W)); have += 1
+        else:
+            ops.append(("-", W)); have -= 1
+        room -= len(ops[-1][1])
+    return ops
+
+
+def many_nodes(chars=250_000, alpha="abcdefghijklmnopqrstuvwxyz", lo=15, hi=25, p_del=0.0):
+    """distinct words of total length about chars, with short queries and some deletions"""
+    ops, bag, used, seen = [], [], 0, set()
+    while used < chars:
+        w = word(alpha, lo, hi)
+        if w in seen:
+            continue
+        seen.add(w)
+        ops.append(("+", w)); bag.append(w); used += len(w)
+        r = random.random()
+        if r < 0.5:
+            v = random.choice(bag)
+            ops.append(("?", v[:random.randint(1, 8)] if random.random() < 0.7 else word(alpha, 1, 6)))
+        elif r < 0.5 + p_del:
+            i = random.randrange(len(bag))
+            bag[i], bag[-1] = bag[-1], bag[i]
+            ops.append(("-", bag.pop()))
+    nodes = len({w[:i] for w in seen for i in range(1, len(w) + 1)})
+    assert nodes > 215_000, nodes
+    return ops
+
+
+add(tail(churn(60_000, "ab", 1, 6, 0.6, 0.1, 1, 2)))                  # short queries matching very many words
+add(tail(many_nodes()))
+add(tail(churn(50_000, "abc", 2, 6, 0.35, 0.35, 1, 3)))               # many deletions
+add(tail(many_nodes(p_del=0.3)))
 # insert, delete everything, ask the deleted words again (nodes stay, counters are 0)
-ws = [word("abc", 4, 6) for _ in range(50_000)]
+ws = [word("abc", 4, 6) for _ in range(12_000)]
 ops = [("+", w) for w in ws] + [("-", w) for w in ws]
-others = [word("de", 3, 6) for _ in range(20_000)]
+others = [word("de", 3, 6) for _ in range(5_000)]
 ops += [("+", w) for w in others]
-for _ in range(MAXQ - len(ops)):
+for _ in range(30_000):
     ops.append(("?", random.choice(ws)[:random.randint(1, 6)] if random.random() < 0.7 else random.choice(others)))
-add(ops)
+add(tail(ops))
 # the same word again and again
-ops = [("+", "zzzz")] * 100_000 + [("?", random.choice(["z", "zz", "zzz", "zzzz", "zzzzz", "zy"])) for _ in range(99_000)]
+ops = [("+", "zzzz")] * 20_000 + [("?", random.choice(["z", "zz", "zzz", "zzzz", "zzzzz", "zy"])) for _ in range(19_000)]
 ops += [("-", "zzzz")] * 999 + [("?", "zz")]
-add(ops)
+add(tail(ops, alpha="yz"))
 # nested words a, aa, aaa, ... and long queries
-ops = [("+", "a" * k) for k in range(1, 1001)]
-for _ in range(750):
+ops = [("+", "a" * k) for k in range(1, 401)]
+for _ in range(150):
     r = random.random()
-    k = random.randint(1, 1000)
+    k = random.randint(1, 400)
     if r < 0.15:
         ops.append(("-", "a" * k)); ops.append(("+", "a" * k))
     else:
-        ops.append(("?", "a" * random.randint(1, 1000) + ("b" if r < 0.5 else "")))
-add(ops)
-# medium long words over two letters
-ops, bag = [], []
-for i in range(320):
-    r = random.random()
-    if r < 0.5 or not bag:
-        w = "ab" * 1000 + word("ab", 500, 1000)
-        ops.append(("+", w)); bag.append(w)
-    elif r < 0.6:
-        ops.append(("-", bag.pop(random.randrange(len(bag)))))
-    else:
-        w = random.choice(bag)
-        ops.append(("?", w[:random.randint(1900, len(w))]))
-add(ops)
-add(churn(MAXQ, "abcdefghij", 1, 5, 0.5, 0.2, 1, 2))
-# very long words: a handful of words of length about 10^5
+        ops.append(("?", "a" * random.randint(1, 400) + ("b" if r < 0.5 else "")))
+add(tail(ops, alpha="ab"))
+add(tail(many_nodes(chars=270_000, alpha="abcdefghij", lo=16, hi=24)))
+add(tail(many_nodes(chars=270_000, lo=10, hi=14, p_del=0.15)))
+# very long words: words of length about 10^5 (two different long starts: more than 2 * 10^5 trie nodes)
 base = word("ab", 100_000, 100_000)
+base2 = word("cd", 100_000, 100_000)
 ops = []
 for i in range(4):
-    ops.append(("+", base[:random.randint(95_000, 100_000)] + word("ab", 1, 3)))
+    b = base if i % 2 == 0 else base2
+    ops.append(("+", b[:random.randint(95_000, 100_000)] + word("ab" if i % 2 == 0 else "cd", 1, 3)))
 ops.append(("?", base[:99_000] + "b"))
 ops.append(("-", ops[1][1]))
 ops.append(("+", base[:60_000] + "a" * 30_000))
-ops.append(("?", base[:97_000]))
+ops.append(("+", base2[:50_000] + "c" * 40_000))
+ops.append(("?", base2[:97_000]))
 ops.append(("?", base[:60_000] + "a" * 29_000 + "b"))
 add(ops)
 # about thirty words of length 30 000 that differ only near the end
@@ -146,18 +171,19 @@ for i in range(32):
         w = "c" * 29_990 + word("cd", 1, 10)
         ops.append(("+", w)); bag.append(w)
 add(ops)
-
-# about a hundred words of length about 10^4 with a long common start: every prefix is long (review)
-base = word("ab", 9000, 9000)
+# medium long words with a common start of length 2000, then the long word
 ops, bag = [], []
-for i in range(100):
-    if i % 10 == 9:
-        w = random.choice(bag)
-        ops.append(("?", w[:random.randint(9000, len(w))]))
-    else:
-        w = base + word("ab", 950, 1000)
+for i in range(60):
+    r = random.random()
+    if r < 0.5 or not bag:
+        w = "ab" * 1000 + word("ab", 500, 1000)
         ops.append(("+", w)); bag.append(w)
-add(ops)
+    elif r < 0.6:
+        ops.append(("-", bag.pop(random.randrange(len(bag)))))
+    else:
+        w = random.choice(bag)
+        ops.append(("?", w[:random.randint(1900, len(w))]))
+add(tail(ops, alpha="cd"))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

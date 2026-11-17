@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(90303)
-MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
+random.seed(140303)
+MAXN, MAXM, MAXW = 100_000, 200_000, 10**9
 tests = []
 
 
@@ -10,86 +10,102 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, edges):
-    m = len(edges)
+def add(n, roads):
+    m = len(roads)
     assert 1 <= n <= MAXN and 0 <= m <= MAXM
-    assert all(1 <= u <= n and 1 <= v <= n and 1 <= w <= MAXW for u, v, w in edges)
-    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges))
+    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in roads)
+    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads))
 
 
-def flip(u, v, w):
-    return (u, v, w) if random.random() < 0.5 else (v, u, w)
-
-
-def tree(n, wlo, whi, shape="random"):
-    """edges of a spanning tree over a random labelling of 1..n"""
-    p = list(range(1, n + 1))
+def labels(n):
+    """a random numbering of towns 1..n that keeps town 1 first"""
+    p = list(range(2, n + 1))
     random.shuffle(p)
+    return [1] + p
+
+
+def tree(p, shape, wlo, whi):
+    """roads joining the towns of p into a tree; p[0] is the first town of the tree"""
     res = []
-    for i in range(1, n):
+    for i in range(1, len(p)):
         if shape == "path":
             j = i - 1
+        elif shape == "star":
+            j = 0
         elif shape == "deep":
             j = max(0, i - ri(1, 3))
+        elif shape == "cater":
+            j = i - 1 if i % 2 else max(0, i - 2)
         else:
             j = ri(0, i - 1)
-        res.append(flip(p[i], p[j], ri(wlo, whi)))
-    return res
-
-
-def extra(n, m, wlo, whi, loops=0.0):
-    res = []
-    for _ in range(m):
-        u = ri(1, n)
-        v = u if random.random() < loops else ri(1, n)
+        u, v = p[i], p[j]
+        if random.random() < 0.5:
+            u, v = v, u
         res.append((u, v, ri(wlo, whi)))
     return res
 
 
-def mixed(*parts):
-    e = [x for p in parts for x in p]
-    random.shuffle(e)
-    return e
+def extra(n, k, wlo, whi):
+    res = []
+    while len(res) < k:
+        u, v = ri(1, n), ri(1, n)
+        if u != v:
+            res.append((u, v, ri(wlo, whi)))
+    return res
+
+
+def mixed(roads):
+    random.shuffle(roads)
+    return roads
 
 
 # samples
-add(4, [(1, 2, 3), (2, 3, 1), (3, 4, 4), (1, 3, 2), (4, 1, 5)])
-add(4, [(1, 2, 5), (2, 1, 3), (3, 3, 1)])
-add(1, [(1, 1, 7)])
-add(3, [(1, 2, 10), (1, 2, 4), (2, 3, 6), (3, 1, 6)])
-add(6, [(1, 2, 8), (2, 3, 2), (3, 1, 3), (4, 5, 2), (5, 6, 9), (6, 4, 4), (3, 4, 7), (2, 5, 5)])
-# hidden: small
+add(5, [(1, 2, 4), (1, 3, 2), (3, 4, 5), (2, 5, 1), (4, 5, 3)])
+add(6, [(1, 3, 5), (1, 2, 5), (2, 4, 7), (3, 4, 9), (5, 6, 1)])
 add(1, [])
-add(2, [(1, 2, MAXW), (2, 1, MAXW), (1, 1, 1)])
-add(5, [(1, 2, 1), (2, 3, 1), (3, 1, 1), (4, 5, 1)])          # two groups: -1
-add(8, mixed(tree(8, 1, 10), extra(8, 6, 1, 10, 0.3)))
-add(30, mixed(tree(30, 1, 100), extra(30, 40, 1, 100)))
-add(200, mixed(tree(200, 1, MAXW), extra(200, 300, 1, MAXW, 0.1)))
-add(1000, mixed(tree(1000, 1, 5), extra(1000, 2000, 1, 5)))   # many equal costs
-add(2000, mixed(tree(1999, 1, 1000), extra(1999, 5000, 1, 1000)) + [(2000, 2000, 1)])  # 2000 is alone
-add(3000, mixed(tree(3000, 1, MAXW, "path"), extra(3000, 7000, 1, MAXW)))
-# hidden: maximum size
-N, M = MAXN, MAXM
-add(N, mixed(tree(N, 1, MAXW), extra(N, M - N + 1, 1, MAXW)))
-add(N, tree(N, MAXW - 1000, MAXW, "path") + [(1, 1, 1)])       # the answer is near 2 * 10^14
-add(N, mixed(tree(N, MAXW, MAXW), extra(N, M - N + 1, MAXW, MAXW)))
-add(N, mixed(tree(N, 1, 1), extra(N, M - N + 1, 1, 1)))
-n = 50_000
-add(n, mixed(tree(n, 1, MAXW, "deep"), extra(n, M - n + 1, 1, MAXW, 0.2)))
-p = list(range(1, N + 1))
-random.shuffle(p)
-add(N, mixed([flip(p[0], p[k], k) for k in range(1, N)], [(1, 1, 5)]))   # a star, cheap edges in turn
-add(N, [(1, k, k) for k in range(2, N + 1)] + [(1, 1, 1)])
-add(N, [(k, 1, k) for k in range(2, N + 1)] + [(1, 2, MAXW)])
-add(N, [(k, k + 1, N - k) for k in range(1, N)] + [(N, 1, 1)])  # a path, the far end is cheapest
-e = mixed(tree(N - 1, 1, MAXW), extra(N - 1, M - N + 1, 1, MAXW))   # vertex N has no edge: -1
-add(N, e)
-add(N, mixed(tree(1000, 1, 10**6), extra(1000, M - 999, 1, 10**6)))   # vertices 1001.. have no edge
-n = 1000
-add(n, mixed(tree(n, 10**6, MAXW), extra(n, M - n + 1, 1, MAXW)))     # dense: many useless edges
+add(4, [(1, 2, 3), (1, 2, 1), (2, 3, 2), (1, 3, 2), (3, 4, 10), (2, 4, 10)])
+add(5, [(2, 3, 1), (1, 4, 7), (4, 5, 2)])
+
+# hidden: small
+add(2, [])
+add(2, [(2, 1, 1000000000), (1, 2, 1000000000)])
+for n, m, whi in ((5, 7, 5), (6, 9, 3), (7, 10, 10), (8, 14, 2), (8, 12, 100)):
+    p = labels(n)
+    add(n, mixed(tree(p, "rand", 1, whi) + extra(n, m - n + 1, 1, whi)))
+add(10, extra(10, 8, 1, 4))                                         # probably not connected
+p = labels(300)
+add(300, mixed(tree(p[:200], "rand", 1, 50) + tree(p[200:], "rand", 1, 50) + extra(300, 0, 1, 1)))
+p = labels(2000)
+add(2000, mixed(tree(p, "deep", 1, MAXW) + extra(2000, 3000, 1, MAXW)))
+p = labels(3000)
+add(3000, mixed(tree(p, "rand", 1, 3) + extra(3000, 6000, 1, 3)))
+
+# hidden: maximum size (town 1 reaches almost every town)
+N = MAXN
+p = labels(N)
+add(N, mixed(tree(p, "rand", 1, MAXW) + extra(N, 25_000, 1, MAXW)))
+p = labels(N)
+add(N, mixed(tree(p, "rand", 1, 5) + extra(N, MAXM - N + 1, 1, 5)))          # many ties
+p = labels(N)
+add(N, mixed(tree(p, "rand", 7, 7) + extra(N, MAXM - N + 1, 7, 7)))          # every road costs the same
+p = labels(N)
+add(N, mixed(tree(p, "path", 1, MAXW) + extra(N, 20_000, 1, MAXW)))
+p = labels(N)
+add(N, mixed(tree(p, "star", 1, MAXW) + extra(N, 25_000, 1, MAXW)))
+p = labels(N)
+add(N, mixed(tree(p, "deep", 1, 1000) + extra(N, 60_000, 1, 1000)))
+p = labels(N)
+add(N, mixed(tree(p, "cater", 1, 100) + extra(N, MAXM - N + 1, 1, 100)))
+p = labels(N)
+tail = p[95_000:]                                                  # 5 000 towns town 1 never reaches
+add(N, mixed(tree(p[:95_000], "rand", 1, MAXW) + tree(tail, "rand", 1, MAXW) + extra(95_000, 20_000, 1, MAXW)))
+p = labels(N)
+road = [(p[i], p[i + 1], 1000 - (i % 1000)) for i in range(N - 1)]  # the cheap road always leads far away
+add(N, mixed(road + [(1, p[ri(1, N - 1)], ri(1, 1000)) for _ in range(20_000)]))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+    assert len(t) <= 3_300_000
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

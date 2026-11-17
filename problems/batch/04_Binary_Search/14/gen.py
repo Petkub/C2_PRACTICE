@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20214)
-MAXN, MAXB = 200_000, 10**9
+random.seed(20212)
+MAXN, MAXA = 200_000, 10**9
 tests = []
 
 
@@ -15,56 +15,54 @@ def rnd(n, lo, hi):
     return [ri(lo, hi) for _ in range(n)]
 
 
-def add(m, k, b):
-    n = len(b)
-    assert 1 <= n <= MAXN
-    assert 1 <= m <= n and 1 <= k <= n
-    assert all(1 <= x <= MAXB for x in b)
-    tests.append(f"{n} {m} {k}\n" + " ".join(map(str, b)) + "\n")
+def add(L, a):
+    n = len(a)
+    assert 1 <= L <= n <= MAXN
+    assert all(-MAXA <= x <= MAXA for x in a)
+    tests.append(f"{n} {L}\n" + " ".join(map(str, a)) + "\n")
+
+
+def bumpy(n, period):
+    """long-range waves: the best stretch is long and not of length exactly L"""
+    return [ri(-MAXA, MAXA) // 4 + (MAXA // 2 if (i // period) % 3 == 0 else -MAXA // 2) for i in range(n)]
 
 
 # samples
-add(2, 2, [3, 1, 4, 1, 5, 9, 2])
-add(3, 2, [1, 2, 3, 4, 5])
-add(1, 5, [5, 4, 3, 2, 1])
-add(1, 1, [MAXB])
-add(2, 3, [1, 1, 1, 9, 1, 1, 2, 1])
-add(3, 2, [6, 2, 8, 3, 3, 7, 1, 9, 4, 4])
+add(2, [3, -1, 4, 1, 5])
+add(3, [-1, -2, -2])
+add(1, [2, 7, -3, 7])
+add(1, [-MAXA])
+add(2, [10, 0, 10])
+add(3, [-4, 6, -2, 5, 5, -9, 3])
 # hidden: small
-add(1, 1, [7])
-add(2, 2, [7, 3, 4])                           # M K > N
-add(1, 2, [5, 5])
-add(2, 2, [1, 9, 1, 1, 9, 1])                  # bloomed pairs split by late flowers
-add(3, 3, rnd(9, 1, 5))
-add(4, 3, rnd(20, 1, 30))
-add(5, 4, rnd(60, 1, 1000))
-add(7, 10, rnd(80, 1, MAXB))                   # M K = 70 <= 80
-add(9, 10, rnd(80, 1, MAXB))                   # M K = 90 > 80
-add(30, 3, rnd(150, 1, 50))
-add(1, 300, rnd(300, 1, MAXB))
-# hidden: maximum size (the answer is a late bloom day)
+add(1, [MAXA])
+add(2, [-1, 0])                                # average -0.5: answer -1
+add(4, [-7, -7, -7, -7, -7])
+add(3, rnd(10, -10, 10))
+add(5, rnd(40, -100, 100))
+add(17, rnd(100, -MAXA, MAXA))
+add(60, rnd(300, -1000, 1000))
+add(100, [MAXA, -MAXA] * 100)
+add(250, rnd(800, -MAXA, -MAXA + 1000))        # all very negative
+add(1, rnd(500, -5, 5))
+# hidden: maximum size
 N = MAXN
-add(N, 1, rnd(N, 1, MAXB))                     # every flower is needed
-add(N // 2, 1, rnd(N, 1, MAXB))
-add(1, N, rnd(N, 1, MAXB))
-add(N // 1000, 1000, rnd(N, 1, MAXB))
-add(N // 3, 3, rnd(N, 1, MAXB))
-add(400, 400, rnd(N, 1, MAXB))
-add(N // 2, 2, sorted(rnd(N, 1, MAXB)))
-add(N // 7, 7, sorted(rnd(N, 1, MAXB), reverse=True))
-add(N // 4, 4, rnd(N, 1, MAXB))
-add(65536, 65536, rnd(N, 1, MAXB))              # M K = 2^32: impossible
-add(N // 2 + 1, 2, rnd(N, 1, MAXB))            # impossible by one bouquet
-add(N // 2, 2, [MAXB] * N)
-add(N // 5, 4, rnd(N, 1, 100_000))              # many equal days
-b = rnd(N, 1, MAXB // 2)
-for i in range(0, N, 50):
-    b[i] = MAXB - i                             # a late flower in every block of 50
-add(N // 50, 49, b)
-add(ri(1, N // 10), 10, rnd(N, 1, MAXB))
-add(1, N // 2, rnd(N, 1, MAXB))
-add(N - 5, 1, rnd(N, 1, MAXB))
-add(N // 30, 25, rnd(N, 1, MAXB))
+add(N // 2, rnd(N, -MAXA, MAXA))
+add(N // 3, rnd(N, -MAXA, MAXA))
+add(N // 10, bumpy(N, 30_000))
+add(15_000, bumpy(N, 6000))
+add(N // 8, bumpy(N, 10_000))
+add(N // 4, [MAXA] * N)
+add(N // 2 + 1, [-MAXA] * N)
+add(N, rnd(N, -MAXA, MAXA))                     # only the whole array
+add(N // 5, rnd(N, -3, 2))                      # many equal averages around 0
+add(N // 2, sorted(rnd(N, -MAXA, MAXA)))        # best stretch at the end
+add(N // 3, sorted(rnd(N, -MAXA, MAXA), reverse=True))
+a = rnd(N, -MAXA, -MAXA // 2)
+add(N // 6, a)                                  # every average negative
+add(7, rnd(N, -MAXA, MAXA))
+a = [ri(-10, 10) for _ in range(N)]
+add(N // 2 - 1, a)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

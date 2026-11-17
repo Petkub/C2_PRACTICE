@@ -152,6 +152,7 @@ build(15, 2, "binary", uni(1, 100))
 build(300, 120, "random", skew)
 build(800, 400, "blocks", uni(1, MAXW), 40)
 build(1500, 300, "deep", skew)
+build(2000, 1, "random", uni(1, MAXW))
 # hidden: maximum size
 N = MAXN
 build(N, N // 2, "path", uni(MAXW, MAXW))           # the largest answer
@@ -160,7 +161,6 @@ build(N, 2000, "blocks", skew, 120)
 build(N, N // 2, "random", uni(1, MAXW))
 build(N, 1700, "random", skew)
 build(N, N - 1, "random", uni(1, MAXW))
-build(N, 1, "random", uni(1, MAXW))
 build(N, N // 2, "star", uni(1, MAXW))
 build(N, 2400, "binary", skew)
 build(N, 2600, "deep", uni(1, MAXW))
@@ -168,7 +168,7 @@ build(N, N // 3, "cater", skew)
 build(N, N // 2, "spider", uni(1, MAXW))
 build(N, 2200, "broom", skew)
 build(N, 2000, "midstar", uni(1, MAXW))
-build(N, 1200, "star", skew)
+build(N, 2000, "star", skew)
 build(N, N // 2, "hubs", uni(1, MAXW), 600)
 
 for t in tests:

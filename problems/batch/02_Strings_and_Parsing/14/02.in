@@ -1,5 +1,2 @@
-4 7
-start:
-  add x 1
-  print x
-  jnz 1 start
+2
+^a|ab

@@ -1,11 +1,10 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(14002)
-MAXT = 100_000
-MAXP = 10 ** 18
-MAXQ = 10 ** 6
-SUMQ = 2_000_000
+random.seed(14005)
+MAXQ = 100_000
+MAXN = 10 ** 18
+P = 10 ** 9 + 7
 tests = []
 
 
@@ -13,88 +12,36 @@ def ri(lo, hi):
     return random.randint(lo, hi)
 
 
-def add(pq):
-    assert 1 <= len(pq) <= MAXT
-    assert all(0 <= p <= MAXP and 1 <= q <= MAXQ for p, q in pq)
-    assert sum(q for _, q in pq) <= SUMQ
-    tests.append(f"{len(pq)}\n" + "".join(f"{p} {q}\n" for p, q in pq))
+def add(qs):
+    assert 1 <= len(qs) <= MAXQ
+    assert all(1 <= n <= MAXN and 0 <= d <= 9 for n, d in qs)
+    tests.append(f"{len(qs)}\n" + "".join(f"{n} {d}\n" for n, d in qs))
 
-
-def isprime(n):
-    if n < 2:
-        return False
-    i = 2
-    while i * i <= n:
-        if n % i == 0:
-            return False
-        i += 1
-    return True
-
-
-def full_reptend(n):
-    # prime n whose decimal period is n - 1 (10 is a primitive root modulo n)
-    if not isprime(n) or n in (2, 5):
-        return False
-    m, fs, f = n - 1, [], 2
-    while f * f <= m:
-        if m % f == 0:
-            fs.append(f)
-            while m % f == 0:
-                m //= f
-        f += 1
-    if m > 1:
-        fs.append(m)
-    return all(pow(10, (n - 1) // f, n) != 1 for f in fs)
-
-
-def reptend_below(n, cnt):
-    res = []
-    while len(res) < cnt:
-        if full_reptend(n):
-            res.append(n)
-        n -= 1
-    return res
-
-
-R1M = reptend_below(MAXQ, 4)            # 999983, 999953, ...
-R100K = reptend_below(100_000, 20)
-R10K = reptend_below(10_000, 200)
-R250K = reptend_below(250_000, 1)[0]
-R125K = reptend_below(125_000, 1)[0]
 
 # samples
-add([(1, 6), (22, 7), (1, 4)])
-add([(9, 3), (1, 3)])
-add([(1, 81), (5, 12), (0, 5), (13, 8)])
-add([(10 ** 18, 3), (1, 28), (7, 1)])
-add([(1, 17), (123, 990), (1, 1_000_000)])
-# hidden: small (the brute force checks them)
-add([(0, 1)])
-add([(ri(0, MAXP), ri(1, 200)) for _ in range(2000)])
-add([(ri(0, 1000), ri(1, 60)) for _ in range(3000)])
-add([(q * ri(0, 10 ** 12), q) for q in [ri(1, 3000) for _ in range(500)]] + [(MAXP // 999_999 * 999_999, 999_999)])  # divisible
-add([(ri(0, MAXP), 2 ** a * 5 ** b) for a in range(20) for b in range(9) if 2 ** a * 5 ** b <= 100_000] + [(1, 524_288)])  # terminating
-add([(ri(1, MAXP), 2 ** a * 5 ** b * c) for a in range(4) for b in range(3) for c in (3, 7, 11, 13, 37, 41, 101)])
-add([(ri(0, MAXP), q) for q in R10K[:40]] + [(1, 999_999), (MAXP, 531_441)])
-add([(ri(0, MAXP), 7 ** 7), (ri(0, MAXP), 8 * R125K), (MAXP, 1)])
-# hidden: large (long repeating blocks)
-add([(ri(0, MAXP), R1M[0]), (ri(0, MAXP), R1M[1])])
-add([(1, R1M[2]), (MAXP, R1M[3])])
-add([(MAXP, R1M[0]), (1, 4 * R250K)])
-add([(ri(0, MAXP), q) for q in R100K])
-add([(ri(0, MAXP), q) for q in R10K])
-add([(ri(0, MAXP), 7 ** 7), (ri(0, MAXP), 8 * R125K)])
-add([(ri(0, MAXP), 3 ** 12), (MAXP - 1, 5 * 3 ** 11), (MAXP, 999)])
-add([(ri(0, MAXP), ri(1, 20)) for _ in range(MAXT)])                                  # many short lines
-add([(R1M[1] * 5, R1M[1]), (ri(0, MAXP), R1M[0]), (ri(0, MAXP), 7)])
-add([(ri(1, R1M[0] - 1), R1M[0]), (ri(0, MAXP), 4 * 5 * 3 * R10K[0])])
-add([(ri(0, MAXP), ri(900_000, MAXQ)), (ri(0, MAXP), ri(900_000, MAXQ))])
-add([(ri(0, MAXP), q) for q in R100K[:10]] + [(ri(0, MAXP), q) for q in R10K[:100]])
-add([(ri(0, MAXP), ri(15_000, 20_000)) for _ in range(100)])
-add([(ri(0, 10 ** 6), random.choice([7, 17, 19, 23, 29, 13, 3, 6, 12, 28, 39])) for _ in range(MAXT)])
-add([(ri(0, MAXP), ri(1, 20)) for _ in range(MAXT)])                                  # many lines again
-add([(ri(0, 10 ** 9), ri(1, 30)) for _ in range(66_000)])
-add([(ri(0, MAXP), random.choice([17, 19, 23, 29, 47, 49, 6, 1, 2, 50])) for _ in range(40_000)])
+add([(1, 7), (2, 7), (2, 0)])
+add([(1, 0), (3, 0)])
+add([(3, 5), (6, 9), (10, 1)])
+add([(MAXN, 0), (MAXN, 9), (MAXN - 1, 3)])
+add([(19, 0), (20, 4), (P - 1, 5), (P, 0)])
+# hidden: small (the digit-by-digit count checks them)
+add([(1, d) for d in range(10)])
+add([(n, d) for n in range(1, 101) for d in range(10)])
+add([(ri(1, 2000), ri(0, 9)) for _ in range(1000)])
+add([(ri(10 ** 5, 3 * 10 ** 5), ri(0, 9)) for _ in range(100)])
+add([(ri(1, 30), 0) for _ in range(500)] + [(ri(1, 30), ri(1, 9)) for _ in range(500)])
+add([(ri(P - 50, P + 50), ri(0, 9)) for _ in range(20)])
+# hidden: large
+add([(ri(1, MAXN), ri(0, 9)) for _ in range(MAXQ)])
+add([(MAXN - ri(0, 10 ** 6), ri(0, 9)) for _ in range(MAXQ)])
+add([(ri(1, MAXN), 0) for _ in range(MAXQ)])
+add([(ri(1, MAXN), 9) for _ in range(MAXQ)])
+add([(MAXN, d % 10) for d in range(MAXQ)])
+add([((P - 1) * ri(1, 10 ** 8) + ri(0, 2), ri(0, 9)) for _ in range(MAXQ)])
+add([(ri(10 ** 9, 10 ** 12), ri(0, 9)) for _ in range(MAXQ)])
+add([(ri(1, 10), ri(0, 9)) if i % 2 else (ri(1, MAXN), ri(0, 9)) for i in range(MAXQ)])
+add([(2 ** ri(30, 59) - ri(0, 1), ri(0, 9)) for _ in range(MAXQ)])
+add([(ri(10 ** 6, 10 ** 7), ri(0, 9)) for _ in range(MAXQ)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

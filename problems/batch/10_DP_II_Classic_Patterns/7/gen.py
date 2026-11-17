@@ -38,6 +38,30 @@ def snake(r, c, noise_rows=False):
     return g
 
 
+def comb(r, c):
+    """rows in groups of three: a run row (one long run, dropping by 3 per cell, snaking down through the end
+    columns), a row of dead-end cells just 1 below the run cell above them (between high walls), a wall row"""
+    assert r >= 1 and c >= 5
+    g = [[MAXH] * c for _ in range(r)]
+    path = []
+    for t in range((r + 2) // 3):
+        cols = range(c) if t % 2 == 0 else range(c - 1, -1, -1)
+        path += [(3 * t, j) for j in cols]
+        end = c - 1 if t % 2 == 0 else 0
+        if 3 * t + 3 < r:
+            path += [(3 * t + 1, end), (3 * t + 2, end)]
+    top = 3 * len(path) + 10
+    assert top < MAXH
+    for k, (i, j) in enumerate(path):
+        g[i][j] = top - 3 * k
+    for t in range((r + 2) // 3):
+        if 3 * t + 1 < r:
+            for j in range(2, c - 2, 2):
+                if g[3 * t + 1][j] == MAXH:
+                    g[3 * t + 1][j] = g[3 * t][j] - 1
+    return g
+
+
 def spiral(n):
     g = [[0] * n for _ in range(n)]
     i, j, di, dj = 0, 0, 0, 1
@@ -56,8 +80,9 @@ add([[9, 6, 3], [8, 7, 2], [5, 4, 1]])
 add([[3, 3], [3, 3]])
 add([[1, 5, 2, 8, 3]])
 add([[4], [9], [7], [1]])
-add([[10, 12, 11, 30], [20, 14, 13, 25], [21, 15, 16, 22], [19, 18, 17, 23]])
+add([[7, 7, 6, 2], [8, 3, 5, 1], [9, 4, 4, 2], [1, 6, 8, 3]])
 # hidden: small
+add([[10, 12, 11, 30], [20, 14, 13, 25], [21, 15, 16, 22], [19, 18, 17, 23]])
 add([[1]])
 add(rnd(3, 4, 1, 5))
 add(rnd(8, 8, 1, 20))
@@ -65,10 +90,12 @@ add(slope(12, 12))
 add(snake(6, 7))
 add(spiral(9))
 add(rnd(50, 60, 1, 1000))
-# hidden: maximum size
-add(rnd(547, 548))
-add(rnd(300, 1000, 1, 100))                   # many equal neighbours
-add([[MAXH] * 500 for _ in range(600)])        # nothing can move
+add(comb(30, 30))
+# hidden: medium (random and flat grids have only short runs)
+add(rnd(300, 300))
+add(rnd(200, 400, 1, 100))                    # many equal neighbours
+add([[MAXH] * 300 for _ in range(300)])        # nothing can move
+# hidden: maximum size (every one has very long runs)
 add(slope(547, 548))
 add(slope(1, MAXCELLS))
 add(snake(547, 548))
@@ -76,7 +103,9 @@ add(snake(2, 150000))
 add(spiral(547))
 add(snake(MAXCELLS, 1))
 add([[MAXH - (i * 600 + j) % 1000 for j in range(500)] for i in range(600)])
-add(rnd(1000, 300, 1, 10))
+add(comb(547, 548))
+add(comb(3, 100000))
+add(comb(60000, 5))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

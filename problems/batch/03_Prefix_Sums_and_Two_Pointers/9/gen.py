@@ -1,90 +1,82 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(10109)
-MAXRC = 1000
-MAXK = 100_000
-MAXQ = 100_000
+random.seed(30909)
+MAXN, MAXA, MAXS = 200_000, 10**9, 10**15
 tests = []
 
 
-def add(R, C, T, tarps, qs):
-    assert 1 <= R <= MAXRC and 1 <= C <= MAXRC
-    assert 1 <= len(tarps) <= MAXK and 1 <= len(qs) <= MAXQ
-    assert 1 <= T <= len(tarps)
-    for (r1, c1, r2, c2) in tarps + qs:
-        assert 1 <= r1 <= r2 <= R and 1 <= c1 <= c2 <= C
-    lines = [f"{R} {C} {len(tarps)} {T}"]
-    lines += [f"{a} {b} {c} {d}" for (a, b, c, d) in tarps]
-    lines.append(str(len(qs)))
-    lines += [f"{a} {b} {c} {d}" for (a, b, c, d) in qs]
-    tests.append("\n".join(lines) + "\n")
+def add(k, s, a):
+    n = len(a)
+    assert 1 <= k <= n <= MAXN and 0 <= s <= MAXS
+    assert all(0 <= x <= MAXA for x in a)
+    tests.append(f"{n} {k} {s}\n" + " ".join(map(str, a)) + "\n")
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def windows(a, k):
+    out, cur = [], sum(a[:k])
+    out.append(cur)
+    for i in range(k, len(a)):
+        cur += a[i] - a[i - k]
+        out.append(cur)
+    return out
 
 
-def rect(R, C, maxh=None, maxw=None):
-    if maxh is None:
-        a, b = sorted((ri(1, R), ri(1, R)))
-    else:
-        h = ri(1, min(maxh, R))
-        a = ri(1, R - h + 1)
-        b = a + h - 1
-    if maxw is None:
-        c, d = sorted((ri(1, C), ri(1, C)))
-    else:
-        w = ri(1, min(maxw, C))
-        c = ri(1, C - w + 1)
-        d = c + w - 1
-    return (a, c, b, d)
+def with_heavy(a, k, t):
+    # S such that at most t windows (and at least one when t >= 1) are heavy
+    w = sorted(windows(a, k), reverse=True)
+    if t >= len(w):
+        return max(0, w[-1] - 1)
+    return w[t]
 
 
-def rects(n, R, C, maxh=None, maxw=None):
-    return [rect(R, C, maxh, maxw) for _ in range(n)]
+def vals(n, lo=0, hi=MAXA):
+    return [random.randint(lo, hi) for _ in range(n)]
 
 
 # samples
-add(4, 5, 2, [(1, 1, 3, 3), (2, 2, 4, 5), (3, 1, 3, 5)], [(1, 1, 4, 5), (2, 2, 3, 3), (4, 1, 4, 5)])
-add(3, 3, 2, [(1, 1, 2, 2), (2, 2, 3, 3)], [(1, 1, 3, 3), (1, 1, 1, 3)])
-add(1, 1, 1, [(1, 1, 1, 1)], [(1, 1, 1, 1)])
-add(1, 6, 2, [(1, 1, 1, 4), (1, 3, 1, 6), (1, 2, 1, 5)], [(1, 1, 1, 6)])
-add(5, 5, 1, [(2, 2, 2, 2)], [(1, 1, 5, 5), (3, 3, 3, 3)])
-# hidden (small)
-add(1, 7, 2, [(1, 1, 1, 7), (1, 3, 1, 5), (1, 5, 1, 7)], [(1, i, 1, j) for i in range(1, 8) for j in range(i, 8)])
-add(6, 1, 1, [(2, 1, 5, 1)], [(1, 1, 6, 1), (1, 1, 1, 1), (2, 1, 5, 1)])
-add(8, 8, 3, rects(10, 8, 8), rects(30, 8, 8))
-add(10, 12, 2, rects(25, 10, 12), rects(40, 10, 12))
-add(30, 40, 5, rects(60, 30, 40), rects(200, 30, 40))
-add(50, 50, 4, rects(300, 50, 50, 10, 10), rects(300, 50, 50))
-add(100, 80, 40, rects(400, 100, 80), rects(500, 100, 80))
-add(200, 200, 1, rects(2000, 200, 200, 20, 20), rects(2000, 200, 200))
-add(200, 200, 2000, rects(2000, 200, 200), rects(500, 200, 200))     # T = K: only cells under every tarp
-add(150, 300, 3, rects(3000, 150, 300, 15, 40), rects(3000, 150, 300))
-R = C = MAXRC
-full = (1, 1, R, C)
-# large
-add(R, C, MAXK // 8, rects(MAXK, R, C), rects(MAXQ, R, C))
-add(R, C, 3, rects(MAXK, R, C, 60, 60), rects(MAXQ, R, C))
-add(R, C, MAXK, [full] * MAXK, [full] * 30_000)                       # every cell has K layers
-add(R, C, 1, rects(MAXK, R, C), rects(30_000, R, C))
-add(R, C, MAXK, rects(MAXK, R, C), rects(30_000, R, C))               # nothing reaches T
-add(R, C, 2, [(r, 1, r, C) for r in range(1, R + 1)] * 50 + [(1, c, R, c) for c in range(1, C + 1)] * 50,
-    rects(MAXQ, R, C))                                                 # whole rows and whole columns
-add(R, C, MAXK // 2, [(1 + i % 500, 1 + i % 500, R - i % 500, C - i % 500) for i in range(MAXK)],
-    rects(30_000, R, C))                                               # nested frames
-add(R, C, MAXK // 6, rects(MAXK, R, C), [full] * 30_000)
-add(R, C, 7, rects(MAXK, R, C, 300, 300), [rect(R, C, 30, 30) for _ in range(MAXQ)])
-add(R, C, MAXK // 10, rects(MAXK, R, C), rects(30_000, R, C))
-add(R, C, 1, [(ri(1, R), ri(1, C)) * 2 for _ in range(MAXK)], rects(30_000, R, C))
-add(R, C, 20, rects(MAXK, R, C, 500, 500), rects(30_000, R, C))
-add(1000, 999, 20_000, rects(MAXK, 1000, 999), rects(30_000, 1000, 999))
+add(2, 10, [3, 8, 1, 2, 9, 4, 0])
+add(1, 5, [6, 2, 7, 7, 1])
+add(1, 0, [1, 1, 1])
+add(3, 100, [10, 20, 30, 40])
+add(2, 10**9, [6 * 10**8, 0, 6 * 10**8, 6 * 10**8, 0])
+# hidden: small (brute checks every period)
+for n, k in [(8, 3), (12, 4), (20, 1), (25, 5), (40, 7), (60, 2)]:
+    a = vals(n, 0, 9)
+    add(k, with_heavy(a, k, random.randint(0, 4)), a)
+a = vals(80, 0, 9)
+add(80, sum(a) - 1, a)                                              # the whole span is one heavy window
+a = vals(90, 0, 3)
+add(6, with_heavy(a, 6, 30), a)
+# hidden: medium
+a = vals(5000)
+add(30, with_heavy(a, 30, 400), a)
+a = [MAXA] * 3000
+add(3, 3 * MAXA - 1, a)                                             # every window heavy
+# hidden: maximum size
+a = vals(MAXN)
+add(1000, MAXS, a)                                                  # nothing heavy: every period is safe
+a = vals(MAXN)
+add(1000, with_heavy(a, 1000, 1), a)
+a = vals(MAXN)
+add(50_000, with_heavy(a, 50_000, 5), a)
+a = vals(MAXN)
+add(MAXN, sum(a) - 1, a)                                            # K = N, the only window is heavy
+a = vals(MAXN)
+add(1, with_heavy(a, 1, 3), a)
+a = vals(MAXN)
+add(2, with_heavy(a, 2, 4), a)
+a = [MAXA] * MAXN
+add(100_000, 100_000 * MAXA - 1, a)                                 # every window heavy, K large
+a = [random.choice([0, MAXA]) for _ in range(MAXN)]
+add(3, with_heavy(a, 3, 0), a)
+a = vals(MAXN, MAXA - 1000, MAXA)
+add(7, with_heavy(a, 7, 2), a)
+a = vals(MAXN, 0, 5)
+add(150_000, with_heavy(a, 150_000, 10), a)
+a = vals(MAXN)
+add(20_000, with_heavy(a, 20_000, 8), a)
 
-for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
-print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

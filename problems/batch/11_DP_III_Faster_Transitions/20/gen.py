@@ -69,6 +69,8 @@ add(3, 2, [1, 1, 0, 2, 2, 0, 3, 3, 0, 1, 1])
 # hidden: medium
 add(10**9, 40, planted(2000, 0.05, [1, 2, 3]))
 add(3, 700, blocks(2000, 700, [1, 2, 3], 300))
+add(5, 1, reveal(20_000, 5, 1, 0.3, 5))              # neighbours differ
+add(4, 3, reveal(20_000, 4, 3, 0.6, 4))
 # hidden: maximum size (L large: looping over every run length is too slow)
 N = MAXN
 add(10**9, N, [0] * N)                                 # no limit: K^N
@@ -77,8 +79,8 @@ add(10**9, 150_000, few(N, 4, [7, 8, 9]))
 add(3, 80_000, blocks(N, 80_000, [1, 2, 3], 60_000))
 add(2, 60_000, reveal(N, 2, 60_000, 0.00003, 2))
 add(999_999_937, 180_000, few(N, 6, list(range(1, 50))))
-add(5, 1, reveal(N, 5, 1, 0.3, 5))                    # neighbours differ
-add(4, 3, reveal(N, 4, 3, 0.6, 4))
+add(5, 50_000, reveal(N, 5, 50_000, 0.0001, 5))
+add(4, 100_000, reveal(N, 4, 100_000, 0.0001, 4))
 add(10**9, 70_000, blocks(N, 70_000, [1, 2], 40_000))
 add(2, N, few(N, 5, [1, 2]))
 add(10**9, 100_000, [1] * 100_000 + [0] * (N - 100_000))

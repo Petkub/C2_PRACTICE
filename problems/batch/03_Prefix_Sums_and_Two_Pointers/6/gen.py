@@ -1,75 +1,67 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(1106)
-MAXN, MAXA = 200_000, 10**9
+random.seed(30606)
+MAXT, MAXN = 10 ** 6, 100_000
 tests = []
 
-def add(a):
-    n = len(a)
-    assert 1 <= n <= MAXN
-    assert all(1 <= x <= MAXA for x in a)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
+def add(T, D, once, routine):
+    assert 1 <= D <= T <= MAXT
+    assert 0 <= len(once) <= MAXN and 0 <= len(routine) <= MAXN
+    assert all(0 <= s < e <= T for s, e in once)
+    assert all(0 <= u < v <= D for u, v in routine)
+    lines = [f"{T} {D} {len(once)} {len(routine)}"]
+    lines += [f"{s} {e}" for s, e in once] + [f"{u} {v}" for u, v in routine]
+    tests.append("\n".join(lines) + "\n")
 
-def rnd(n, lo, hi):
-    return [random.randint(lo, hi) for _ in range(n)]
+def once_jobs(T, n, maxlen):
+    out = []
+    for _ in range(n):
+        L = random.randint(1, min(maxlen, T))
+        s = random.randint(0, T - L)
+        out.append((s, s + L))
+    return out
 
-def runs(n, runlen, kind):
-    """increasing runs of about runlen days; between runs one 'bad' day.
-    kind 'high': the bad day is too high (delete it to join), 'low': too low,
-    'nojoin': the next run starts below the end of the previous one, 'mix': any."""
-    a = []
-    base = random.randint(1, 1000)
-    while len(a) < n:
-        ln = random.randint(max(1, runlen // 2), runlen)
-        for _ in range(ln):
-            base += random.randint(1, 3)
-            a.append(base)
-        k = kind if kind != "mix" else random.choice(["high", "low", "nojoin", "eq"])
-        if k == "high":
-            a.append(base + random.randint(10**6, 2 * 10**6))
-        elif k == "low":
-            a.append(max(1, base - random.randint(10**5, 2 * 10**5)))
-        elif k == "eq":
-            a.append(base)
-        else:
-            base -= random.randint(10**5, 2 * 10**5)
-            a.append(base + random.randint(10**6, 2 * 10**6))
-        if base < 10**6:
-            base += 3 * 10**6
-    a = a[:n]
-    assert all(x <= MAXA for x in a)
-    return a
+def routine_jobs(D, m, lo=0, hi=None, maxlen=None):
+    """m routine jobs inside the positions lo..hi-1 of a cycle"""
+    hi = D if hi is None else hi
+    maxlen = hi - lo if maxlen is None else maxlen
+    out = []
+    for _ in range(m):
+        L = random.randint(1, min(maxlen, hi - lo))
+        u = random.randint(lo, hi - L)
+        out.append((u, u + L))
+    return out
 
 # samples
-add([1, 2, 5, 3, 4, 6, 2])
-add([5, 4, 3, 2, 1])
-add([7])
-add([1, 2, 3, 3, 4, 5])
-add([4, 4, 4, 4])
-add([3, 8, 4, 5, 1, 6, 7, 9])
-# hidden: small
-add([2, 1])
-add([1, 2])
-add([5, 1, 2, 3])                       # deleting the first day does not help
-add([1, 2, 3, 5, 2, 3, 4])              # cannot join
-add([1, 2, 3, 4, 1, 5, 6])              # delete the low day
-add(rnd(10, 1, 5))
-add(rnd(200, 1, 30))
-add(runs(1000, 15, "mix"))
-add(runs(5000, 40, "high"))
-add(runs(5000, 40, "low"))
-add(runs(15000, 100, "mix"))
-# hidden: maximum size
-add(list(range(1, MAXN + 1)))                                   # already increasing
-a = list(range(1, MAXN + 1)); a[MAXN // 2] = MAXA; add(a)       # one spike in the middle
-a = list(range(10, MAXN + 10)); a[MAXN // 3] = 1; add(a)        # one dip
-add(runs(MAXN, 2000, "mix"))
-add(runs(MAXN, 30000, "nojoin"))
-add(runs(MAXN, 50000, "high"))
-add([MAXA - (i % 2) for i in range(MAXN)])                       # zigzag, answer 2
-add(rnd(MAXN, 1, MAXA))
-add(list(range(MAXN, 0, -1)))
+add(21, 7, [(3, 9), (12, 16)], [(0, 2), (5, 6)])
+add(12, 4, [], [(0, 3), (2, 4)])
+add(10, 10, [(0, 4), (4, 8), (2, 6)], [])
+add(5, 1, [(1, 3)], [(0, 1)])
+add(17, 5, [(0, 6), (9, 13), (14, 15)], [(1, 2), (3, 5)])
+# hidden: small and special
+add(1, 1, [(0, 1)], [])
+add(1, 1, [(0, 1)], [(0, 1)])
+add(23, 6, [(20, 23)], [(1, 4), (2, 3)])            # clash in the last, partial cycle
+add(30, 7, [(0, 30), (5, 12)], [(4, 6)])            # three jobs at once
+add(40, 40, once_jobs(40, 6, 15), routine_jobs(40, 5))   # one cycle only
+add(50, 8, once_jobs(50, 8, 10), routine_jobs(8, 4))
+add(97, 10, once_jobs(97, 12, 30), routine_jobs(10, 6, maxlen=3))
+add(300, 1, once_jobs(300, 20, 50), [])
+add(2000, 37, once_jobs(2000, 60, 200), routine_jobs(37, 20, maxlen=6))
+add(3000, 701, once_jobs(3000, 100, 500), routine_jobs(701, 30, maxlen=40))
+# hidden: big timeline, long cycles (partial last cycle)
+add(MAXT, 999_983, once_jobs(MAXT, 40_000, 3000), routine_jobs(999_983, 20_000, maxlen=200))
+add(MAXT - 1, 333_334, once_jobs(MAXT - 1, 40_000, 50), routine_jobs(333_334, 40_000, maxlen=20))
+# hidden: maximum size (many routine jobs, short cycles)
+add(MAXT, 1, once_jobs(MAXT, MAXN, 100), [(0, 1)] * MAXN)
+add(MAXT, 10, once_jobs(MAXT, MAXN, 30), routine_jobs(10, MAXN, 0, 1))
+add(MAXT, 20, once_jobs(MAXT, MAXN, 8), routine_jobs(20, MAXN, 3, 9, maxlen=2))
+add(MAXT, 7, once_jobs(MAXT, MAXN, 4), routine_jobs(7, MAXN, 2, 4))
+add(MAXT - 3, 16, once_jobs(MAXT - 3, MAXN, 3), routine_jobs(16, MAXN, 5, 11))
+add(MAXT, 25, once_jobs(MAXT, MAXN, 6), [(24, 25)] * (MAXN // 2) + routine_jobs(25, MAXN // 2, 0, 4))
+add(MAXT - 7, 12, once_jobs(MAXT - 7, MAXN, 10), [(u, u + 1) for u in (0, 11)] * (MAXN // 2))
+add(MAXT, 3, once_jobs(MAXT, MAXN, 2), [(1, 2)] * MAXN)
 
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):

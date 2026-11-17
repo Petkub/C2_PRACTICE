@@ -50,6 +50,12 @@ for i in range(N):                                                      # values
     a.append(x if i % 3 else MAXV ^ x)
 add(a)
 
+# few distinct values with many copies: more than 2^31 pairs reach the maximum
+add(rnd(N, 0, 3))                                                       # 0 with 3 and 1 with 2
+add(rnd(N, 0, 15))
+a = [random.choice([0, 1, MAXV, MAXV - 1]) for _ in range(N)]           # 0 with MAXV and 1 with MAXV - 1
+add(a)
+
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)

@@ -1,16 +1,37 @@
-7 8
-docs/
-  a.txt 100
-  img/
-    cat.png 2000
-    dog.png 3000
-  b.txt 5
-music/
-docs
-docs/img
-docs/a.txt
-music
-img
-docs/img/cat.png/x
-docs/b.txt
-docs/music
+36
+OP 3
+OP 8
+OP 8
+OP 9
+OP 6
+LOOP n
+OP 2
+OP 6
+END
+OP 3
+OP 8
+LOOP n
+OP 6
+LOOP 1
+LOOP 2
+OP 3
+OP 6
+OP 1
+LOOP 1
+OP 3
+LOOP n
+LOOP 2
+OP 7
+OP 6
+OP 2
+LOOP n
+LOOP 1
+OP 1
+END
+END
+END
+END
+END
+END
+END
+END

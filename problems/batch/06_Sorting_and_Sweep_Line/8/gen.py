@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(40108)
-MAXN, MAXC = 3000, 10**9
+random.seed(40113)
+MAXN, MAXD = 120_000, 10**4
 tests = []
 
 
@@ -10,91 +10,51 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(rs):
-    n = len(rs)
-    assert 1 <= n <= MAXN
-    for (x1, y1, x2, y2) in rs:
-        assert 0 <= x1 < x2 <= MAXC and 0 <= y1 < y2 <= MAXC
-    tests.append(f"{n}\n" + "".join(f"{a} {b} {c} {d}\n" for (a, b, c, d) in rs))
+def add(a, b):
+    """a, b: lists of (free, busy)"""
+    n, m = len(a), len(b)
+    assert 1 <= n <= MAXN and 1 <= m <= MAXN
+    for (f, x) in a + b:
+        assert 0 <= f <= MAXD and 1 <= x <= MAXD
+    la = " ".join(f"{f} {x}" for (f, x) in a)
+    lb = " ".join(f"{f} {x}" for (f, x) in b)
+    tests.append(f"{n} {m}\n{la}\n{lb}\n")
 
 
-def rnd_rect(lo, hi, minside=1):
-    x1 = ri(lo, hi - minside)
-    x2 = ri(x1 + minside, hi)
-    y1 = ri(lo, hi - minside)
-    y2 = ri(y1 + minside, hi)
-    return (x1, y1, x2, y2)
-
-
-def big_rect():
-    """a carpet that spans most of the hall (the worst case for marking cells)"""
-    return (ri(0, MAXC // 3), ri(0, MAXC // 3), ri(2 * MAXC // 3, MAXC), ri(2 * MAXC // 3, MAXC))
+def rnd(k, flo, fhi, blo, bhi):
+    return [(ri(flo, fhi), ri(blo, bhi)) for _ in range(k)]
 
 
 # samples
-add([(0, 0, 4, 3), (2, 1, 6, 5)])
-add([(0, 0, 10, 10), (2, 2, 5, 5), (10, 0, 12, 1)])
-add([(0, 0, MAXC, MAXC)])
-add([(1, 0, 3, 6), (0, 2, 4, 4), (1, 0, 3, 6)])
-add([(0, 0, 2, 2), (5, 5, 7, 6), (2, 2, 3, 3), (6, 0, 9, 1)])
+add([(1, 3), (2, 2)], [(2, 5)])
+add([(0, 5)], [(5, 3), (4, 1)])
+add([(0, 10000)], [(0, 10000)])
+add([(3, 1), (1, 1), (1, 1), (1, 1)], [(2, 2), (0, 3), (2, 6)])
+add([(4, 2), (0, 3), (10, 5)], [(1, 4), (1, 1), (0, 2), (9, 1)])
 # hidden: small
-add([(3, 4, 5, 9)])
-add([(0, 0, 1, 1), (1, 0, 2, 1), (0, 1, 1, 2), (1, 1, 2, 2)])          # four touching unit squares
-add([rnd_rect(0, 10) for _ in range(8)])
-add([rnd_rect(0, 20) for _ in range(30)])
-add([rnd_rect(0, 100) for _ in range(120)])
-add([rnd_rect(0, MAXC) for _ in range(200)])
-add([(i, i, 1000 - i, 1000 - i) for i in range(0, 500, 3)])             # nested squares
+add([(0, 1)], [(1, 1)])
+add([(7, 2)], [(0, 8)])
+add(rnd(5, 0, 5, 1, 5), rnd(6, 0, 5, 1, 5))
+add(rnd(40, 0, 20, 1, 20), rnd(30, 0, 20, 1, 30))
+add(rnd(500, 0, 100, 1, 100), rnd(700, 0, 80, 1, 50))
+add(rnd(3000, 0, MAXD, 1, MAXD), rnd(2000, 0, MAXD, 1, MAXD))
+add(rnd(8000, 0, 3, 1, 3), rnd(9000, 0, 2, 1, 2))
+add(rnd(5000, 0, 0, 1, MAXD), rnd(4000, MAXD, MAXD, 1, 1))     # first always busy, second rarely
 # hidden: maximum size
-add([rnd_rect(0, MAXC) for _ in range(MAXN)])
-add([big_rect() for _ in range(MAXN)])
-add([big_rect() for _ in range(MAXN)])
-add([(0, 0, MAXC, MAXC)] * MAXN)                                         # all identical, area 10^18
-h = [(0, ri(0, MAXC - 10**5), MAXC, 0) for _ in range(MAXN // 2)]       # horizontal and vertical strips
-h = [(0, y, MAXC, y + ri(1, 10**5)) for (_, y, _, _) in h]
-v = [(x, 0, x + ri(1, 10**5), MAXC) for x in (ri(0, MAXC - 10**5) for _ in range(MAXN // 2))]
-s = h + v
-random.shuffle(s)
-add(s)
-s = [(ri(0, 5 * 10**8), 0, 0, MAXC) for _ in range(MAXN)]               # wide strips, heavy overlaps
-s = [(x, ri(0, 4 * 10**8), x + ri(10**8, 5 * 10**8), 0) for (x, _, _, _) in s]
-s = [(a, b, c, b + ri(10**8, 6 * 10**8)) for (a, b, c, _) in s]
-add(s)
-s = [(i * 150_000, i * 150_000, MAXC - i * 150_000, MAXC - i * 150_000) for i in range(MAXN)]
-random.shuffle(s)
-add(s)                                                                   # nested: the answer is the outer one
-s = []
-for i in range(MAXN):                                                    # staircase of overlapping squares
-    x = i * 250_000
-    s.append((x, x, x + 2 * 10**8, x + 2 * 10**8))
-add(s)
-add([rnd_rect(0, 1000) for _ in range(MAXN)])                            # many equal coordinates
-add([rnd_rect(0, MAXC, 4 * 10**8) for _ in range(MAXN)])
-s = [(ri(0, MAXC - 1), ri(0, MAXC - 1)) for _ in range(MAXN)]           # tiny disjoint-ish squares
-add([(x, y, x + 1, y + 1) for (x, y) in s])
-add([big_rect() for _ in range(MAXN - 1)] + [(0, 0, MAXC, MAXC)])
-s = []                                                                   # wide and tall carpets crossing
-for i in range(MAXN):
-    a, b = ri(0, MAXC // 10), ri(9 * MAXC // 10, MAXC)
-    c = ri(0, MAXC // 2)
-    d = c + ri(MAXC // 3, MAXC // 2)
-    s.append((a, c, b, d) if i % 2 else (c, a, d, b))
-add(s)
-add([big_rect() for _ in range(MAXN // 2)] + [rnd_rect(0, MAXC) for _ in range(MAXN // 2)])
-# more maximum tests where marking every compressed cell is expensive
-s = [(i * 100_000 + ri(0, 50_000), i * 120_000 + ri(0, 50_000), 0, 0) for i in range(MAXN)]
-s = [(a, b, MAXC - (a // 2) - ri(0, 1000), MAXC - (b // 3) - ri(0, 1000)) for (a, b, _, _) in s]
-random.shuffle(s)
-add(s)                                                                   # nearly nested, every side distinct
-add([rnd_rect(0, MAXC, 6 * 10**8) for _ in range(MAXN)])
-s = []                                                                   # crossing bands, all edges distinct
-for i in range(MAXN):
-    a, b = ri(0, MAXC // 5), ri(4 * MAXC // 5, MAXC)
-    c = ri(0, 2 * MAXC // 5)
-    d = c + ri(MAXC // 2, 3 * MAXC // 5)
-    s.append((a, c, b, d) if i % 2 else (c, a, d, b))
-add(s)
-add([(ri(0, MAXC // 2), ri(0, MAXC // 2), ri(MAXC // 2 + 1, MAXC), ri(MAXC // 2 + 1, MAXC)) for _ in range(MAXN)])
+N = MAXN
+add(rnd(N, 0, MAXD, 1, MAXD), rnd(N, 0, MAXD, 1, MAXD))
+add(rnd(N, 8000, MAXD, 8000, MAXD), rnd(N, 8000, MAXD, 8000, MAXD))   # ends beyond 2^31
+add(rnd(N, MAXD, MAXD, MAXD, MAXD), rnd(N, MAXD, MAXD, MAXD, MAXD))   # identical, times beyond 2^31
+add(rnd(N, 0, 0, MAXD, MAXD), rnd(N, 0, 0, MAXD, MAXD))               # both busy all the time
+add(rnd(N, MAXD - 100, MAXD, 1, 100), rnd(N, 0, 100, MAXD - 100, MAXD))
+add(rnd(N, 9000, MAXD, 9000, MAXD), rnd(N, 9000, MAXD, 9000, MAXD))
+add(rnd(N, 0, 9, 1, 9), rnd(N, 0, 9, 1, 9))                           # short pieces, ends near 2 * 10^6
+add(rnd(N, 0, MAXD, 1, MAXD), rnd(N // 2, MAXD, MAXD, MAXD, MAXD))
+add(rnd(N, 9000, 9000, 9000, 9000), rnd(N, 9000, 9000, 9000, 9000))   # same rhythm, phase shift 0
+add([(0, 9000)] + rnd(N - 1, 9000, 9000, 9000, 9000), rnd(N, 9000, 9000, 9000, 9000))   # exactly out of phase
+add(rnd(N, 0, MAXD, MAXD - 10, MAXD), rnd(N, 0, 10, 1, MAXD))
+add(rnd(10, 0, 0, MAXD, MAXD), rnd(N, 0, MAXD, 1, MAXD))              # first busy only at the start
+add(rnd(N, 1, MAXD, 8000, MAXD), rnd(N, 1, MAXD, 8000, MAXD))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

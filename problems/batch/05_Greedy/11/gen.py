@@ -1,77 +1,95 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30111)
-MAXN = 200_000
+random.seed(5009)
+MAXN, MAXK, MAXD, MAXC = 200_000, 10**9, 10**9, 10**9
 tests = []
 
 
-def add(a):
-    n = len(a)
-    assert 1 <= n <= MAXN
-    assert sorted(a) == list(range(1, n + 1))
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
+def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def perm(n):
-    a = list(range(1, n + 1))
-    random.shuffle(a)
-    return a
+def add(K, D, x, c):
+    n = len(x)
+    assert 1 <= n <= MAXN and len(c) == n
+    assert 1 <= K <= MAXK and 2 <= D <= MAXD
+    assert 0 < x[0] and x[-1] < D and all(x[i] < x[i + 1] for i in range(n - 1))
+    assert all(1 <= v <= MAXC for v in c)
+    tests.append(f"{n} {K} {D}\n" + " ".join(map(str, x)) + "\n" + " ".join(map(str, c)) + "\n")
 
 
-def merge_runs(runs):
-    """interleave the given increasing lists at random, keeping each list in order"""
-    idx = [k for k, r in enumerate(runs) for _ in r]
-    random.shuffle(idx)
-    ptr = [0] * len(runs)
-    res = []
-    for k in idx:
-        res.append(runs[k][ptr[k]])
-        ptr[k] += 1
-    return res
+def positions(n, D):
+    """n different sorted positions in 1..D-1"""
+    if n * 3 > D:
+        return sorted(random.sample(range(1, D), n))
+    s = set()
+    while len(s) < n:
+        s.add(ri(1, D - 1))
+    return sorted(s)
+
+
+def slow_start(x, c, k, gap):
+    """make the first k stones sparse and small, so that the first jumps from the left bank decide the answer"""
+    first = [gap * (i + 1) for i in range(k)]
+    rest = [v + first[-1] for v in x]
+    return first + rest, [1] * k + c
 
 
 # samples
-add([3, 1, 4, 2, 5])
-add([4, 1, 2, 3])
-add([1, 2, 3, 4, 5, 6])
-add([1])
-add([5, 4, 3, 2, 1])
-add([2, 6, 3, 7, 1, 4, 8, 5])
-# hidden: small (checked by BFS over all piles)
-add([2, 1])
-add([2, 3, 1])
-add([3, 4, 1, 2])
-add([1, 5, 2, 6, 3, 7, 4, 8])
-add([6, 1, 7, 2, 8, 3, 9, 4, 5])
-add([9, 8, 7, 6, 5, 4, 3, 2, 1])
-for n in (6, 7, 8, 9, 9):
-    add(perm(n))
-add(perm(3000))
-# hidden: large
+add(2, 10, [2, 3, 5, 7, 8], [1, 1, 1, 1, 1])
+add(3, 12, [3, 6, 7, 9], [1, 5, 1, 1])
+add(1, 20, [4, 9, 15], [2, 1, 3])
+add(4, 30, [5, 8, 12, 17, 21, 26], [2, 3, 1, 4, 1, 2])
+add(5, 40, [3, 7, 10, 16, 19, 25, 31, 34], [2, 4, 1, 3, 2, 5, 1, 2])
+add(3, 50, [10, 20, 30, 40, 45], [3, 3, 3, 3, 3])
+# hidden: small
+add(1, 2, [1], [1])
+add(2, 2, [1], [1])                                     # one frog must jump over the only stone
+add(10, 100, [10, 50, 90], [3, 4, 2])                    # fewer landings than frogs
+add(3, 20, [2, 4, 6, 8, 11, 13, 15, 17], [1, 1, 1, 1, 1, 1, 1, 1])
+x, c = slow_start([3, 5, 6, 8, 9, 12, 14], [2, 2, 3, 1, 2, 2, 3], 2, 9)
+add(3, x[-1] + 4, x, c)
+for n, D, K, C in [(10, 40, 2, 2), (15, 200, 5, 4), (40, 1000, 7, 3), (300, 10**6, 20, 5),
+                   (2000, 10**9, 300, 2 * 10**8)]:
+    x = positions(n, D)
+    add(K, D, x, [ri(1, C) for _ in range(n)])
+x = positions(3000, 10**7)
+x, c = slow_start(x, [ri(1, 10) for _ in x], 20, 4000)
+add(40, x[-1] + 1000, x, c)
+# hidden: maximum size
 N = MAXN
-add(list(range(1, N + 1)))                                       # already sorted
-add(list(range(N, 0, -1)))
-add(list(range(70_001, N + 1)) + list(range(1, 70_001)))         # two blocks swapped
-add(merge_runs([list(range(1, 50_001)), list(range(50_001, 160_001)), list(range(160_001, N + 1))]))
-add([x for k in range(N // 2) for x in (k + 1, N // 2 + k + 1)])  # 1, N/2+1, 2, N/2+2, ...
-a = list(range(1, N + 1))
-for _ in range(3):                                               # a few random swaps
-    i, j = random.randrange(N), random.randrange(N)
-    a[i], a[j] = a[j], a[i]
-add(a)
-mid = list(range(60_001, 150_001))                               # the best run is in the middle of the values
-others = [x for x in range(1, N + 1) if not 60_001 <= x <= 150_000]
-random.shuffle(others)
-add(merge_runs([mid] + [[x] for x in others]))
-add(merge_runs([list(range(1, 90_001)), list(range(90_001, N + 1))]))
-add(perm(N))
-a = list(range(1, N + 1))
-a[0], a[-1] = a[-1], a[0]                                        # N on top, 1 at the bottom
-add(a)
-a = list(range(2, N + 1)) + [1]
-add(a)
-add(merge_runs([list(range(k, min(N + 1, k + 66_667))) for k in range(1, N + 1, 66_667)]))
+x = positions(N, MAXD)
+add(1000, MAXD, x, [ri(1, 3) for _ in range(N)])
+x = positions(N, 10**8)
+add(10**7, 10**8, x, [ri(1, 30_000) for _ in range(N)])         # total room above 2^31
+x = positions(N, 10**8)
+add(10**6, 10**8, x, [ri(1, 40_000) for _ in range(N)])         # total room above 2^31
+x = positions(N, MAXD)
+add(100_000, MAXD, x, [1] * N)                                  # every stone takes one landing
+x = positions(N, 10**7)
+add(10**6, 10**7, x, [10**6] * N)                               # every stone takes everyone
+x = positions(N, MAXD)
+add(MAXK, MAXD, x, [ri(1, 9999) for _ in range(N)])              # not enough room: some frog jumps across
+x = positions(N - 300, 9 * 10**8)
+x, c = slow_start(x, [ri(1, 5) for _ in x], 300, 300_000)
+add(2000, MAXD, x, c)
+x = positions(N - 50, 9 * 10**7)
+x, c = slow_start(x, [ri(1, 30_000) for _ in x], 50, 200_000)
+add(500_000, 10**8, x, c)
+x = positions(N, MAXD)                                          # a stone with room for everyone every ~100 stones
+c = [5 * 10**8 if random.random() < 0.01 else ri(1, 2) for _ in range(N)]
+add(5 * 10**8, MAXD, x, c)
+x = [4999 * (i + 1) for i in range(N)]                          # evenly spaced, room 1 or 2
+add(1999, 4999 * (N + 1), x, [1 + (i % 3 == 0) for i in range(N)])
+x = []                                                          # dense clusters with long empty gaps
+for k in range(40):
+    base = 10**7 + k * 2 * 10**7
+    x += [base + 37 * j + ri(0, 30) for j in range(N // 40)]
+add(3000, MAXD, x, [ri(1, 4) for _ in range(N)])
+x = positions(N, 10**8)
+add(MAXK, 10**8, x, [ri(1, 99_999) for _ in range(N)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

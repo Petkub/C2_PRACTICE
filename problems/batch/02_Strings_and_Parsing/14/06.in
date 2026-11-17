@@ -1,11 +1,2 @@
-10 1000
-set f 1
-set k 5
-
-again:  ; f = f * k
-  mul f k
-  sub k 1
-  jnz k again
-print f
-halt
-print 999
+3
+&&a!a^bc

@@ -1,6 +1,7 @@
-aaaa
-4
-aa
-a
-aaaaa
-aa
+6
+0 5 ENTER f
+4 5 ENTER f
+6 5 ENTER g
+6 5 EXIT g
+9 5 EXIT f
+20 5 EXIT f

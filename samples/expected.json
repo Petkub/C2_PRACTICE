@@ -1,10 +1,10 @@
 {
- "batch/profit_ok.cpp": {"problem": "3-1", "verdict": "AC", "score": 100},
- "batch/profit_nowrap.cpp": {"problem": "3-1", "verdict": "WA"},
- "batch/profit_loop.cpp": {"problem": "3-1", "verdict": "TLE"},
- "batch/profit_crash.cpp": {"problem": "3-1", "verdict": "RE"},
- "batch/profit_syntax.cpp": {"problem": "3-1", "verdict": "CE"},
- "batch/profit_mle.cpp": {"problem": "3-1", "verdict": "MLE"},
- "batch/profit_throw.cpp": {"problem": "3-1", "verdict": "RE"},
- "batch/profit_warn.cpp": {"problem": "3-1", "verdict": "AC", "score": 100}
+ "batch/grid_ok.cpp": {"problem": "3-1", "verdict": "AC", "score": 100},
+ "batch/grid_int.cpp": {"problem": "3-1", "verdict": "WA"},
+ "batch/grid_loop.cpp": {"problem": "3-1", "verdict": "TLE"},
+ "batch/grid_crash.cpp": {"problem": "3-1", "verdict": "RE"},
+ "batch/grid_syntax.cpp": {"problem": "3-1", "verdict": "CE"},
+ "batch/grid_mle.cpp": {"problem": "3-1", "verdict": "MLE"},
+ "batch/grid_throw.cpp": {"problem": "3-1", "verdict": "RE"},
+ "batch/grid_warn.cpp": {"problem": "3-1", "verdict": "AC", "score": 100}
 }

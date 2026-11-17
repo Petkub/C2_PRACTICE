@@ -1,138 +1,170 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(100108)
-MAXN, MAXQ, MAXW = 100_000, 100_000, 10**6
+random.seed(150701)
+MAXN = 200_000
 tests = []
+
+_rnd = random.random
 
 
 def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+    return lo + int(_rnd() * (hi - lo + 1))
+
+
+def shuf(a):
+    for i in range(len(a) - 1, 0, -1):
+        j = int(_rnd() * (i + 1))
+        a[i], a[j] = a[j], a[i]
+
+
+def add(n, edges, mix=False):
+    """edges on towns 1..n; mix: random numbering, rotated list of roads, ends of some roads swapped"""
+    assert 2 <= n <= MAXN and len(edges) == n - 1
+    if n <= 1000:                               # DSU: n - 1 roads joining everything = a tree
+        root = list(range(n + 1))
+
+        def find(x):
+            while root[x] != x:
+                root[x] = root[root[x]]
+                x = root[x]
+            return x
+        for u, v in edges:
+            assert 1 <= u <= n and 1 <= v <= n and u != v
+            ru, rv = find(u), find(v)
+            assert ru != rv
+            root[ru] = rv
+    else:                                       # built trees: every town but 1 hangs on a smaller town
+        assert all(1 <= u < v <= n for u, v in edges)
+        assert sorted(v for _, v in edges) == list(range(2, n + 1))
+    if mix:
+        lab = list(range(n + 1))
+        tail = lab[1:]
+        shuf(tail)
+        lab[1:] = tail
+        edges = [(lab[u], lab[v]) if (u + v) % 3 else (lab[v], lab[u]) for u, v in edges]
+        k = ri(0, n - 2)                        # start the list of roads somewhere in the middle
+        edges = edges[k:] + edges[:k]
+    tests.append(f"{n}\n" + "".join("%d %d\n" % e for e in edges))
+
+
+def from_par(par):
+    """par[i] (0-based, par[i] < i) -> edges on 1..n"""
+    return [(par[i] + 1, i + 1) for i in range(1, len(par))]
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
-    par = [0, 0]
-    half = max(1, n // 2)
-    b = max(2, int(n ** 0.5))
-    for i in range(2, n + 1):
-        if kind == "path":
-            p = i - 1
+    par = [-1] * n
+    h = max(1, n // 2)
+    for i in range(1, n):
+        if kind == "random":
+            par[i] = int(_rnd() * i)
+        elif kind == "path":
+            par[i] = i - 1
         elif kind == "star":
-            p = 1
-        elif kind == "random":
-            p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, a few short branches
-            p = ri(max(1, i - 3), i - 1)
+            par[i] = 0
+        elif kind == "deep":
+            par[i] = ri(max(0, i - 3), i - 1)
         elif kind == "binary":
-            p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
-            p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
-            p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains meeting at node 1
-            p = 1 if i <= 3 else i - 2
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
-            p = i - 1 if (i - 1) % b else ri(1, i - 1)
+            par[i] = (i - 1) // 2
+        elif kind == "cater":
+            par[i] = i - 1 if i < h else ri(0, h - 1)
         else:
             raise ValueError(kind)
-        par.append(p)
     return par
 
 
-def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends"""
-    n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    if root_first:
-        j = lab.index(1)
-        lab[0], lab[j] = lab[j], lab[0]
-    rnd = random.random
-    edges = [(lab[i - 1], lab[par[i] - 1]) if rnd() < 0.5 else (lab[par[i] - 1], lab[i - 1]) for i in range(2, n + 1)]
-    random.shuffle(edges)
-    return edges, lab
+class Builder:
+    def __init__(self):
+        self.n, self.edges = 1, []
 
+    def node(self, parent):
+        self.n += 1
+        if parent:
+            self.edges.append((parent, self.n))
+        return self.n
 
-def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
-    assert len(edges) == n - 1
-    root = list(range(n + 1))
-
-    def find(x):
-        while root[x] != x:
-            root[x] = root[root[x]]
-            x = root[x]
+    def chain(self, start, length):
+        x = start
+        for _ in range(length):
+            x = self.node(x)
         return x
-    for u, v in edges:
-        assert 1 <= u <= n and 1 <= v <= n and u != v
-        a, b = find(u), find(v)
-        assert a != b
-        root[a] = b
+
+    def star(self, centre, leaves):
+        for _ in range(leaves):
+            self.node(centre)
 
 
-def add(n, wedges, qs, from_shape=False):
-    """from_shape: the edges come from relabel(), which already guarantees a tree"""
-    assert 1 <= n <= MAXN and 1 <= len(qs) <= MAXQ
-    assert len(wedges) == n - 1
-    if not from_shape:
-        check_tree(n, [(u, v) for u, v, w in wedges])
-    assert all(1 <= w <= MAXW for u, v, w in wedges)
-    assert all(1 <= a <= n and 1 <= b <= n for a, b in qs)
-    tests.append(f"{n} {len(qs)}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in wedges)
-                 + "".join(f"{a} {b}\n" for a, b in qs))
+def double_broom(a, length, b):
+    """a leaves on town 1, a path of `length` roads from town 1 to town c, b leaves on c"""
+    t = Builder()
+    t.star(1, a)
+    c = t.chain(1, length)
+    t.star(c, b)
+    return t.n, t.edges
 
 
-def weigh(edges, lo=1, hi=MAXW):
-    rnd, k = random.random, hi - lo + 1
-    return [(u, v, lo + int(rnd() * k)) for u, v in edges]
+def spider(legs, length, fork_every=0):
+    """legs of `length` roads from town 1; every fork_every-th leg ends in two towns instead of one"""
+    t = Builder()
+    for j in range(legs):
+        x = t.chain(1, length - 1)
+        t.node(x)
+        if fork_every and j % fork_every == 0:
+            t.node(x)
+    return t.n, t.edges
 
 
-def rq(n, q):
-    rnd = random.random
-    return [(1 + int(rnd() * n), 1 + int(rnd() * n)) for _ in range(q)]
+def brooms(k, length, leaves):
+    """k chains of `length` roads from town 1, each ending in a star of `leaves` leaves"""
+    t = Builder()
+    for _ in range(k):
+        x = t.chain(1, length)
+        t.star(x, leaves)
+    return t.n, t.edges
 
 
-def big(kind, root_first=False, lo=1, hi=MAXW, far=False):
-    n, q = MAXN, MAXQ
-    edges, lab = relabel(shape(n, kind), root_first)
-    if far:     # both ends near the two ends of the shape (long paths)
-        qs = [(lab[ri(0, 99)], lab[n - 1 - ri(0, 99)]) for _ in range(q)]
-    else:
-        qs = rq(n, q)
-    add(n, weigh(edges, lo, hi), qs, True)
+def twin_binary(m):
+    """two heap-shaped trees of m towns each, their roots joined by a road"""
+    edges = [((i - 1) // 2 + 1, i + 1) for i in range(1, m)]
+    edges += [((i - 1) // 2 + 1 + m, i + 1 + m) for i in range(1, m)]
+    edges.append((1, m + 1))
+    return 2 * m, edges
 
 
 # samples
-add(5, [(1, 2, 3), (1, 3, 5), (3, 4, 2), (3, 5, 7)], [(2, 4), (4, 5), (1, 1), (5, 2)])
-add(4, [(4, 3, 10**6), (3, 1, 10**6), (1, 2, 10**6)], [(4, 2), (2, 3), (3, 4)])
-add(4, [(2, 1, 4), (2, 3, 1), (4, 2, 6)], [(1, 4), (3, 3)])
-add(5, [(5, 3, 8), (1, 5, 3), (2, 3, 4), (4, 1, 1)], [(2, 4), (5, 2)])
-add(1, [], [(1, 1)])
-# hidden: small and medium
-add(2, [(2, 1, 1)], [(1, 2), (2, 1), (2, 2)])
-for n, kind in ((10, "random"), (30, "deep"), (40, "star"), (60, "caterpillar")):
-    e, lab = relabel(shape(n, kind))
-    add(n, weigh(e, 1, 20), rq(n, 50))
-e, lab = relabel(shape(3000, "path"), True)
-add(3000, weigh(e), rq(3000, 3000))
-e, lab = relabel(shape(5000, "chains"))
-add(5000, weigh(e), rq(5000, 5000))
-e, lab = relabel(shape(6000, "twopaths"), True)
-add(6000, weigh(e, MAXW, MAXW), [(lab[ri(0, 50)], lab[5999 - ri(0, 50)]) for _ in range(6000)])
+add(8, [(1, 2), (2, 3), (1, 4), (4, 5), (1, 6), (6, 7), (1, 8)])
+add(7, [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (3, 7)])
+add(2, [(1, 2)])
+add(5, [(3, 1), (3, 2), (3, 4), (3, 5)])
+add(9, [(5, 1), (1, 4), (5, 2), (2, 7), (5, 9), (9, 3), (5, 6), (6, 8)])
+add(10, [(1, 2), (2, 3), (3, 4), (4, 5), (2, 6), (6, 7), (7, 8), (2, 9), (9, 10)])
+# hidden: small (the brute does a BFS from every town)
+add(3, [(1, 2), (2, 3)], True)
+add(8, from_par(shape(8, "random")), True)
+add(*double_broom(3, 4, 2), True)                    # odd longest distance, several ends on each side
+add(100, from_par(shape(100, "random")), True)
+add(511, from_par(shape(511, "binary")), True)
+add(1000, from_par(shape(1000, "random")), True)
+add(*spider(150, 20, 7), True)
+add(5000, from_par(shape(5000, "cater")), True)
+add(*double_broom(4000, 1001, 4998), True)
+add(*twin_binary(1500), True)                        # odd, two halves
+add(20_000, from_par(shape(20_000, "deep")), True)
 # hidden: maximum size
-big("path", True)
-big("path", False, far=True)
-big("path", True, MAXW, MAXW, far=True)            # the largest distances
-big("deep")
-big("caterpillar", True)
-big("broom", True, far=True)
-big("twopaths", True, far=True)
-big("chains")
-big("random")
-big("star")
-big("deep", True, 1, 10, far=True)
+N = MAXN
+add(N, from_par(shape(N, "star")), True)
+add(N, from_par(shape(N, "path")), True)
+add(*double_broom(99_000, 1999, N - 99_000 - 2000), True)        # odd: 99 000 x 99 000 pairs
+add(*spider(99_999, 2), True)
+add(N, from_par(shape(N, "binary")), True)
+add(N, from_par(shape(N, "random")), True)
+add(N, from_par(shape(N, "deep")), True)
+add(N, from_par(shape(N, "cater")), True)
+add(*brooms(3, 22, 66_643), True)
+add(*brooms(4, 5, 49_994), True)
+add(*spider(66_666, 3), True)
+add(*double_broom(80_000, 40_000, N - 120_001), True)            # even
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

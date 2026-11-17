@@ -1,9 +1,10 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(141001)
-MAXN = 300_000
-MAXA = 10 ** 7
+random.seed(141301)
+MAXM = 10 ** 6
+MAXQ = 100_000
+MAXN = 10 ** 18
 tests = []
 
 
@@ -11,91 +12,55 @@ def ri(lo, hi):
     return random.randint(lo, hi)
 
 
-def add(a):
-    assert 1 <= len(a) <= MAXN
-    for x in a:
-        assert 1 <= x <= MAXA
-    tests.append(f"{len(a)}\n" + " ".join(map(str, a)) + "\n")
+def add(m, a1, a2, ns):
+    assert 2 <= m <= MAXM and 0 <= a1 < m and 0 <= a2 < m
+    assert 1 <= len(ns) <= MAXQ and all(1 <= n <= MAXN for n in ns)
+    tests.append(f"{m} {a1} {a2}\n{len(ns)}\n" + " ".join(map(str, ns)) + "\n")
 
 
-SMALLP = [p for p in range(2, 3200) if all(p % d for d in range(2, int(p ** 0.5) + 1))]
-LO = MAXA - 200_000
-mark = bytearray([1]) * (MAXA - LO + 1)             # segmented sieve of [LO, MAXA]
-for p in SMALLP:
-    for m in range((LO + p - 1) // p * p, MAXA + 1, p):
-        mark[m - LO] = 0
-BIGP = [LO + i for i in range(len(mark)) if mark[i]]                  # primes just below 10^7
-
-
-SMOOTH = [1]                 # every number <= 10^7 whose prime factors are all at most 13
-for p in (2, 3, 5, 7, 11, 13):
-    SMOOTH = [v * p ** e for v in SMOOTH for e in range(24) if v * p ** e <= MAXA]
-SMOOTH.sort()
-
-
-def smooth():
-    return random.choice(SMOOTH)
-
-
-def mostly(n, base, share):   # a share of the numbers are multiples of base, the rest random
-    return [base * ri(1, MAXA // base) if random.random() < share else ri(1, MAXA) for _ in range(n)]
-
-
-def spread(n, p, share):     # a share of the numbers hold p^e with e spread from 1 to the largest; the rest lack p
-    maxe = 1
-    while p ** (maxe + 1) <= MAXA:
-        maxe += 1
-    out = []
-    while len(out) < n:
-        if random.random() < share:
-            pe = p ** ri(1, maxe)
-            v = pe * ri(1, MAXA // pe)
-            while v % (p * pe) == 0:
-                v //= p
+def mixed(q, period_hint=None):
+    ns = []
+    for i in range(q):
+        c = i % 4
+        if c == 0:
+            ns.append(ri(1, MAXN))
+        elif c == 1:
+            ns.append(ri(MAXN - 10 ** 6, MAXN))
+        elif c == 2:
+            ns.append(ri(1, 10 ** 7))
         else:
-            v = ri(1, MAXA)
-            while v % p == 0:
-                v //= p
-        out.append(v)
-    return out
-
-
-MID = [p for p in SMALLP if 2000 <= p <= 3162]                       # products of two of them are in (4 * 10^6, 10^7]
+            ns.append(ri(1, MAXN // period_hint - 1) * period_hint + ri(0, 2) if period_hint else ri(1, 10 ** 15))
+    random.shuffle(ns)
+    return ns
 
 
 # samples
-add([12, 18])
-add([5, 6, 30])
-add([MAXA])
-add([1, 2, 4, 8, 16])
-add([9_699_690, 1, 720, 1024, 7_999_993, 360, 9_699_690])
-# hidden: small (the brute force tries every target exponent over all numbers)
-add([1])
-add([1] * 50)
-add([ri(1, 50) for _ in range(40)])
-add([ri(1, MAXA) for _ in range(300)])
-add([smooth() for _ in range(300)])
-add(mostly(300, 2 ** 10 * 3 ** 4, 0.6))
-add([2 ** ri(0, 23) for _ in range(301)])
-add([6] * 120 + [1] * 80 + [2 ** 23] * 50 + [3 ** 14] * 51)
+add(10, 1, 1, [1, 2, 3, 7, 10, 61])
+add(7, 3, 0, [1, 9, 16, 17, 18, MAXN])
+add(2, 0, 0, [5, MAXN])
+add(MAXM, MAXM - 1, MAXM - 1, [3, 4, 123_456_789_012, MAXN])
+add(13, 5, 8, [1, 2, 3, 4, 5, 6, 7])
+# hidden: small values of n, or small m (checked by the brute force)
+add(2, 1, 0, list(range(1, 21)) + [MAXN, MAXN - 1, MAXN - 2])
+add(ri(2, 50), 0, 1, [ri(1, 1000) for _ in range(2000)])
+add(97, 13, 61, [ri(1, MAXN) for _ in range(5000)])
+add(1000, 0, 500, [ri(1, MAXN) for _ in range(5000)])
+add(781_250, 1, 2, [ri(1, MAXN) for _ in range(300)] + [1, 2, 4_687_500, 4_687_501, 4_687_502, 9_375_001])
+add(999_953, 0, 1, [ri(1, MAXN) for _ in range(300)] + [1_999_908, 1_999_909, 1_999_910])
+add(999_999, ri(0, 999_998), ri(0, 999_998), [ri(1, MAXN) for _ in range(300)])
 # hidden: large
-add([random.choice(BIGP) for _ in range(MAXN)])                       # big primes: slow trial division
-add([ri(1, MAXA) for _ in range(MAXN)])
-add([smooth() for _ in range(MAXN)])
-add(mostly(MAXN, 2 ** 8 * 3 ** 3 * 5, 0.55))                          # median exponent above zero
-add(mostly(MAXN, 2 ** 15 * 7, 0.51))
-add([2 ** 23] * MAXN)                                                 # answer 0
-add([2 ** ri(0, 23) for _ in range(MAXN)])                           # powers of two
-add([9_699_690 if i % 2 else random.choice(BIGP) for i in range(MAXN)])
-add([1] * (MAXN // 2) + [9_699_690] * (MAXN // 2))
-add([random.choice([2 ** 23, 3 ** 14, 5 ** 10, 7 ** 8, 1]) if i % 4 == 0 else random.choice(BIGP) for i in range(MAXN)])
-add([MAXA - ri(0, 1000) if i % 5 == 0 else random.choice(MID) * random.choice(MID[-60:]) for i in range(MAXN)])
-add(spread(MAXN, 5, 0.52))
-add(mostly(MAXN, 9_699_690, 0.7))
-add(spread(MAXN, 2, 0.6))
-add(spread(MAXN, 3, 0.53))
-add([random.choice(MID) * random.choice(MID[-60:]) if i % 2 else random.choice(BIGP) for i in range(MAXN)])
-add([random.choice(BIGP) if i % 3 else 2 ** ri(1, 23) for i in range(MAXN)])
+add(781_250, 123, 4567, mixed(MAXQ, 4_687_500))
+add(781_250, ri(0, 781_249), ri(0, 781_249), [ri(1, MAXN) for _ in range(MAXQ)])
+add(781_250, 0, 390_625, mixed(MAXQ))
+add(MAXM, 3, 77, mixed(MAXQ, 1_500_000))
+add(MAXM, 0, 0, mixed(MAXQ))
+add(999_953, 0, 1, mixed(MAXQ, 1_999_908))
+add(999_763, ri(1, 999_762), ri(1, 999_762), [ri(MAXN // 2, MAXN) for _ in range(MAXQ)])
+add(999_961, 1, 1, mixed(MAXQ, 999_960))
+add(999_998, 1, 3, [MAXN - i for i in range(MAXQ)])
+add(ri(900_000, MAXM), ri(0, 899_999), ri(0, 899_999), mixed(MAXQ))
+add(781_250, 781_249, 781_249, [ri(1, MAXN) for _ in range(MAXQ)])
+add(2, 1, 1, mixed(MAXQ))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

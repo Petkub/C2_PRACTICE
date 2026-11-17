@@ -12,6 +12,7 @@ def shape(n, kind):
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
+    h = max(1, 3 * n // 5)
     for i in range(2, n + 1):
         if kind == "path":
             p = i - 1
@@ -31,6 +32,12 @@ def shape(n, kind):
             p = 1 if i <= 3 else i - 2
         elif kind == "chains":                      # chains of length about sqrt(n) glued at random
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
+        elif kind == "longrandom":                  # a chain of 3n / 5 nodes, the rest hung at random
+            p = i - 1 if i <= h else ri(1, i - 1)
+        elif kind == "longbinary":                  # a chain of 3n / 5 nodes ending in a binary tree
+            p = i - 1 if i <= h else h - 1 + (i - h + 1) // 2
+        elif kind == "longstar":                    # a chain of 3n / 5 nodes plus a star around node 1
+            p = i - 1 if i <= h else 1
         else:
             raise ValueError(kind)
         par.append(p)
@@ -45,16 +52,20 @@ def shuffle(a):
         a[i], a[j] = a[j], a[i]
 
 
-def labels(par):
-    """random labels with node 1 of the shape keeping label 1 (the parent array needs no edge list);
+def relabel(par, root_first=False):
+    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends;
     lab[i - 1] is the label of shape node i"""
     n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so every chain ends at the root
+    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
     lab = list(range(1, n + 1))
     shuffle(lab)
-    j = lab.index(1)
-    lab[0], lab[j] = lab[j], lab[0]
-    return lab
+    if root_first:
+        j = lab.index(1)
+        lab[0], lab[j] = lab[j], lab[0]
+    rnd = random.random
+    edges = [(lab[i - 1], lab[par[i] - 1]) if rnd() < 0.5 else (lab[par[i] - 1], lab[i - 1]) for i in range(2, n + 1)]
+    shuffle(edges)
+    return edges, lab
 
 
 def random_ancestors(par, stay):
@@ -95,94 +106,74 @@ def write_all():
         with open(f"tests/{i:02d}.in", "w") as f:
             f.write(t)
 
-random.seed(230111)
-MAXN, MAXQ, MAXK = 200_000, 100_000, 200_000
+random.seed(230110)
+MAXN, MAXQ, MAXW = 100_000, 100_000, 10**6
 
 
-def add(n, p, qs, tree_ok=False):
-    """p[i] for i = 2..n (p[0], p[1] unused); tree_ok: p comes from a shape (parents have smaller shape numbers)"""
-    assert 2 <= n <= MAXN and 1 <= len(qs) <= MAXQ and len(p) == n + 1
-    assert 1 <= min(p[2:]) and max(p[2:]) <= n and not any(map(int.__eq__, p[2:], range(2, n + 1)))
-    if not tree_ok:                          # every chain ends at 1 (no cycles)
-        for i in range(2, n + 1):
-            x, steps = i, 0
-            while x != 1:
-                x = p[x]
-                steps += 1
-                assert steps <= n
-    assert sum(len(s) for s in qs) <= MAXK
-    for s in qs:
-        assert 1 <= len(s) <= n and len(set(s)) == len(s) and 1 <= min(s) and max(s) <= n
-    tests.append(f"{n} {len(qs)}\n" + " ".join(map(str, p[2:])) + "\n"
-                 + "".join(f"{len(s)} " + " ".join(map(str, s)) + "\n" for s in qs))
+def add(n, wedges, qs, tree_ok=False):
+    assert 1 <= n <= MAXN and 1 <= len(qs) <= MAXQ
+    if tree_ok:
+        assert len(wedges) == n - 1
+    else:
+        check_tree(n, wedges)
+    assert all(1 <= w <= MAXW for u, v, w in wedges)
+    assert all(1 <= a <= n and 1 <= b <= n for a, b in qs)
+    tests.append(f"{n} {len(qs)}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in wedges)
+                 + "".join(f"{a} {b}\n" for a, b in qs))
 
 
-def sample(pop, k):
-    """k distinct items of pop (partial Fisher-Yates, only random.random)"""
-    a = list(pop)
-    rnd = random.random
-    n = len(a)
-    for i in range(k):
-        j = i + int(rnd() * (n - i))
-        a[i], a[j] = a[j], a[i]
-    return a[:k]
-
-
-def make(n, kind, sizes, mode="rand"):
-    """mode rand: any members; sub: members inside one subtree of the shape (shape nodes in an index window
-    after a node: deep LCAs); chain: many members on one root path plus some others"""
+def make(n, kind, q, lo=1, hi=MAXW, far=False, root_first=False, scale=1):
+    """weights scale * (lo..hi): a big scale keeps the ties of small weights with long distances"""
     par = shape(n, kind)
-    lab = labels(par)
-    p = [0] * (n + 1)
-    for x, y in zip(lab[1:], [lab[q - 1] for q in par[2:]]):     # p[label of i] = label of par[i]
-        p[x] = y
+    edges, lab = relabel(par, root_first)
     rnd = random.random
-    far = random_ancestors(par, 0.95) if mode == "chain" else None
+    span = hi - lo + 1
+    wedges = [(u, v, scale * (lo + int(rnd() * span))) for u, v in edges]
+    near = random_ancestors(par, 0.9)
+    m = min(n, 100)
     qs = []
-    for k in sizes:
-        k = min(k, n)
-        if mode == "rand" or k > n // 2:
-            s = sample(range(1, n + 1), k) if k > 30 else list(dict.fromkeys(1 + int(rnd() * n) for _ in range(k)))
-            s = [lab[x - 1] for x in s]
-        elif mode == "sub":
-            st = 1 + int(rnd() * (n - k))
-            win = range(st, min(n, st + 3 * k) + 1)
-            s = [lab[x - 1] for x in sample(win, min(k, len(win)))]
-        else:
+    for _ in range(q):
+        r = rnd()
+        if far:
+            a = lab[int(rnd() * m)] if rnd() < 0.5 else lab[n // 2 - int(rnd() * m)]
+            b = lab[n - 1 - int(rnd() * m)]
+        elif r < 0.3:                        # one shop above the other
             x = 1 + int(rnd() * n)
-            ch = []
-            while len(ch) < k // 2 and x != 1:
-                ch.append(x)
-                x = far[x]
-            s = list(dict.fromkeys(ch + [1 + int(rnd() * n) for _ in range(k - len(ch))]))
-            s = [lab[y - 1] for y in s]
-        qs.append(s)
-    add(n, p, qs, True)
+            a, b = lab[x - 1], lab[near[x] - 1]
+        else:
+            a, b = 1 + int(rnd() * n), 1 + int(rnd() * n)
+        if rnd() < 0.02:
+            b = a
+        qs.append((a, b) if rnd() < 0.5 else (b, a))
+    add(n, wedges, qs, True)
 
 
 # samples
-add(8, [0, 0, 1, 1, 2, 2, 3, 5, 5], [[4, 7, 8], [2, 7, 6], [6], [4, 5, 6, 3]])
-add(4, [0, 0, 1, 2, 1], [[3, 2, 1], [3, 4]])
-add(2, [0, 0, 1], [[2, 1], [1]])
-add(7, [0, 0, 3, 1, 3, 4, 4, 1], [[5, 6, 7], [2, 6, 5], [5, 4, 2, 6, 1], [7, 3]])
-add(9, [0, 0, 1, 1, 3, 3, 4, 4, 2, 8], [[5, 6, 7, 9], [4, 8], [9, 7, 5], [2, 3, 6, 8, 9]])
+add(7, [(1, 2, 2), (1, 3, 4), (2, 4, 3), (2, 5, 1), (3, 6, 2), (3, 7, 5)], [(4, 6), (5, 1), (7, 7)])
+add(5, [(1, 2, 1), (2, 3, 1), (3, 4, 1), (4, 5, 1)], [(1, 5), (4, 1), (2, 2)])
+add(1, [], [(1, 1)])
+add(6, [(3, 1, 4), (1, 5, 4), (5, 2, 1), (5, 6, 3), (3, 4, 2)], [(4, 2), (6, 3), (3, 5), (2, 6)])
+add(8, [(1, 2, 2), (2, 3, 2), (3, 4, 2), (2, 5, 1), (5, 6, 1), (3, 7, 3), (7, 8, 3)], [(1, 3), (6, 8), (5, 7), (8, 1)])
 # hidden: small and medium
-make(6, "random", [ri(1, 6) for _ in range(40)])
-make(12, "binary", [ri(2, 8) for _ in range(60)], "sub")
-make(30, "caterpillar", [ri(2, 12) for _ in range(80)], "chain")
-make(60, "deep", [ri(2, 20) for _ in range(100)], "chain")
-make(300, "random", [ri(2, 60) for _ in range(200)], "sub")
-make(3000, "chains", [ri(2, 100) for _ in range(300)], "sub")
+add(2, [(1, 2, 7)], [(1, 2), (2, 1), (1, 1)])
+make(10, "random", 60, 1, 3)
+make(30, "binary", 100, 1, 2)
+make(60, "caterpillar", 200, 1, 10)
+make(100, "deep", 300, 1, 1000)
+make(3000, "path", 3000, 1, 2, far=True)
+make(4000, "chains", 4000, 1, 5)
+make(5000, "random", 5000, 1, 2)
+make(5000, "star", 5000, 1, 3)
 # hidden: maximum size
-make(MAXN, "binary", [100_000, 100_000], "rand")
-make(MAXN, "path", [100_000, 100_000], "rand")
-make(MAXN, "deep", [50_000] * 4, "chain")
-make(MAXN, "random", [40_000] * 5, "sub")
-make(MAXN, "caterpillar", [20_000] * 10, "sub")
-make(MAXN, "chains", [10_000] * 20, "sub")
-make(MAXN, "binary", [3] * 66_000, "sub")
-make(MAXN, "path", [2] * MAXQ, "rand")
-make(MAXN, "twopaths", [5_000] * 40, "chain")
-make(MAXN, "star", [100_000, 99_999, 1], "rand")
+make(MAXN, "path", MAXQ, 1, 2, far=True, scale=500_000)
+make(MAXN, "path", MAXQ, MAXW, MAXW, far=True, root_first=True)
+make(MAXN, "twopaths", MAXQ, 1, 3, far=True, root_first=True, scale=333_333)
+make(MAXN, "deep", MAXQ, 1, 2, far=True, scale=500_000)
+make(MAXN, "caterpillar", MAXQ, 1, 4, far=True)
+make(MAXN, "broom", MAXQ, 1, MAXW, far=True)
+make(MAXN, "longrandom", MAXQ, 1, 2, scale=500_000)
+make(MAXN, "twopaths", MAXQ, 1, 10, scale=100_000)
+make(MAXN, "longbinary", MAXQ, 1, MAXW, far=True)
+make(MAXN, "longstar", MAXQ, 1, 3, far=True)
 
 write_all()

@@ -1,3 +1,8 @@
-8
-AACGTAAA
-2 2 2 2
+4 3
+docs/
+  a.txt 100
+  img/
+    cat.png 20
+docs
+docs/img
+img

@@ -12,6 +12,7 @@ def shape(n, kind):
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
+    h = max(1, 3 * n // 5)
     for i in range(2, n + 1):
         if kind == "path":
             p = i - 1
@@ -31,6 +32,12 @@ def shape(n, kind):
             p = 1 if i <= 3 else i - 2
         elif kind == "chains":                      # chains of length about sqrt(n) glued at random
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
+        elif kind == "longrandom":                  # a chain of 3n / 5 nodes, the rest hung at random
+            p = i - 1 if i <= h else ri(1, i - 1)
+        elif kind == "longbinary":                  # a chain of 3n / 5 nodes ending in a binary tree
+            p = i - 1 if i <= h else h - 1 + (i - h + 1) // 2
+        elif kind == "longstar":                    # a chain of 3n / 5 nodes plus a star around node 1
+            p = i - 1 if i <= h else 1
         else:
             raise ValueError(kind)
         par.append(p)
@@ -150,6 +157,8 @@ make(60, "caterpillar", 1, 100)
 make(200, "deep", 1, 1000, "alt")
 make(3000, "path", 1, MAXW, "inout")
 make(4000, "chains", 1, 100)
+make(5000, "random", 1, MAXW)
+make(5000, "star", 1, MAXW)
 # hidden: maximum size
 make(MAXN, "path", MAXW, MAXW, "inout")
 make(MAXN, "path", 1, MAXW, "rand")
@@ -157,9 +166,9 @@ make(MAXN, "twopaths", 1, MAXW, "inout")
 make(MAXN, "deep", 1, MAXW, "alt")
 make(MAXN, "caterpillar", 1, 1000, "inout")
 make(MAXN, "broom", 1, MAXW, "deepfirst")
-make(MAXN, "random", 1, MAXW)
+make(MAXN, "longrandom", 1, MAXW)
 make(MAXN, "chains", 1, 10, "inout")
-make(MAXN, "binary", 1, MAXW)
-make(MAXN, "star", 1, MAXW)
+make(MAXN, "longbinary", 1, MAXW, "inout")
+make(MAXN, "longstar", 1, MAXW)
 
 write_all()

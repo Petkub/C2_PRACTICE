@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(90801)
-MAXN, MAXM = 200_000, 200_000
+random.seed(140808)
+MAXN, MAXM, MAXT, MAXC = 100_000, 100_000, 10**6, 10**9
 tests = []
 
 
@@ -10,100 +10,109 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, st):
-    m = len(st)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(t in "SD" and 1 <= a <= n and 1 <= b <= n for (t, a, b) in st)
-    tests.append(f"{n} {m}\n" + "".join(f"{t} {a} {b}\n" for (t, a, b) in st))
+def shuffle(a):
+    for i in range(len(a) - 1, 0, -1):
+        j = int(random.random() * (i + 1))
+        a[i], a[j] = a[j], a[i]
 
 
-def truth(n):
-    """a hidden true team for everybody"""
-    return [0] + [ri(0, 1) for _ in range(n)]
+def add(n, edges, mix=True):
+    edges = list(edges)
+    if mix:
+        shuffle(edges)
+    m = len(edges)
+    assert 2 <= n <= MAXN and 1 <= m <= MAXM
+    for u, v, t, c in edges:
+        assert 1 <= u <= n and 1 <= v <= n and u != v and 1 <= t <= MAXT and 1 <= c <= MAXC
+    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {t} {c}\n" for u, v, t, c in edges))
 
 
-def stmt(team, a, b, lie):
-    """a statement about a and b that is true for the hidden teams (or false if lie)"""
-    same = (team[a] == team[b]) != lie
-    return ("S" if same else "D", a, b)
+def flip(u, v, t, c):
+    return (u, v, t, c) if random.random() < 0.5 else (v, u, t, c)
 
 
-def rnd(n, m, plie, a_eq_b=0.0):
-    team = truth(n)
-    res = []
-    for _ in range(m):
-        a = ri(1, n)
-        b = a if random.random() < a_eq_b else ri(1, n)
-        res.append(stmt(team, a, b, random.random() < plie))
-    return res
+def cost(t, tmax, cmax, corr):
+    """corr: a faster link costs more (with some noise), so the earliest links are the expensive ones"""
+    if not corr:
+        return ri(1, cmax)
+    base = cmax - (cmax - 1) * t // tmax
+    return max(1, min(cmax, base - ri(0, cmax // 10)))
 
 
-def chain_then_ask(n, m, plie, rev=False):
-    """a long path of true statements first (one huge group), then statements across it"""
-    team = truth(n)
-    perm = list(range(1, n + 1))
-    random.shuffle(perm)
-    res = []
-    for i in range(n - 1):
-        a, b = perm[i], perm[i + 1]
-        res.append(stmt(team, b, a, False) if rev else stmt(team, a, b, False))
-    while len(res) < m:
-        res.append(stmt(team, ri(1, n), ri(1, n), random.random() < plie))
-    return res
+def build(n, m, tmax=MAXT, cmax=MAXC, late=1, corr=False, shape="random", tlate=None, cfix=None):
+    """a connected graph: a spanning tree of the first n - late vertices plus random extra links among them;
+    each of the last `late` vertices gets a few links, all slow (time >= tlate), so the finishing time is high
+    and almost every distinct time is below it"""
+    p = list(range(1, n + 1))
+    shuffle(p)
+    core, outs = p[:n - late], p[n - late:]
+    if tlate is None:
+        tlate = tmax - tmax // 20
+    edges = []
+
+    def mk(a, b, lo, hi):
+        t = ri(lo, hi)
+        c = cfix if cfix is not None else cost(t, tmax, cmax, corr)
+        return flip(a, b, t, c)
+
+    for i in range(1, len(core)):
+        if shape == "path":
+            j = i - 1
+        elif shape == "star":
+            j = 0
+        else:
+            j = ri(0, i - 1)
+        edges.append(mk(core[i], core[j], 1, tmax))
+    per = 3
+    for x in outs:
+        for _ in range(per):
+            edges.append(mk(x, core[ri(0, len(core) - 1)], tlate, tmax))
+    while len(edges) < m:
+        a, b = core[ri(0, len(core) - 1)], core[ri(0, len(core) - 1)]
+        if a != b:
+            edges.append(mk(a, b, 1, tmax))
+    return n, edges[:m] if len(edges) > m else edges
 
 
-def star(n, m, plie, big_first):
-    """every new player is attached to the big group: relabelling the big side each time is slow"""
-    team = truth(n)
-    res = []
-    for v in range(2, n + 1):
-        u = ri(1, v - 1)
-        res.append(stmt(team, u, v, False) if big_first else stmt(team, v, u, False))
-    while len(res) < m:
-        res.append(stmt(team, ri(1, n), ri(1, n), random.random() < plie))
-    return res[:m]
-
-
-def path_in_order(n, m, plie, up):
-    """statements 1-2, 2-3, 3-4, ... (or reversed): a union without sizes builds a long chain"""
-    team = truth(n)
-    res = []
-    for i in range(1, n):
-        res.append(stmt(team, i, i + 1, False) if up else stmt(team, i + 1, i, False))
-    while len(res) < m:
-        res.append(stmt(team, ri(1, n), ri(1, n), random.random() < plie))
-    return res[:m]
+def split(n, m, tmax=MAXT, cmax=MAXC):
+    """two halves with no link between them: -1"""
+    h = n // 2
+    a = build(h, m // 2, tmax, cmax, late=0)[1]
+    b = build(n - h, m - m // 2, tmax, cmax, late=0)[1]
+    return n, a + [(u + h, v + h, t, c) for u, v, t, c in b]
 
 
 # samples
-add(4, [("S", 1, 2), ("D", 2, 3), ("S", 1, 3), ("D", 3, 4), ("D", 4, 1), ("S", 2, 4)])
-add(3, [("D", 1, 2), ("D", 2, 3), ("D", 3, 1), ("S", 3, 1)])
-add(1, [("D", 1, 1), ("S", 1, 1)])
-add(5, [("D", 1, 2), ("D", 3, 4), ("S", 2, 3), ("D", 1, 4), ("D", 5, 5), ("D", 5, 1)])
-add(6, [("S", 6, 5), ("D", 2, 4), ("D", 5, 2), ("S", 4, 6), ("D", 1, 1), ("S", 4, 2)])
-# hidden: small
-add(1, [("S", 1, 1)])
-add(2, [("D", 1, 2), ("D", 2, 1), ("S", 1, 2), ("S", 2, 2), ("D", 2, 2), ("S", 1, 2)])
-add(10, rnd(10, 30, 0.3, 0.1))
-add(50, rnd(50, 200, 0.1))
-add(300, chain_then_ask(300, 1000, 0.5))
-add(1000, [("D", ri(1, 1000), ri(1, 1000)) for _ in range(3000)])    # odd cycles appear soon
-add(2000, rnd(2000, 4000, 0.02, 0.01))
-add(3000, [("S", ri(1, 3000), ri(1, 3000)) for _ in range(5000)])    # everything is believed
+add(4, [(1, 2, 2, 4), (2, 3, 5, 3), (1, 3, 5, 6), (3, 4, 1, 2), (1, 4, 7, 1)], mix=False)
+add(4, [(1, 2, 3, 5), (2, 1, 1, 9), (3, 4, 2, 2)], mix=False)
+add(5, [(1, 2, 4, 3), (2, 3, 4, 1), (3, 4, 4, 4), (4, 5, 4, 2), (5, 1, 4, 5), (2, 4, 4, 2)], mix=False)
+add(2, [(1, 2, 5, 1), (2, 1, 3, 100), (1, 2, 3, 50)], mix=False)
+add(6, [(1, 2, 3, 7), (2, 3, 6, 2), (3, 4, 2, 1), (4, 5, 6, 4), (5, 6, 1, 3), (6, 1, 8, 1), (2, 5, 6, 6),
+        (1, 4, 9, 2)], mix=False)
+# hidden: small (checked against brute.cpp)
+add(2, [(2, 1, 1000000, 1000000000)])
+add(3, [(1, 2, 2, 10), (2, 3, 2, 10), (1, 3, 1, 30)])                    # the fast link is the expensive one
+add(*build(6, 10, 5, 10))
+add(*build(7, 14, 4, 20, corr=True))
+add(*build(8, 16, 6, 6, late=2))
+add(*split(8, 12, 5, 9))
+add(*build(300, 1000, 50, 100, corr=True))
+add(*build(2000, 6000, late=3, corr=True))
+add(*build(1500, 5000, 1, 1000))                                        # every link takes the same time
 # hidden: maximum size
 N, M = MAXN, MAXM
-add(N, chain_then_ask(N, M, 0.5))
-add(N, chain_then_ask(N, M, 0.3, rev=True))
-add(N, star(N, M, 0.5, True))
-add(N, star(N, M, 0.5, False))
-add(N, path_in_order(N, M, 0.5, True))
-add(N, path_in_order(N, M, 0.5, False))
-add(N, rnd(N, M, 0.0))                                              # all true: all believed
-add(N, rnd(N, M, 0.05))
-add(N // 2, chain_then_ask(N // 2, M, 0.9))
-add(2, [("S" if random.random() < 0.5 else "D", ri(1, 2), ri(1, 2)) for _ in range(M)])
-add(N, [("D", ri(1, N), ri(1, N)) for _ in range(M)])
-add(1000, rnd(1000, M, 0.5, 0.05))
+add(*build(N, M))
+add(*build(N // 2, M, corr=True))
+add(*build(N, M, cfix=MAXC))                                            # every link costs 10^9
+add(*build(N // 2, M, corr=True, shape="path"))
+add(*split(N // 2, M))                                                  # never connected: -1
+add(*build(N, M, tlate=MAXT, corr=True))                                # finishing time is exactly 10^6
+add(*build(N // 2, M, shape="star", corr=True, late=2))
+add(*build(N // 2, M, cmax=10))                                         # many equal costs
+add(*build(N, M, corr=True, late=5))
+add(*build(N // 2, M, corr=True, cfix=None, tlate=MAXT - 10))
+add(*build(N, M, shape="path", cfix=MAXC - 1))
+add(*build(N // 2, M, corr=True, late=1, tlate=MAXT // 2))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

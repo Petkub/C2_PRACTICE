@@ -1,10 +1,9 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20206)
+random.seed(40602)
 MAXN = 200_000
-MAXM = 10**9
-MAXT = 10**9
+MAXH = 10**12
 tests = []
 
 
@@ -13,41 +12,73 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(m, t):
-    n = len(t)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(1 <= x <= MAXT for x in t)
-    tests.append(f"{n} {m}\n" + " ".join(map(str, t)) + "\n")
+def answer(climbs, classic=False):
+    """small tests only: the smallest strength that reaches the top (classic: the largest climb, or one more)"""
+    top = max(climbs)
+
+    def ok(k):
+        for c in climbs:
+            if c > k:
+                return False
+            if 2 * c > k:
+                k -= 1
+        return True
+
+    if classic:
+        return top if ok(top) else top + 1
+    k = top
+    while not ok(k):
+        k += 1
+    return k
+
+
+def add(climbs, sample=False):
+    n = len(climbs)
+    assert 1 <= n <= MAXN and all(c >= 1 for c in climbs)
+    hs, h = [], 0
+    for c in climbs:
+        h += c
+        hs.append(h)
+    assert hs[-1] <= MAXH
+    if sample:  # the samples do not separate the correct method from the classic shortcut
+        assert answer(climbs) == answer(climbs, classic=True)
+    tests.append(f"{n}\n" + " ".join(map(str, hs)) + "\n")
+
+
+def near(n, G, spread):
+    """climbs just below G: almost every climb tires the climber"""
+    return [G - ri(0, spread) for _ in range(n)]
 
 
 # samples
-add(7, [3, 2, 5])
-add(MAXM, [MAXT])
-add(5, [2, 2])
-add(1, [5, 3, 9])
-add(20, [4, 7, 6, 10])
-add(MAXM, [1, 1, 1, MAXT])
-# hidden: small (M small enough for an item-by-item check)
-add(1, [1])
-add(1, [MAXT])
-add(10**6, [MAXT])
-add(10**6, [ri(1, 100) for _ in range(10)])
-add(500_000, [ri(1, MAXT) for _ in range(1000)])
-add(300_000, [7] * 3000)
-add(10**6, [1] * 999 + [MAXT])
-add(777_777, [ri(1, 1000) * 1000 for _ in range(5000)])
-# hidden: maximum size, M up to 10^9
+add([2, 3, 1, 4], sample=True)
+add([1, 1, 1, 7], sample=True)
+add([MAXH], sample=True)
+add([5, 2, 5, 3, 1], sample=True)
+add([10, 4, 6, 9, 3, 8], sample=True)
+add([7, 7], sample=True)
+# hidden: small (checked by brute force)
+add([3, 3, 3])                                  # 5, two more than the largest climb
+add([ri(1, 20) for _ in range(30)])
+add(near(200, 1000, 10))
+add([ri(1, 100) for _ in range(2000)])
+add(near(3000, 10_000, 3000))
+add([1] * 1000)
+add([ri(400, 500) for _ in range(300)] + [900])
+add(near(1000, 2000, 0))
+# hidden: maximum size (the answer is far above the largest climb)
 N = MAXN
-add(MAXM, [MAXT] * N)
-add(MAXM, [ri(1, MAXT) for _ in range(N)])
-add(MAXM, [1] * (N - 1) + [MAXT])               # a huge upper bound makes the sum overflow
-add(MAXM, [1] * N)
-add(MAXM, [ri(1, 10) for _ in range(N)])
-add(MAXM, [MAXT] * (N - 1) + [1])
-add(MAXM - 1, [ri(MAXT // 2, MAXT) for _ in range(N)])
-add(ri(MAXM // 2, MAXM), [ri(1, MAXT) for _ in range(N)])
-add(MAXM, [ri(1, 1000) for _ in range(N // 2)] + [ri(10**8, MAXT) for _ in range(N // 2)])
-add(N, [MAXT - i for i in range(N)])
+add(near(N, 4_000_000, 0))
+add(near(N, 4_000_000, 1_000_000))
+add(near(N, 3_000_000, 50))
+add(near(N, 1_000_000, 400_000))
+add([ri(2_000_000, 4_000_000) if random.random() < 0.9 else ri(1, 1000) for _ in range(N)])
+add(near(N // 2, 2_000_000, 100) + near(N // 2, 4_000_000, 100))
+add(near(N // 2, 4_000_000, 100) + near(N // 2, 2_000_000, 100))
+add(sorted(ri(1_000_000, 4_000_000) for _ in range(N)))
+add(near(N, 4_500_000, 200_000))
+add(near(N - 1, 3_000_000, 1_000) + [4_999_000])
+add([MAXH // N] * N)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

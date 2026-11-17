@@ -1,67 +1,67 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
 random.seed(10006)
-MAXN, MAXH = 200000, 10**9
+MAXN = 10**6
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(s):
+    n = len(s)
+    assert 1 <= n <= MAXN
+    assert set(s) <= set(".#o") and "oo" not in s
+    tests.append(f"{n}\n{s}\n")
 
 
-def add(h):
-    assert 1 <= len(h) <= MAXN and 1 <= min(h) and max(h) <= MAXH
-    tests.append(f"{len(h)}\n" + " ".join(map(str, h)) + "\n")
-
-
-def rnd(n, lo=1, hi=MAXH):
-    return [ri(lo, hi) for _ in range(n)]
-
-
-def noisy_up(n, step, noise):
-    """an increasing trend with noise: long answers, many near misses"""
-    return [max(1, min(MAXH, 1 + i * step + ri(-noise, noise))) for i in range(n)]
-
-
-def blocks_equal(n, k):
-    """k blocks; inside a block every height is the same"""
+def rnd(n, p_broken, p_taken, end=""):
+    """random row; a taken seat is never placed next to another one"""
+    n -= len(end)
     out = []
-    for b in range(k):
-        out += [ri(1, MAXH)] * (n // k)
-    return out + [1] * (n - len(out))
+    for i in range(n):
+        r = random.random()
+        if r < p_broken:
+            out.append("#")
+        elif r < p_broken + p_taken and (not out or out[-1] != "o"):
+            out.append("o")
+        else:
+            out.append(".")
+    s = "".join(out) + end
+    return s.replace("oo", "o.")
 
 
 # samples
-add([150, 160, 155, 170, 165, 180])
-add([5, 5, 5, 6, 6])
-add([170, 168, 165, 160])
-add([1, 2, 3, 4, 5, 6, 7])
-add([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])
-# hidden: small
-add([1])
-add([7, 7])
-add(rnd(12, 1, 5))
-add(rnd(40, 1, 20))
-add(rnd(300, 1, 300))
-add(noisy_up(2000, 10, 40))
-# hidden: maximum size
+add("..#...o")
+add("o.#.o")
+add(".....#")
+add("#.#.#.#")
+add("..o.....#...o......#")
+add("................................o")
+# hidden: small (brute.cpp tries every set of free seats)
+add(".")
+add("o")
+add("..")
+add("#.")
+add("." * 20)
+add("o" + "." * 18 + "o")
+add(rnd(18, 0.2, 0.1, ".."))
+add(rnd(20, 0.3, 0.05, ".."))
+add(rnd(19, 0.1, 0.15, "#."))
+add("#" * 7 + "." + "#" * 7 + ".." + "#" * 3)
+# hidden: big
+add(rnd(400000, 0.1, 0.03, ".."))
 N = MAXN
-add(rnd(N))
-add(rnd(N, 1, 100))                       # many equal heights
-add(list(range(1, N + 1)))                # already increasing
-add(list(range(N, 0, -1)))                # strictly decreasing
-add([MAXH] * N)                            # everybody the same height
-add(noisy_up(N, 5000, 30000))
-add(noisy_up(N, 1, 3))                    # long runs of equal heights in an increasing trend
-add([i // 2 + 1 for i in range(N)])        # 1 1 2 2 3 3 ...
-add(blocks_equal(N, 500))
-add([ri(1, 1000) * 1000 + (i % 1000) for i in range(N)])
-add(sorted(rnd(N, 1, 50000)))             # non-decreasing with repeats
-add([(i * 7919) % 100003 + 1 for i in range(N)])
+add("." * N)
+add("." * (N - 1))
+add(rnd(N, 0.15, 0.0, ".."))
+add(rnd(N, 0.05, 0.05, ".."))
+add(("..#" * (N // 3 + 1))[:N - 1] + "#")
+add(("o...." * (N // 5 + 1))[:N])
+add("".join("#" * random.randint(1, 30) + "." * random.randint(1, 6) for _ in range(N // 15))[:N - 2] + "..")
+add(rnd(N, 0.08, 0.08, "o"))
+add("." * 3 + "o" + "." * (N - 8) + "o" + "...")
 
 for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
+    assert t.endswith("\n") and " " not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

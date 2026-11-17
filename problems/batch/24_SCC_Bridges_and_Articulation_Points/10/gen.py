@@ -72,12 +72,15 @@ def tree(n, kind):
     return e
 
 
-def blow_up(tree_edges, k, lo, hi):
+def blow_up(tree_edges, k, lo, hi, fixed=None):
     """replace every node of a tree on k nodes by a cycle of lo..hi junctions (or a single junction / a pair of
-    parallel roads); tree edges become single roads between random junctions of the two cycles"""
+    parallel roads); tree edges become single roads between random junctions of the two cycles;
+    fixed = {tree node: size} fixes some sizes"""
     e, rng, start = [], [], 1
-    for _ in range(k):
+    for j in range(1, k + 1):
         s = ri(lo, hi)
+        if fixed and j in fixed:
+            s = fixed[j]
         rng.append((start, start + s - 1))
         if s >= 3:
             e += [(i, i + 1) for i in range(start, start + s - 1)] + [(start + s - 1, start)]
@@ -123,17 +126,19 @@ N = MAXN
 add(N, relabel(N, tree(N, "path")))                                       # every road a bridge: 1
 add(N, relabel(N, tree(N, "star")))                                       # N - 1 leaves
 add(N, relabel(N, tree(N, "path") + [(N, 1)]))                            # one cycle: 0
-h = N // 2 + 1
-add(h, relabel(h, tree(h, "path") + tree(h, "path")))                    # every road doubled: 0
-n, e = blow_up(tree(40_000, "random"), 40_000, 2, 3)                      # leaves are cycles, not junctions
+h, c = 50_001, 100_000                                                    # doubled roads, then a long cycle: 0
+add(h + c - 1, relabel(h + c - 1, tree(h, "path") + tree(h, "path") + [(i, i + 1) for i in range(h, h + c - 1)]
+                       + [(h + c - 1, h - 1)]))
+n, e = blow_up(tree(57_000, "random"), 57_000, 2, 3)                      # leaves are cycles, not junctions
 add(n, relabel(n, e))
-n, e = blow_up(tree(40_000, "star"), 40_000, 3, 3)
+n, e = blow_up(tree(50_000, "star"), 50_000, 3, 3)
 add(n, relabel(n, e))
 add(N, relabel(N, tree(N, "caterpillar")))
-add(N // 2, relabel(N // 2, tree(N // 2, "binary")))
-add(N // 2, relabel(N // 2, extra(N // 2, tree(N // 2, "deep"), 3000, 20)))
+n, e = blow_up(tree(73_500, "binary"), 73_500, 1, 3)
+add(n, relabel(n, e))
+add(197_000, relabel(197_000, extra(197_000, tree(197_000, "deep"), 3000, 20)))
 add(N // 2, relabel(N // 2, extra(N // 2, tree(N // 2, "random"), N // 2)))
-n, e = blow_up(tree(40_000, "path"), 40_000, 1, 3)                        # a long chain of cycles and junctions
+n, e = blow_up(tree(74_000, "path"), 74_000, 1, 3, {1: 3, 74_000: 3})                      # a long chain of cycles and junctions
 add(n, relabel(n, e))
 
 for t in tests:

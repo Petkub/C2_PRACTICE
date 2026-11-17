@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(160012)
-MAXR = MAXC = 1700
+random.seed(160011)
+MAXN, MAXS, MAXA = 200_000, 10**15, 10**9
 tests = []
 
 
@@ -10,98 +10,65 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(g):
-    r, c = len(g), len(g[0])
-    assert 1 <= r <= MAXR and 1 <= c <= MAXC
-    assert all(len(row) == c and all(ch == "#" or "1" <= ch <= "9" for ch in row) for row in g)
-    tests.append(f"{r} {c}\n" + "".join(row + "\n" for row in g))
+def add(s, a):
+    n = len(a)
+    assert 1 <= n <= MAXN and 1 <= s <= MAXS and all(-MAXA <= x <= MAXA for x in a)
+    tests.append(f"{n} {s}\n" + " ".join(map(str, a)) + "\n")
 
 
-def rand_grid(r, c, alpha):
-    """alpha: a string; each cell is a uniformly random character of it (repeat characters for weights)"""
-    return ["".join(random.choices(alpha, k=c)) for _ in range(r)]
-
-
-def put(g, i, j, ch):
-    g[i] = g[i][:j] + ch + g[i][j + 1:]
+def best_sum(a):
+    cur, best = 0, -10**30
+    for x in a:
+        cur = max(x, cur + x)
+        best = max(best, cur)
+    return best
 
 
 # samples
-add(["11#91", "11#29", "11###", "#1111"])
-add(["##", "##"])
-add(["5"])
-add(["123", "456", "789"])
-add(["9#1111", "9#1111", "9#####", "999999"])
-# hidden: small (the brute force checks every rectangle)
-add(["#"])
-add(["1#1#1"])
-add(rand_grid(8, 9, "#123456789"))
-add(rand_grid(20, 25, "#1111111112"))
-add(rand_grid(30, 30, "#" + "1" * 30 + "9"))
-add(rand_grid(40, 12, "##12345"))
-# hidden: medium (no brute)
-add(rand_grid(600, 600, "#" + "123456789" * 22))
-add(rand_grid(1500, 200, "#" * 3 + "1" * 200 + "9" * 5))
+add(7, [3, -2, 5, -1, 4, 2, 1])
+add(5, [-1, 2, -3])
+add(1, [1])
+add(10, [6, -10, 5, 5, -1, 6])
+add(9, [4, -1, -1, 4, 3, -5, 9, 1])
+# hidden: small
+add(1, [-5])
+add(3, [ri(-3, 3) for _ in range(12)])
+add(40, [ri(-10, 12) for _ in range(300)])
+add(5 * 10**9, [ri(-MAXA, MAXA) for _ in range(2000)])
+a = [ri(-100, 101) for _ in range(5000)]
+add(best_sum(a), a)                                       # only the best stretches reach S
+a = [ri(-MAXA, MAXA) for _ in range(10000)]
+add(best_sum(a) + 1, a)                                   # -1
 # hidden: maximum size
-N = 1700
-add(["1" * N] * N)                                                # everything free: 2 250 000
-add(["9" * N] * N)
-g = ["1" * N] * N                                                 # all 1 but a few 9s, no rock
-for _ in range(20):
-    put(g, ri(0, N - 1), ri(0, N - 1), "9")
-add(g)
-g = ["1" * (i + 1) + "#" * (N - 1 - i) for i in range(N)]       # lower-left triangle
-for _ in range(300):
-    i = ri(0, N - 1)
-    j = ri(0, i)
-    put(g, i, j, "9")
-add(g)
-g = ["#" * (N - 1 - i) + "1" * (i + 1) for i in range(N)]       # lower-right triangle
-for _ in range(300):
-    i = ri(0, N - 1)
-    put(g, i, ri(N - 1 - i, N - 1), "9")
-add(g)
-add(rand_grid(N, N, "#" + "1" * 300 + "9"))                      # few rocks, mostly 1
-add(rand_grid(N, N, "#" + "123456789" * 11))                     # 1% rocks
-g = [["1"] * N for _ in range(N)]                                 # rocks on the diagonal: heights fall to the left of it
-for i in range(N):
-    g[i][i] = "#"
-for _ in range(20):
-    i, j = ri(0, N - 1), ri(0, N - 1)
-    if i != j:
-        g[i][j] = "9"
-add(["".join(row) for row in g])
-row_a = "1" * 899 + "#" + "".join(random.choices("9" * 60 + "#", k=600))   # big area of 1s or a richer part
-g = [row_a if i % 2 else "1" * 899 + "#" + "".join(random.choices("9" * 60 + "#", k=600)) for i in range(N)]
-add(g)
-wall_row = "#" * N
-cell_row = "".join("#" if j % 100 == 0 else "1" for j in range(N))
-g = [wall_row if i % 100 == 0 else cell_row for i in range(N)]
-for i in range(301, 400):                                       # one block of 9s among blocks of 1s
-    g[i] = g[i][:701] + "9" * 99 + g[i][800:]
-add(g)
-g = []                                                            # staircase: row i is free in columns 1..i+1 (or i+2)
-for i in range(N):
-    k = min(N, i + 1 + ri(0, 1))
-    g.append("1" * k + "#" * (N - k))
-for _ in range(100):
-    i = ri(0, N - 1)
-    put(g, i, ri(0, i), "9")
-g.reverse()                                                       # upper-left staircase
-add(g)
-g = ["1" * (i + 1) + "#" * (N - 1 - i) for i in range(N)]       # lower-left triangle, few 9s near the corner
-for _ in range(15):
-    i = ri(N - 200, N - 1)
-    put(g, i, ri(0, 150), "9")
-add(g)
-g = ["1" * N] * N                                                 # few 9s, a few rock columns
-for j in (300, 900, 1200):
-    for i in range(N):
-        if ri(0, 49) == 0:
-            put(g, i, j, "#")
-for _ in range(10):
-    put(g, ri(0, N - 1), ri(0, N - 1), "9")
-add(g)
+N = MAXN
+a = [ri(-MAXA, MAXA) for _ in range(N)]
+add(best_sum(a), a)
+add(best_sum(a) + 1, a)                                   # -1, no early stop
+a = [ri(-1000, 1001) for _ in range(N)]                   # slow drift up: long answer
+add(best_sum(a), a)
+a = [ri(-1000, 1001) for _ in range(N)]
+add(best_sum(a) - 5000, a)
+add(MAXS, [MAXA] * N)                                     # 2 * 10^14 < S: -1
+add(MAXA * (N - 3), [MAXA] * N)                           # length N - 3
+a = [MAXA if i % 2 == 0 else -MAXA + 1 for i in range(N)]  # alternating: one long stretch
+add(best_sum(a), a)
+a = []                                                     # a gain and the same loss, then a busy end
+while len(a) < N - 1000:
+    v = ri(1, MAXA // 2)
+    a += [v, -v]
+a += [ri(-MAXA, MAXA) for _ in range(1000)]
+add(max(ri(10**9, 3 * 10**9), best_sum(a[-1000:]) - ri(0, 10**9)), a)
+a = [-MAXA] * N                                            # deep losses, single gains far apart, a double gain last
+for k in range(0, N, 50000):
+    a[k] = MAXA
+a[N - 2] = a[N - 1] = MAXA
+add(2 * MAXA, a)
+a = [ri(-5, 4) for _ in range(N)]                          # drifting down: -1 or very long
+add(best_sum(a), a)
+a = [-1] * N                                               # every prefix decreases, then a rise at the end
+for k in range(N - 100, N):
+    a[k] = 1000
+add(100_000 - 50, a)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

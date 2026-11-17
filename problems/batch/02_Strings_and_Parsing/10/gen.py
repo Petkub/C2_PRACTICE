@@ -1,121 +1,151 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
-import os, random, datetime
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+import os, random
 
-random.seed(151001)
-MAXN = 150_000
-MAXW = 10 ** 9
-DAY = 86400
-START = datetime.date(2000, 1, 1)
-DATES = [(START + datetime.timedelta(days=k)).isoformat() for k in range(36525)]
-assert DATES[-1] == "2099-12-31"
-DAY_OF = {d: k for k, d in enumerate(DATES)}
-CLOCKS = [f"{s // 3600:02d}:{s // 60 % 60:02d}:{s % 60:02d}" for s in range(DAY)]
-CLOCK_OF = {c: s for s, c in enumerate(CLOCKS)}
-TEND = len(DATES) * DAY - 1            # 2099-12-31 23:59:59
-LEVELS = ("INFO", "WARN", "ERROR")
-MSG_CHARS = [chr(c) for c in range(32, 127)]
+random.seed(951277)
+MAXL, MAXQ, MAXI, MAXJ = 200_000, 100_000, 100_000, 1000
+KEEP = 1100
+EXACT = 60                      # terms 1..EXACT are simulated here (prefixes), later terms only grow
 tests = []
 
 
-def stamp(sec):
-    return DATES[sec // DAY] + " " + CLOCKS[sec % DAY]
+def ri(lo, hi):
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def seconds(line):
-    return DAY_OF[line[:10]] * DAY + CLOCK_OF[line[11:19]]
+def step(cur, whole, keep=KEEP):
+    """the next term's first `keep` digits from the first digits `cur` of a term (whole = cur is the whole term)"""
+    out, n, i = [], len(cur), 0
+    size = 0
+    while i < n and size < keep:
+        j = i
+        c = cur[i]
+        while j < n and cur[j] == c:
+            j += 1
+        if j == n and not whole:
+            break
+        piece = str(j - i) + c
+        out.append(piece)
+        size += len(piece)
+        i = j
+    nxt = "".join(out)
+    nwhole = whole and i == n and len(nxt) <= keep
+    return nxt[:keep], nwhole
 
 
-def add(w, lines):
-    assert 1 <= len(lines) <= MAXN and 1 <= w <= MAXW
-    prev = -1
-    for ln in lines:
-        assert ln[10] == " " and ln[19] == " "
-        t = seconds(ln)                 # KeyError if the date or the clock is not valid
-        assert t >= prev
-        prev = t
-        rest = ln[20:]
-        lv, sp, msg = rest.partition(" ")
-        assert lv in LEVELS
-        if sp:
-            assert 1 <= len(msg) <= 100 and msg[0] != " " and msg[-1] != " "
-    tests.append(f"{len(lines)} {w}\n" + "".join(ln + "\n" for ln in lines))
+def lengths(x1, upto):
+    """known[t] = a lower bound on |x_t| that is exact when the term is short (t = 1..upto)"""
+    known = [0, len(x1)]
+    cur, whole = x1, True
+    for t in range(2, upto + 1):
+        # x_2..x_4 may have long blocks: keep many digits there (a lower bound is all that is needed)
+        cur, whole = step(cur, whole, 30_000 if t <= 4 else KEEP)
+        assert whole or len(cur) >= MAXJ
+        known.append(len(cur) if whole else 10**9)
+    return known
 
 
-def message():
-    r = random.random()
-    if r < 0.3:
-        return random.choice(["ERROR", "INFO", "WARN", "ERROR ERROR", "disk ERROR", "x", "retry in 5 s",
-                              "user=bob; code=500", "a  b", "2024-02-29 00:00:00 ERROR"])
-    k = random.randint(1, 40)
-    s = "".join(random.choice(MSG_CHARS) for _ in range(k))
-    return s.strip() or "ok"
+def add_raw(x1, qs):
+    assert 1 <= len(x1) <= MAXL and all(c in "0123456789" for c in x1)
+    assert 1 <= len(qs) <= MAXQ
+    known = lengths(x1, min(EXACT, max(i for i, _ in qs)))
+    for i, j in qs:
+        assert 1 <= i <= MAXI and 1 <= j <= MAXJ
+        if x1 == "22":                                     # every term is 22
+            assert j <= 2
+        elif i < len(known):
+            assert j <= known[i]
+        else:
+            assert x1 != "22" and known[EXACT] >= MAXJ     # terms do not get shorter from x_3 on
+    tests.append(x1 + "\n" + str(len(qs)) + "\n" + "".join(f"{i} {j}\n" for i, j in qs))
 
 
-def line(sec, level, p_msg=0.5):
-    s = stamp(sec) + " " + level
-    if random.random() < p_msg:
-        s += " " + message()
-    return s
+def add(x1, q, small=0.3, mid=0.2, top=0.05):
+    """q random questions: a share with small i (1..12), with i up to EXACT, with i = MAXI, the rest any i"""
+    known = lengths(x1, EXACT)
+    grows = x1 != "22" and known[EXACT] >= MAXJ
+    qs = []
+    for _ in range(q):
+        r = random.random()
+        if r < small:
+            i = ri(1, 12)
+        elif r < small + mid or not grows:
+            i = ri(1, EXACT)
+        elif r < small + mid + top:
+            i = MAXI
+        else:
+            i = ri(EXACT + 1, MAXI)
+        lim = min(MAXJ, known[i]) if i <= EXACT else MAXJ
+        qs.append((i, ri(1, lim)))
+    add_raw(x1, qs)
 
 
-def from_times(times, p_err=0.6, p_msg=0.5):
-    times = sorted(times)
-    return [line(t, "ERROR" if random.random() < p_err else random.choice(LEVELS[:2]), p_msg) for t in times]
+def digits(n, alphabet="0123456789"):
+    return "".join(random.choice(alphabet) for _ in range(n))
 
 
-def at(text):
-    """seconds of a 'YYYY-MM-DD HH:MM:SS' text"""
-    return DAY_OF[text[:10]] * DAY + CLOCK_OF[text[11:]]
+def blocks(n, lens, alphabet="0123456789"):
+    """n digits made of blocks whose lengths come from `lens`, neighbouring blocks with different digits"""
+    out, size, last = [], 0, ""
+    while size < n:
+        c = random.choice([d for d in alphabet if d != last] or alphabet)
+        k = min(random.choice(lens), n - size)
+        out.append(c * k)
+        size += k
+        last = c
+    return "".join(out)
+
+
+def long_block(head, run, tail):
+    """`head` random digits, one block of `run` equal digits, then `tail` random digits"""
+    h = digits(head)
+    c = random.choice([d for d in "0123456789" if not h or d != h[-1]])
+    t = digits(tail)
+    while t and t[0] == c:
+        t = random.choice([d for d in "0123456789" if d != c]) + t[1:]
+    return h + c * run + t
 
 
 # samples
-add(60, ["2024-02-28 23:59:30 ERROR disk full",
-         "2024-02-29 00:00:20 ERROR",
-         "2024-02-29 00:00:29 INFO ERROR x",
-         "2024-02-29 00:01:20 ERROR again"])
-add(1000, ["2030-01-01 00:00:00 WARN ERROR"])
-add(172800, ["2000-02-28 12:00:00 ERROR a",
-             "2000-03-01 12:00:00 ERROR b"])
-add(1, ["2099-12-31 23:59:59 ERROR",
-        "2099-12-31 23:59:59 ERROR"])
-add(1000000000, ["2001-05-05 05:05:05 ERROR",
-                 "2033-01-11 06:51:45 ERROR"])
-# hidden: small
-add(1, ["2000-01-01 00:00:00 ERROR"])
-add(2 * DAY, [line(at(f"{y}-{md}"), "ERROR") for y in (2000, 2001)
-              for md in ("02-28 12:00:00", "03-01 11:59:59", "03-01 12:00:00")])            # 2000 is a leap year
-add(365 * DAY + 1, [line(at(f"{y}-03-01 00:00:00"), "ERROR") for y in range(2003, 2011)])   # so is 2004
-add(random.randint(1, 10 ** 6), from_times([random.randint(0, TEND) for _ in range(500)]))
-add(3600, from_times([at("2059-12-31 23:00:00") + random.randint(0, 7200) for _ in range(800)], p_err=0.3))
-add(500, from_times([random.randint(0, 2000) for _ in range(2000)], p_err=0.9))
-# a few equally good windows: the earliest one is the answer
-base = at("2077-07-07 07:07:07")
-add(100, from_times([base + k * 1000 + j for k in range(5) for j in range(0, 100, 10)], p_err=1.0))
-
-
-def big(times, w, p_err=0.97, p_msg=0.05):
-    assert len(times) == MAXN
-    add(w, from_times(times, p_err, p_msg))
-
-
-# hidden: large
-big([random.randint(0, 31 * 365 * DAY) for _ in range(MAXN)], MAXW, p_err=1.0)
-big([random.randint(TEND - 30 * 365 * DAY, TEND) for _ in range(MAXN)], MAXW)
-big([random.randint(0, TEND) for _ in range(MAXN)], 900_000_000)
-big([at("2099-06-01 00:00:00") + random.randint(0, 10 ** 6) for _ in range(MAXN)], 600_000)
-big([random.randint(0, TEND) for _ in range(MAXN)], 20 * DAY * 365)
-big([at("2096-02-27 00:00:00") + random.randint(0, 4 * DAY) for _ in range(MAXN)], 2 * DAY)
-big([at("2048-01-01 00:00:00") + (k // 50) * 7 for k in range(MAXN)], 7 * 1000, p_err=1.0)
-big([random.randint(0, TEND) for _ in range(MAXN)], 1, p_err=0.6)
-# 2^31 seconds after the start is 2068-01-19 03:14:08; and 2000-02-29 exists
-add(60, [line(at("2068-01-19 03:14:00"), "ERROR"), line(at("2068-01-19 03:14:10"), "ERROR")])
-WRAP = 2 ** 31
-add(3600, from_times([WRAP + random.randint(-20000, 20000) for _ in range(20000)], p_err=0.8))
-add(DAY, from_times([at("2000-02-25 00:00:00") + random.randint(0, 10 * DAY) for _ in range(20000)], p_err=0.8))
+add_raw("1", [(4, 2), (5, 4), (6, 1)])
+add_raw("3322251", [(2, 3), (3, 5)])
+add_raw("22", [(100000, 2)])
+add_raw("0", [(2, 1), (3, 3), (4, 1)])
+add_raw("9999999", [(3, 2), (50, 1), (1, 7)])
+add_raw("12", [(1000, 1000), (99999, 1)])
+# hidden: small (few questions)
+add("1", 50, 0.3, 0.3)
+add("7", 50, 0.3, 0.3)
+add("22", 30, 0.5, 0.5)
+add(digits(8), 100, 0.3, 0.3)
+add(blocks(40, [1, 2, 3, 10, 12]), 200, 0.4, 0.3)
+add(long_block(5, 25, 5), 200, 0.4, 0.3)
+add(blocks(300, [1, 1, 2, 3]), 300, 0.3, 0.3)
+add(long_block(30, 2000, 30), 300, 0.4, 0.3)
+add(long_block(3, 20000, 3), 300, 0.4, 0.3)
+add(blocks(5000, [1, 2, 3, 10, 11, 12, 300]), 300, 0.4, 0.3)
+# hidden: maximum size
+Q = MAXQ
+add(digits(MAXL), Q)
+add(blocks(MAXL, [1, 2, 3], "123"), Q)
+add(MAXL * "5", Q)
+add(long_block(400, MAXL - 800, 400), Q)
+add(long_block(37, 150_000, MAXL - 150_037), Q)
+add(blocks(MAXL, [10, 11, 12, 15, 99, 100, 150]), Q)
+add(blocks(MAXL, [1, 2, 3, 9, 10, 11, 1000, 5000]), Q)
+add(long_block(120, 999, MAXL - 1119), Q)
+add(blocks(MAXL, [1, 2, 3, 4, 5, 6, 7, 8, 9]), Q, 0.1, 0.1, 0.4)
+add("1" + "2" * (MAXL - 2) + "1", Q)
+add(long_block(0, MAXL // 2, MAXL // 2), Q)
+add(blocks(MAXL, [100_000]), Q)
+# x_2 with long blocks: a block of 111 ones gives 1111, of 111 twos gives 1112, ...
+add_raw(("1" * 111 + "2" * 111) * 450, [(4, 1000), (3, 1000), (5, 1000), (2, 1000), (100000, 1000)]
+        + [(ri(2, 8), ri(1, MAXJ)) for _ in range(5000)])
+add(("1" * 1111 + "2" * 1111) * 90, Q, 0.5, 0.2)
+add(("1" * 11111 + "3" * 11111) * 9, Q, 0.5, 0.2)
+add("".join(random.choice(["1" * 111, "2" * 111, "1" * 11, "3" * 1111, "2" * 22, "1" * 1]) for _ in range(1500))[:MAXL], Q, 0.5, 0.2)
 
 for t in tests:
-    assert t.endswith("\n") and " \n" not in t
-    assert t.encode().translate(None, bytes(range(32, 127)) + b"\n") == b""
+    assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

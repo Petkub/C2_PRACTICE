@@ -1,8 +1,8 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(100114)
-MAXN, MAXM = 100_000, 100_000
+random.seed(100110)
+MAXN = 100_000
 tests = []
 
 
@@ -72,64 +72,51 @@ def check_tree(n, edges):
         root[a] = b
 
 
-def add(n, edges, rs, from_shape=False):
+def add(n, edges, from_shape=False):
     """from_shape: the edges come from relabel(), which already guarantees a tree"""
-    assert 1 <= n <= MAXN and 1 <= len(rs) <= MAXM and len(edges) == n - 1
+    assert 1 <= n <= MAXN and len(edges) == n - 1
     if not from_shape:
         check_tree(n, edges)
-    assert all(1 <= a <= n and 1 <= b <= n for a, b in rs)
-    tests.append(f"{n} {len(rs)}\n" + "".join(f"{u} {v}\n" for u, v in edges)
-                 + "".join(f"{a} {b}\n" for a, b in rs))
+    tests.append(f"{n}\n" + "".join(f"{u} {v}\n" for u, v in edges))
 
 
-def rr(n, m):
-    rnd = random.random
-    return [(1 + int(rnd() * n), 1 + int(rnd() * n)) for _ in range(m)]
-
-
-def far_r(lab, m, spread=100):
-    """routes between the two far ends of the shape (long routes)"""
-    n = len(lab)
-    return [(lab[ri(0, spread - 1)], lab[n - 1 - ri(0, spread - 1)]) for _ in range(m)]
-
-
-def big(kind, root_first=False, far=0):
-    n, m = MAXN, MAXM
+def make(n, kind, root_first=False):
     edges, lab = relabel(shape(n, kind), root_first)
-    add(n, edges, far_r(lab, m, far) if far else rr(n, m), True)
+    add(n, edges, True)
 
 
 # samples
-add(5, [(1, 2), (1, 3), (3, 4), (3, 5)], [(2, 4), (5, 4)])
-add(4, [(4, 3), (3, 1), (1, 2)], [(4, 2), (3, 3), (3, 1)])
-add(1, [], [(1, 1), (1, 1)])
-add(4, [(2, 1), (2, 3), (4, 2)], [(1, 3), (4, 1)])
-add(5, [(5, 3), (1, 5), (2, 3), (4, 1)], [(4, 2)])
-# hidden: small and medium
-add(2, [(2, 1)], [(1, 2), (2, 2), (1, 1)])
-for n, kind, m in ((10, "random", 5), (30, "deep", 20), (40, "star", 30), (60, "caterpillar", 60)):
-    e, lab = relabel(shape(n, kind))
-    add(n, e, rr(n, m))
-e, lab = relabel(shape(3000, "path"), True)
-add(3000, e, rr(3000, 3000))
-e, lab = relabel(shape(5000, "chains"))
-add(5000, e, rr(5000, 5000))
-e, lab = relabel(shape(6000, "twopaths"), True)
-add(6000, e, far_r(lab, 6000, 50))
-e, lab = relabel(shape(8000, "path"))
-add(8000, e, [(lab[0], lab[-1])] * 8000)                        # every route covers everything
+add(5, [(1, 2), (1, 3), (3, 4), (3, 5)])
+add(2, [(2, 1)])
+add(1, [])
+add(6, [(3, 5), (1, 6), (5, 2), (4, 1), (2, 4)])
+add(6, [(2, 1), (3, 2), (2, 4), (5, 2), (2, 6)])
+add(8, [(1, 2), (2, 3), (2, 4), (4, 5), (1, 6), (6, 7), (6, 8)])
+# hidden: small (every set is tried) and medium
+make(10, "random")
+make(18, "caterpillar")
+make(20, "random")
+make(20, "path")
+make(15, "star")
+make(2000, "random")
+make(10_000, "path")
+make(20_000, "caterpillar")
 # hidden: maximum size
-big("path", True)
-big("path", False, far=1000)
-big("path", True, far=1)                                        # all junctions tie
-big("deep")
-big("caterpillar", True)
-big("broom", True, far=100)
-big("twopaths", True, far=3000)
-big("chains")
-big("random")
-big("star")
-big("deep", True, far=500)
+N = MAXN
+make(N, "path", True)
+make(N, "star")
+make(N, "random")
+make(N, "deep")
+make(N, "caterpillar")
+make(N, "broom")
+make(N, "binary", True)
+make(N, "chains")
+make(N, "path")
+make(N, "twopaths", True)
+half = N // 2
+par = [0, 0] + [i - 1 for i in range(2, half + 1)] + [i - half for i in range(half + 1, N + 1)]
+edges, lab = relabel(par)                                      # a comb: one leaf on every path node
+add(N, edges, True)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

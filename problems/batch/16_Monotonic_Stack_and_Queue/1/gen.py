@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
-import os, random
+import os, random, itertools
 
-random.seed(160001)
-MAXN, MAXH = 200_000, 10**9
+random.seed(160101)
+MAXT, MAXSUM = 100_000, 300_000
 tests = []
 
 
@@ -10,49 +10,122 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(h):
-    n = len(h)
-    assert 1 <= n <= MAXN and all(1 <= x <= MAXH for x in h)
-    tests.append(f"{n}\n" + " ".join(map(str, h)) + "\n")
+def need(a):
+    """minimum capacity of the siding, or -1 (same greedy as the official solution)"""
+    st, nxt, best = [], 1, 0
+    for x in a:
+        while nxt <= x:
+            st.append(nxt)
+            nxt += 1
+            best = max(best, len(st))
+        if st[-1] != x:
+            return -1
+        st.pop()
+    return best
+
+
+def triple(a):
+    """True if three consecutive positions show big, small, middle"""
+    return any(a[i + 1] < a[i + 2] < a[i] for i in range(len(a) - 2))
+
+
+def add(trains):
+    t = len(trains)
+    assert 1 <= t <= MAXT and sum(len(a) for a in trains) <= MAXSUM
+    for a in trains:
+        assert len(a) >= 1 and sorted(a) == list(range(1, len(a) + 1))
+    tests.append(f"{t}\n" + "".join(f"{len(a)}\n" + " ".join(map(str, a)) + "\n" for a in trains))
+    assert len(tests[-1]) <= 3_000_000
+
+
+def valid(n, p_push=0.5):
+    """a random order that the siding can produce: random pushes and pops"""
+    out, st, nxt = [], [], 1
+    while len(out) < n:
+        if nxt <= n and (not st or random.random() < p_push):
+            st.append(nxt)
+            nxt += 1
+        else:
+            out.append(st.pop())
+    return out
+
+
+def broken_tail(m, tail):
+    """coaches 1..m in a valid order, then m+1..m+len(tail) in the order given by tail (an impossible pattern)"""
+    return valid(m) + [m + x for x in tail]
 
 
 # samples
-add([4, 2, 5, 7, 5, 1, 3])
-add([2, 2, 1, 2, 2])
-add([7])
-add([1, 2, 3, 4, 5])
-add([3, 1, 4, 1, 5, 9])
+add([[3, 2, 5, 4, 1], [3, 1, 2, 4, 5]])
+add([[1, 2, 3, 4], [4, 3, 2, 1]])
+add([[1]])
+add([[2, 1, 4, 3, 6, 5], [3, 4, 2, 6, 5, 1], [1, 5, 3, 4, 2, 6]])
+add([[4, 5, 3, 6, 2, 7, 1], [2, 3, 1]])
 # hidden: small
-add([5, 5])
-add([ri(1, 3) for _ in range(12)])
-add([ri(1, 5) for _ in range(200)])
-add([ri(1, MAXH) for _ in range(1000)])
-add([ri(1, 20) for _ in range(5000)])
-add([10 - abs(i - 15) % 10 for i in range(3000)])       # zigzag with many equal distances
-add([ri(1, 2) for _ in range(20000)])
-# hidden: maximum size
-N = MAXN
-add([MAXH] * N)                                          # nobody is lower
-h = [MAXH] * N                                           # a few low houses far apart
-for p in (1, N // 3, 2 * N // 3 + 7, N):
-    h[p - 1] = 1
-add(h)
-h = [ri(MAXH - 1, MAXH) for _ in range(N)]
-add(h)
-add([N - abs(N // 2 - i) for i in range(N)])             # mountain
-add([1 + abs(N // 2 - i) for i in range(N)])             # valley: lower house far for the middle
-add([ri(1, MAXH) for _ in range(N)])
-add([ri(1, 3) for _ in range(N)])
-h = [MAXH] * N                                           # one low house in the middle, ties to both sides
-h[N // 2] = 1
-h[N // 2 - 50000] = 1
-h[N // 2 + 50000] = 1
-add(h)
-add([(i % 2) + 1 for i in range(N)])                     # 1 2 1 2 ...: every tall house has a tie
-add([N - i for i in range(N)])                            # decreasing
+add([list(p) for k in range(1, 5) for p in itertools.permutations(range(1, k + 1))])
+add([list(p) for p in itertools.permutations(range(1, 7))])
+trains = []
+for _ in range(3000):
+    n = ri(5, 10)
+    a = list(range(1, n + 1))
+    random.shuffle(a)
+    trains.append(a if random.random() < 0.6 else valid(n, random.random()))
+add(trains)
+trains = []
+for _ in range(400):
+    n = ri(10, 120)
+    a = valid(n, random.choice([0.3, 0.5, 0.8]))
+    if random.random() < 0.4:
+        i, j = random.sample(range(n), 2)
+        a[i], a[j] = a[j], a[i]
+    trains.append(a)
+add(trains)
+trains = []
+for _ in range(60):
+    n = ri(500, 1500)
+    a = valid(n, random.random())
+    if random.random() < 0.5:
+        a = broken_tail(n - 4, [3, 1, 4, 2]) if random.random() < 0.5 else a[::-1]
+    trains.append(a)
+add(trains)
+# hidden: maximum size (each test holds at least one train of >= 150 000 coaches)
+N = MAXSUM
+add([list(range(1, N + 1))])                                  # every coach leaves at once: 1
+add([list(range(N, 0, -1))])                                  # all coaches wait: N
+add([valid(N, 0.5)])
+add([valid(N, 0.62)])                                         # deep siding
+B = 1000
+add([[x for s in range(0, N, B) for x in range(s + B, s, -1)]])   # reversed blocks: B
+add([list(range(N // 2, 0, -1)) + list(range(N // 2 + 1, N + 1))])  # half waits, then straight: N / 2
+a = broken_tail(N - 4, [3, 1, 4, 2])                          # impossible, only at the very end
+assert not triple(a)
+add([a])
+a = broken_tail(N - 6, [4, 2, 5, 1, 6, 3])                    # 4 2 . . . 3: impossible, not three in a row
+assert not triple(a)
+add([a])
 
+
+def stuck_then(m, l, n2):
+    """an impossible train that leaves l + 1 coaches waiting, then an easy one"""
+    first = [m] + list(range(m - 1, l, -1)) + [m + 3, m + 1, m + 4, m + 2] + list(range(l, 0, -1))
+    return [first, list(range(1, n2 + 1))]
+
+
+add(stuck_then(140_000, 40_000, 150_000 - 4))
+tr = stuck_then(90_000, 30_000, 100_000 - 4)
+add(tr + [valid(100_000, 0.55)])
+big = valid(200_000, 0.5)
+small = [[2, 1], [1, 2], [3, 1, 2], [2, 3, 1]] * 10_000
+add([big] + small)
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+
+# expected answers of the samples (checked by hand in the statement notes)
+exp = [[3, -1], [1, 4], [1], [2, 3, -1], [4, 2]]
+for k, e in enumerate(exp):
+    lines = tests[k].split("\n")
+    trains = [list(map(int, lines[2 + 2 * j].split())) for j in range(int(lines[0]))]
+    assert [need(a) for a in trains] == e
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

@@ -1,4 +1,11 @@
-1 2
-f 0
-f
-f/f
+10
+LOOP 2
+LOOP n
+OP 3
+LOOP 2
+LOOP n
+OP 1
+END
+END
+END
+END

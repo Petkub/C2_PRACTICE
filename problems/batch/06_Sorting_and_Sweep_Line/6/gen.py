@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40406)
-MAXN, MAXA = 200_000, 10**9
+random.seed(40407)
+MAXN, MAXT = 150_000, 10**9
 tests = []
 
 
@@ -11,48 +11,78 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a):
+def add(a, shuffle=True):
+    a = list(a)
+    if shuffle:
+        random.shuffle(a)
     n = len(a)
     assert 1 <= n <= MAXN
-    assert all(0 <= x <= MAXA for x in a)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
+    assert all(0 <= s < e <= MAXT for s, e in a)
+    tests.append(f"{n}\n" + "".join(f"{s} {e}\n" for s, e in a))
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def chain(n, start, gap_max, len_max):
+    """n bookings one after another, never overlapping (touching allowed)"""
+    out, t = [], start
+    for _ in range(n):
+        t += ri(0, gap_max)
+        d = ri(1, len_max)
+        out.append((t, t + d))
+        t += d
+    return out
 
 
 # samples
-add([50, 80, 50, 100, 70])
-add([7, 7, 7])
-add([0])
-add([0, MAXA])
-add([5, 3, 5, 1, 3, 9])
-add([10, 9, 8, 7])
+add([(10, 20), (30, 40), (15, 18), (18, 35)], False)
+add([(0, 10), (10, 20), (10, 15), (12, 13)], False)
+add([(1, 5), (5, 9), (9, 12)], False)
+add([(0, 1)], False)
+add([(3, 10), (0, 3), (3, 4), (3, 6), (20, 30)], False)
+add([(0, MAXT), (0, MAXT)], False)
 # hidden: small
-add([MAXA, MAXA])
-add([1, 2, 2, 2, 3])
-add(rnd(10, 0, 5))
-add(rnd(50, 0, 100))
-add(rnd(400, 0, 20))
-add(rnd(2000, 0, MAXA))
-add(rnd(5000, 0, 3))
-add(list(range(3000)))
-# hidden: large
-N = MAXN
-add(rnd(N, 0, MAXA))
-add(rnd(N, 0, 1000))
-add([ri(0, 1) * MAXA for _ in range(N)])        # two values, gap 10^9
-add([123_456_789] * N)                          # everyone first
-add([5] * (N - 1) + [6])                        # one leader, all others tied
-add([6] + [5] * (N - 1))
-add(list(range(N)))                             # all distinct, increasing
-add(list(range(MAXA, MAXA - N, -1)))            # all distinct, decreasing, large
-add([ri(0, 9) * 100_000_000 for _ in range(N)])  # ten groups of equal scores
-a = rnd(N, 0, MAXA)
-a[ri(0, N - 1)] = MAXA
+add([(5, 6), (0, 5)])
+add([(0, 2), (1, 3)])
+add(chain(10, 0, 3, 5))                                  # OK
+add(chain(30, 0, 2, 10)[:29] + [(ri(0, 100), ri(101, 200))])
+a = chain(200, 0, 0, 20)                                  # touching everywhere, then one overlap late
+a.append((a[150][0] + 1, a[150][1] + 1))
 add(a)
-add(sorted(rnd(N, 0, 50_000), reverse=True))
+add([(ri(0, 1000), ri(1001, 2000)) for _ in range(300)])
+a = chain(2000, 0, 5, 1000)
+x = a[1500]
+a += [(x[0], x[1])] * 3 + [(x[0], x[0] + 1)]              # several start together at t
+add(a)
+a = chain(4000, 0, 10, 10**5)
+add(a)                                                    # OK, large values
+# hidden: large (O(N^2) pair checks are too slow)
+N = MAXN
+a = chain(N, 0, 1000, 5000)
+add(a)                                                    # OK
+a = chain(N - 1, 0, 1000, 5000)
+y = a[N - 10]
+add(a + [(y[1] - 1, y[1] + 5)])                           # the only overlap is near the end
+a = chain(N - 1, 0, 0, 6000)
+y = a[N // 2]
+add(a + [(y[0], y[0] + 1)])                               # touching chain, overlap in the middle
+a = chain(N // 2, 0, 0, 6000)
+t0 = a[-1][1]
+a += [(t0, t0 + ri(1, 1000)) for _ in range(N - N // 2)]  # half start at the same time t0
+add(a)
+starts = [ri(0, MAXT - 10**6) for _ in range(N)]
+add([(v, v + ri(1, 10**6)) for v in starts])             # random, overlap early
+a = chain(N - 2, 0, 0, 6000)
+z = a[N // 3]
+add(a + [(z[0] - 1, z[1]), (z[0], z[1] + 1)])             # a long one already in use before
+add([(0, MAXT)] + [(ri(1, MAXT - 1), MAXT) for _ in range(N - 1)])  # one long, then everything
+a = chain(N - 1, 0, 0, 6000)
+w = a[N - 3]
+add(a + [(w[0] - 1, w[1] + 1)], False)                     # covers a whole booking, given last
+a = [(t, t + 1) for t in range(N)]                         # unit bookings, touching
+a[N - 1] = (N - 2, N)
+add(a)
+add([(5000, 6000)] * N)                                    # all identical: every booking is listed
+a = chain(N - 1, 0, 0, 6000)
+add(a[::-1] + [(a[0][0], a[0][1])], False)                 # reverse order, overlap at the very start
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

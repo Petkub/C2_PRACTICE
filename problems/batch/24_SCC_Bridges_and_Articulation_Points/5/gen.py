@@ -82,22 +82,32 @@ add(4, [MAXG] * 4, [(1, 2), (2, 3), (3, 4)])
 add(6, [2, 7, 1, 8, 2, 8], [(1, 2), (2, 3), (3, 1), (3, 4), (5, 4), (5, 6), (6, 5), (2, 6)])
 # hidden: small
 add(2, [5, 6], [(1, 2), (2, 1)])
-for n, m in ((6, 7), (8, 10), (10, 12), (12, 14), (12, 20)):
+for n, m in ((6, 7), (8, 10), (12, 14), (12, 20)):
     add(n, rg(n, 0, 20), rand_edges(n, m))
 add(*relabel(2000, rg(2000), blocks(2000, 5000, lambda: ri(1, 4), False)))
 add(*relabel(2500, rg(2500, 0, 100), blocks(2500, 6000, lambda: ri(1, 2), True)))
 add(3000, rg(3000), rand_edges(3000, 3000))
-# hidden: maximum size
+add(*relabel(100_000, [MAXG] * 100_000, [(i, i + 1) for i in range(1, 100_000)]))  # a chain of 10^5: 10^14
+
+
+def rgm(n):
+    """mostly one-digit gold (keeps the input near 3 MB), one room in 200 with up to 10^9"""
+    return [ri(0, MAXG) if rnd() < 0.005 else ri(0, 9) for _ in range(n)]
+
+
+# hidden: maximum size (every one has many groups)
 N = MAXN
-add(*relabel(N, [MAXG] * N, [(i, i + 1) for i in range(1, N)]))                   # one long chain: 2 * 10^14
-add(*relabel(N, rg(N), [(i, i + 1) for i in range(1, N)] + [(N, 1)]))            # one long cycle
-add(*relabel(N, rg(N, 0, 999), blocks(N, MAXM, lambda: 1, False)))                 # a random DAG
-add(*relabel(N, rg(N), blocks(N, MAXM, lambda: ri(1, 3), True)))
+add(*relabel(N, rgm(N), [(i, i + 1) for i in range(1, N)]))                     # one long chain
+h = N // 2
+add(*relabel(N, rgm(N), [(i, i + 1) for i in range(1, N)] + [(N, h + 1)]))      # a chain into a long cycle
+add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: 1, False)))                     # a random DAG
+add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: ri(1, 3), True)))
 add(*relabel(N, rg(N, 0, 10), blocks(N, MAXM, lambda: ri(1, 3), False)))
-add(*relabel(N, rg(N), blocks(N, MAXM, lambda: ri(100, 2000), True)))
-add(*relabel(N, rg(N, 0, 9999), blocks(N, MAXM, lambda: 2, False)))
-add(N, rg(N), rand_edges(N, MAXM))
-add(N, rg(N, 0, 99), rand_edges(N, N // 2))
+n = N - 1000                                           # many rooms alone, a few big groups, all chained
+add(*relabel(n, rgm(n), blocks(n, MAXM, lambda: ri(100, 2000) if rnd() < 0.0005 else 1, True)))
+add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: 2, False)))
+add(N, rgm(N), rand_edges(N, MAXM))
+add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: ri(2, 6), True)))              # small groups, all chained
 add(*relabel(N, [0] * (N - 1) + [MAXG], [(i, i + 1) for i in range(1, N // 2)] + [(i + 1, i) for i in range(N // 2, N)]))
 
 for t in tests:

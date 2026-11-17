@@ -1,9 +1,11 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(14003)
-MAXQ = 50_000
-M = 10 ** 9
+random.seed(14002)
+MAXT = 100_000
+MAXP = 10 ** 18
+MAXQ = 10 ** 6
+SUMQ = 2_000_000
 tests = []
 
 
@@ -11,69 +13,88 @@ def ri(lo, hi):
     return random.randint(lo, hi)
 
 
-def add(cuts):
-    assert 1 <= len(cuts) <= MAXQ
-    for x1, y1, x2, y2 in cuts:
-        assert all(-M <= v <= M for v in (x1, y1, x2, y2)) and (x1, y1) != (x2, y2)
-    tests.append(f"{len(cuts)}\n" + "".join(f"{a} {b} {c} {d}\n" for a, b, c, d in cuts))
+def add(pq):
+    assert 1 <= len(pq) <= MAXT
+    assert all(0 <= p <= MAXP and 1 <= q <= MAXQ for p, q in pq)
+    assert sum(q for _, q in pq) <= SUMQ
+    tests.append(f"{len(pq)}\n" + "".join(f"{p} {q}\n" for p, q in pq))
 
 
-def rnd_cut(lim, base=0):
-    while True:
-        c = (ri(base - lim, base + lim), ri(base - lim, base + lim), ri(base - lim, base + lim), ri(base - lim, base + lim))
-        if c[:2] != c[2:]:
-            return c
+def isprime(n):
+    if n < 2:
+        return False
+    i = 2
+    while i * i <= n:
+        if n % i == 0:
+            return False
+        i += 1
+    return True
 
 
-def multiple_cut(lim, gmin):
-    # a cut whose dx and dy share a big common factor g
-    while True:
-        g = ri(gmin, lim)
-        a, b = ri(-(2 * lim) // g, (2 * lim) // g), ri(-(2 * lim) // g, (2 * lim) // g)
-        if (a, b) == (0, 0):
-            continue
-        x1, y1 = ri(-lim, lim), ri(-lim, lim)
-        x2, y2 = x1 + a * g, y1 + b * g
-        if -lim <= x2 <= lim and -lim <= y2 <= lim:
-            return (x1, y1, x2, y2)
+def full_reptend(n):
+    # prime n whose decimal period is n - 1 (10 is a primitive root modulo n)
+    if not isprime(n) or n in (2, 5):
+        return False
+    m, fs, f = n - 1, [], 2
+    while f * f <= m:
+        if m % f == 0:
+            fs.append(f)
+            while m % f == 0:
+                m //= f
+        f += 1
+    if m > 1:
+        fs.append(m)
+    return all(pow(10, (n - 1) // f, n) != 1 for f in fs)
 
 
-def line_cut(lim):
-    # horizontal or vertical cut (on the tile borders)
-    x, y, t = ri(-lim, lim), ri(-lim, lim), ri(-lim, lim)
-    while t == x:
-        t = ri(-lim, lim)
-    return (x, y, t, y) if ri(0, 1) else (y, x, y, t)
+def reptend_below(n, cnt):
+    res = []
+    while len(res) < cnt:
+        if full_reptend(n):
+            res.append(n)
+        n -= 1
+    return res
 
+
+R1M = reptend_below(MAXQ, 4)            # 999983, 999953, ...
+R100K = reptend_below(100_000, 20)
+R10K = reptend_below(10_000, 200)
+R250K = reptend_below(250_000, 1)[0]
+R125K = reptend_below(125_000, 1)[0]
 
 # samples
-add([(0, 0, 6, 4), (0, 3, 3, 3)])
-add([(0, 0, 3, 3), (-2, 1, 3, 2)])
-add([(5, 7, 5, -2), (4, 1, 0, 0)])
-add([(-M, 0, M, 7), (0, -M, M - 1, M)])
-add([(3, 2, -3, -2), (0, 0, 1, 1), (10, 0, 0, 4)])
-# hidden: small (the brute force checks every tile of the bounding box)
-add([(0, 0, 0, 1)])
-add([rnd_cut(10) for _ in range(3000)])
-add([rnd_cut(60) for _ in range(1000)])
-add([multiple_cut(100, 2) for _ in range(1000)] + [line_cut(100) for _ in range(500)])
-add([rnd_cut(200, ri(-M + 300, M - 300)) for _ in range(200)])
-add([(x, y, x + d * ri(1, 30), y - d * ri(1, 30)) for x, y, d in [(ri(-M, M - 1000), ri(-M + 1000, M), ri(1, 12)) for _ in range(500)]])
-add([(0, 0, 1, k) for k in range(1, 200)] + [(0, 0, k, k) for k in range(1, 200)] + [(k, 0, 0, 1) for k in range(1, 200)])
-# hidden: large
-add([rnd_cut(M) for _ in range(MAXQ)])
-add([(-M, -M, M, M)] * (MAXQ // 2) + [(-M, M, M, -M + 1)] * (MAXQ // 2))   # answer near 4*10^9
-add([multiple_cut(M, 10 ** 6) for _ in range(MAXQ)])
-add([multiple_cut(M, 10 ** 8) for _ in range(MAXQ)])
-add([line_cut(M) for _ in range(MAXQ // 2)] + [rnd_cut(M) for _ in range(MAXQ // 2)])
-add([(-M, ri(-M, M), M, ri(-M, M)) for _ in range(MAXQ)])
-add([(ri(-M, M), -M, ri(-M, M), M) for _ in range(MAXQ)])
-add([(M, M, -M, M - ri(1, 10)) for _ in range(MAXQ)])               # one long side, one short side
-add([(x, x, -x, -x) for x in [ri(1, M) for _ in range(MAXQ)]])      # diagonals, answer = |dx|
-add([(ri(-M, M), ri(-M, M), 0, 0) for _ in range(MAXQ)])
-add([(a, b, a + d * u, b + d * v) for a, b, d, u, v in
-     [(ri(-M // 2, 0), ri(-M // 2, 0), 2 ** ri(20, 28), ri(-1, 1) or 1, 1) for _ in range(MAXQ)]])
-add([rnd_cut(M) if i % 3 else line_cut(M) for i in range(MAXQ)])
+add([(1, 6), (22, 7), (1, 4)])
+add([(9, 3), (1, 3)])
+add([(1, 81), (5, 12), (0, 5), (13, 8)])
+add([(10 ** 18, 3), (1, 28), (7, 1)])
+add([(1, 17), (123, 990), (1, 1_000_000)])
+# hidden: small (the brute force checks them)
+add([(0, 1)])
+add([(ri(0, MAXP), ri(1, 200)) for _ in range(2000)])
+add([(ri(0, 1000), ri(1, 60)) for _ in range(3000)])
+add([(q * ri(0, 10 ** 12), q) for q in [ri(1, 3000) for _ in range(500)]] + [(MAXP // 999_999 * 999_999, 999_999)])  # divisible
+add([(ri(0, MAXP), 2 ** a * 5 ** b) for a in range(20) for b in range(9) if 2 ** a * 5 ** b <= 100_000] + [(1, 524_288)])  # terminating
+add([(ri(1, MAXP), 2 ** a * 5 ** b * c) for a in range(4) for b in range(3) for c in (3, 7, 11, 13, 37, 41, 101)])
+add([(ri(0, MAXP), q) for q in R10K[:40]] + [(1, 999_999), (MAXP, 531_441)])
+add([(ri(0, MAXP), 7 ** 7), (ri(0, MAXP), 8 * R125K), (MAXP, 1)])
+# hidden: large (long repeating blocks)
+add([(ri(0, MAXP), R1M[0]), (ri(0, MAXP), R1M[1])])
+add([(1, R1M[2]), (MAXP, R1M[3])])
+add([(MAXP, R1M[0]), (1, 4 * R250K)])
+add([(ri(0, MAXP), q) for q in R100K])
+add([(ri(0, MAXP), q) for q in R10K])
+add([(ri(0, MAXP), 7 ** 7), (ri(0, MAXP), 8 * R125K)])
+add([(ri(0, MAXP), 3 ** 12), (MAXP - 1, 5 * 3 ** 11), (MAXP, 999)])
+add([(ri(0, MAXP), ri(1, 20)) for _ in range(MAXT)])                                  # many short lines
+add([(R1M[1] * 5, R1M[1]), (ri(0, MAXP), R1M[0]), (ri(0, MAXP), 7)])
+add([(ri(1, R1M[0] - 1), R1M[0]), (ri(0, MAXP), 4 * 5 * 3 * R10K[0])])
+add([(ri(0, MAXP), ri(900_000, MAXQ)), (ri(0, MAXP), ri(900_000, MAXQ))])
+add([(ri(0, MAXP), q) for q in R100K[:10]] + [(ri(0, MAXP), q) for q in R10K[:100]])
+add([(ri(0, MAXP), ri(15_000, 20_000)) for _ in range(100)])
+add([(ri(0, 10 ** 6), random.choice([7, 17, 19, 23, 29, 13, 3, 6, 12, 28, 39])) for _ in range(MAXT)])
+add([(ri(0, MAXP), ri(1, 20)) for _ in range(MAXT)])                                  # many lines again
+add([(ri(0, 10 ** 9), ri(1, 30)) for _ in range(66_000)])
+add([(ri(0, MAXP), random.choice([17, 19, 23, 29, 47, 49, 6, 1, 2, 50])) for _ in range(40_000)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

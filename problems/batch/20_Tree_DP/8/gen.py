@@ -1,7 +1,7 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(200008)
+random.seed(200010)
 MAXN = 200_000
 tests = []
 
@@ -94,72 +94,81 @@ def is_tree(n, es):
     return True
 
 
-def add(n, es, checked=False):
-    assert 1 <= n <= MAXN
+def add(D, n, es, checked=False):
+    assert 1 <= n <= MAXN and 0 <= D <= n - 1
     assert checked or is_tree(n, es)
-    tests.append(f"{n}\n" + "".join(f"{u} {v}\n" for u, v in es))
+    tests.append(f"{n} {D}\n" + "".join(f"{u} {v}\n" for u, v in es))
 
 
-def build(n, kind):
-    par = shape(n, kind)
-    lab = labels(n)
-    assert shape_ok(par, lab)
-    add(n, edge_list(par, lab), checked=True)
+def legs_shape(n, leg):
+    """many legs of length `leg` hanging from a short random core"""
+    core = max(1, n // (leg * 20))
+    par = [-1] + [int(_rnd() * i) for i in range(1, core)]
+    while len(par) < n:
+        i = len(par)
+        if (i - core) % leg == 0:
+            par.append(ri(0, core - 1))
+        else:
+            par.append(i - 1)
+    return par
 
 
-def comb(n, legs, leg):
-    """a path of n - legs * leg nodes, with `legs` paths of `leg` nodes hanging at random spine nodes"""
+def fan_shape(n, legs, leg):
+    """a path of n - legs * leg nodes with `legs` paths of `leg` nodes hanging at its last node"""
     spine = n - legs * leg
     par = [-1] + [i - 1 for i in range(1, spine)]
     for _ in range(legs):
-        at = ri(0, spine - 1)
         for j in range(leg):
-            par.append(at if j == 0 else len(par) - 1)
-    lab = labels(n)
-    assert shape_ok(par, lab)
-    add(n, edge_list(par, lab), checked=True)
+            par.append(spine - 1 if j == 0 else len(par) - 1)
+    return par
 
 
-def bushes(n, k):
-    """a random tree on n // (k + 1) nodes, each node with k extra leaves: many equally good partners"""
-    m = n // (k + 1)
-    par = [-1] + [int(_rnd() * i) for i in range(1, m)]
-    while len(par) < n:
-        par.append(ri(0, m - 1))
+def build(n, D, kind, leg=0, legs=0):
+    if kind == "legs":
+        par = legs_shape(n, leg)
+    elif kind == "fan":
+        par = fan_shape(n, legs, leg)
+    else:
+        par = shape(n, kind)
     lab = labels(n)
     assert shape_ok(par, lab)
-    add(n, edge_list(par, lab), checked=True)
+    add(D, n, edge_list(par, lab), checked=True)
 
 
 # samples
-add(8, [(1, 2), (1, 3), (1, 4), (4, 5), (4, 6), (6, 7), (6, 8)])
-add(3, [(1, 2), (2, 3)])
-add(1, [])
-add(5, [(1, 2), (1, 3), (1, 4), (1, 5)])
-add(5, [(1, 2), (2, 3), (3, 4), (4, 5)])
-add(10, [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (3, 7), (7, 8), (7, 9), (9, 10)])
+add(2, 7, [(1, 2), (2, 3), (3, 4), (4, 5), (3, 6), (6, 7)])
+add(1, 4, [(1, 2), (2, 3), (3, 4)])
+add(0, 3, [(2, 1), (3, 2)])
+add(2, 6, [(1, 2), (1, 3), (1, 4), (1, 5), (1, 6)])
+add(3, 10, [(1, 2), (2, 3), (3, 4), (2, 5), (5, 6), (1, 7), (7, 8), (8, 9), (8, 10)])
 # hidden: small
-add(2, [(2, 1)])
-build(9, "random")
-build(13, "random")
-build(16, "deep")
-build(20, "cater")
-build(20, "binary")
-build(400, "random")
-build(3000, "spider")
-bushes(3000, 2)
+add(0, 1, [])
+build(8, 1, "random")
+build(12, 3, "random")
+build(14, 2, "cater")
+build(16, 4, "deep")
+build(16, 5, "binary")
+build(300, 6, "random")
+build(2000, 40, "legs", 15)
+build(2000, 300, "deep")
+build(2000, 1999, "random")                   # nothing to remove
+build(3000, 10, "random")
+build(3000, 2, "random")
+build(4095, 12, "binary")
 # hidden: maximum size
 N = MAXN
-build(N, "path")
-build(N - 1, "path")
-build(N, "star")
-build(N, "random")
-build(N, "deep")
-build(N, "binary")
-build(N, "spider")
-build(N, "broom")
-comb(N, 60000, 2)
-bushes(N, 2)
+build(N, 50_000, "path")
+build(N, 150_000, "path")
+build(N, 30_000, "deep")
+build(N, 70_000, "twopaths")
+build(N, 60_000, "broom")
+build(N, 20_000, "cater")
+build(N, 35_000, "fan", 60_000, 3)
+build(N, 28_000, "fan", 45_000, 4)
+build(N, 60_000, "deep")
+build(N, 10_000, "deep")
+build(N, 25_000, "legs", 40_000)
+build(N, 15_000, "legs", 20_000)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

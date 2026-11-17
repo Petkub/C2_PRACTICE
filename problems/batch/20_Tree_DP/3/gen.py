@@ -103,9 +103,13 @@ def add(p, d, checked=False):
     tests.append(f"{n}\n" + " ".join(map(str, p)) + "\n" + " ".join(map(str, d)) + "\n")
 
 
-def build(n, kind, dval):
-    """dval(i, depth, n) gives d of the i-th created node; node 0 is employee 1"""
-    par = shape(n, kind)
+def build(n, kind, dval, top=0):
+    """dval(i, depth, n) gives d of the i-th created node; node 0 is employee 1;
+    top > 0: a chain of top employees (d between n / 2 and n) on top, the shape of n - top nodes below it"""
+    m = n - top
+    sub = shape(m, kind)
+    par = [i - 1 for i in range(top)] + [top - 1 if j == 0 else top + sub[j] for j in range(m)]
+    par[0] = -1
     dep = [0] * n
     for i in range(1, n):
         dep[i] = dep[par[i]] + 1
@@ -113,7 +117,7 @@ def build(n, kind, dval):
     p = [0] * (n + 1)
     d = [0] * (n + 1)
     for i in range(n):
-        d[lab[i]] = dval(i, dep[i], n)
+        d[lab[i]] = ri(n // 2, n) if i < top else dval(i - top, dep[i] - top, n)
         if i:
             p[lab[i]] = lab[par[i]]
     assert shape_ok(par, lab)
@@ -147,19 +151,21 @@ build(40, "random", mixed)
 build(300, "binary", small_d)
 build(3000, "cater", mixed)
 build(20000, "random", small_d)
+build(20000, "path", lambda i, dep, n: n if i % 7 == 3 else 1)
 # hidden: maximum size
 N = MAXN
+T = 80_000                                                  # a long chain of bosses above the shape
 build(N, "path", lambda i, dep, n: n)                      # only the last employee loses, and it is far away
-build(N, "path", lambda i, dep, n: n if i % 7 == 3 else 1)
-build(N, "path", lambda i, dep, n: 2)
-build(N, "deep", big_d)
-build(N, "deep", mixed)
+build(N, "path", lambda i, dep, n: n if i % 7 == 3 else 1, T)
+build(N, "path", lambda i, dep, n: 2, T)
+build(N, "deep", big_d, T)
+build(N, "deep", mixed, T)
 build(N, "broom", big_d)
 build(N, "twopaths", lambda i, dep, n: ri(n // 3, n))
-build(N, "star", big_d)
-build(N, "random", mixed)
+build(N, "star", big_d, T)
+build(N, "random", mixed, T)
 build(N, "spider", big_d)
-build(N, "cater", lambda i, dep, n: ri(1, 4))
+build(N, "cater", lambda i, dep, n: ri(1, 4), T)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

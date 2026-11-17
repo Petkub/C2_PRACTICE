@@ -1,7 +1,7 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(80909)
+random.seed(81111)
 MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
 tests = []
 
@@ -11,160 +11,117 @@ def ri(lo, hi):
 
 
 def add(n, edges, shuffle=True, relabel=True):
-    """relabel: cities other than 1 and n get random numbers"""
+    """relabel: intersections other than 1 and n get random numbers; each road gets a random orientation"""
     edges = list(edges)
     if relabel:
         p = list(range(2, n))
         random.shuffle(p)
         p = [0, 1] + p + [n]
-        edges = [(p[a], p[b], w) for a, b, w in edges]
+        edges = [(p[a], p[b], w) if random.random() < 0.5 else (p[b], p[a], w) for a, b, w in edges]
     if shuffle:
         random.shuffle(edges)
     m = len(edges)
     assert 2 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(1 <= a <= n and 1 <= b <= n and a != b and 0 <= w <= MAXW for a, b, w in edges)
-    # no cycle made only of length-0 roads (Kahn on the length-0 roads)
-    zout = [[] for _ in range(n + 1)]
-    deg = [0] * (n + 1)
-    for a, b, w in edges:
-        if w == 0:
-            zout[a].append(b)
-            deg[b] += 1
-    st = [v for v in range(1, n + 1) if deg[v] == 0]
-    seen = 0
-    while st:
-        v = st.pop()
-        seen += 1
-        for u in zout[v]:
-            deg[u] -= 1
-            if deg[u] == 0:
-                st.append(u)
-    assert seen == n
+    assert all(1 <= a <= n and 1 <= b <= n and a != b and 1 <= w <= MAXW for a, b, w in edges)
     tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in edges))
 
 
-def rnd(n, m, wlo, whi, pzero=0.0):
-    """random roads; length-0 roads only go forward in a hidden random order"""
-    rank = list(range(n + 1))
-    random.shuffle(rank)
+def rnd(n, m, wlo, whi):
     res = []
     while len(res) < m:
         a, b = ri(1, n), ri(1, n)
-        if a == b:
-            continue
-        if random.random() < pzero:
-            if rank[a] > rank[b]:
-                a, b = b, a
-            res.append((a, b, 0))
-        else:
+        if a != b:
             res.append((a, b, ri(wlo, whi)))
     return res
 
 
-def diamonds(k, wmax, zero=False):
-    """k blocks in a row from city 1; each block has two routes of equal length with different road counts"""
+def grid(r, c, wfun):
+    """r x c grid, corner (0, 0) is intersection 1 and the opposite corner is intersection r * c"""
+    e = []
+    for i in range(r):
+        for j in range(c):
+            v = i * c + j + 1
+            if j + 1 < c:
+                e.append((v, v + 1, wfun()))
+            if i + 1 < r:
+                e.append((v, v + c, wfun()))
+    return r * c, e
+
+
+def chain(n, wlo, whi, extra, xlo, xhi):
+    e = [(i, i + 1, ri(wlo, whi)) for i in range(1, n)]
+    return e + rnd(n, extra, xlo, xhi)
+
+
+def diamonds(k, wmax):
+    """k blocks in a row; each block: two routes, sometimes of equal length, plus a useless cross road"""
     e, cur, nxt = [], 1, 2
     for _ in range(k):
         x, y, z = nxt, nxt + 1, nxt + 2
         nxt += 3
         s = ri(2, wmax)
         t = ri(1, s - 1)
-        if zero and random.random() < 0.5:
-            t = 0
-        e += [(cur, x, t), (x, z, s - t), (cur, y, s // 2), (y, z, s - s // 2), (cur, z, s)]
+        s2 = s if random.random() < 0.6 else s + ri(1, 3)
+        t2 = ri(1, s2 - 1)
+        e += [(cur, x, t), (x, z, s - t), (cur, y, t2), (y, z, s2 - t2), (x, y, abs(t - t2) + ri(1, 2))]
         cur = z
     return cur, e
 
 
-def layers(sizes, wfun):
-    """complete connections between consecutive layers; first layer = {1}, last = {n}"""
-    ids, nxt = [], 1
-    for s in sizes:
-        ids.append(list(range(nxt, nxt + s)))
-        nxt += s
-    e = []
-    for L in range(len(ids) - 1):
-        for u in ids[L]:
-            for v in ids[L + 1]:
-                e.append((u, v, wfun(L)))
-    return nxt - 1, e
-
-
-def zero_layers(groups, size, extra):
-    """groups of cities at the same distance joined by length-0 roads in a hidden order"""
-    e, prev, nxt = [], [1], 2
-    for g in range(groups):
-        cur = list(range(nxt, nxt + size))
-        nxt += size
-        step = ri(1, 3)
-        for v in cur:
-            for _ in range(2):
-                e.append((random.choice(prev), v, step))
-        for _ in range(extra):
-            i, j = sorted(random.sample(range(size), 2))
-            e.append((cur[i], cur[j], 0))
-        prev = cur
-    n = nxt
-    for v in prev:
-        e.append((v, n, 1))
-    return n, e
-
-
-def zero_dag(n, m):
-    """only length-0 roads, each going a little forward in a hidden order that starts at 1 and ends at n"""
-    order = list(range(2, n))
-    random.shuffle(order)
-    order = [1] + order + [n]
-    e = [(order[i], order[i + 1], 0) for i in range(n - 1)]
+def band(n, m, width, wlo, whi):
+    """intersections on a line, roads join close intersections only, so routes have many roads"""
+    e = [(i, i + 1, ri(wlo, whi)) for i in range(1, n)]
     while len(e) < m:
-        i = ri(0, n - 2)
-        j = min(n - 1, i + ri(1, 6))
-        e.append((order[i], order[j], 0))
+        a = ri(1, n - 1)
+        b = min(n, a + ri(1, width))
+        e.append((a, b, ri(wlo, whi)))
     return n, e
 
 
 # samples
-add(5, [(1, 2, 2), (1, 3, 1), (3, 2, 1), (2, 5, 4), (3, 4, 2), (4, 5, 3)], False, False)
-add(4, [(1, 2, 0), (2, 3, 0), (1, 3, 0), (3, 4, 5), (4, 1, 1)], False, False)
-add(4, [(1, 3, 2), (1, 2, 2), (3, 2, 0), (2, 4, 1)], False, False)
-add(3, [(1, 2, 1), (1, 2, 1), (2, 3, 1), (2, 3, 1), (1, 3, 2)], False, False)
-add(3, [(2, 1, 4), (3, 2, 4)], False, False)
+add(5, [(1, 2, 3), (2, 5, 4), (1, 3, 2), (3, 5, 5), (3, 4, 1), (4, 5, 6), (2, 3, 1)], False, False)
+add(4, [(1, 2, 5), (3, 4, 1), (2, 1, 7)], False, False)
+add(4, [(4, 2, 2), (2, 1, 2), (1, 3, 3), (3, 4, 1), (1, 4, 5)], False, False)
+add(3, [(1, 2, 1), (1, 2, 1), (1, 2, 2), (2, 3, 4), (3, 1, 6)], False, False)
+add(4, [(1, 2, MAXW), (2, 3, MAXW), (3, 4, MAXW), (1, 3, MAXW), (2, 4, MAXW)], False, False)
 # hidden: small
-add(2, [(1, 2, 0)])
-add(2, [(1, 2, MAXW), (1, 2, MAXW), (2, 1, 0)])
-for n, m, whi, pz in ((6, 15, 3, 0.3), (8, 25, 2, 0.4), (10, 40, 1, 0.5), (12, 50, 4, 0.2), (30, 90, 10, 0.1)):
-    add(n, rnd(n, m, 1, whi, pz))
-n, e = diamonds(12, 6, True)
+add(2, [(1, 2, 1)])
+add(2, [(2, 1, 7), (1, 2, 7), (1, 2, 8)])
+for n, m, whi in ((6, 10, 3), (8, 16, 2), (10, 25, 5), (30, 60, 10), (50, 150, 4), (200, 600, 20)):
+    add(n, rnd(n, m, 1, whi))
+n, e = grid(5, 6, lambda: ri(1, 2))
 add(n, e)
-n, e = layers([1, 3, 4, 3, 4, 1], lambda L: 1 if L % 2 else 0)
+n, e = diamonds(30, 8)
 add(n, e)
-n, e = zero_layers(5, 5, 6)
+add(9, rnd(8, 12, 1, 3))                                                        # intersection 9 unreachable
+add(300, chain(300, 1, 5, 400, 1, 600))
+n, e = grid(15, 20, lambda: 1)
 add(n, e)
-add(9, rnd(9, 30, 1, 1, 0.6) + [(1, 9, 9)])
-add(1000, rnd(1000, 5000, 1, 20, 0.05))
-add(5000, rnd(5000, 20000, 1, 5, 0.3))
 # hidden: maximum size
 N, M = MAXN, MAXM
-n, e = diamonds(20_000, 2000, True)
+add(*band(40_000, M, 20, 1, 3))
+add(N, rnd(N, M, 1, MAXW))
+n, e = grid(200, 250, lambda: 1)                                                 # very many shortest routes
 add(n, e)
-n, e = diamonds(19_000, 1000)
-add(n, e + rnd(n, M - len(e), 10**8, MAXW))
-n, e = zero_layers(900, 30, 40)
-add(n, e + rnd(n, M - len(e), 10**6, MAXW))
-n, e = zero_layers(3000, 8, 15)
+n, e = grid(200, 250, lambda: ri(1, 3))
 add(n, e)
-add(10_000, rnd(10_000, M, 1, 1, 0.3))
-add(40_000, rnd(40_000, M - 10, 1, MAXW) + [(ri(2, 39_999), 40_000, ri(1, MAXW)) for _ in range(5)]
-    + [(1, ri(2, 39_999), ri(1, MAXW)) for _ in range(5)])
-add(N, [(i, i + 1, MAXW) for i in range(1, N)], True, False)            # length close to 10^14
-n, e = layers([1] + [10] * 1000 + [1], lambda L: L % 3)
+add(N, chain(N, 1, 1000, 1, 10**8, MAXW), True, False)                           # one long route
+add(N, chain(N, MAXW, MAXW, 1, MAXW, MAXW), True, False)                         # lengths near 10^14
+n, e = diamonds(20_000, 10**6)
 add(n, e)
-add(*zero_dag(30_000, M))                                                # every road has length 0
-e = rnd(N - 1, M - 1, 1, 10)                                             # city n cannot be reached
-add(N, e + [(N, 1, 1)], True, False)
-n, e = layers([1] + [3] * 11_000 + [1], lambda L: 1 + L % 2)
+e = rnd(N - 1, M - 1, 1, 100) + [(N - 2, N - 1, 5)]                              # intersection n unreachable
+add(N, e, True, False)
+n, e = grid(10_000, 5, lambda: 0)
+e = [(a, b, ri(1, 10) if b == a + 1 else ri(10**8, MAXW)) for a, b, _ in e]      # cheap rows, costly columns
 add(n, e)
-add(5000, rnd(5000, M, 1, 3, 0.5))
+n = 85_000
+add(n, chain(n, 1, 3, 0, 1, 1) + [(i, i + 2, ri(2, 6)) for i in range(1, n - 1, 7)], True, False)
+add(*band(50_000, M, 5, 1, 2))
+e = []
+for i in range(1, 50_000):                                                       # parallel roads, some of equal length
+    x = ri(1, 10**6)
+    e += [(i, i + 1, x), (i, i + 1, x + random.choice((0, 0, 1, 5)))]
+add(50_000, e, True, False)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

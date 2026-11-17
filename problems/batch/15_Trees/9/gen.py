@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100109)
-MAXN, MAXW = 100_000, 10**6
+random.seed(100112)
+MAXN, MAXM, MAXX = 100_000, 100_000, 10**9
 tests = []
 
 
@@ -40,90 +40,86 @@ def shape(n, kind):
     return par
 
 
-def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends"""
-    n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
-    lab = list(range(1, n + 1))
+def bosses(n, kind):
+    """boss array p[2..n] of a tree of the given shape, random labels, the root is always person 1;
+    also returns lab: lab[i - 1] is the label of node i of the shape (small i = close to the root)"""
+    par = shape(n, kind)
+    assert all(1 <= par[i] < i for i in range(2, n + 1))
+    lab = list(range(2, n + 1))
     random.shuffle(lab)
-    if root_first:
-        j = lab.index(1)
-        lab[0], lab[j] = lab[j], lab[0]
-    rnd = random.random
-    edges = [(lab[i - 1], lab[par[i] - 1]) if rnd() < 0.5 else (lab[par[i] - 1], lab[i - 1]) for i in range(2, n + 1)]
-    random.shuffle(edges)
-    return edges, lab
+    lab = [1] + lab
+    p = [0] * (n + 1)
+    for i in range(2, n + 1):
+        p[lab[i - 1]] = lab[par[i] - 1]
+    return p, lab
 
 
-def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
-    assert len(edges) == n - 1
-    root = list(range(n + 1))
-
-    def find(x):
-        while root[x] != x:
-            root[x] = root[root[x]]
-            x = root[x]
-        return x
-    for u, v in edges:
-        assert 1 <= u <= n and 1 <= v <= n and u != v
-        a, b = find(u), find(v)
-        assert a != b
-        root[a] = b
-
-
-def weigh(edges, lo=1, hi=MAXW):
-    rnd, k = random.random, hi - lo + 1
-    return [(u, v, lo + int(rnd() * k)) for u, v in edges]
+def add(n, p, ops):
+    assert 2 <= n <= MAXN and 1 <= len(ops) <= MAXM and len(p) == n + 1
+    under = [[] for _ in range(n + 1)]
+    for i in range(2, n + 1):
+        assert 1 <= p[i] <= n and p[i] != i
+        under[p[i]].append(i)
+    seen, k = [1], 0                      # everybody is reached from person 1 going down
+    while k < len(seen):
+        seen.extend(under[seen[k]])
+        k += 1
+    assert len(seen) == n
+    assert all(t in (1, 2) and 1 <= v <= n and 1 <= x <= MAXX for t, v, x in ops)
+    tests.append(f"{n} {len(ops)}\n" + " ".join(map(str, p[2:])) + "\n"
+                 + "".join(f"{t} {v} {x}\n" for t, v, x in ops))
 
 
-def add(n, wedges, from_shape=False):
-    """from_shape: the edges come from relabel(), which already guarantees a tree"""
-    assert 1 <= n <= MAXN and len(wedges) == n - 1
-    if not from_shape:
-        check_tree(n, [(u, v) for u, v, w in wedges])
-    assert all(1 <= w <= MAXW for u, v, w in wedges)
-    tests.append(f"{n}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in wedges))
+def rops(n, m, lab=None, xlo=1, xhi=MAXX, p1=0.5, shallow=None):
+    """random operations; with shallow = s, type 1 picks among the s nodes closest to the root of the shape
+    and type 2 among the s deepest ones (the most work for a walk)"""
+    rnd, res = random.random, []
+    for _ in range(m):
+        t = 1 if rnd() < p1 else 2
+        if shallow is None:
+            v = 1 + int(rnd() * n)
+        elif t == 1:
+            v = lab[int(rnd() * shallow)]
+        else:
+            v = lab[n - 1 - int(rnd() * shallow)]
+        res.append((t, v, xlo + int(rnd() * (xhi - xlo + 1))))
+    return res
 
 
-def make(n, kind, root_first=False, lo=1, hi=MAXW):
-    edges, lab = relabel(shape(n, kind), root_first)
-    add(n, weigh(edges, lo, hi), True)
+def big(kind, shallow=None, p1=0.5, xlo=1, xhi=MAXX):
+    n, m = MAXN, MAXM
+    p, lab = bosses(n, kind)
+    add(n, p, rops(n, m, lab, xlo, xhi, p1, shallow))
 
 
 # samples
-add(5, [(1, 2, 3), (1, 3, 5), (3, 4, 2), (3, 5, 7)])
-add(4, [(4, 3, 2), (3, 1, 9), (1, 2, 4)])
-add(1, [])
-add(5, [(2, 1, 4), (2, 3, 1), (4, 2, 6), (2, 5, 6)])
-add(7, [(5, 7, 8), (1, 5, 3), (2, 7, 4), (6, 1, 1), (3, 2, 2), (4, 6, 5)])
+add(5, [0, 0, 1, 1, 3, 3], [(1, 3, 10), (2, 4, 5), (1, 1, 1)])
+add(4, [0, 0, 4, 1, 3], [(2, 2, 100), (1, 4, 20), (2, 3, 7)])
+add(2, [0, 0, 1], [(2, 1, 5), (1, 2, 3)])
+add(6, [0, 0, 1, 1, 1, 1, 1], [(1, 1, 2), (2, 4, 3), (1, 6, 5), (2, 1, 4)])
+add(7, [0, 0, 5, 2, 6, 1, 1, 2], [(1, 2, 3), (2, 4, 1), (1, 6, 4), (2, 3, 2)])
 # hidden: small and medium
-add(2, [(2, 1, MAXW)])
-add(3, [(1, 2, 5), (3, 1, 5)])
-make(10, "random", lo=1, hi=10)
-make(30, "deep", lo=1, hi=5)
-make(40, "star", lo=1, hi=3)
-make(200, "caterpillar")
-make(3000, "path", True)
-make(5000, "chains", lo=1, hi=100)
-e, lab = relabel(shape(4000, "random"))
-add(4000, [(u, v, 1) for u, v in e])                          # all lengths equal
-e, lab = relabel(shape(6000, "broom"))
-add(6000, [(u, v, MAXW if random.random() < 0.01 else 1) for u, v in e])   # a few very long roads
+for n, kind, m in ((3, "path", 4), (10, "random", 10), (30, "deep", 40), (40, "star", 30), (60, "caterpillar", 80)):
+    p, lab = bosses(n, kind)
+    add(n, p, rops(n, m, lab, 1, 100))
+p, lab = bosses(3000, "path")
+add(3000, p, rops(3000, 3000, lab, shallow=300))
+p, lab = bosses(5000, "chains")
+add(5000, p, rops(5000, 5000))
+p, lab = bosses(8000, "broom")
+add(8000, p, rops(8000, 8000, lab, p1=0.2, shallow=100))
 # hidden: maximum size
-N = MAXN
-make(N, "path", True)
-make(N, "path", False, MAXW, MAXW)                              # the largest distances
-make(N, "deep")
-make(N, "caterpillar")
-make(N, "broom")
-make(N, "twopaths", True)
-make(N, "chains")
-make(N, "random")
-make(N, "binary", True, 1, 10)
-make(N, "star")
-e, lab = relabel(shape(N, "caterpillar"))
-add(N, [(u, v, MAXW if random.random() < 0.001 else ri(1, 3)) for u, v in e], True)
+big("path", shallow=10_000)
+big("path", shallow=100, xlo=MAXX, xhi=MAXX)                   # the largest totals
+big("deep", shallow=5_000)
+big("caterpillar", shallow=5_000)
+big("broom", shallow=1_000, p1=0.3)
+big("twopaths", shallow=5_000)
+big("chains", shallow=2_000)
+big("random")
+big("star", shallow=1, p1=0.7)
+big("path", shallow=1_000, p1=0.0)                              # only type 2
+big("deep", shallow=50, p1=1.0)                                 # only type 1
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

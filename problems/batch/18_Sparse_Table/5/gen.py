@@ -58,16 +58,25 @@ add(h, far_q(h, 110_000, 500_000))                                        # ever
 h = [999_999] * N
 h[N - 2] = 1
 add(h, far_q(h, 110_000, 999_999))                                        # stop just before the last bridge
-h = [ri(1, 999_999) for _ in range(N)]
-add(h, mixed_q(h, 110_000))
+h = [ri(500_001, 999_999) for _ in range(N)]                               # low bridges every 1 000, lower and
+walls = []                                                                  # lower along the road: a truck as
+for k in range(N // 1000):                                                  # high as one of them (or 1 higher)
+    p = 1000 * k + ri(0, 999)                                               # drives far, the tie decides
+    h[p] = 500_000 - 2000 * k - ri(0, 1999)
+    walls.append(h[p])
+add(h, [(ri(1, 5000), walls[ri(N // 2000, N // 1000 - 1)] + ri(0, 1)) for _ in range(110_000)])
 h = [ri(100_000, 999_999) for _ in range(N)]
 for _ in range(10):
-    h[ri(0, N - 1)] = ri(1, 1000)
-add(h, far_q(h, 55_000, 99_999) + mixed_q(h, 55_000))                    # a few low bridges far apart
+    h[ri(N - N // 5, N - 1)] = ri(1, 1000)
+add(h, far_q(h, 110_000, 99_999))                                           # a few low bridges near the end
 h = list(range(999_999, 999_999 - 4 * N, -4))                               # decreasing heights
 add(h, [(ri(1, 10), ri(1, 199_999)) for _ in range(110_000)])
 h = list(range(5, 4 * N + 5, 4))                                            # increasing heights
-add(h, [(ri(1, N), ri(1, 800_000)) for _ in range(110_000)])
+qs = []
+for _ in range(110_000):
+    i = ri(1, 10_000)                                                       # h_i = 4i + 1
+    qs.append((i, 4 * i + 2 if ri(0, 9) == 0 else 4 * i + 1 - ri(0, 3) * ri(0, i)))
+add(h, qs)
 h = [MAXV] * N
 add(h, [(ri(1, 50), MAXV) for _ in range(50_000)])                       # equal height: passes all
 h = [ri(999_000, 999_999) for _ in range(N)]
@@ -75,7 +84,7 @@ add(h, far_q(h, 55_000, 999_000) + mixed_q(h, 55_000))
 h = [ri(1, 999_999) for _ in range(N)]
 add(h, [(ri(1, N // 10), 1) for _ in range(110_000)])                    # x = 1: always to the end
 h = [1 if i % 20_000 == 19_999 else ri(2, 999_999) for i in range(N)]       # low bridge every 20 000
-add(h, [(20_000 * ri(0, 9) + ri(1, 50), ri(1, 2)) for _ in range(110_000)])
+add(h, [(20_000 * ri(0, 2) + ri(1, 50), 2 if ri(0, 3) == 0 else 1) for _ in range(110_000)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

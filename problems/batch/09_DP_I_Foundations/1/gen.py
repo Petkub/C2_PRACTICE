@@ -1,59 +1,84 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(50101)
-MAXN, MAXH = 200_000, 10**9
+random.seed(50202)
+MAXR = MAXC = 1000
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (deterministic, faster than randint)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def add(g):
+    r, c = len(g), len(g[0])
+    assert 1 <= r <= MAXR and 1 <= c <= MAXC
+    assert all(len(row) == c and all(ch in "0123456789#" for ch in row) for row in g)
+    tests.append(f"{r} {c}\n" + "".join(row + "\n" for row in g))
 
 
-def add(h):
-    n = len(h)
-    assert 2 <= n <= MAXN
-    assert all(0 <= x <= MAXH for x in h)
-    tests.append(f"{n}\n" + " ".join(map(str, h)) + "\n")
+def rnd(r, c, pblock, digits="0123456789"):
+    g = []
+    for _ in range(r):
+        g.append("".join("#" if random.random() < pblock else random.choice(digits) for _ in range(c)))
+    return g
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def put(g, i, j, ch):
+    g[i] = g[i][:j] + ch + g[i][j + 1:]
 
 
 # samples
-add([10, 30, 40, 20, 50, 30])
-add([1, 2, 3, 4, 5])
-add([7, 3])
-add([5, 5, 5, 5, 5, 5, 5])
-add([0, 1000000000, 1000000000, 0, 0, 1000000000])
-add([3, 8, 2, 6, 6, 1, 4, 9])
+add(["3#21", "5196", "2#8#", "1403"])
+add(["12#", "3#4", "#56"])
+add(["7"])
+add(["#5", "55"])
+add(["9", "0", "9"])
+add(["1#99", "1#99", "1111"])
 # hidden: small (the brute force checks these)
-add([4, 4])
-add([2, 9, 2])
-add(rnd(12, 0, 3))
-add(rnd(20, 0, 10))
-add(rnd(25, 0, MAXH))
-add(list(range(30, 0, -1)))
-add(rnd(30, 0, 2))
-add([0, 0, 1, 1] * 7)
-# hidden: maximum size
-N = MAXN
-add(rnd(N, 0, MAXH))
-add(rnd(N, 0, 3))                               # many ties in effort
-add(sorted(rnd(N, 0, MAXH)))                    # every way has the same effort
-add(sorted(rnd(N, 0, MAXH), reverse=True))
-add([MAXH] * N)                                 # effort 0, fewest jumps
-add([0, 0, MAXH, MAXH] * (N // 4))              # effort near 10^14
-add([0 if i % 2 == 0 else MAXH for i in range(N)])
-add([(i * 7) % 5 for i in range(N)])
-add([ri(0, 10) + (MAXH - 20) * (i // 2 % 2) for i in range(N)])
-add([i // 3 for i in range(N)])                 # steps of equal stones
-add(rnd(N - 1, 0, MAXH) + [0])
+add(["5", "#", "5"])
+add(["123456789"])
+g = rnd(6, 7, 0.2); put(g, 0, 0, "3"); put(g, 5, 6, "4"); add(g)
+g = rnd(9, 9, 0.25); put(g, 0, 0, "1"); put(g, 8, 8, "1"); add(g)
+g = rnd(11, 12, 0.15); put(g, 0, 0, "0"); put(g, 10, 11, "9"); add(g)
+add(["0" * 6 + "#" + "9" * 5] * 11 + ["0" * 6 + "#" + "9" * 5])   # unreachable
+add(["1" * 12] * 12)
+g = ["0" * 5 + "#" + "9" * 6 for _ in range(11)] + ["0" * 12]  # the 9s cannot be reached
+add(g)
+
+
+def wall(r, c, col, gap):
+    """column col is blocked except in row gap; the part right of it is full of 9s"""
+    g = []
+    for i in range(r):
+        left = "".join(random.choice("01") for _ in range(col))
+        mid = "0" if i == gap else "#"
+        right = "9" * (c - col - 1)
+        g.append(left + mid + right)
+    return g
+
+
+# hidden: large
+add(rnd(MAXR, MAXC, 0.0))
+add(["9" * MAXC] * MAXR)
+g = rnd(MAXR, MAXC, 0.2); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)
+g = rnd(MAXR, MAXC, 0.25); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)
+g = rnd(MAXR, MAXC, 0.4); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)   # most likely -1
+add(wall(MAXR, MAXC, 500, MAXR - 1))       # pass along the last row only
+g = wall(MAXR, MAXC, 500, MAXR - 1); put(g, MAXR - 1, 500, "#"); add(g)   # no way at all
+g = wall(MAXR, MAXC, 300, 0); add(g)       # the gap is on the first row
+g = rnd(MAXR, MAXC, 0.05); put(g, MAXR - 1, MAXC - 1, "#"); add(g)
+g = rnd(MAXR, MAXC, 0.05); put(g, 0, 0, "#"); add(g)
+g = []                                     # a narrow open band along the diagonal
+for i in range(MAXR):
+    g.append("".join(random.choice("123456789") if abs(i - j) <= 2 else "#" for j in range(MAXC)))
+add(g)
+g = []                                     # wide band, everything outside is blocked
+for i in range(MAXR):
+    g.append("".join(random.choice("0123456789") if abs(i - j) <= 40 else "#" for j in range(MAXC)))
+add(g)
+add(rnd(1, MAXC, 0.0))
+add([random.choice("0123456789") for _ in range(MAXR)])
+add(rnd(MAXR, MAXC, 0.1, "09"))
 
 for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
+    assert t.endswith("\n")
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

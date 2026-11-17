@@ -62,6 +62,26 @@ def ops_of(n, q, pa, pc, upd, ask, addx, capc):
     return ops
 
 
+def saw(n, q, slack, k):
+    """long adds that lift most rooms above the last cap, then a long cap a bit below the new level,
+    with a few short dips so the rooms differ; questions anywhere"""
+    ops, lvl = [], 0
+    while len(ops) < q:
+        x = ri(1, k)
+        lvl += x
+        ops.append(('A',) + long_rng(n, slack) + (x,))
+        if random.random() < 0.2:
+            ops.append(('A',) + short_rng(n, 100) + (-ri(1, k),))
+        c = lvl - ri(0, k)
+        lvl = c
+        ops.append(('C',) + long_rng(n, slack) + (c,))
+        if random.random() < 0.5:
+            ops.append(('M',) + any_rng(n))
+    if not any(op[0] == 'M' for op in ops[:q]):
+        ops[q - 1] = ('M',) + any_rng(n)
+    return ops[:q]
+
+
 def pm(k):
     return lambda: ri(-k, k)
 
@@ -76,10 +96,12 @@ add(5, [('A', 1, 5, 10), ('A', 2, 3, 5), ('C', 1, 4, 12), ('M', 1, 5), ('A', 3, 
         ('C', 3, 5, -1), ('M', 3, 5), ('M', 1, 5)])
 add(3, [('C', 1, 3, 5), ('M', 1, 3), ('A', 1, 2, -4), ('C', 2, 3, -2), ('A', 1, 3, 3), ('M', 1, 2), ('M', 1, 3)])
 add(1, [('A', 1, 1, MAXX), ('C', 1, 1, -MAXC), ('M', 1, 1), ('A', 1, 1, -MAXX), ('M', 1, 1)])
-add(8, [('A', 1, 8, 6), ('C', 3, 6, 2), ('A', 2, 4, 5), ('C', 1, 3, 4), ('M', 1, 8), ('M', 3, 5), ('A', 4, 8, -9),
+add(8, [('A', 1, 8, 6), ('C', 3, 6, 2), ('A', 1, 2, 5), ('M', 1, 8), ('M', 3, 5), ('A', 4, 8, -9), ('C', 1, 8, 0),
         ('M', 4, 8)])
 add(MAXN, [('A', 1, MAXN, MAXX), ('C', 2, MAXN, 7), ('A', 1, MAXN, MAXX), ('M', 2, MAXN), ('M', 1, MAXN)])
 # hidden: small (the brute force checks these)
+add(8, [('A', 1, 8, 6), ('C', 3, 6, 2), ('A', 2, 4, 5), ('C', 1, 3, 4), ('M', 1, 8), ('M', 3, 5), ('A', 4, 8, -9),
+        ('M', 4, 8)])                                       # an add right after a cap on the same rooms
 for n, q, d in ((1, 12, 1), (5, 40, 2), (12, 100, 5), (60, 500, 20), (500, 3000, 100), (3000, 4000, 700)):
     add(n, ops_of(n, q, 0.35, 0.3, lambda: short_rng(n, d) if random.random() < 0.6 else any_rng(n),
                   lambda: any_rng(n), drift(5, 0.6), pm(12)))
@@ -102,6 +124,10 @@ add(N, ops_of(N, Q, 0.4, 0.3, lambda: short_rng(N, 200_000), lambda: any_rng(N),
 add(N, ops_of(N, Q, 0.45, 0.2, lambda: any_rng(N), lambda: short_rng(N, 50_000), lambda: -ri(1, MAXX),
               lambda: -ri(0, 10**10)))                 # everything goes down
 add(N, ops_of(N, Q, 0.3, 0.4, lambda: long_rng(N, 3000), lambda: long_rng(N, 30_000), drift(7, 0.65), pm(40)))
+add(N, saw(N, Q, 1000, 1000))
+add(N, saw(N, Q, 50_000, MAXX))
+add(N, saw(N, Q, 10, 5))
+add(N, saw(N, Q, 200_000, 100))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

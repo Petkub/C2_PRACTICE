@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110004)
-MAXN, MAXQ, MAXA, MAXX = 200_000, 200_000, 10**9, 10**9
+random.seed(170103)
+MAXN, MAXQ, MAXS = 200_000, 200_000, 10_000
 tests = []
 
 
@@ -10,66 +10,73 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, ops):
-    n, q = len(a), len(ops)
+def add(s, ops):
+    n, q = len(s), len(ops)
     assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= v <= MAXA for v in a)
-    for op in ops:
-        if op[0] == 1:
-            assert len(op) == 4 and 1 <= op[1] <= op[2] <= n and 1 <= op[3] <= MAXX
+    assert all(1 <= v <= MAXS for v in s)
+    lines = []
+    for t, x, y in ops:
+        if t == 1:
+            assert 1 <= x <= n and 1 <= y <= MAXS
         else:
-            assert len(op) == 2 and op[0] == 2 and 1 <= op[1] <= n
-    assert any(op[0] == 2 for op in ops)
-    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n"
-                 + "".join(" ".join(map(str, op)) + "\n" for op in ops))
+            assert t == 2 and 1 <= x <= y <= n
+        lines.append(f"{t} {x} {y}")
+    tests.append(f"{n} {q}\n" + " ".join(map(str, s)) + "\n" + "\n".join(lines) + "\n")
 
 
-def rnd_ops(n, q, p_add, xmax, kind="any", ask_end=False):
-    """p_add = chance of a raise; kind of raise ranges: any / long / short; ask_end: questions about the last 1000"""
-    ops = []
-    for _ in range(q):
-        if random.random() < p_add:
-            if kind == "long":
-                l, r = ri(1, min(n, 99)), ri(max(1, n - 99), n)
-            elif kind == "short":
-                l = ri(1, n)
-                r = min(n, l + ri(0, 3))
-            else:
-                l = ri(1, n)
-                r = ri(l, n)
-            ops.append((1, l, r, ri(1, xmax)))
-        else:
-            ops.append((2, ri(max(1, n - 999), n) if ask_end else ri(1, n)))
-    if all(op[0] == 1 for op in ops):
-        ops[-1] = (2, n)
-    return ops
+def any_rng(n):
+    l = ri(1, n)
+    return l, ri(l, n)
+
+
+def long_rng(n, slack):
+    return ri(1, min(n, slack)), ri(max(1, n - slack + 1), n)
+
+
+def ops_of(n, q, upd, value, rng):
+    """upd: share of updates; value() -> a new skill; rng() -> (l, r)"""
+    return [(1, ri(1, n), value()) if random.random() < upd else (2,) + rng() for _ in range(q)]
 
 
 # samples
-add([10, 20, 30, 40, 50], [(1, 2, 4, 5), (2, 3), (1, 1, 3, 10), (2, 3), (2, 5)])
-add([1, 1, 1], [(1, 1, 3, MAXX), (1, 2, 3, MAXX), (1, 2, 2, MAXX), (2, 2), (2, 1)])
-add([7], [(2, 1), (1, 1, 1, 3), (2, 1)])
-add([5, 5, 5, 5, 5, 5], [(1, 1, 6, 1), (1, 3, 4, 2), (2, 1), (2, 3), (2, 5), (1, 5, 6, 4), (2, 6)])
-add([3, 1, 4, 1, 5], [(1, 4, 5, 2), (2, 4), (1, 1, 1, 9), (2, 1), (2, 2)])
-# hidden: small
-add([MAXA], [(1, 1, 1, MAXX), (2, 1)])
-for n, q, xmax in ((5, 10, 3), (10, 30, 10), (50, 100, 1000), (400, 800, MAXX), (3000, 3000, 100), (6000, 6000, MAXX)):
-    add([ri(1, 100) for _ in range(n)], rnd_ops(n, q, 0.5, xmax))
-add([ri(1, 9) for _ in range(5000)], rnd_ops(5000, 8000, 0.5, 9, "short"))
-add([MAXA] * 3000, rnd_ops(3000, 3000, 0.7, MAXX, "long"))
-# hidden: maximum size (short numbers keep the files small; long raises make a loop per raise too slow,
-# questions about the last employees make summing a plain difference array per question too slow)
-N, Q = MAXN, MAXQ
-add([ri(1, 9) for _ in range(N)], rnd_ops(N, Q, 0.5, 9, "long", ask_end=True))
-add([ri(1, 9) for _ in range(N)], rnd_ops(N, Q, 0.8, 9, "long"))
-add([ri(1, 9) for _ in range(N)], rnd_ops(N, Q, 0.3, 99, "long", ask_end=True))
-add([1] * N, [(1, 1, N, 1) if k % 2 == 0 else (2, ri(N - 999, N)) for k in range(Q)])
-add([ri(1, 99) for _ in range(N)], rnd_ops(N, 170_000, 0.5, 99, ask_end=True))
-add([ri(1, 9) for _ in range(N)], rnd_ops(N, Q, 0.5, 9, "short"))
-# largest values: salaries up to about 2 * 10^14
-add([MAXA] * N, [(1, 1, N, MAXX) if k % 3 else (2, ri(1, N)) for k in range(50_000)])
-add([MAXA - ri(0, 9) for _ in range(N)], rnd_ops(N, 50_000, 0.7, MAXX, "long"))
-add([ri(1, MAXA) for _ in range(N)], rnd_ops(N, 40_000, 0.5, MAXX))
+add([1, 3, 2, 6], [(2, 1, 3), (1, 2, 6), (2, 2, 4), (2, 3, 3)])
+add([5, 5, 5], [(2, 1, 3), (1, 2, 1), (2, 1, 3)])
+add([1, MAXS], [(2, 1, 2), (1, 1, MAXS), (2, 1, 2)])
+add([3, 1, 4, 1, 5], [(2, 1, 5), (1, 3, 9), (2, 2, 4), (2, 1, 5)])
+add([MAXS] * 3 + [1] * 3, [(2, 1, 6), (2, 3, 4)])
+# hidden: small (the brute force checks these)
+for n, q, smax, upd in ((1, 5, 10, 0.4), (3, 20, 5, 0.3), (8, 60, 100, 0.3), (30, 300, MAXS, 0.3),
+                        (100, 800, 9, 0.4), (300, 1500, MAXS, 0.3), (250, 1500, 2, 0.5)):
+    s = [ri(1, smax) for _ in range(n)]
+    add(s, ops_of(n, q, upd, lambda: ri(1, smax), lambda: any_rng(n)))
+n = 300                                                     # only the two extreme skills
+s = [random.choice((1, MAXS)) for _ in range(n)]
+add(s, ops_of(n, 1500, 0.3, lambda: random.choice((1, MAXS)), lambda: any_rng(n)))
+# hidden: maximum size (inputs kept near 3 MB)
+N = MAXN
+s = [ri(1, 9) for _ in range(N)]
+add(s, ops_of(N, 120_000, 0.3, lambda: ri(1, 9), lambda: long_rng(N, 50)))
+s = [random.choice((1, MAXS)) for _ in range(N)]
+add(s, ops_of(N, 120_000, 0.2, lambda: random.choice((1, MAXS)), lambda: long_rng(N, 100)))
+s = [MAXS] * N                                              # everybody equal: 0 until the updates break it
+add(s, ops_of(N, 110_000, 0.05, lambda: random.choice((MAXS, MAXS, 1)), lambda: long_rng(N, 1000)))
+s = [ri(1, MAXS) for _ in range(N)]
+add(s, ops_of(N, 100_000, 0.3, lambda: ri(1, MAXS), lambda: long_rng(N, 5000)))
+s = [ri(1, 99) for _ in range(N)]                           # every question asks the whole row
+add(s, [(2, 1, N)] * 120_000)
+s = [1] * (N // 2) + [MAXS] * (N // 2)                      # the largest possible answer, close to 10^18
+add(s, [(2, 1, N) if k % 4 else (1, ri(1, N // 2), 1) for k in range(110_000)])
+n = 160_000
+s = [1] * (n // 2) + [MAXS] * (n // 2)
+add(s, ops_of(n, 110_000, 0.1, lambda: random.choice((1, MAXS)), lambda: long_rng(n, 3000)))
+s = [ri(1, 1000) for _ in range(N)]                         # half of the commands are updates
+add(s, ops_of(N, 120_000, 0.5, lambda: ri(1, 1000), lambda: long_rng(N, 200)))
+s = [ri(9_000, MAXS) for _ in range(N)]
+add(s, ops_of(N, 100_000, 0.2, lambda: ri(1, MAXS), lambda: long_rng(N, 20_000)))
+# hidden: many short questions
+n = 5000
+s = [ri(1, MAXS) for _ in range(n)]
+add(s, ops_of(n, MAXQ, 0.3, lambda: ri(1, MAXS), lambda: any_rng(n)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

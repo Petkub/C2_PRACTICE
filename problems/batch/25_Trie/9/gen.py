@@ -23,8 +23,11 @@ def add(ops):
     tests.append(f"{q}\n" + "".join(" ".join(map(str, op)) + "\n" for op in ops))
 
 
-def churn(q, lo, hi, p_add, p_del, kmode="any"):
-    ops, bag = [], []
+def churn(q, lo, hi, p_add, p_del, kmode="any", pre=0):
+    """pre inserts first, then q - pre random operations"""
+    bag = [random.randint(lo, hi) for _ in range(pre)]
+    ops = [("+", x) for x in bag]
+    q -= pre
     for _ in range(q):
         r = random.random()
         if r < p_add or not bag:
@@ -68,7 +71,7 @@ ops += [("?", random.randint(0, MAXV), random.choice([1, Q // 2, Q // 2 - 1, Q /
 add(ops)
 add(churn(Q, 0, MAXV, 0.5, 0.1))
 add(churn(Q, 0, 255, 0.45, 0.2))                                       # many copies of each value
-add(churn(Q, 0, MAXV, 0.35, 0.3, "big"))
+add(churn(Q, 0, MAXV, 0.35, 0.3, "big", Q // 3))                        # many deletions, k near the size
 ops = [("+", 777)] * (Q // 2) + [("?", random.randint(0, MAXV), random.randint(1, Q // 2 + 1)) for _ in range(Q // 2)]
 add(ops)                                                              # one value only
 ops = [("+", x) for x in random.sample(range(MAXV + 1), Q // 2)]

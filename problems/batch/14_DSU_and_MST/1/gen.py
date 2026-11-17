@@ -1,7 +1,7 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(90101)
+random.seed(140101)
 MAXN, MAXQ = 200_000, 200_000
 tests = []
 
@@ -10,102 +10,113 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, ops):
-    q = len(ops)
+def add(n, ev):
+    q = len(ev)
     assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert any(c == "?" for c, a, b in ops)
-    for c, a, b in ops:
-        assert c in "+?" and 1 <= a <= n and 1 <= b <= n
-        assert c == "?" or a != b
-    tests.append(f"{n} {q}\n" + "".join(f"{c} {a} {b}\n" for c, a, b in ops))
-
-
-def rnd_join(n):
-    a = ri(1, n)
-    b = ri(1, n - 1)
-    return ("+", a, b + (b >= a))
-
-
-def rnd_ops(n, q, pjoin):
-    ops = []
-    for _ in range(q):
-        if random.random() < pjoin:
-            ops.append(rnd_join(n))
+    assert any(e[0] == 2 for e in ev)
+    for e in ev:
+        if e[0] == 1:
+            assert len(e) == 3 and 1 <= e[1] <= n and 1 <= e[2] <= n
         else:
-            ops.append(("?", ri(1, n), ri(1, n)))
-    if not any(c == "?" for c, a, b in ops):
-        ops.append(("?", 1, n))
-    return ops
+            assert e[0] == 2 and len(e) == 2 and 1 <= e[1] <= n
+    tests.append(f"{n} {q}\n" + "".join(" ".join(map(str, e)) + "\n" for e in ev))
 
 
-def chains(n, k):
-    """joins that build k long paths over a random labelling of 1..n, in a random-looking order"""
-    perm = list(range(1, n + 1))
-    random.shuffle(perm)
-    groups = [perm[i::k] for i in range(k)]
-    ops = []
-    for g in groups:
-        for i in range(1, len(g)):
-            ops.append(("+", g[i - 1], g[i]) if i % 2 else ("+", g[i], g[i - 1]))
-    return ops, groups
+def labels(n):
+    p = list(range(1, n + 1))
+    random.shuffle(p)
+    return p
 
 
-def ends_asks(groups, q):
-    """asks between far ends of the paths (both answers)"""
-    ops = []
+def rnd_events(n, q, pq=0.4):
+    ev = []
     for _ in range(q):
-        g = random.choice(groups)
-        h = random.choice(groups)
-        ops.append(("?", g[ri(0, 9)], h[-1 - ri(0, 9)]))
-    return ops
+        if random.random() < pq:
+            ev.append((2, ri(1, n)))
+        else:
+            ev.append((1, ri(1, n), ri(1, n)))
+    return ev
+
+
+def chain(p, mode="new"):
+    """p[0], p[1], ...: company p[k] (still on its own) buys the group that holds p[0..k-1].
+    The bought top owner goes one level down every time, so p[0] ends up very deep."""
+    ev = []
+    for k in range(1, len(p)):
+        if mode == "new":
+            b = p[k - 1]
+        else:
+            b = p[ri(0, k - 1)]
+        ev.append((1, p[k], b))
+    return ev
+
+
+def deep_queries(p, cnt, spread):
+    """queries on the deepest members (the first ones of the chain)"""
+    return [(2, p[ri(0, spread - 1)]) for _ in range(cnt)]
 
 
 # samples
-add(5, [("+", 1, 2), ("+", 3, 4), ("?", 1, 3), ("+", 2, 3), ("?", 4, 1), ("?", 5, 2)])
-add(2, [("?", 2, 2), ("?", 1, 2), ("+", 2, 1), ("?", 1, 2)])
-add(6, [("+", 1, 2), ("+", 5, 6), ("+", 6, 4), ("?", 4, 5), ("?", 2, 3)])
-add(1, [("?", 1, 1)])
-add(7, [("+", 7, 1), ("?", 1, 6), ("+", 6, 5), ("+", 5, 1), ("?", 7, 6)])
+add(5, [(1, 2, 1), (1, 4, 3), (2, 1), (1, 3, 1), (2, 2), (1, 5, 5), (2, 5)])
+add(6, [(1, 6, 5), (1, 5, 4), (2, 4), (1, 1, 2), (1, 4, 2), (1, 2, 6), (2, 1), (2, 3)])
+add(1, [(2, 1), (1, 1, 1), (2, 1)])
+add(7, [(1, 3, 7), (2, 7), (1, 1, 2), (1, 7, 2), (2, 1), (2, 2), (1, 4, 5), (1, 4, 6), (2, 5), (1, 3, 5), (2, 6)])
+add(4, [(2, 4), (1, 4, 1), (1, 1, 2), (1, 2, 3), (2, 3), (2, 2), (1, 3, 4), (2, 1)])
+
 # hidden: small
-add(2, [("?", 1, 2), ("+", 1, 2), ("?", 2, 1), ("?", 1, 1)])
-add(10, rnd_ops(10, 30, 0.3))
-add(50, rnd_ops(50, 100, 0.4))
-add(300, rnd_ops(300, 600, 0.45))
-add(1000, rnd_ops(1000, 3000, 0.5))
-ops, groups = chains(2000, 3)
-add(2000, ops + ends_asks(groups, 2000))
-add(5000, rnd_ops(5000, 15000, 0.55))
-# hidden: maximum size
-N, Q = MAXN, MAXQ
-add(N, rnd_ops(N, Q, 0.5))
-add(N, rnd_ops(N, Q, 0.75))
-ops, groups = chains(100_001, 2)                                # two long paths, then far asks
-add(N, ops + ends_asks(groups, Q - len(ops)))
-ops, groups = chains(60_000, 1)
-asks = ends_asks(groups, Q - len(ops))
-mix = []                                                        # asks spread while the path grows
-it = iter(asks)
-for i, o in enumerate(ops):
-    mix.append(o)
-    if i % 3 == 0:
-        mix.append(next(it))
-mix += list(it)
-add(N, mix)
-ops = [("+", 1, k) for k in range(2, 100_001)]                  # star joined from the centre
-add(N, ops + [("?", ri(1, 100_000), ri(1, N)) for _ in range(Q - len(ops))])
-ops = [("+", k, 1) for k in range(2, 100_001)]                  # the same star, other order
-add(N, ops + [("?", ri(1, 100_000), ri(1, N)) for _ in range(Q - len(ops))])
-ops = [("+", k, k + 1) for k in range(1, 100_000)]              # a path joined in order
-add(N, ops + [("?", 1, 100_000 - ri(0, 1)) if i % 2 else ("?", ri(1, N), ri(1, N)) for i in range(Q - len(ops))])
-ops = [("+", k + 1, k) for k in range(1, 120_000)]
-add(N, ops + [("?", 1, ri(110_000, 125_000)) for _ in range(Q - len(ops))])
-add(N, [("?", ri(1, N), ri(1, N)) for _ in range(Q)])           # nobody is friends: all NO except a = b
-add(N, [rnd_join(N) for _ in range(Q - 1)] + [("?", 1, N)])
-ops = [rnd_join(1000) for _ in range(50_000)]                   # small groups merged many times
-add(N, ops + rnd_ops(1000, Q - len(ops), 0.2))
+add(2, [(1, 1, 2), (2, 2), (1, 2, 1), (2, 1), (2, 2)])
+add(3, [(1, 2, 1), (1, 3, 1), (2, 1), (2, 2), (2, 3)])          # a single company buys a bigger group
+for n, q in ((5, 12), (6, 15), (8, 20), (8, 20), (10, 40)):
+    add(n, rnd_events(n, q))
+add(50, rnd_events(50, 300, 0.5))
+add(1000, rnd_events(1000, 3000))
+p = labels(2000)
+add(2000, chain(p) + deep_queries(p, 2000, 10) + rnd_events(2000, 500))
+add(200_000, [(2, ri(1, 200_000)) for _ in range(1000)])          # nobody buys anything
+
+# hidden: maximum size (every one has a deep chain and many queries at its bottom)
+N = MAXN
+p = list(range(1, N // 2 + 1))
+add(N, chain(p) + [(2, 1)] * (MAXQ - (len(p) - 1)))               # 2 buys 1, 3 buys 2, ...
+p = labels(N)[:110_000]
+add(N, chain(p, "any") + deep_queries(p, MAXQ - 109_999, 50))
+p = labels(N)
+ev = chain(p[:100_000])
+mix = []
+for e in ev:                                                       # chain with queries in between
+    mix.append(e)
+    if random.random() < 0.3:
+        mix.append((2, p[ri(0, 99)]))
+mix = mix[:130_000]
+add(N, mix + deep_queries(p, MAXQ - len(mix), 100))
+p = labels(N)
+a, b = p[:60_000], p[60_000:120_000]
+ev = chain(a) + chain(b) + [(1, b[0], a[-1])]                      # two long chains, the bottom of one buys the other
+ev += [(2, a[ri(0, 9)]) if random.random() < 0.5 else (2, b[ri(0, 9)]) for _ in range(MAXQ - len(ev))]
+add(N, ev)
+p = labels(N)
+pairs = [(1, p[2 * i], p[2 * i + 1]) for i in range(50_000)]      # 50 000 groups of two
+ev = pairs + [(1, p[2 * i + 1], p[0]) for i in range(1, 50_000)]  # each pair (through its second member) buys the big group
+ev += [(2, p[ri(0, 3)]) for _ in range(MAXQ - len(ev))]
+add(N, ev)
+p = labels(N)
+c = chain(p[:100_000])
+ev = c + [(1, p[ri(0, 99_999)], p[ri(0, 99_999)]) if random.random() < 0.1 else (2, p[ri(0, 20)])
+          for _ in range(MAXQ - len(c))]                           # buys inside the same group change nothing
+add(N, ev)
+p = labels(N)
+c = chain(p[:90_000], "any")
+r = rnd_events(N, 30_000, 0.3)
+ev = c + r + deep_queries(p, MAXQ - len(c) - len(r), 30)
+add(N, ev)
+p = labels(N)
+c = chain(p[:100_000])
+ev = c + [(2, p[k % 100]) for k in range(MAXQ - len(c) - 1)] + [(2, p[-1])]
+add(N, ev)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+    assert len(t) <= 3_300_000
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

@@ -1,5 +1,9 @@
-2 2
-a/
-  b/
-a
-a/b
+8
+LOOP n
+LOOP n
+LOOP n
+OP 1
+END
+END
+END
+OP 1

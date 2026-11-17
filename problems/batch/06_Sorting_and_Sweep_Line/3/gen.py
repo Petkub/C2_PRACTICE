@@ -1,67 +1,75 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40403)
-MAXN, MAXT = 200_000, 10**9
+random.seed(60101)
+MAXN, MAXC, MAXW = 100_000, 10**9, 40_000
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (deterministic, faster than randint)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, shuffle=False):
-    a = list(a)
-    if shuffle:
-        random.shuffle(a)
-    n = len(a)
+def add(shops):
+    n = len(shops)
     assert 1 <= n <= MAXN
-    assert all(1 <= l <= r <= MAXT for l, r in a)
-    tests.append(f"{n}\n" + "".join(f"{l} {r}\n" for l, r in a))
+    assert all(0 <= x <= MAXC and 0 <= y <= MAXC and 1 <= w <= MAXW for (x, y, w) in shops)
+    tests.append(f"{n}\n" + "".join(f"{x} {y} {w}\n" for (x, y, w) in shops))
 
 
-def rnd(n, T, maxlen):
-    out = []
-    for _ in range(n):
-        l = ri(1, T)
-        out.append((l, min(T, l + ri(0, maxlen))))
-    return out
+def rnd(n, c=MAXC, wlo=1, whi=MAXW):
+    return [(ri(0, c), ri(0, c), ri(wlo, whi)) for _ in range(n)]
+
+
+def mirrored(n, c=MAXC, wlo=1, whi=MAXW):
+    """shops in pairs with the same weight, so that exactly half of the weight lies on each side (many ties)"""
+    s = []
+    for _ in range(n // 2):
+        w = ri(wlo, whi)
+        s.append((ri(0, c // 2), ri(0, c // 2), w))
+        s.append((ri(c // 2 + 1, c), ri(c // 2 + 1, c), w))
+    random.shuffle(s)
+    return s
+
+
+def heavy_far(n, k, c=MAXC):
+    """many light shops on one side, a few very heavy ones far away: the weighted median moves to them"""
+    s = [(ri(0, c // 3), ri(0, c // 3), ri(1, 3)) for _ in range(n - k)]
+    s += [(ri(c - c // 10, c), ri(c - c // 10, c), MAXW) for _ in range(k)]
+    random.shuffle(s)
+    return s
 
 
 # samples
-add([(1, 3), (2, 5), (6, 8), (5, 6)])
-add([(1, 5), (5, 9), (9, 9), (10, 12)])
-add([(7, 7)])
-add([(1, 2), (3, 4), (5, 6), (10, 20)])
-add([(3, 7)] * 5)
-add([(1, 100), (2, 3), (50, 60), (61, 61), (60, 70)])
-# hidden: small
-add([(MAXT, MAXT), (1, MAXT)])
-add([(1, 1), (2, 2), (1, 2), (2, 3), (3, 3)])
-add(rnd(10, 20, 4))
-add(rnd(60, 100, 10))
-add(rnd(300, 1000, 50))
-add(rnd(2000, 10**6, 300))
-add(rnd(5000, MAXT, MAXT))
-add([(i, i) for i in range(1, 3001)], True)          # nobody meets
-add([(i, i + 1) for i in range(1, 3001)], True)      # only neighbours meet, at one minute
-# hidden: large (N = 2*10^5; many pairs for the "list every meeting pair" way)
+add([(1, 5, 2), (4, 1, 1), (6, 3, 3)])
+add([(2, 2, 1), (7, 4, 5), (9, 9, 1)])
+add([(10, 20, 7)])
+add([(0, 0, 40000), (1000000000, 1000000000, 40000)])
+add([(3, 3, 4), (3, 3, 1), (8, 1, 2), (0, 6, 2)])
+add([(12, 10, 6), (5, 12, 4), (2, 4, 9), (11, 8, 2), (4, 1, 2), (10, 6, 6)])
+# hidden: small and medium
+add([(0, MAXC, MAXW)])
+add([(5, 5, 3)] * 7)                                             # everybody at one point
+add([(1, 1, 1), (2, 2, 1), (3, 3, 1), (100, 100, 4)])           # one heavy shop beats three light ones
+add(rnd(8, 20, 1, 9))
+add(mirrored(10, 30, 1, 5))
+add(rnd(60, 1000))
+add(heavy_far(200, 3, 10**6))
+add(mirrored(2000))
+add(rnd(5000, MAXC, 30000, MAXW))
+# hidden: maximum size
 N = MAXN
-add(rnd(N, 10**7, 100))                               # few pairs
-add(rnd(N, 10**7, 2 * 10**6))
-add(rnd(N, 10**6, 10**6))                             # about half of all pairs
-add([(1, 10**6)] * N)                                 # every pair: N(N-1)/2
-add([(i, 10**6) for i in range(1, N + 1)], True)      # everyone stays until the end
-add([(i, i) for i in range(1, N + 1)])                # nobody meets, sorted
-add([(N + 1 - i, N + 1 - i) for i in range(1, N + 1)])  # nobody meets, reverse sorted
-add([(5 * i, 5 * i + 5) for i in range(1, N + 1)], True)  # only neighbours, touching
-add([(ri(1, 1000), ri(999_000, 10**6)) for _ in range(N)])  # everyone shares the middle
-add([(i, 2 * N + 1 - i) for i in range(1, N + 1)], True)  # nested
-x = [(ri(1, 10**6), 0) for _ in range(N)]
-add([(l, l + ri(0, 3)) for l, _ in x])                # short stays, touching often
-add([(ri(1, 50), ri(50, 100)) for _ in range(N)])     # many equal times
-add(rnd(140_000, MAXT, 10**8))                        # large times
+add(rnd(N, MAXC, 15000, MAXW))                                   # random, total weight ~2.75 * 10^9
+add(rnd(N, MAXC, 25000, MAXW))                                  # total weight > 2^31
+add([(ri(0, 1) * MAXC, ri(0, 1) * MAXC, MAXW) for _ in range(N)])  # corners only, S near 4 * 10^18
+add(mirrored(N, MAXC, 30000, MAXW))                               # exact halves: the smallest X, Y on the tie
+add(heavy_far(N, 30))                                            # weights pull the point far from the plain median
+add(heavy_far(N, 8000))
+add([(i * 9000, MAXC - i * 9000, ri(22000, MAXW)) for i in range(N)])  # sorted by x, reverse sorted by y
+add([(ri(0, 50), ri(0, 50), ri(30000, MAXW)) for _ in range(N)])  # few distinct coordinates, many duplicates
+s = mirrored(N - 1, MAXC, 25000, MAXW) + [(MAXC // 2, MAXC // 2, 1)]  # the tie broken by one light shop
+add(s)
+add(rnd(N, MAXC, MAXW, MAXW))                                   # every weight at the maximum
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

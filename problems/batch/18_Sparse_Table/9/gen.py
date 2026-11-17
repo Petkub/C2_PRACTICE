@@ -56,6 +56,8 @@ add(a, rnd_qs(2000, 500, 50) + long_qs(2000, 100, 10))
 a = [ri(1, 3) for _ in range(5000)]                                         # many ties
 add(a, long_qs(5000, 2000, 30))
 add(list(range(4000, 0, -1)), rnd_qs(4000, 1000, 100))                     # decreasing: take the first k
+a = [ri(1, MAXV) for _ in range(3000)]
+add(a, [(1, 3000, 3000), (2, 2999, 2998)] + rnd_qs(3000, 100, 10))         # rounds taking every card
 # hidden: maximum size (values kept short so the input stays <= 3 MB)
 N = MAXN
 add([ri(1, 999_999) for _ in range(N)], long_qs(N, 75_000, 4))
@@ -63,8 +65,8 @@ add([ri(1, 20) for _ in range(N)], long_qs(N, 75_000, 4))                  # tie
 add(list(range(1, N + 1)), long_qs(N, 75_000, 4))                          # increasing: the last k cards
 add([N + 1 - i for i in range(1, N + 1)], long_qs(N, 75_000, 4))           # decreasing
 add([777_777] * N, long_qs(N, 75_000, 4))                                  # all equal
-a = [ri(1, 999_999) for _ in range(N)]
-add(a, [(1, N, 200_000)])                                                  # one round taking every card
+a = [(N - i) // 3 + 1 for i in range(N)]                                   # non-increasing with ties: every
+add(a, [(1, N, 100_000), (2, N - 1, 99_000)] + long_qs(N, 1000, 1))        # pick is the first card it may take
 a = [ri(1, 999_999) for _ in range(N)]
 add(a, [(1, N, 100_000), (1, N, 50_000)] + long_qs(N, 50_000, 1))
 a = [ri(1, 100) for _ in range(N)]

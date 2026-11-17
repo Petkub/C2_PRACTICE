@@ -1,9 +1,10 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(41700)
+random.seed(42000)
 MAXN = 200_000
 MAXC = 10**9
+MAXH = 10**9
 tests = []
 
 
@@ -12,80 +13,69 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(pts):
-    n = len(pts)
-    assert 2 <= n <= MAXN
-    xs = [x for x, y in pts]
-    ys = [y for x, y in pts]
-    assert -MAXC <= min(xs) and max(xs) <= MAXC and -MAXC <= min(ys) and max(ys) <= MAXC
-    tests.append(f"{n}\n" + "".join(f"{x} {y}\n" for x, y in pts))
+def add(bs):
+    n = len(bs)
+    assert 1 <= n <= MAXN
+    for l, r, h in bs:
+        assert 0 <= l < r <= MAXC and 1 <= h <= MAXH
+    tests.append(f"{n}\n" + "".join(f"{l} {r} {h}\n" for l, r, h in bs))
 
 
-def shuffled(p):
-    p = list(p)
-    random.shuffle(p)
-    return p
+def shuffled(bs):
+    bs = list(bs)
+    random.shuffle(bs)
+    return bs
 
 
-def line(n, step, jitter, vertical, base=0, offset=0):
-    """n points along a line through the middle, consecutive ones about step apart"""
-    start = -(n * step) // 2 + offset
-    pts = []
-    for k in range(n):
-        a = start + k * step + ri(0, jitter)
-        b = base + ri(0, jitter)
-        pts.append((b, a) if vertical else (a, b))
-    return pts
+def rnd(n, cmax, hmax, wmax=None):
+    out = []
+    for _ in range(n):
+        if wmax is None:
+            l = ri(0, cmax - 1)
+            r = ri(l + 1, cmax)
+        else:
+            l = ri(0, cmax - 1)
+            r = min(cmax, l + ri(1, wmax))
+        out.append((l, r, ri(1, hmax)))
+    return out
 
 
 # samples
-add([(0, 0), (5, 5), (3, 4), (9, 1), (7, 7)])
-add([(2, 3), (-1, 4), (2, 3)])
-add([(1, 1), (4, 5)])
-add([(0, 10), (0, 0), (0, 3), (0, 7)])
-add([(-3, 2), (4, -1), (0, 0), (1, 5), (-2, -2), (3, 3)])
+add([(1, 5, 3), (2, 4, 6), (6, 8, 2)])
+add([(0, 3, 4), (3, 6, 4), (6, 8, 2), (8, 9, 5)])
+add([(5, 7, 1)])
+add([(0, 10, 1), (0, 5, 3), (0, 2, 5)])
+add([(1, 9, 9), (3, 5, 2), (2, 8, 9), (10, 12, 9)])
+add([(0, 4, 5), (4, 7, 3), (2, 4, 1)])
 # hidden: small
-add([(-MAXC, -MAXC), (MAXC, MAXC)])                           # the largest possible answer
-add([(-MAXC, MAXC), (MAXC, -MAXC), (MAXC, MAXC)])
-add([(ri(-5, 5), ri(-5, 5)) for _ in range(8)])
-add([(ri(-100, 100), ri(-100, 100)) for _ in range(50)])
-add([(ri(-MAXC, MAXC), ri(-MAXC, MAXC)) for _ in range(500)])
-add(shuffled(line(3000, 1000, 50, True) + line(3000, 1000, 50, False, base=10**6)))
-add([(ri(-10**6, 10**6), ri(-10**6, 10**6)) for _ in range(5000)])
-add([(7, 7)] * 4000)                                          # everybody at one place
-# large: N = MAXN with coordinates below about 10^6 (input near 3 MB), or N = 130 000 with full coordinates
+add([(0, MAXC, MAXH)])
+add([(3, 4, 2), (3, 4, 2), (4, 5, 2)])
+add(rnd(8, 10, 3))
+add(rnd(50, 30, 5))
+add(rnd(300, 1000, 10**6, 50))
+add(rnd(2000, MAXC, MAXH))
+add([(i, i + 1, ri(1, 3)) for i in range(3000)])                # touching unit buildings, many equal neighbours
+add(shuffled([(i, 6000 - i, ri(1, 2000)) for i in range(3000)]))  # nested
+# large: N = MAXN with small numbers (input near 3 MB) or N = 100 000 with full-size numbers
 N = MAXN
-add([(ri(-10**6, 10**6), ri(-10**6, 10**6)) for _ in range(N)])
-add(shuffled(line(N, 9000, 100, True)))                       # one vertical line: sorting by x and stopping early fails
-add(shuffled(line(N, 9000, 100, False)))                      # one horizontal line
-N2 = 180_000
-add(shuffled(line(N2 // 2, 400, 10, True, base=-1000) + line(N2 // 2, 400, 10, False, base=1000)))
-p = line(N - 2, 10**4, 0, True)                               # the close pair is far apart in x order
-p += [(-1, 123_456), (1, 123_456)]
-add(shuffled(p))
-p = [(ri(0, 100), 400 * k + ri(0, 10)) for k in range(-N2 // 4, N2 // 4)]       # narrow vertical band
-p += [(400 * k + ri(0, 10), 10**8 + ri(0, 100)) for k in range(-N2 // 4, N2 // 4)]  # narrow horizontal band
-add(shuffled(p))
-s = 4400                                                      # square lattice, one pair a bit closer
-p = [(s * i, s * j) for i in range(-223, 224) for j in range(-223, 224)][:N]
-p[ri(0, len(p) - 1)] = (s * 10 + 3000, s * 10 + 1)
-add(shuffled(p))
-M = 130_000
-s = 5 * 10**6                                                 # lattice with a huge gap: the answer needs 64 bits
-p = [(s * i, s * j) for i in range(-180, 181) for j in range(-180, 181)][:M]
-add(shuffled(p))
-s = 100                                                       # a tall thin and a wide flat lattice
-p = [(-10**6 + s * k, -25 * 10**5 + s * j) for k in range(2) for j in range(N // 4)]
-p += [(-25 * 10**5 + s * j + s // 2, 10**6 + s * k + s // 2) for k in range(2) for j in range(N // 4)]
-add(shuffled(p))
-p = [(ri(-MAXC, -MAXC + 10**6), ri(-MAXC, -MAXC + 10**6)) for _ in range(M // 2)]
-p += [(ri(MAXC - 10**6, MAXC), ri(MAXC - 10**6, MAXC)) for _ in range(M // 2)]
-add(shuffled(p))
-p = [(7 * k, 7 * k + ri(0, 3)) for k in range(-N // 2, N // 2)]   # along a diagonal
-add(shuffled(p))
-p = line(N - 1, 9000, 0, True)
-p.append(p[ri(0, N - 2)])                                      # one repeated point
-add(shuffled(p))
+add(shuffled([(i, 2 * N - i, 1 + 99 * i // N) for i in range(N)]))   # nested, taller inside: a staircase up and down
+add(shuffled([(i, 2 * N - i, 99 - 98 * i // N) for i in range(N)]))  # nested, lower inside: only 2 points
+add(shuffled([(i, 2 * N - i, ri(1, 99)) for i in range(N)]))      # nested, random heights
+N2 = 150_000
+add([(0, ri(1, 10**6), ri(1, 99)) for _ in range(N2)])            # all start at 0
+add([(ri(0, 5 * 10**5 - 1), ri(5 * 10**5, 10**6), ri(1, 99)) for _ in range(N)])   # every building is wide
+add(rnd(N, 10**6, 99))
+add(rnd(N2, 10**6, 99, 10**3))
+add(shuffled([(2 * i, 2 * i + 2, 1 + (i // 3) % 2) for i in range(N2)]))   # touching, equal heights in runs of 3
+add(shuffled([(i, i + 1, ri(1, 2)) for i in range(N2)]))            # unit steps, drops and rises at each x
+bs = [(3 * i, 3 * i + 3, 7) for i in range(N2 // 2)]                 # the tallest ends where an equal one starts
+bs += [(3 * i + 1, 3 * i + 2, ri(1, 6)) for i in range(N2 // 2)]
+add(shuffled(bs))
+M = 100_000
+add(rnd(M, MAXC, MAXH))
+add([(ri(0, 10**8), ri(9 * 10**8, MAXC), ri(MAXH - 10**3, MAXH)) for _ in range(M)])
+add([(ri(0, 10**5), 10**6, ri(1, 99)) for _ in range(N2)])      # all end at the same x
+add([(ri(0, 5 * 10**5 - 1), ri(5 * 10**5, 10**6), 5) for _ in range(N)])   # everything the same height
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

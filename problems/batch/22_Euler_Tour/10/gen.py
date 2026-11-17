@@ -121,16 +121,16 @@ for n, kind in ((4000, "path"), (6000, "broom"), (6000, "chains")):
     p, lab = tree(n, kind)
     add(n, [ri(0, MAXA) for _ in range(n)], p, rops(n, 6000, lab, 0.3, 0.3, MAXX, 500, 100))
 # hidden: maximum size (deep capitals, regions of their ancestors)
-big("path", 100_000, 0.3, 0.3, 9999, 9999, 30_000, 30_000)
+big("path", 100_000, 0.3, 0.3, 9999, MAXX, 30_000, 30_000)
 big("path", 100_000, 0.5, 0.2, 9999, 9999, 1_000, 1_000)
-big("deep", 100_000, 0.3, 0.3, 9999, 9999, 10_000, 10_000)
+big("deep", 100_000, 0.3, 0.3, 9999, MAXX, 10_000, 10_000)
 big("caterpillar", 100_000, 0.3, 0.3, 9999, 9999, 20_000, 20_000)
-big("broom", 100_000, 0.3, 0.3, 9999, 9999, 40_000, 40_000)
+big("broom", 100_000, 0.3, 0.3, 9999, MAXX, 40_000, 40_000)
 big("chains", 100_000, 0.3, 0.3, 9999, 9999, 10_000, 3_000)
-big("random", 100_000, 0.3, 0.3, 9999, 9999, None, None, 0.2)
+big("random", 100_000, 0.3, 0.3, 9999, MAXX, None, None, 0.2)
 big("star", 100_000, 0.3, 0.3, 9999, 9999, None, 1)
 big("path", 60_000, 0.2, 0.4, MAXA, MAXX, 50_000, 50_000)          # the largest totals
-big("deep", 100_000, 0.45, 0.1, 9999, 9999, 500, 50, 0.0)
+big("deep", 100_000, 0.45, 0.1, 9999, MAXX, 500, 50, 0.0)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

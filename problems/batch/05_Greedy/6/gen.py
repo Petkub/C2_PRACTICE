@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(3006)
-MAXN, MAXL = 200_000, 10**9
+random.seed(3004)
+MAXN, MAXK, MAXT = 200_000, 200_000, 10**6
 tests = []
 
 
@@ -11,11 +11,11 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a):
-    n = len(a)
-    assert 1 <= n <= MAXN
-    assert all(1 <= x <= MAXL for x in a)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
+def add(k, t):
+    n = len(t)
+    assert 1 <= n <= MAXN and 1 <= k <= MAXK
+    assert all(1 <= x <= MAXT for x in t)
+    tests.append(f"{n} {k}\n" + " ".join(map(str, t)) + "\n")
 
 
 def rnd(n, lo, hi):
@@ -23,42 +23,41 @@ def rnd(n, lo, hi):
 
 
 # samples
-add([4, 3, 2, 6])
-add([5, 5, 5, 5])
-add([7])
-add([1000000000, 1000000000])
-add([8, 1, 3, 5, 2, 9, 4])
-add([1, 1, 2, 4, 8, 16])
-# hidden: small (every way is tried)
-add([1])
-add([3, 9])
-add([1, 1, 1])
-add([2, 2, 3, 3])
-add([1] * 10)
-add([10, 11, 12, 13, 14, 15])
-add([1, 2, 3, 100, 101, 102, 103])
-add(rnd(8, 1, 10))
-add(rnd(10, 1, 100))
-add(rnd(10, 1, MAXL))
-add(rnd(7, 1, 5))
+add(2, [4, 1, 3, 2, 5])
+add(1, [7, 2, 4])
+add(5, [3, 3, 3])
+add(1, [1000000])
+add(3, [8, 1, 6, 2, 9, 4])
+add(2, [5, 5, 1, 7, 3, 2, 6])
+# hidden: small (every schedule is tried)
+add(1, [1])
+add(4, [2, 9])
+add(1, [3, 1, 2, 5, 4, 8, 6, 7])
+add(2, [10, 1, 1, 1, 1, 10])
+add(3, [7, 7, 7, 7, 7, 7, 7])
+add(8, [5, 4, 3, 2, 1, 6, 7, 8])
+add(7, [9, 8, 7, 6, 5, 4, 3, 2])
+add(3, rnd(8, 1, 20))
+add(4, rnd(8, 1, 100))
+add(2, rnd(8, 1, MAXT))
+add(5, rnd(6, 1, 10))
 # hidden: medium
-add(rnd(100, 1, 1000))
-add(rnd(2000, 1, MAXL))
-add(rnd(5000, 1, 10))
+add(3, rnd(100, 1, 1000))
+add(17, rnd(1000, 1, MAXT))
+add(400, rnd(3000, 1, MAXT))
 # hidden: maximum size
 N = MAXN
-add([MAXL] * N)                                   # the largest answer
-add(rnd(N, 1, MAXL))
-add(sorted(rnd(N, 1, MAXL)))
-add(sorted(rnd(N, 1, MAXL), reverse=True))
-add(rnd(N, 1, 3))                                 # many equal lengths
-add(rnd(N, MAXL - 1000, MAXL))
-add([1] * (N - 30) + [2 ** k for k in range(30)])  # many short ropes and a few doubling ones
-a = rnd(N - 100, 1, 100) + rnd(100, 10**8, MAXL)
-random.shuffle(a)
-add(a)
-add([ri(1, 9) * 10 ** ri(0, 8) for _ in range(N)])       # lengths of very different sizes
-add(rnd(N - 1, 1, MAXL))
+add(1, [MAXT] * N)                         # the largest answer
+add(1, rnd(N, 1, MAXT))
+add(2, rnd(N, 1, MAXT))
+add(N // 2, rnd(N, 1, MAXT))               # many doctors: scanning all doctors per patient is too slow
+add(N // 3 + 1, rnd(N, 1, 1000))
+add(N - 1, rnd(N, 1, MAXT))
+add(N, rnd(N, 1, MAXT))                    # everyone has a doctor
+add(MAXK, rnd(N // 2, 1, MAXT))            # more doctors than patients
+add(30_000, sorted(rnd(N, 1, MAXT)))
+add(60_000, sorted(rnd(N, 1, MAXT), reverse=True))
+add(99_999, [MAXT] * N)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

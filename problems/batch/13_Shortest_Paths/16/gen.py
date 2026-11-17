@@ -1,97 +1,137 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(80160)
-MAXN = 500
+random.seed(131515)
+MAXN, MAXM, MAXA, MAXP, LIMIT = 100_000, 150_000, 10**9, 10**12, 10**18
 tests = []
 
 
-def add(n, res):
-    m = len(res)
-    assert 1 <= n <= MAXN and 0 <= m <= n * (n - 1) // 2
-    assert all(1 <= a <= n and 1 <= b <= n and a != b for a, b in res)
-    assert len({(min(a, b), max(a, b)) for a, b in res}) == m       # every pair plays at most once
-    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in res))
+def ri(lo, hi):
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def from_order(order, pairs):
-    """results of the given pairs (positions in order) when order[0] is the best player"""
-    return [(order[i], order[j]) if i < j else (order[j], order[i]) for i, j in pairs]
+def shuffle(a):
+    for i in range(len(a) - 1, 0, -1):
+        j = int(random.random() * (i + 1))
+        a[i], a[j] = a[j], a[i]
 
 
-def rnd_dag(n, m, spread=None):
-    """m results consistent with a random hidden order; spread limits how far apart the two players are"""
-    order = list(range(1, n + 1))
-    random.shuffle(order)
-    chosen = set()
-    while len(chosen) < m:
-        i = random.randrange(n)
-        j = random.randrange(n) if spread is None else i + random.randint(1, spread)
-        if j < n and i != j:
-            chosen.add((min(i, j), max(i, j)))
-    res = from_order(order, sorted(chosen))
-    random.shuffle(res)
-    return res
+def before(kind, a, y):
+    return y + a if kind == 1 else y + (y + a - 2) // (a - 1)
 
 
-def all_pairs(n):
-    return [(i, j) for i in range(n) for j in range(i + 1, n)]
+def add(n, t, p, cities, roads, mix=True):
+    roads = list(roads)
+    if mix:
+        shuffle(roads)
+    m = len(roads)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= t <= n and 1 <= p <= MAXP and len(cities) == n
+    for k, a in cities:
+        assert (k == 1 and 1 <= a <= MAXA) or (k == 2 and 2 <= a <= MAXA)
+    adj = [[] for _ in range(n + 1)]
+    for u, v in roads:
+        assert 1 <= u <= n and 1 <= v <= n and u != v
+        adj[u].append(v)
+        adj[v].append(u)
+    # every answer is at most the load needed along a BFS tree towards t: check that bound
+    ub = [None] * (n + 1)
+    ub[t] = p
+    queue = [t]
+    for v in queue:
+        x = before(cities[v - 1][0], cities[v - 1][1], ub[v])
+        assert x <= LIMIT
+        for u in adj[v]:
+            if ub[u] is None:
+                ub[u] = x
+                queue.append(u)
+    tests.append(f"{n} {m} {t} {p}\n" + "".join(f"{k} {a}\n" for k, a in cities)
+                 + "".join(f"{u} {v}\n" for u, v in roads))
 
 
-def flip(res, k):
-    """reverse k random results (usually creates a contradiction)"""
-    res = res[:]
-    for i in random.sample(range(len(res)), k):
-        res[i] = (res[i][1], res[i][0])
-    return res
+def city(flat_lo, flat_hi, share_lo, share_hi, share_prob=0.5):
+    if random.random() < share_prob:
+        return (2, ri(share_lo, share_hi))
+    return (1, ri(flat_lo, flat_hi))
+
+
+def cities(n, *args):
+    return [city(*args) for _ in range(n)]
+
+
+def rnd_connected(n, m):
+    e = [(ri(1, v - 1), v) for v in range(2, n + 1)]
+    while len(e) < m:
+        u, v = ri(1, n), ri(1, n)
+        if u != v:
+            e.append((u, v))
+    return e
+
+
+def relabel(n, roads, t):
+    """random city numbers, the old city 1 becomes t"""
+    p = list(range(1, n + 1))
+    shuffle(p)
+    i = p.index(t)
+    p[0], p[i] = p[i], p[0]
+    return [(p[u - 1], p[v - 1]) for u, v in roads]
+
+
+def chain(n, m, span=3):
+    e = [(v, v + 1) for v in range(1, n)]
+    while len(e) < m:
+        u = ri(1, n - 1)
+        v = min(n, u + ri(2, span))
+        if u != v:
+            e.append((u, v))
+    return e
+
+
+def ladder(n, m):
+    """two long parallel lines 1..h and h+1..2h joined at both ends and by some rungs"""
+    h = n // 2
+    e = [(v, v + 1) for v in range(1, h)] + [(h + v, h + v + 1) for v in range(1, h)]
+    e += [(1, h + 1), (h, 2 * h)]
+    while len(e) < m:
+        v = ri(1, h)
+        e.append((v, h + v))
+    return e
 
 
 # samples
-add(4, [(1, 2), (2, 3), (1, 4)])
-add(3, [(1, 2), (2, 3), (3, 1)])
-add(3, [])
-add(5, [(2, 4), (4, 1), (1, 5), (5, 3), (2, 5), (4, 3)])
-add(6, [(3, 1), (3, 2), (1, 4), (2, 4), (4, 5), (6, 5)])
-# hidden: small (every order is tried)
-add(1, [])
-add(2, [(2, 1)])
-add(8, rnd_dag(8, 9))
-add(8, flip(rnd_dag(8, 12), 1))
-add(7, rnd_dag(7, 5))
-add(8, [(1, 5), (5, 2), (2, 7), (7, 1), (3, 4), (4, 6), (8, 3)])         # a cycle of four
-add(8, [(1, 2), (3, 4), (5, 6), (7, 8), (2, 3), (6, 7)])
-# hidden: medium
-add(60, rnd_dag(60, 300))
-add(100, rnd_dag(100, 250, spread=3))
-# hidden: largest
-N = MAXN
-order = list(range(1, N + 1))
-random.shuffle(order)
-res = from_order(order, all_pairs(N))
-random.shuffle(res)
-add(N, res)                                                      # complete: every rank known
-res2 = [r for r in res if not (r == (order[200], order[201]) or r == (order[201], order[200]))]
-add(N, res2)                                                     # one missing result: two players swap
-res3 = [(b, a) if (a, b) == (order[10], order[300]) else (a, b) for a, b in res]
-add(N, res3)                                                     # one wrong result: a cycle of three
-chain = from_order(order, [(i, i + 1) for i in range(N - 1)])
-random.shuffle(chain)
-add(N, chain)                                                    # only neighbours: still all known
-add(N, rnd_dag(N, 20000))
-add(N, rnd_dag(N, 1700, spread=4))
-add(N, from_order(order, random.sample(all_pairs(N), 100000)))
-add(N, flip(chain, 1))                                           # one reversed result in a chain: no longer a chain
-long_cycle = [(order[i], order[(i + 1) % N]) for i in range(N)]
-add(N, long_cycle)
-add(N, flip(rnd_dag(N, 15000, spread=40), 1))                                                      # one reversed result among many
-add(N, [])
-add(N, [(1, b) for b in range(2, N + 1)])                        # player 1 beats everybody
-half = [(a, b) for a in range(1, 251) for b in range(251, N + 1)]
-random.shuffle(half)
-add(N, half[:N * (N - 1) // 2])                                  # two groups, every rank in a range of 250
-two = from_order(order, [(i, i + 2) for i in range(N - 2)])
-add(N, two)                                                      # two interleaved chains
-add(N, from_order(order, random.sample(all_pairs(N), 124000)))   # almost complete
+add(4, 4, 30, [(1, 1), (2, 10), (1, 5), (1, 2)], [(1, 2), (2, 4), (1, 3), (3, 4)], False)
+add(4, 4, 1000, [(1, 1), (2, 10), (1, 5), (1, 2)], [(1, 2), (2, 4), (1, 3), (3, 4)], False)
+add(3, 1, 50, [(2, 100), (2, 100), (1, 7)], [(1, 2), (2, 3)], False)
+add(4, 2, 12, [(1, 4), (1, 3), (2, 50), (1, 1)], [(1, 2), (3, 4)], False)
+add(2, 2, 1, [(1, 3), (2, 2)], [(1, 2)], False)
+# hidden: small (checked against the brute force)
+add(1, 1, MAXP, [(2, 2)], [])
+add(3, 2, 7, [(1, MAXA), (2, MAXA), (2, 2)], [(1, 2)])
+for n, m, p, fl, sh in ((6, 8, 20, 5, 10), (8, 10, 100, 20, 30), (10, 15, 1000, 50, 40), (15, 20, 50, 3, 5),
+                        (20, 30, 10**6, 10**5, 1000), (30, 45, MAXP, MAXA, MAXA), (40, 60, 10**9, 10**6, 100)):
+    t = ri(1, n)
+    add(n, t, p, cities(n, 1, fl, 2, sh), relabel(n, rnd_connected(n, m), t))
+add(50, 1, 500, cities(50, 1, 30, 2, 60), relabel(50, ladder(50, 60), 1))
+# hidden: maximum size
+N, M = MAXN, MAXM
+t = ri(1, N)
+add(N, t, MAXP, cities(N, 1, MAXA, 10, MAXA), relabel(N, rnd_connected(N, M), t))
+t = ri(1, N)
+add(N, t, MAXP - ri(0, 10**6), cities(N, 1, MAXA, 10**7, MAXA, 0.7), relabel(N, rnd_connected(N, M), t))
+add(N, 1, MAXP, cities(N, 10**8, MAXA, 10**5, MAXA), relabel(N, chain(N, M), 1))
+add(N, 1, 10**9, cities(N, 1, 10**4, 10**5, 10**6, 0.6), relabel(N, chain(N, M), 1))
+add(N, 1, 10**6, [(1, ri(1, 3000)) for _ in range(N // 2)] + [(2, ri(10**5, MAXA)) for _ in range(N - N // 2)],
+    relabel(N, ladder(N, M), 1))
+add(N, 1, MAXP, [(1, ri(10**6, MAXA)) for _ in range(N // 2)] + [(2, ri(10**6, 10**8)) for _ in range(N - N // 2)],
+    relabel(N, ladder(N, M), 1))
+t = ri(1, N)
+add(N, t, ri(1, 100), cities(N, 1, 5, 2, 40, 0.5), relabel(N, rnd_connected(N, M), t))
+# a part of the country cannot reach the target
+e = rnd_connected(N - 2000, M - 3000) + [(u + N - 2000, v + N - 2000) for u, v in rnd_connected(2000, 3000)]
+add(N, 1, MAXP, cities(N, 1, MAXA, 10**3, MAXA), relabel(N, e, 1))
+e = [(1, v) for v in range(2, N + 1)] + [(v, v + 1) for v in range(2, M - N + 3)]   # a star around the target
+add(N, 1, MAXP, cities(N, 1, MAXA, 2, MAXA), e)
+t = ri(1, N)
+add(N, t, MAXP, cities(N, MAXA, MAXA, MAXA, MAXA), relabel(N, chain(N, M, 6), t))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

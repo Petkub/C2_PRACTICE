@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(81313)
-MAXN, MAXM, MAXQ, MAXW = 300, 50_000, 100_000, 10**9
+random.seed(81212)
+MAXN, MAXL, MAXSUM, MAXT, MAXP = 100_000, 100_000, 150_000, 10**9, 10**9
 tests = []
 
 
@@ -10,145 +10,187 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, edges, qs, shuffle=True):
-    edges = list(edges)
+def add(n, P, A, B, lines, shuffle=True):
+    """lines: list of (stations, times)"""
+    lines = list(lines)
     if shuffle:
-        random.shuffle(edges)
-    m, q = len(edges), len(qs)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM and 1 <= q <= MAXQ
-    assert all(1 <= a <= n and 1 <= b <= n and -MAXW <= w <= MAXW for a, b, w in edges)
-    assert all(1 <= u <= n and 1 <= v <= n for u, v in qs)
-    tests.append(f"{n} {m} {q}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in edges)
-                 + "".join(f"{u} {v}\n" for u, v in qs))
+        random.shuffle(lines)
+    L = len(lines)
+    assert 2 <= n <= MAXN and 1 <= L <= MAXL and 1 <= P <= MAXP and 1 <= A <= n and 1 <= B <= n
+    assert sum(len(s) for s, t in lines) <= MAXSUM
+    assert all(len(s) >= 2 and len(t) == len(s) - 1 and len(set(s)) == len(s) for s, t in lines)
+    assert all(1 <= min(s) and max(s) <= n and 1 <= min(t) and max(t) <= MAXT for s, t in lines)
+    tests.append(f"{n} {L} {P} {A} {B}\n" + "\n".join(
+        f"{len(s)} {' '.join(map(str, s))}\n{' '.join(map(str, t))}" for s, t in lines) + "\n")
 
 
-def rq(n, q):
-    return [(ri(1, n), ri(1, n)) if random.random() < 0.97 else (x, x) for x in [ri(1, n) for _ in range(q)]]
-
-
-def potential(n, m, pmax, cmax, verts=None):
-    """roads w = p(b) - p(a) + c with c >= 0: many negative roads but no negative cycle"""
-    verts = verts or list(range(1, n + 1))
-    p = {v: ri(0, pmax) for v in verts}
-    res = []
-    for _ in range(m):
-        a, b = random.choice(verts), random.choice(verts)
-        res.append((a, b, max(-MAXW, min(MAXW, p[b] - p[a] + ri(0, cmax)))))
+def distinct(lo, hi, k):
+    """k different random integers in [lo, hi]"""
+    if hi - lo >= 1000 * k:                 # collisions are rare: draw all, retry if needed
+        while True:
+            res = [lo + int(random.random() * (hi - lo + 1)) for _ in range(k)]
+            if len(set(res)) == k:
+                return res
+    res, seen = [], set()
+    while len(res) < k:
+        x = ri(lo, hi)
+        if x not in seen:
+            seen.add(x)
+            res.append(x)
     return res
 
 
-def chain_potential(n, extra, pmax, cmax):
-    """a long cheap route through all towns plus random roads, no negative cycle"""
+def rnd_line(n, k, tlo, thi):
+    return (distinct(1, n, k), [ri(tlo, thi) for _ in range(k - 1)])
+
+
+def rnd_lines(n, L, kmin, kmax, tlo, thi):
+    """up to L random lines, stopping before the total length passes MAXSUM"""
+    res, used = [], 0
+    for _ in range(L):
+        k = ri(kmin, kmax)
+        if used + k > MAXSUM:
+            break
+        res.append(rnd_line(n, k, tlo, thi))
+        used += k
+    return res
+
+
+def relabel(n, A, B, lines):
+    p = list(range(1, n + 1))
+    random.shuffle(p)
+    p = [0] + p
+    return n, p[A], p[B], [([p[x] for x in s], t) for s, t in lines]
+
+
+def grid_metro(r, c, tlo, thi):
+    """stations on an r x c grid; one line along every row and every column"""
+    lines = []
+    for i in range(r):
+        lines.append(([i * c + j + 1 for j in range(c)], [ri(tlo, thi) for _ in range(c - 1)]))
+    for j in range(c):
+        lines.append(([i * c + j + 1 for i in range(r)], [ri(tlo, thi) for _ in range(r - 1)]))
+    return r * c, lines
+
+
+def hub(n, L, tlo, thi):
+    """station 1 is on every line; each line is short"""
+    lines, used = [], 0
+    for _ in range(L):
+        k = 2 if random.random() < 0.85 else 3
+        if used + k > MAXSUM:
+            break
+        used += k
+        s = distinct(2, n, k - 1)
+        s.insert(ri(0, k - 1), 1)
+        lines.append((s, [ri(tlo, thi) for _ in range(k - 1)]))
+    return lines
+
+
+def express(n, k, P):
+    """one slow line through every station, express lines that skip ahead but need transfers"""
     order = list(range(1, n + 1))
     random.shuffle(order)
-    p = {v: ri(0, pmax) for v in order}
-    res = [(order[i], order[i + 1], p[order[i + 1]] - p[order[i]] + ri(0, 3)) for i in range(n - 1)]
-    for _ in range(extra):
-        a, b = random.choice(order), random.choice(order)
-        res.append((a, b, min(MAXW, p[b] - p[a] + ri(cmax // 2, cmax))))
-    return res
+    lines = [(order, [ri(1, 100) for _ in range(n - 1)])]
+    used = n
+    while used + k <= MAXSUM:
+        i = ri(0, n - k * 50 - 1)
+        s = [order[i + 50 * x] for x in range(k)]
+        lines.append((s, [ri(1000, 4000) for _ in range(k - 1)]))
+        used += k
+    return lines, order[0], order[-1]
 
 
-def plant_cycles(n, k, length, wmin):
-    """k small cycles of negative total length"""
-    res = []
-    for _ in range(k):
-        cyc = random.sample(range(1, n + 1), length)
-        ws = [ri(-MAXW // 2, MAXW // 2) for _ in range(length - 1)]
-        last = -sum(ws) - ri(1, wmin)
-        if not -MAXW <= last <= MAXW:
-            continue
-        ws.append(last)
-        res += [(cyc[i], cyc[(i + 1) % length], ws[i]) for i in range(length)]
-    return res
+def traps(g, tlo, thi):
+    """g blocks in a row: a -> x directly, or a -> y -> x on a line that goes on to b"""
+    lines = []
+    for i in range(g):
+        a, x, y, b = 3 * i + 1, 3 * i + 2, 3 * i + 3, 3 * i + 4
+        lines += [([a, x], [ri(tlo, thi)]), ([a, y, x, b], [ri(tlo, thi), ri(tlo, thi), ri(tlo, thi)])]
+    return lines
 
 
-def groups(n, sizes):
-    """split the towns into groups (random order)"""
-    order = list(range(1, n + 1))
-    random.shuffle(order)
-    res, at = [], 0
-    for s in sizes:
-        res.append(order[at:at + s])
-        at += s
-    return res
-
-
-def scc_dag(n, k, m, pbad, pmax, cmax, cyc=1):
-    """k groups; inside a group roads both ways without negative cycles, between groups only forward;
-    a fraction pbad of the groups get one negative cycle"""
-    cuts = sorted(random.sample(range(1, n), k - 1))
-    sizes = [b - a for a, b in zip([0] + cuts, cuts + [n])]
-    gs = groups(n, sizes)
-    inner = m * 3 // 4
-    e = []
-    for g in gs:
-        e += potential(n, max(1, inner * len(g) // n), pmax, cmax, g)
-        if random.random() < pbad:
-            if len(g) == 1:
-                e.append((g[0], g[0], -ri(1, cyc)))
-            else:
-                a, b = random.sample(g, 2)
-                w = ri(-MAXW + cyc, MAXW - cyc)
-                e += [(a, b, w), (b, a, -w - ri(1, cyc))]
-    while len(e) < m:
-        i, j = sorted(random.sample(range(k), 2)) if k > 1 else (0, 0)
-        e.append((random.choice(gs[i]), random.choice(gs[j]), ri(-MAXW // 10, MAXW)))
-    return e[:m]
+def with_hub(lines, lo, hi, h, tlo, thi):
+    """fill the rest of the total length with short lines through station h and stations of [lo, hi]"""
+    lines = list(lines)
+    used = sum(len(s) for s, t in lines)
+    while used + 3 <= MAXSUM:
+        k = 2 if random.random() < 0.85 else 3
+        s = [x for x in distinct(lo, hi, k) if x != h][:k - 1]
+        s.insert(ri(0, len(s)), h)
+        lines.append((s, [ri(tlo, thi) for _ in range(len(s) - 1)]))
+        used += len(s)
+    return lines
 
 
 # samples
-add(4, [(1, 2, 4), (2, 3, -2), (1, 3, 3), (3, 4, 1), (4, 2, 5)], [(1, 3), (4, 1)], False)
-add(4, [(1, 2, 1), (2, 3, -3), (3, 2, 1), (3, 4, 2)], [(1, 4), (1, 1)], False)
-add(3, [(2, 2, -1), (1, 3, 7)], [(1, 3), (2, 2), (3, 1)], False)
-add(4, [(1, 2, -MAXW), (2, 3, -MAXW), (3, 4, -MAXW)], [(1, 4), (4, 1)], False)
-add(2, [(1, 2, -5), (2, 1, 5)], [(1, 2), (2, 2)], False)
+add(6, 5, 1, 6, [([1, 2, 3, 4], [2, 2, 2]), ([5, 3, 6], [1, 3]), ([2, 6], [9])], False)
+add(5, 100, 4, 3, [([4, 2, 1], [1, 1]), ([1, 5, 3], [1, 1]), ([2, 3], [150])], False)
+add(4, 1, 1, 4, [([1, 2], [5]), ([3, 4], [5])], False)
+add(3, MAXP, 2, 2, [([1, 3], [7])], False)
+add(4, 3, 1, 4, [([1, 2, 3], [5, 5]), ([3, 2, 4], [1, 1])], False)
 # hidden: small
-add(5, [(1, 2, 2), (2, 3, 2), (3, 1, -5), (4, 5, -1), (5, 4, 1), (3, 4, 10), (1, 1, 0)],
-    [(1, 5), (4, 4), (5, 1), (4, 5), (5, 5), (2, 2)])
-add(1, [(1, 1, -5)], [(1, 1)])
-add(1, [(1, 1, 3)], [(1, 1)])
-add(2, [(1, 2, -MAXW), (2, 1, MAXW)], [(1, 2), (2, 1), (1, 1), (2, 2)])
-for n, m, wneg, wpos in ((5, 8, 3, 5), (6, 12, 2, 6), (8, 15, 1, 10), (10, 25, 5, 20), (15, 40, 3, 30)):
-    add(n, [(ri(1, n), ri(1, n), ri(-wneg, wpos)) for _ in range(m)], rq(n, 100))
-add(30, potential(30, 120, 1000, 50), rq(30, 300))
-add(30, potential(30, 100, 1000, 50) + plant_cycles(30, 2, 3, 5), rq(30, 300))
-add(60, chain_potential(60, 200, 10**6, 10**6) + plant_cycles(60, 1, 4, 1), rq(60, 500))
-gs = groups(80, [30, 30, 20])
-e = potential(80, 300, 10**4, 100, gs[0]) + potential(80, 300, 10**4, 100, gs[1]) + potential(80, 200, 10**4, 100, gs[2])
-e += [(gs[1][0], gs[1][1], -10**5), (gs[1][1], gs[1][0], 0)] + [(gs[0][0], gs[1][2], 7), (gs[1][3], gs[2][0], 9)]
-add(80, e, rq(80, 800))
-add(100, [(ri(1, 100), ri(1, 100), ri(-10, 10**4)) for _ in range(1500)], rq(100, 1000))
+add(2, 1, 1, 2, [([2, 1], [MAXT])])
+add(3, 10, 1, 3, [([1, 2], [1]), ([2, 3], [1]), ([1, 3], [12]), ([1, 2, 3], [7, 7])])
+for n, L, kmax, thi, P in ((6, 4, 3, 5, 3), (8, 6, 4, 10, 1), (10, 8, 5, 3, 7), (12, 10, 4, 20, 15),
+                           (30, 20, 6, 100, 50), (60, 40, 8, 10, 25)):
+    lines = rnd_lines(n, L, 2, kmax, 1, thi)
+    add(n, P, ri(1, n), ri(1, n), lines)
+n, lines = grid_metro(6, 7, 1, 9)
+n, A, B, lines = relabel(n, 1, n, lines)
+add(n, 6, A, B, lines)
+add(40, 4, 1, 2, hub(40, 50, 1, 10))
+n, lines = grid_metro(15, 15, 1, 50)
+n, A, B, lines = relabel(n, 1, n, lines)
+add(n, 30, A, B, lines)
+lines = rnd_lines(500, 300, 2, 10, 1, 1000)
+add(500, 700, 1, 2, lines)
+lines = []
+for g in range(30):                                                 # arriving first is not always best
+    a, x, y, b = 3 * g + 1, 3 * g + 2, 3 * g + 3, 3 * g + 4
+    lines += [([a, x], [10]), ([a, y, x, b], [5, 7, 1])]
+add(91, 100, 1, 91, lines)
+lines = rnd_lines(40, 60, 2, 8, 1, 30)
+add(40, 200, 1, 2, lines)
 # hidden: maximum size
-N, M, Q = MAXN, MAXM, MAXQ
-add(N, potential(N, M, 5 * 10**8, 10**8), rq(N, Q))
-add(N, chain_potential(N, M - N, 5 * 10**8, MAXW // 2), rq(N, Q))
-add(N, scc_dag(N, 12, M, 0.3, 10**6, 10**7), rq(N, Q))
-gs = groups(N, [100, 100, 100])                       # three parts; only the middle one has a negative cycle
-e = []
-for g in gs:
-    e += potential(N, M // 3 - 50, 4 * 10**8, 10**8, g)
-x, y = gs[1][0], gs[1][1]
-e += [(x, y, -MAXW), (y, x, MAXW - 1)]
-for _ in range(20):
-    e += [(random.choice(gs[0]), random.choice(gs[1]), ri(1, MAXW)), (random.choice(gs[1]), random.choice(gs[2]), ri(1, MAXW))]
-add(N, e, rq(N, Q))
-add(N, scc_dag(N, 6, M, 0.5, 10**8, 10**8, MAXW), rq(N, Q))                    # very negative cycles: watch overflow
-add(N, [(ri(1, N), ri(1, N), ri(-MAXW, -MAXW + 10)) for _ in range(M)], rq(N, Q))  # everything is -INF
-e = [(i, i + 1, -MAXW) for i in range(1, N)] + [(i, i, 0) for i in range(1, N + 1)]
-e += [(i, j, ri(-MAXW, MAXW)) for i, j in (sorted(random.sample(range(1, N + 1), 2)) for _ in range(M - len(e)))]
-add(N, e, rq(N, Q))                                   # long, very negative routes, no cycle
-add(N, scc_dag(N, 20, M - 1, 0.0, 10**8, 10**6) + [(150, 150, -1)], rq(N, Q))   # one negative loop
-gs = groups(N, [150, 150])                            # no road from the second half to the first
-e = potential(N, M // 2, 10**8, 10**6, gs[0]) + potential(N, M // 2 - 50, 10**8, 10**6, gs[1])
-e += [(random.choice(gs[0]), random.choice(gs[1]), ri(-MAXW, MAXW)) for _ in range(50)]
-add(N, e, rq(N, Q))
-order = list(range(1, N + 1))
+n, lines = grid_metro(250, 300, 1, 1000)
+n, A, B, lines = relabel(n, 1, n, lines)
+add(n, 2000, A, B, lines)
+n, lines = grid_metro(250, 300, 1, 10)
+n, A, B, lines = relabel(n, 1, n, lines)
+add(n, 1, A, B, lines)
+lines = hub(MAXN, 90_000, 1, 1000)                               # every route changes at the hub
+add(MAXN, 5, max(lines[0][0]), max(lines[-1][0]), lines, False)
+lines = hub(MAXN, 90_000, 1, MAXT)
+add(MAXN, MAXP, max(lines[0][0]), max(lines[1][0]), lines, False)
+lines, A, B = express(MAXN, 20, 500)
+add(MAXN, 500, A, B, lines)
+lines, A, B = express(MAXN, 20, 10**6)
+add(MAXN, 10**6, A, B, lines)
+lines = traps(10_000, 1, 10)
+add(MAXN, 100, 1, 30_001, with_hub(lines + [([1, 30_002], [1])], 30_002, MAXN, 30_002, 1, 50))
+lines = with_hub(rnd_lines(MAXN, 4000, 2, 18, 1, 10**4), 1, MAXN, ri(1, MAXN), 1, 10**4)
+add(MAXN, 10**5, lines[0][0][0], lines[1][0][-1], lines)
+add(20_000, 3 * 10**4, 1, 2, rnd_lines(20_000, 10_000, 2, 38, 1, 10**4))
+order = list(range(1, MAXN + 1))
 random.shuffle(order)
-e = [(order[i], order[j], ri(-MAXW, MAXW)) for i, j in (sorted(random.sample(range(N), 2)) for _ in range(M))]
-add(N, e, rq(N, Q))                                   # no cycle at all, any signs
-add(N, scc_dag(N, 40, M, 0.3, 4 * 10**8, MAXW // 2), rq(N, Q))
-add(N, scc_dag(N, 3, M, 0.4, 10**4, 10), rq(N, Q))
+order = order[:MAXSUM // 2]
+lines = [(order[i:i + 2], [MAXT]) for i in range(len(order) - 1)]          # a line for every step, lengths near 10^14
+add(MAXN, MAXP, order[0], order[-1], lines)
+lines = rnd_lines(MAXN, 4000, 2, 18, 1, 10**4)
+lines = [l for l in with_hub(lines, 1, MAXN, 3, 1, 10**4) if 2 not in l[0]]
+add(MAXN, 50, lines[0][0][0], 2, lines)                          # station 2 is on no line
+lines = []
+used = 0
+while used + 3 <= MAXSUM:                                            # two busy stations
+    k = 2 if random.random() < 0.85 else 3
+    s = distinct(3, MAXN, k - 1)
+    s.insert(ri(0, k - 1), ri(1, 2))
+    lines.append((s, [ri(1, 10**5) for _ in range(k - 1)]))
+    used += k
+add(MAXN, 10**5, lines[0][0][0], lines[-1][0][-1], lines)
+add(30, 500, 1, 2, rnd_lines(30, 100_000, 2, 10, 1, 1000))         # every station is on thousands of lines
+
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)

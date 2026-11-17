@@ -1,54 +1,68 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(60003)
-MAXN, MAXA, MAXQ, MAXS = 100, 10**5, 10**5, 10**5
+random.seed(91402)
+MAXN = 3000
+MAXK = 200000
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def add(n, holes):
+    holes = list(holes)
+    assert 1 <= n <= MAXN
+    assert 0 <= len(holes) <= min(n * n, MAXK)
+    assert len(set(holes)) == len(holes)
+    assert all(1 <= i <= n and 1 <= j <= 2 * i - 1 for i, j in holes)
+    tests.append(f"{n} {len(holes)}\n" + "".join(f"{i} {j}\n" for i, j in holes))
 
 
-def add(a, s):
-    n, q = len(a), len(s)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= x <= MAXA for x in a) and all(1 <= x <= MAXS for x in s)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + f"\n{q}\n" + " ".join(map(str, s)) + "\n")
-
-
-def queries(q, lo, hi):
-    return [ri(lo, hi) for _ in range(q)]
+def rnd(n, k, kind=None):
+    """k distinct random cells; kind = 1 only upward cells, 0 only downward cells"""
+    s = set()
+    while len(s) < k:
+        i = random.randint(1, n)
+        j = random.randint(1, 2 * i - 1)
+        if kind is not None and j % 2 != kind:
+            continue
+        s.add((i, j))
+    s = sorted(s)
+    random.shuffle(s)
+    return s
 
 
 # samples
-add([1, 2, 3, 4], [5, 10, 11])
-add([2, 2, 2], [4, 6])
-add([100000], [100000, 99999])
-add([1, 1, 1, 1, 1], [1, 2, 3, 4, 5])
-add([5, 3, 8, 3, 6, 1], [9, 14, 2, 26])
-add([7, 12, 7, 20, 5, 12, 9, 3], [24, 31, 75, 1, 41])
-# hidden: small (all sets are listed)
-add([1], [1])
-add([3, 5], [1, 2, 3, 4, 5, 8, 100000])
-add([ri(1, 10) for _ in range(20)], list(range(1, 60)))
-add([ri(1, 100) for _ in range(20)], queries(200, 1, 2000))
-add([ri(1, MAXA) for _ in range(18)], queries(100, 1, MAXS))
-add([1] * 20, list(range(1, 21)))
-add([ri(40000, 60000) for _ in range(20)], queries(300, 90000, MAXS))
-# hidden: large
-N, Q = MAXN, MAXQ
-add([1] * N, queries(Q, 1, 100))                          # binomial coefficients, huge counts
-add([ri(1, 2000) for _ in range(N)], queries(Q, 1, MAXS))
-add([ri(1, MAXA) for _ in range(N)], queries(Q, 1, MAXS))
-add([ri(1, MAXA) for _ in range(N)], [MAXS] * Q)
-add([ri(900, 1100) for _ in range(N)], queries(Q, 50000, MAXS))
-add([1000 * ri(1, 3) for _ in range(N)], [1000 * ri(1, 100) for _ in range(Q)])
-add([i + 1 for i in range(N)], queries(Q, 1, 5050))       # distinct parts
-add([MAXA] * N, [MAXS] * (Q // 2) + [MAXS - 1] * (Q // 2))
-add([ri(1, 50) for _ in range(N)], [ri(1, 2500) for _ in range(Q)])
-add([ri(1, 10) for _ in range(N)], queries(Q, 1, 1200))
+add(3, [(3, 3)])
+add(4, [])
+add(1, [(1, 1)])
+add(5, [(3, 1), (3, 2), (4, 7), (4, 6)])
+add(6, [(2, 1), (2, 2), (2, 3), (6, 1), (5, 9), (6, 11), (6, 10)])
+add(7, [(4, 3), (4, 4), (4, 5), (7, 13)])
+# hidden: small
+add(1, [])
+add(2, [(2, 2)])                                          # the middle cell decides
+add(5, [(4, 4)])
+add(9, rnd(9, 8, 0))
+add(12, rnd(12, 20))
+add(20, rnd(20, 40))
+add(30, rnd(30, 15, 0))
+add(25, [(i, j) for i in range(1, 26) for j in range(1, 2 * i) if (i + j) % 7 == 0])
+# hidden: medium
+add(300, rnd(300, 300))
+add(1000, rnd(1000, 20000))
+# hidden: large (mostly white paper, so the triangles are big)
+N = MAXN
+add(N, [])
+add(N, [(1, 1)])
+add(N, rnd(N, 30))
+add(N, rnd(N, 100, 0))                                    # holes only in downward cells
+add(N, rnd(N, 60, 1))
+add(N, [(1500, j) for j in range(1, 3000)] + rnd(N, 20))  # a full row of holes
+add(N, [(i, 1) for i in range(7, N + 1, 7)])              # holes along the left edge
+add(N, [(i, i) for i in range(1, N + 1)] + [(i, i + 1) for i in range(2, N)])   # a slanted cut
+add(N, rnd(N, 40, 0) + [(i, j) for i in range(2800, 2900) for j in range(1, 2 * i, 2)][:MAXK - 40])
+add(N, [(i, 2 * i - 1) for i in range(100, N + 1, 100)] + [(i, i) for i in range(1000, 1100)])
+add(N - 1, rnd(N - 1, 10))
+add(N, [(N, j) for j in range(2, 2 * N, 2)])              # every downward cell of the last row
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

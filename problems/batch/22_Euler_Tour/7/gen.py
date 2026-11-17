@@ -113,16 +113,16 @@ for n, kind in ((5000, "path"), (8000, "broom"), (8000, "chains")):
     p, lab, height = tree(n, kind)
     add(n, [ri(0, MAXV) for _ in range(n)], p, rqs(n, 8000, lab, height, 200))
 # hidden: maximum size (shallow v, k strictly inside the subtree's height)
-big("path", MAXQ, 9999, 2_000)
+big("path", MAXQ, MAXV, 2_000)
 big("path", 70_000, MAXV, 200, full=0.0)                      # the largest totals
 big("deep", MAXQ, 9999, 2_000)
-big("caterpillar", MAXQ, 9999, 2_000)
+big("caterpillar", MAXQ, MAXV, 2_000)
 big("broom", MAXQ, 9999, 1_000)
-big("chains", MAXQ, 9999, 300)
+big("chains", MAXQ, MAXV, 300)
 big("star", MAXQ, 9999, 1, full=0.3)
-big("binary", MAXQ, 9999, 30)
-big("random", MAXQ, 9999, None)
-big("deep", MAXQ, 9999, 50, full=0.0)
+big("binary", MAXQ, 9999, 3, full=0.5)
+big("random", MAXQ, MAXV, 5)
+big("deep", MAXQ, MAXV, 50, full=0.0)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

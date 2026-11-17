@@ -113,9 +113,13 @@ def bushes_shape(n, k):
     return par
 
 
-def build(n, kind, cval, lval, k=0):
-    """cval(i, depth) and lval(i, depth) for the i-th created house; node 0 is house 1"""
-    par = bushes_shape(n, k) if kind == "bushes" else shape(n, kind)
+def build(n, kind, cval, lval, k=0, top=0):
+    """cval(i, depth) and lval(i, depth) for the i-th created house; node 0 is house 1;
+    top > 0: a chain of top houses from house 1, the shape of n - top houses below its end"""
+    m = n - top
+    sub = bushes_shape(m, k) if kind == "bushes" else shape(m, kind)
+    par = [i - 1 for i in range(top)] + [top - 1 if j == 0 else top + sub[j] for j in range(m)]
+    par[0] = -1
     dep = [0] * n
     for i in range(1, n):
         dep[i] = dep[par[i]] + 1
@@ -157,18 +161,24 @@ build(200, "random", skew, skew)
 build(2000, "deep", skew, skew)
 build(3000, "binary", uni(1, MAXC), uni(1, MAXL))
 build(3000, "random", skew, skew)
-# hidden: maximum size
+# hidden: maximum size (all but the path hang below a chain of 50 000 to 60 000 houses)
 N = MAXN
-build(N, "star", skew, skew)
+
+
+def T():
+    return ri(50_000, 60_000)
+
+
+build(N, "star", skew, skew, 0, T())
 build(N, "path", uni(MAXC, MAXC), uni(MAXL, MAXL))     # the largest answer
-build(N, "random", skew, skew)
-build(N, "random", uni(1, MAXC), uni(1, MAXL))
-build(N, "bushes", skew, skew, 50)
-build(N, "bushes", uni(1, MAXC), skew, 7)
-build(N, "cater", skew, skew)
-build(N, "spider", skew, skew)
-build(N, "binary", skew, skew)
-build(N, "deep", skew, skew)
+build(N, "random", skew, skew, 0, T())
+build(N, "random", uni(1, MAXC), uni(1, MAXL), 0, T())
+build(N, "bushes", skew, skew, 50, T())
+build(N, "bushes", uni(1, MAXC), skew, 7, T())
+build(N, "cater", skew, skew, 0, T())
+build(N, "spider", skew, skew, 0, T())
+build(N, "binary", skew, skew, 0, T())
+build(N, "deep", skew, skew, 0, T())
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

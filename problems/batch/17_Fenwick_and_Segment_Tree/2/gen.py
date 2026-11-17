@@ -1,8 +1,8 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110002)
-MAXN, MAXV = 200_000, 10**9
+random.seed(170107)
+MAXN, MAXQ, MAXV = 200_000, 200_000, 10**9
 tests = []
 
 
@@ -10,52 +10,82 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a):
-    n = len(a)
-    assert 1 <= n <= MAXN
-    assert all(1 <= v <= MAXV for v in a)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
+def add(a, ops):
+    n, q = len(a), len(ops)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(-MAXV <= v <= MAXV for v in a)
+    lines = []
+    for t, x, y in ops:
+        if t == 1:
+            assert 1 <= x <= n and -MAXV <= y <= MAXV
+        else:
+            assert t == 2 and 1 <= x <= y <= n
+        lines.append(f"{t} {x} {y}")
+    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "\n".join(lines) + "\n")
 
 
-def halves(n, top):
-    """values v and v // 2 or 2 v next to each other: many pairs exactly on the boundary a_i = 2 a_j"""
-    a = []
-    while len(a) < n:
-        v = ri(1, top // 2)
-        a += random.choice(([2 * v, v], [v, 2 * v], [2 * v + 1, v], [2 * v, v + 1]))
-    return a[:n]
+def val(vmax, pzero):
+    """a nonzero number with |v| <= vmax (random sign), or 0 with probability pzero"""
+    if random.random() < pzero:
+        return 0
+    return ri(1, vmax) * random.choice((1, -1))
+
+
+def any_rng(n):
+    l = ri(1, n)
+    return l, ri(l, n)
+
+
+def long_rng(n, slack):
+    return ri(1, min(n, slack)), ri(max(1, n - slack + 1), n)
+
+
+def ops_of(n, q, upd, rng, vmax, pzero, zpos=None):
+    """upd: share of multiplications; a multiplication by 0 has probability pzero and hits zpos() if given"""
+    ops = []
+    for _ in range(q):
+        if random.random() < upd:
+            x = val(vmax, pzero)
+            i = zpos() if x == 0 and zpos else ri(1, n)
+            ops.append((1, i, x))
+        else:
+            ops.append((2,) + rng())
+    return ops
 
 
 # samples
-add([9, 4, 2, 8, 1])
-add([8, 4, 2, 1])
-add([5])
-add([1, 2, 3, 4, 5, 6])
-add([MAXV, 499_999_999, 1, 500_000_000])
-add([7, 3, 3, 10, 1, 4, 2])
-# hidden: small
-add([1, 1])
-add([3, 1])
-add([2, 1])
-for n, vmax in ((10, 10), (50, 6), (300, 1000), (2000, MAXV), (5000, 20)):
-    add([ri(1, vmax) for _ in range(n)])
-add(halves(3000, 100))
-add(halves(4000, MAXV))
-# hidden: maximum size
+add([2, -3, 0, 4, -1], [(2, 1, 2), (2, 1, 5), (2, 4, 5), (1, 2, -2), (2, 1, 2), (2, 2, 5)])
+add([-1, -1, -1], [(2, 1, 3), (1, 2, -5), (2, 1, 3), (2, 2, 2)])
+add([MAXV, -MAXV], [(2, 1, 2), (1, 1, -1), (2, 1, 2)])
+add([3, -2, 5, -7, 1], [(2, 1, 5), (1, 5, -3), (2, 3, 5), (2, 1, 5)])
+add([0, 1], [(2, 2, 2), (2, 1, 2)])
+# hidden: small (the brute force checks these)
+for n, q, vmax, pzero, upd in ((1, 6, 3, 0.2, 0.5), (3, 20, 2, 0.1, 0.4), (8, 60, 10, 0.05, 0.4),
+                               (30, 300, MAXV, 0.02, 0.3), (100, 800, 2, 0.01, 0.5), (300, 1500, MAXV, 0.0, 0.3),
+                               (300, 1500, 1, 0.01, 0.3)):
+    add([val(vmax, pzero) for _ in range(n)], ops_of(n, q, upd, lambda: any_rng(n), vmax, pzero))
+n = 300                                                     # many multiplications by 0
+add([val(5, 0) for _ in range(n)], ops_of(n, 1500, 0.3, lambda: any_rng(n), 5, 0.2))
+# hidden: maximum size (inputs kept near 3 MB; zeros only near the right end, so a scan from l is long)
 N = MAXN
-add([ri(1, MAXV) for _ in range(N)])
-add([ri(1, 10) for _ in range(N)])
-add([MAXV] * (N // 2) + [1] * (N // 2))                         # about 10^10 pairs
-add(sorted((ri(1, MAXV) for _ in range(N)), reverse=True))
-add(sorted(ri(1, MAXV) for _ in range(N)))                      # no drop at all
-add([ri(MAXV // 2, MAXV) for _ in range(N)])                    # within a factor 2: no drop
-add(halves(N, MAXV))
-add([MAXV >> ri(0, 29) for _ in range(N)])                      # powers of two times a constant
-add([ri(1, 1000) * ri(1, 1000) for _ in range(N)])
-a = [ri(MAXV // 2 + 1, MAXV) for _ in range(N // 2)] + [ri(1, MAXV // 4) for _ in range(N // 2)]
-random.shuffle(a)
-add(a)
-add([MAXV - i for i in range(N)])
+z_end = lambda: ri(N - 20, N)
+add([val(9, 0) for _ in range(N)], ops_of(N, 160_000, 0.2, lambda: long_rng(N, 50), 9, 0.002, z_end))
+add([val(9, 0) for _ in range(N)], ops_of(N, 160_000, 0.05, lambda: long_rng(N, 50), 9, 0, None))
+add([2] * N, ops_of(N, 160_000, 0.3, lambda: long_rng(N, 100), 2, 0.001, z_end))   # products of 2^k
+add([-2] * N, ops_of(N, 160_000, 0.1, lambda: long_rng(N, 10), 2, 0.001, z_end))
+n = 100_000                                                 # values at the limits
+add([val(MAXV, 0) for _ in range(n)], ops_of(n, 110_000, 0.3, lambda: long_rng(n, 30), MAXV, 0.002,
+                                             lambda: ri(n - 10, n)))
+add([val(9, 0) for _ in range(N)], [(2, 1, N) if k % 3 else (1, ri(1, N), -1) for k in range(150_000)])
+a = [val(9, 0) for _ in range(N)]                           # one zero at the very end, removed from the questions
+a[N - 1] = 0
+add(a, ops_of(N, 160_000, 0.2, lambda: long_rng(N, 1000), 9, 0, None))
+a = [1] * N                                                 # all ones, a few signs flipped by multiplications
+add(a, ops_of(N, 170_000, 0.1, lambda: long_rng(N, 20), 1, 0.001, z_end))
+add([val(99, 0) for _ in range(N)], ops_of(N, 150_000, 0.4, lambda: long_rng(N, 3000), 99, 0.001, z_end))
+# hidden: many short questions
+n = 3000
+add([val(MAXV, 0.01) for _ in range(n)], ops_of(n, MAXQ, 0.4, lambda: any_rng(n), MAXV, 0.02))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

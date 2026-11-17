@@ -1,62 +1,60 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(50404)
-MAXM, MAXQ, MAXV = 100, 200_000, 10**6
+random.seed(90101)
+MAXN = 10 ** 6
+MAXK = 200000
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (deterministic, faster than randint)"""
-    return lo + int(random.random() * (hi - lo + 1))
+def add(n, pots):
+    pots = list(pots)
+    assert 1 <= n <= MAXN
+    assert 0 <= len(pots) <= min(2 * n, MAXK)
+    assert len(set(pots)) == len(pots)
+    assert all(r in (1, 2) and 1 <= c <= n for r, c in pots)
+    tests.append(f"{n} {len(pots)}\n" + "".join(f"{r} {c}\n" for r, c in pots))
 
 
-def add(c, x):
-    m, q = len(c), len(x)
-    assert 1 <= m <= MAXM and 1 <= q <= MAXQ
-    assert len(set(c)) == m and all(1 <= v <= MAXV for v in c)
-    assert all(1 <= v <= MAXV for v in x)
-    tests.append(f"{m} {q}\n" + " ".join(map(str, c)) + "\n" + "\n".join(map(str, x)) + "\n")
-
-
-def coins(m, lo, hi):
-    return random.sample(range(lo, hi + 1), m)
-
-
-def queries(q, lo, hi):
-    return [ri(lo, hi) for _ in range(q)]
+def rnd(n, k):
+    s = set()
+    while len(s) < k:
+        s.add((random.randint(1, 2), random.randint(1, n)))
+    s = sorted(s)
+    random.shuffle(s)
+    return s
 
 
 # samples
-add([1, 3, 4], [6, 7, 2])
-add([5, 7], [3, 12, 23, 24])
-add([2], [10, 7])
-add([10, 1, 25], [30, 40, 63])
-add([1000000], [1000000, 999999])
-add([4, 9, 6], [15, 1, 26, 13, 8])
-# hidden: small (the brute force checks these)
-add([1], [1, 5, 30])
-add([3, 5], list(range(1, 31)))
-add([2, 6, 9], list(range(1, 41)))
-add([1, 7, 10], list(range(1, 46)))
-add(coins(4, 2, 12), queries(30, 1, 60))
-add(coins(6, 3, 20), queries(30, 1, 80))
-add([6, 10, 15], list(range(1, 61)))
-add(coins(3, 40, 60), queries(20, 1, 200))
-# hidden: maximum size
-Q = MAXQ
-add(coins(MAXM, 1, MAXV), queries(Q, 1, MAXV))
-add(coins(MAXM, 1, 2000), queries(Q, 1, MAXV))
-add(coins(MAXM, 1000, 5000), queries(Q, MAXV - 100_000, MAXV))
-add([1], queries(Q - 1, 1, MAXV) + [MAXV])                     # largest answer
-add([2 * v for v in coins(MAXM, 1, 20000)], queries(Q, 1, MAXV))  # every odd total is impossible
-add(sorted(coins(MAXM, 100_000, MAXV)), queries(Q, 1, MAXV))    # mostly impossible
-add([1] + [v * 50 + 1 for v in range(1, MAXM)], queries(Q, 1, MAXV))
-add(list(range(MAXV, MAXV - MAXM, -1)), queries(Q, 1, MAXV))
-add([997, 1000, 1003, 1] + coins(MAXM - 4, 1004, 3000), queries(Q, 1, MAXV))
-add(coins(MAXM, 1, 100), list(range(MAXV, MAXV - Q, -1)))
-add([999_983, 999_979], queries(Q, 1, MAXV))
-add(coins(10, 1, 300), queries(Q, 1, MAXV))
+add(2, [])
+add(3, [(1, 2)])
+add(1, [(1, 1), (2, 1)])
+add(6, [(2, 2), (1, 5)])
+add(10, [])
+add(8, [(1, 4), (2, 7), (2, 4)])
+# hidden: small (every tiling can be listed)
+add(1, [])
+add(1, [(2, 1)])
+add(4, [(1, 1), (2, 4)])
+add(7, [(1, c) for c in range(1, 8)])                  # one whole row of pots
+add(9, rnd(9, 4))
+add(12, rnd(12, 3))
+add(5, [(1, 1), (2, 1), (1, 2), (2, 2), (1, 3), (2, 3), (1, 4), (2, 4), (1, 5), (2, 5)])   # no free cell
+# hidden: medium
+add(40, [])
+add(1000, rnd(1000, 30))
+add(5000, [(1 + c % 2, c) for c in range(3, 5000, 7)])
+# hidden: large
+N = MAXN
+add(N, [])
+add(N, rnd(N, MAXK))
+add(N, rnd(N, 1000))
+add(N, [(1 + (c // 5) % 2, c) for c in range(5, 5 * MAXK + 1, 5)])      # a pot every 5 columns, rows alternate
+add(N, [(1, c) for c in range(1, MAXK + 1)])                           # a long half-blocked stretch
+add(N, [(r, c) for c in range(N // 2 - 50000, N // 2 + 50000) for r in (1, 2)])   # a wall of full columns
+add(N, [(2, 1), (1, N)] + [(1 + c % 2, c) for c in range(1000, N, 997)])
+add(N, [(r, c) for c in range(3, N, 11) for r in (1, 2)][:MAXK])         # full columns, gaps of 10
+add(N - 1, rnd(N - 1, 50))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

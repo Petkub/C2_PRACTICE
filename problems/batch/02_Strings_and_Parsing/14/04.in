@@ -1,7 +1,2 @@
-6 1000
-set k 3
-again:  ; k = k - 1
-  sub k 1
-  jnz k again
-halt
-print k
+4
+|&ab&cd

@@ -1,57 +1,90 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(11019)
-MAXN, MAXK, MAXV = 100_000, 400, 10**6
+random.seed(60019)
+MAXN, MAXA, MAXS = 200_000, 10**9, 10**15
 tests = []
 
 
 def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(K, A, B, a, p):
+def add(s, a):
     n = len(a)
-    assert 1 <= n <= MAXN and 1 <= K <= min(n, MAXK) and len(p) == K and 1 <= A <= B <= n
-    assert all(1 <= x <= MAXV for x in a) and all(1 <= x <= MAXV for x in p)
-    tests.append(f"{n} {K} {A} {B}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, p)) + "\n")
+    assert 1 <= n <= MAXN and 1 <= s <= MAXS
+    assert all(1 <= x <= MAXA for x in a)
+    tests.append(f"{n} {s}\n" + " ".join(map(str, a)) + "\n")
 
 
-def rnd(n, lo=1, hi=MAXV):
+def rnd(n, lo, hi):
     return [ri(lo, hi) for _ in range(n)]
 
 
+def window(a, w):
+    """S such that a typical piece may hold about w elements"""
+    return max(max(a), sum(a) * w // len(a))
+
+
+def add_w(w, a):
+    add(window(a, w), a)
+
+
 # samples
-add(2, 1, 3, [4, 1, 5, 2, 3], [2, 5])
-add(2, 1, 3, [1, 1, 1, 1, 1, 1, 1], [1, 1])
-add(3, 2, 2, [5, 3, 8, 1, 2, 9], [3, 1, 2])
-add(1, 1, 4, [7, 7, 7, 7], [10])
-add(3, 1, 4, [6, 2, 9, 4, 1, 8, 3, 5], [1, 4, 2])
-add(4, 2, 3, [9, 1, 1, 9, 9, 1, 1, 9, 2, 7], [5, 1, 5, 2])
-# hidden: small (the brute tries every split)
-add(1, 1, 1, [MAXV], [MAXV])
-add(3, 2, 5, rnd(9, 1, 9), rnd(3, 1, 9))          # 3 days need at least 6 crates: fine
-add(4, 3, 5, rnd(11, 1, 9), rnd(4, 1, 9))         # 4 * 3 > 11: -1
-add(5, 1, 3, rnd(12, 1, 100), rnd(5, 1, 100))
-add(6, 1, 12, rnd(12), rnd(6))
-add(4, 2, 4, rnd(12, 1, 5), [1, 100, 1, 100])
-# hidden: medium
-add(30, 10, 200, rnd(2000), rnd(30))
-add(100, 1, 60, rnd(3000, 1, 1000), rnd(100, 1, 1000))
+add(10, [4, 6, 3, 5, 2])
+add(5, [1, 2, 3, 1, 1])
+add(7, [3, 8, 2])
+add(100, [5, 9, 2, 7])
+add(9, [9, 9, 9])
+add(12, [2, 3, 7, 1, 1, 4, 4, 3, 6, 2])
+# hidden: small (every set of cuts is tried)
+add(1, [1])
+add(MAXS, [MAXA])
+add(8, [2, 3, 7, 1, 1, 4, 4, 3])
+add(6, [5, 1, 1, 5, 1, 1, 5, 1])
+add(10, [1, 2] * 9)
+add(30, rnd(18, 1, 10))
+add(1000, sorted(rnd(18, 1, 300), reverse=True))
+add_w(4, rnd(18, 1, 5))
+add_w(3, rnd(17, 1, MAXA))
+add(4, rnd(18, 1, 3))
+add(13, rnd(18, 1, 12) + [14])                   # the last element does not fit
+# hidden: medium (the O(N^2) DP of brute.cpp checks these)
+add_w(50, rnd(3000, 1, 1000))
+add_w(300, rnd(3000, 1, 3))
 # hidden: maximum size
-N, K = MAXN, MAXK
-add(K, 1, N, rnd(N), rnd(K))                       # every split allowed
-add(K, 1, N, [MAXV] * N, [MAXV] * K)               # 10^17
-add(K, 100, 1000, rnd(N), rnd(K))
-add(K, 150, 300, rnd(N), sorted(rnd(K)))           # prices rise
-add(K, 1, 400, rnd(N), sorted(rnd(K), reverse=True))
-add(K, 250, 250, rnd(N), rnd(K))                   # every day exactly 250 crates
-add(K, 251, 300, rnd(N), rnd(K))                   # 400 * 251 > N: -1
-add(K, 1, 249, rnd(N), rnd(K))                     # 400 * 249 < N: -1
-add(K, 249, 251, rnd(N), rnd(K))
-add(300, 1, 5000, rnd(N, 1, 10), rnd(300))
-add(K, 50, 2000, [MAXV if i % 977 < 5 else 1 for i in range(N)], rnd(K))
-add(K, 1, N // 2, rnd(N), [MAXV if d % 2 else 1 for d in range(K)])
+N = MAXN
+add_w(20000, rnd(N, 1, MAXA))
+runs = []
+while len(runs) < N:                                     # decreasing runs longer than a piece
+    runs += sorted(rnd(ri(20000, 60000), 1, ri(MAXA // 2, MAXA)), reverse=True)
+add_w(30000, runs[:N])
+add_w(30000, sorted(rnd(N, 1, MAXA), reverse=True))    # many suffix maxima at once
+add_w(20000, sorted(rnd(N, 1, MAXA)))
+add_w(10000, rnd(N, 1, 3))                               # many ties
+add_w(50000, rnd(N, 1, 2))
+saw = []
+for b in range(200):
+    saw += sorted(rnd(1000, 1, MAXA), reverse=True)
+add(window(saw, 15000), saw)
+x = [N - i for i in range(N)]
+add(sum(x), x)                          # one piece holds everything
+add(MAXA, [MAXA] * N)                                                  # every piece has one element
+x = sorted(rnd(N, 1, MAXA), reverse=True)
+add(window(x, 30000), x[:-1] + [MAXA])             # the last one beats every earlier maximum
+x = rnd(N, 1, 10**6)
+add(window(x, 1000), x[:N // 2] + [MAXA] + x[N // 2 + 1:])           # the big one does not fit
+add_w(25000, [ri(1, 1000) if i % 100 else ri(10**8, MAXA) for i in range(N)])
+add(7, rnd(N, 1, 3))                                                   # short pieces, ties decide the count
+add(30, rnd(N, 1, 10))
+add(300, rnd(N, 1, 100))
+add(5, [random.choice((1, 1, 2, 3)) for _ in range(N)])         # many equal-cost splits
+saw = []
+for b in range(4):
+    saw += sorted(rnd(N // 4, 1, MAXA), reverse=True)
+add_w(30000, saw)
+add_w(40000, [MAXA - 4000 * i - ri(0, 20000) for i in range(N)])      # decreasing with small bumps
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

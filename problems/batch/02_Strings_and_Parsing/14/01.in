@@ -1,7 +1,2 @@
-6 100
-set n 5   ; n = 5
-loop:
-  add s n
-  sub n 1
-  jnz n loop
-print s
+3
+&a|b!c

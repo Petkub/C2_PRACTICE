@@ -1,51 +1,43 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(1107)
-MAXN, MAXS, MAXC = 200_000, 10**15, 10**9
+random.seed(30607)
+MAXN, MAXA = 400_000, 10 ** 6
 tests = []
 
-def add(s, c):
-    n = len(c)
-    assert 1 <= n <= MAXN and 1 <= s <= MAXS
-    assert all(1 <= x <= MAXC for x in c)
-    tests.append(f"{n} {s}\n" + " ".join(map(str, c)) + "\n")
+def add(a):
+    assert 1 <= len(a) <= MAXN and all(1 <= x <= MAXA for x in a)
+    tests.append(f"{len(a)}\n" + " ".join(map(str, a)) + "\n")
 
-def rnd(n, lo, hi):
+def rnd(n, lo=1, hi=MAXA):
     return [random.randint(lo, hi) for _ in range(n)]
 
 # samples
-add(10, [3, 4, 2, 6, 1])
-add(5, [6, 2, 3, 7])
-add(1, [1])
-add(1, [2])
-add(MAXS, [7, MAXC, 7])
-add(4, [1, 1, 1, 1, 1, 1])
+add([3, 1, 4, 1, 5])
+add([2, 7, 1, 8])
+add([1000000])
+add([5] * 6)
+add([5, 2, 6, 6, 3, 9, 1, 4])
 # hidden: small
-add(MAXS, [MAXC])
-add(5, [3, 9, 9, 2, 3, 9, 1])               # costs above S in the middle and at both ends
-add(30, rnd(15, 1, 20))
-add(200, rnd(100, 1, 50))
-add(10**4, rnd(2000, 1, 100))
-c = rnd(5000, 1, 1000)
-for i in range(0, 5000, 37):
-    c[i] = MAXC                              # many empty windows
-add(5000, c)
-add(10**12, rnd(20000, 1, MAXC))
-add(MAXS, rnd(20000, 1, MAXC))               # every trip
+add([7, 7])
+add([1, 2])
+add([4, 9, 2])
+add(rnd(11, 1, 9))
+add(rnd(20, 1, 3))
+add(list(range(1, 31)))
+add(rnd(999, 1, 100))
+add(rnd(4000))
+add([MAXA - (i % 2) for i in range(6001)])
 # hidden: maximum size
-add(MAXS, [MAXC] * MAXN)                     # every trip: N(N+1)/2, sums up to 2e14
-add(MAXC * 60_000, [MAXC] * MAXN)            # windows of exactly 60000
-add(MAXC * 70_000 - 1, rnd(MAXN, 1, MAXC))
-add(MAXC * 100_000, rnd(MAXN, MAXC // 2, MAXC))
-add(150_000, [1] * MAXN)                     # windows of exactly 150000
-c = rnd(MAXN, 1, 10**4)
-for i in range(1, MAXN, 50_000):
-    c[i] = MAXC                              # a few costs above S
-add(MAXC - 1, c)
-add(MAXS, rnd(MAXN, 1, MAXC))
-add(30_000_000_000, rnd(MAXN, 1, 10**6))
-add(MAXC * 40_000, sorted(rnd(MAXN, 1, MAXC)))
+add(rnd(MAXN))
+add(rnd(MAXN - 1))
+add([MAXA] * MAXN)
+add(list(range(MAXA - MAXN + 1, MAXA + 1)))            # increasing
+add(list(range(MAXA, MAXA - MAXN + 1, -1))[:MAXN - 1])  # decreasing, odd length
+add([random.choice([1, MAXA]) for _ in range(MAXN)])
+add(rnd(MAXN, 1, 2))
+add([MAXA - abs(i - MAXN // 2) for i in range(MAXN)])  # a peak in the middle
+add(rnd(MAXN, MAXA - 1000, MAXA))
 
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):

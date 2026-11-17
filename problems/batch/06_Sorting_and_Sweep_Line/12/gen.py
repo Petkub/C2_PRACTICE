@@ -1,7 +1,7 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40112)
+random.seed(60111)
 MAXN, MAXT = 150_000, 10**9
 tests = []
 
@@ -10,65 +10,98 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(segs):
-    n = len(segs)
+def add(shifts):
+    n = len(shifts)
     assert 1 <= n <= MAXN
-    assert all(1 <= l <= r <= MAXT for (l, r) in segs)
-    tests.append(f"{n}\n" + "".join(f"{l} {r}\n" for (l, r) in segs))
+    assert all(1 <= l <= r <= MAXT for (l, r) in shifts)
+    tests.append(f"{n}\n" + "".join(f"{l} {r}\n" for (l, r) in shifts))
 
 
-def rnd(n, lo, hi, maxlen):
-    res = []
+def rnd(n, t=MAXT, maxlen=MAXT):
+    s = []
     for _ in range(n):
-        l = ri(lo, hi)
-        res.append((l, min(hi, l + ri(0, maxlen))))
-    return res
+        l = ri(1, t)
+        s.append((l, min(t, l + ri(0, maxlen - 1))))
+    return s
 
 
-def windows(n, step, length, jitter=0):
-    """bookings that slide to the right: no booking contains another (unless jitter breaks it)"""
-    res = [(1 + i * step + ri(0, jitter), 0) for i in range(n)]
-    res = [(l, min(MAXT, l + length + ri(0, jitter))) for (l, _) in res]
-    random.shuffle(res)
-    return res
+def islands(n, t=MAXT):
+    """long shifts, each with many short shifts inside that leave gaps (the long guard is alone in the gaps)"""
+    s, k = [], max(1, n // 50)
+    width = t // k
+    for b in range(k):
+        lo, hi = b * width + 1, (b + 1) * width
+        s.append((lo, hi))
+        inner = sorted(random.sample(range(lo + 1, hi), 2 * 49))
+        for j in range(0, len(inner), 2):
+            if len(s) < n:
+                s.append((inner[j], inner[j + 1] - ri(0, 1) * (inner[j + 1] > inner[j])))
+    while len(s) < n:
+        s.append(rnd(1, t, 1000)[0])
+    random.shuffle(s)
+    return s
+
+
+def chain(n, t=MAXT):
+    """each shift starts in the minute (or the minute after) the previous one ends"""
+    s, x, step = [], 1, t // (n + 1)
+    for _ in range(n):
+        d = ri(step // 2, step)
+        s.append((x, x + d))
+        x += d + ri(0, 1)
+    random.shuffle(s)
+    return s
+
+
+def dolls(n, t=MAXT):
+    """shifts nested inside each other with random margins"""
+    s, lo, hi = [], 1, t
+    for _ in range(n):
+        s.append((lo, hi))
+        lo += ri(0, 2 * (t // (2 * n + 2)))
+        hi -= ri(0, 2 * (t // (2 * n + 2)))
+        if lo > hi:
+            lo = hi
+    random.shuffle(s)
+    return s
 
 
 # samples
-add([(1, 6), (2, 4), (3, 8), (5, 6)])
-add([(2, 5), (2, 5), (1, 3)])
-add([(7, 7)])
-add([(1, 5), (1, 3), (3, 5), (2, 9)])
-add([(1, 2), (2, 3), (3, 4)])
-add([(5, 5), (4, 6), (5, 5), (6, 6), (6, 9)])
-# hidden: small
-add([(1, 1), (1, 1)])
-add([(1, 10), (1, 9), (2, 10), (1, 10), (3, 3)])
-add(rnd(8, 1, 10, 5))
-add(rnd(30, 1, 20, 10))
-add(rnd(200, 1, 100, 30))
-add(rnd(2000, 1, MAXT, MAXT // 10))
-add(windows(3000, 100, 5000, 120))
-add(rnd(5000, 1, 50, 50))
+add([(1, 6), (4, 9), (9, 15)])
+add([(3, 3), (1, 2), (6, 10), (10, 10)])
+add([(1, 1000000000)])
+add([(5, 7), (7, 9), (9, 11)])
+add([(1, 1000000000), (2, 1000000000)])
+add([(28, 40), (10, 20), (45, 50), (15, 30), (41, 45)])
+# hidden: small and medium
+add([(1, 10), (3, 4), (7, 7)])                                   # a gap on each side of a short shift
+add([(5, 5), (5, 5), (5, 5)])
+add(rnd(8, 30, 10))
+add(rnd(12, 40, 15))
+add(islands(150, 10**4))
+add(rnd(800, 10**5, 2000))
+add(dolls(1000))
+add(rnd(5000, MAXT, 10**6))
 # hidden: maximum size
 N = MAXN
-add(rnd(N, 1, MAXT, MAXT))
-add(windows(N, 6000, 10**8))                                    # nothing is nested
-add(windows(N, 6000, 10**8, 6100))                              # a few nested pairs
-w = windows(N - 3, 6000, 10**8)
-add(w + [(1, MAXT), (5 * 10**8, 5 * 10**8 + 10**8), (3 * 10**8, 3 * 10**8)])   # one outer, one copy, one point
-add([(5 * 10**8, 5 * 10**8 + 7)] * N)                           # all identical
-s = [(i + 1, MAXT - i) for i in range(N)]                       # a chain of nested bookings
+add(rnd(N))                                                      # long shifts: almost nobody is alone
+add(rnd(N, MAXT, 5000))                                          # short shifts: many guards are alone
+add(rnd(N, MAXT, 20000))
+add(islands(N))
+add(islands(N, 10**7))
+add(chain(N))
+add(dolls(N))
+add([(ri(1, 1000), MAXT - ri(0, 1000)) for _ in range(N - 1)] + [(1, MAXT)])  # everybody covers almost all
+s = [(1, MAXT)] + [(2 * i + 1, 2 * i + 1) for i in range(1, N)]  # one long shift and single-minute ones
 random.shuffle(s)
 add(s)
-add(rnd(N, 1, 1000, 100))                                       # many identical ones
-s = [(ri(1, 50), ri(10**8, MAXT)) for _ in range(N)]            # many equal starts
+s = []
+for i in range(N // 2):                                          # pairs that share exactly one minute
+    a = 1 + i * 5000
+    s += [(a, a + 2500), (a + 2500, a + 4999)]
+random.shuffle(s)
 add(s)
-s = [(ri(1, 10**8), MAXT - ri(0, 50)) for _ in range(N)]        # many equal ends
-add(s)
-add(rnd(N, 1, MAXT, 10**4))
-x = windows(N // 2, 12000, 10**8)                               # sliding windows plus their exact copies
-add(x + x[:N // 2])
-add([(l, l) for l in (ri(1, MAXT) for _ in range(N))])          # single days only
+add([(l, l + ri(0, 3)) for l in sorted(random.sample(range(1, MAXT), N))])  # sorted short shifts
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

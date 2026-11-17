@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40407)
-MAXN, MAXT = 150_000, 10**9
+random.seed(40405)
+MAXN, MAXX, MAXB = 100_000, 10**9, 10**9
 tests = []
 
 
@@ -11,78 +11,60 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, shuffle=True):
-    a = list(a)
-    if shuffle:
-        random.shuffle(a)
-    n = len(a)
-    assert 1 <= n <= MAXN
-    assert all(0 <= s < e <= MAXT for s, e in a)
-    tests.append(f"{n}\n" + "".join(f"{s} {e}\n" for s, e in a))
+def add(lamps, houses):
+    n, q = len(lamps), len(houses)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXN
+    assert all(1 <= l <= r <= MAXX and 1 <= b <= MAXB for l, r, b in lamps)
+    assert all(1 <= p <= MAXX for p in houses)
+    tests.append(f"{n} {q}\n" + "".join(f"{l} {r} {b}\n" for l, r, b in lamps)
+                 + " ".join(map(str, houses)) + "\n")
 
 
-def chain(n, start, gap_max, len_max):
-    """n bookings one after another, never overlapping (touching allowed)"""
-    out, t = [], start
+def rlamps(n, X, maxlen, B):
+    out = []
     for _ in range(n):
-        t += ri(0, gap_max)
-        d = ri(1, len_max)
-        out.append((t, t + d))
-        t += d
+        l = ri(1, X)
+        out.append((l, min(X, l + ri(0, maxlen)), ri(1, B)))
     return out
 
 
+def rh(q, X):
+    return [ri(1, X) for _ in range(q)]
+
+
 # samples
-add([(10, 20), (30, 40), (15, 18), (18, 35)], False)
-add([(0, 10), (10, 20), (10, 15), (12, 13)], False)
-add([(1, 5), (5, 9), (9, 12)], False)
-add([(0, 1)], False)
-add([(3, 10), (0, 3), (3, 4), (3, 6), (20, 30)], False)
-add([(0, MAXT), (0, MAXT)], False)
+add([(1, 5, 3), (4, 10, 7), (8, 9, 2)], [2, 4, 9, 11])
+add([(5, 5, 4), (1, 4, 9)], [5, 4, 6])
+add([(1, MAXX, MAXB)], [MAXX])
+add([(2, 6, 5), (3, 4, 5), (6, 8, 1)], [6, 6, 3, 1])
+add([(1, 100, 1), (10, 20, 50), (15, 30, 20), (40, 40, 8)], [15, 21, 40, 100, 31])
+add([(10, 20, 3)], [1, 9, 21])
 # hidden: small
-add([(5, 6), (0, 5)])
-add([(0, 2), (1, 3)])
-add(chain(10, 0, 3, 5))                                  # OK
-add(chain(30, 0, 2, 10)[:29] + [(ri(0, 100), ri(101, 200))])
-a = chain(200, 0, 0, 20)                                  # touching everywhere, then one overlap late
-a.append((a[150][0] + 1, a[150][1] + 1))
-add(a)
-add([(ri(0, 1000), ri(1001, 2000)) for _ in range(300)])
-a = chain(2000, 0, 5, 1000)
-x = a[1500]
-a += [(x[0], x[1])] * 3 + [(x[0], x[0] + 1)]              # several start together at t
-add(a)
-a = chain(4000, 0, 10, 10**5)
-add(a)                                                    # OK, large values
-# hidden: large (O(N^2) pair checks are too slow)
+add([(1, 1, 1)], [1])
+add([(3, 3, 5), (3, 3, 5), (3, 3, 2)], [3, 2, 4])          # equal brightness on the same spot
+add(rlamps(6, 20, 5, 10), rh(10, 22))
+add(rlamps(40, 100, 20, 30), rh(50, 100))
+add(rlamps(300, 1000, 100, 5), rh(300, 1000))            # many equal brightness values
+add(rlamps(2000, 10**6, 2000, MAXB), rh(2000, 10**6))
+add(rlamps(3000, MAXX, 10**7, MAXB), rh(3000, MAXX))
+add([(i, i, i) for i in range(1, 3001)], list(range(3000, 0, -1)))
+# hidden: large (N * Q = 10^10 for the one-by-one way)
 N = MAXN
-a = chain(N, 0, 1000, 5000)
-add(a)                                                    # OK
-a = chain(N - 1, 0, 1000, 5000)
-y = a[N - 10]
-add(a + [(y[1] - 1, y[1] + 5)])                           # the only overlap is near the end
-a = chain(N - 1, 0, 0, 6000)
-y = a[N // 2]
-add(a + [(y[0], y[0] + 1)])                               # touching chain, overlap in the middle
-a = chain(N // 2, 0, 0, 6000)
-t0 = a[-1][1]
-a += [(t0, t0 + ri(1, 1000)) for _ in range(N - N // 2)]  # half start at the same time t0
-add(a)
-starts = [ri(0, MAXT - 10**6) for _ in range(N)]
-add([(v, v + ri(1, 10**6)) for v in starts])             # random, overlap early
-a = chain(N - 2, 0, 0, 6000)
-z = a[N // 3]
-add(a + [(z[0] - 1, z[1]), (z[0], z[1] + 1)])             # a long one already in use before
-add([(0, MAXT)] + [(ri(1, MAXT - 1), MAXT) for _ in range(N - 1)])  # one long, then everything
-a = chain(N - 1, 0, 0, 6000)
-w = a[N - 3]
-add(a + [(w[0] - 1, w[1] + 1)], False)                     # covers a whole booking, given last
-a = [(t, t + 1) for t in range(N)]                         # unit bookings, touching
-a[N - 1] = (N - 2, N)
-add(a)
-add([(5000, 6000)] * N)                                    # all identical: every booking is listed
-a = chain(N - 1, 0, 0, 6000)
-add(a[::-1] + [(a[0][0], a[0][1])], False)                 # reverse order, overlap at the very start
+X = 10**6
+add(rlamps(N, X, 100, 10**4), rh(N, X))                   # many dark houses
+add(rlamps(N, X, 30_000, 10**4), rh(N, X))
+add(rlamps(N, X, X, 10**6), rh(N, X))
+lamps = [(ri(1, 1000), ri(1001, 2000), ri(100_000, 999_999)) for _ in range(N - 1000)]
+lamps += [(1, X, ri(1, 99)) for _ in range(1000)]          # bright lamps far away, dim lamps everywhere
+add(lamps, [ri(2001, X) for _ in range(N)])
+lamps = [(ri(1, 5000), ri(1, 5000) + 5000, ri(1, 10**6)) for _ in range(N)]
+add(lamps, [ri(5001, 999_999) for _ in range(N)])         # nobody is lit
+add([(i, X + 1 - i, i) for i in range(1, N + 1)], rh(N, X))  # nested
+add([(1, X, 7)] * N, rh(N, X))                            # all equal, removal of one copy
+add([(10 * i + 1, 10 * i + 10, ri(1, 10**6)) for i in range(N)], [10 * i + 10 for i in range(N)])  # right ends
+add([(10 * i + 1, 10 * i + 10, ri(1, 10**6)) for i in range(N)], [10 * i + 1 for i in range(N)])   # left ends
+add(rlamps(N, 100, 30, 10**6), rh(N, 100))                # many equal positions
+add(rlamps(70_000, MAXX, 10**8, MAXB), rh(70_000, MAXX))  # large values
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

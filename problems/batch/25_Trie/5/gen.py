@@ -44,10 +44,10 @@ def concat(words, n, tail=""):
 
 
 # samples
-add("catsanddog", ["cat", "cats", "and", "sand", "dog"])
+add("sunglasses", ["sun", "sung", "glass", "lass", "es"])
 add("aaaa", ["aa", "a"])
 add("abc", ["ab", "bc"])
-add("pineapplepenapple", ["apple", "pen", "applepen", "pine", "pineapple"])
+add("icecreamcone", ["cone", "ice", "creamcone", "cream", "icecream"])
 add("abababa", ["ab", "aba", "ba", "bab", "b"])
 # hidden: small
 add("a", ["b"])
@@ -60,44 +60,65 @@ ws = distinct(300, lambda: word("abc", 1, 8))
 add(concat(ws, 3000), ws)
 ws = distinct(50, lambda: word("ab", 1, 6))
 add(concat(ws, 2000, "c"), ws + ["cc"])                                   # the last letter cannot be covered
-# hidden: maximum size
-add("a" * MAXS, ["a" * L for L in range(MAXW, 0, -1)])                   # every length 1..500 is a word
-ws = distinct(MAXK, lambda: word("abc", 4, 11))
-add(concat(ws, MAXS), ws)
+# hidden: maximum size. In every one the dictionary has a word of every length 1..500 (extra words that do not
+# fit the text, made of letters that are not in it when possible)
+AZ = "abcdefghijklmnopqrstuvwxyz"
+
+
+def fill(s, ws):
+    have, lens = set(ws), {len(w) for w in ws}
+    other = "".join(c for c in AZ if c not in set(s)) or AZ
+    ws = list(ws)
+    for L in range(1, MAXW + 1):
+        if L in lens:
+            continue
+        w = word(other, L, L)
+        while w in have:
+            w = word(other, L, L)
+        have.add(w)
+        ws.insert(random.randint(0, len(ws)), w)
+    return s, ws
+
+
+add(*fill("a" * MAXS, ["a" * L for L in range(MAXW, 0, -1)]))         # every length 1..500 is a word
+ws = ["a", "b", "c"] + distinct(80_000, lambda: word("abc", 4, 11))
+add(*fill(concat(ws[3:], MAXS), ws))
 ws = distinct(2000, lambda: word("ab", 1, MAXW))
-add(concat(ws, MAXS), ws)
+add(*fill(concat(ws, MAXS), ws))
 ws = ["a", "b", "ab", "ba", "aba", "bab", "abab", "baba"] + ["ab" * L for L in range(3, 250)]
-add("ab" * (MAXS // 2), ws)
-add("a" * (MAXS - 1) + "b", ["a" * L for L in range(1, MAXW + 1)])        # no split, full work
-s = word("abcdefghijklmnopqrstuvwxyz", MAXS, MAXS)
+add(*fill("ab" * (MAXS // 2), ws))
+add(*fill("a" * (MAXS - 1) + "b", ["a" * L for L in range(1, MAXW + 1)]))  # no split, full work
+s = word(AZ, MAXS, MAXS)
 ws = []
 seen = set()
-while len(ws) < MAXK:
+while len(ws) < MAXK - 600:
     i = random.randrange(MAXS)
     w = s[i:i + random.randint(1, 10)]
     if w not in seen:
         seen.add(w)
         ws.append(w)
-for c in "abcdefghijklmnopqrstuvwxyz":
+for c in AZ:
     if c not in seen:
         ws[random.randrange(len(ws))] = c
         seen.add(c)
 ws = sorted(set(ws))
 random.shuffle(ws)
-add(s, ws)
+add(*fill(s, ws))
 ws = ["a"] + ["a" * L + "b" for L in range(1, MAXW)]                     # long walks that rarely end in a word
-add("a" * MAXS, ws)
+add(*fill("a" * MAXS, ws))
 ws = ["a"] + ["a" * L + "b" for L in range(1, MAXW)] + ["a" * MAXW]
-add("a" * (MAXS // 2) + "b" + "a" * (MAXS // 2 - 1), ws)
-ws = distinct(20_000, lambda: "x" * random.randint(0, 40) + word("xy", 1, 20))
-add(concat(ws, MAXS), ws)
+add(*fill("a" * (MAXS // 2) + "b" + "a" * (MAXS // 2 - 1), ws))
+ws = ["x", "y"] + distinct(20_000, lambda: "x" * random.randint(0, 40) + word("xy", 1, 20))
+ws = sorted(set(ws))
+random.shuffle(ws)
+add(*fill(concat(ws, MAXS), ws))
 ws = distinct(1000, lambda: word("ab", 1, 10)) + ["a" * L for L in range(11, MAXW + 1)]
 ws = sorted(set(ws))
 random.shuffle(ws)
-add(concat(ws, MAXS), ws)
+add(*fill(concat(ws, MAXS), ws))
 # very many words that start like the text at every position but stop matching later
-ws = ["a", "aa"] + distinct(90_000, lambda: "a" * random.randint(1, 8) + "b" + word("bcdefghij", 3, 5))
-add("a" * (MAXS - 20) + ws[-1] + "a" * (20 - len(ws[-1])), ws)
+ws = ["a", "aa"] + distinct(80_000, lambda: "a" * random.randint(1, 8) + "b" + word("bcdefghij", 3, 5))
+add(*fill("a" * (MAXS - 20) + ws[-1] + "a" * (20 - len(ws[-1])), ws))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,13 +1,2 @@
-12 50
- y: ;KEJ
-  add   llobynccp   -3
- add hdsyap   11
-   sub   llobynccp  -15
-    jnz hdsyap   y
-    print -5
-  set  hdsyap hdsyap
-jnz   llobynccp y
-    jnz   1   y
- rjpgjd:
-jnz hdsyap   y
-  mul  llobynccp   hdsyap ; :N3cY\
+7
+|^&e^c!c^b&|c|!a&|aec^b!^g!&f!^|&fd&^!&fe^bf|b|&gdb|&f&^|^f!||&!d&af|&b&&!&c!&!gfe^^cbg|ba&|e^a|bg|!a|ed^^||d|cgac&&^&fe&f&&^da^|c&^c&f!ac&|&be&^b^^|^&d|^&f^|^&e^^&^!|&fb&e^b^bgc^d!|!^!^^!fefb&|^e&|&&^|^^g!!^|b!^|&&dce^de!c|&|fg|&&!b&^|!|f&c|e^&bc^a&b&|dbe!|^^&!fgc&&!&^^a!|^||c&a|!&|cb|d|&gad^fc^|&gc!&e||^|edc|&&b|^||||fb&|||^a|a^^|&bf|&a!^g&agfdegeggceeaadbdcdgcbcdgfagedaggbadbcaefeccdabbcaddbfefb!^&e^c!c^b&|c|!a&|aec^b!^g!&f!^|&fd&^!&fe^bf|b|&gdb|&f&^|^f!||&!d&af|&b&&!&c!&!gfe^^cbg|ba&|e^a|bg|!a|ed^^||d|cgac&&^&fe&f&&^da^|c&^c&f!ac&|&be&^b^^|^&d|^&f^|^&e^^&^!|&fb&e^b^bgc^d!|!^!^^!fefb&|^e&|&&^|^^g!!^|b!^|&&dce^de!c|&|fg|&&!b&^|!|f&c|e^&bc^a&b&|dbe!|^^&!fgc&&!&^^a!|^||c&a|!&|cb|d|&gad^fc^|&gc!&e||^|edc|&&b|^||||fb&|||^a|a^^|&bf|&a!^g&agfdegeggceeaadbdcdgcbcdgfagedaggbadbcaefeccdabbcaddbfefb

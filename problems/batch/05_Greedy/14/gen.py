@@ -1,71 +1,89 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30114)
-MAXN = 500_000
-ABC = "abcdefghijklmnopqrstuvwxyz"
+random.seed(30113)
+MAXN = 100_000
+MAXT = 10**6
+MAXD = 10**11
+MAXW = 1000
 tests = []
 
 
-def add(k, s):
-    n = len(s)
-    assert 1 <= k <= n <= MAXN
-    assert all(c in ABC for c in s)
-    tests.append(f"{n} {k}\n{s}\n")
+def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def rnd(n, letters, weights=None):
-    return "".join(random.choices(letters, weights=weights, k=n))
+def add(jobs):
+    n = len(jobs)
+    assert 1 <= n <= MAXN
+    assert all(1 <= t <= MAXT and 1 <= d <= MAXD and 1 <= w <= MAXW for t, d, w in jobs)
+    tests.append(f"{n}\n" + "".join(f"{t} {d} {w}\n" for t, d, w in jobs))
 
 
-def shuffled(s):
-    a = list(s)
-    random.shuffle(a)
-    return "".join(a)
+def rnd(n, tmax, slack, wmax=MAXW):
+    """durations 1..tmax, deadlines spread over [1, total * slack], weights 1..wmax"""
+    ts = [ri(1, tmax) for _ in range(n)]
+    hi = max(1, min(MAXD, int(sum(ts) * slack)))
+    return [(t, ri(1, hi), ri(1, wmax)) for t in ts]
 
 
-def dominant(n, k, big, others, extra=0):
-    """letter big as often as k * (others + 1) allows (plus extra), the rest from the letters others"""
-    nb = n * k // (k + 1)
-    while nb > k * (n - nb + 1):
-        nb -= 1
-    while nb + 1 <= k * (n - nb):
-        nb += 1
-    nb = min(n, nb + extra)
-    return shuffled(big * nb + rnd(n - nb, others))
+def tight(n, tmax, extra, wmax=MAXW):
+    """a schedule with no fine exists: deadlines = finish times in a random order + a little"""
+    ts = [ri(1, tmax) for _ in range(n)]
+    now, res = 0, []
+    for t in ts:
+        now += t
+        res.append((t, min(MAXD, now + ri(0, extra)), ri(1, wmax)))
+    random.shuffle(res)
+    return res
 
 
 # samples
-add(2, "aaabbc")
-add(1, "aabbb")
-add(2, "aaaaab")
-add(6, "banana")
-add(2, "aaaaaaabbb")
-add(2, "bbbbbbaac")
-# hidden: small (every choice is tried)
-add(1, "z")
-add(3, "bbbabbb")
-add(1, "cbcacbc")
-for n, letters, k in ((8, "ab", 1), (10, "abc", 2), (12, "abcd", 1), (12, "ab", 3), (11, "abc", 1)):
-    add(k, rnd(n, letters, [random.random() ** 2 + 0.01 for _ in letters]))
-add(1, dominant(300, 1, "b", "ac"))
-add(2, dominant(400, 2, "c", "ab"))
-add(3, dominant(2000, 3, "a", "b"))
+add([(2, 2, 1), (2, 3, 5), (3, 10, 2)])
+add([(5, 5, 3), (1, 10, 7)])
+add([(MAXT, 1, MAXW)])
+add([(2, 6, 1), (3, 6, 4), (1, 6, 2), (4, 3, 3)])
+add([(1, 2, 1), (10, 13, 2), (5, 9, 3)])
+add([(4, 7, 2), (2, 15, 1), (6, 9, 5), (3, 4, 1), (5, 20, 3), (1, 11, 4)])
+# hidden: small (every order is tried)
+add([(1, 1, 1)])
+add([(2, 1, 1), (1, 3, 9)])
+for n, wmax in ((5, 3), (10, 1000), (14, 1000), (16, 50)):
+    add(rnd(n, 10, 0.8, wmax))
+add(tight(16, 20, 2))
+add([(ri(1, MAXT), ri(1, 10**7), ri(1, MAXW)) for _ in range(16)])
+add([(ri(1, 5), 7, ri(1, 9)) for _ in range(12)])               # equal deadlines
+add(rnd(16, 10, 0.6, 1))                                        # all weights 1
+add(rnd(3000, 1000, 0.5))
 # hidden: large
 N = MAXN
-add(1, rnd(N, ABC))
-add(1, dominant(N, 1, "z", ABC[:25]))                    # z exactly at the limit
-add(1, dominant(N, 1, "m", ABC, extra=1))                # one too many: -1
-add(2, dominant(N, 2, "a", "bc"))
-add(3, dominant(N - 1, 3, "q", "pr"))
-add(1, "ab" * (N // 2))
-add(N, rnd(N, ABC))                                      # no limit at all
-add(N - 1, "a" * N)                                      # one letter, not allowed
-add(N, "y" * N)
-add(5, rnd(N, "abc", [20, 2, 1]))
-add(1, shuffled("a" * (N // 2 - 1000) + rnd(N // 2 + 1000, ABC[1:])))
-add(4, dominant(N, 4, "k", ABC[:5]))
-add(1000, rnd(N, "ab", [1000, 1]))
+add(rnd(N, MAXT, 1.0))
+add(rnd(N, MAXT, 0.3))
+add(tight(N, MAXT, 0))                                          # answer 0, only one good order up to ties
+add(tight(N, 10**4, 3))
+add([(ri(1, 10**4), 10**8, ri(1, MAXW)) for _ in range(N)])     # all deadlines equal
+add([(MAXT, ri(1, 10**6), MAXW) for _ in range(N)])             # the largest fines
+add(rnd(N, MAXT, 0.7, 1))                                       # all weights 1
+jobs = [(N - i, i + 1, ri(1, MAXW)) for i in range(N)]          # long jobs have early deadlines
+add(jobs)
+jobs = []
+for i in range(N):                                              # costly jobs with later deadlines
+    t = ri(1, 10**4)
+    if i % 10 == 0:
+        jobs.append((t, ri(10**7, 10**8), MAXW))
+    else:
+        jobs.append((t, ri(1, 10**8), 1))
+random.shuffle(jobs)
+add(jobs)
+jobs = []
+for i in range(N):                                              # weights 1 or 1000
+    t = ri(1, 10**5)
+    jobs.append((t, ri(1, 4 * 10**9), random.choice((1, MAXW))))
+add(jobs)
+add(tight(N, MAXT, 10**6))
+add(rnd(N, 999, 0.7))
+add([(MAXT, MAXD, MAXW)] * N)                                   # everything finishes exactly on time
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -101,16 +101,29 @@ def add(h, es, checked=False):
     tests.append(f"{n}\n" + " ".join(map(str, h)) + "\n" + "".join(f"{u} {v}\n" for u, v in es))
 
 
-def build(n, kind, val):
-    """val(i, depth, par) gives the height of the i-th created node (parents are created first)"""
-    par = shape(n, kind)
+def build(n, kind, val, hub=0):
+    """val(i, depth, par) gives the height of the i-th created node (parents are created first);
+    hub > 0: the shape gets n - hub nodes and a random node of it gets hub more leaves,
+    each a little below or above it (rarely equal)"""
+    m = n - hub
+    par = shape(m, kind)
+    at = ri(0, m - 1)
+    par += [at] * hub
     dep = [0] * n
     for i in range(1, n):
         dep[i] = dep[par[i]] + 1
     lab = labels(n)
     hs = [0] * n
-    for i in range(n):
+    for i in range(m):
         hs[i] = val(i, dep[i], hs[par[i]] if i else None)
+    for i in range(m, n):
+        r, a = _rnd(), hs[at]
+        if r < 0.48 and a > 1:
+            hs[i] = ri(max(1, a - 10**6), a - 1)
+        elif r < 0.97 and a < MAXH:
+            hs[i] = ri(a + 1, min(MAXH, a + 10**6))
+        else:
+            hs[i] = a
     h = [0] * n
     for i in range(n):
         h[lab[i] - 1] = hs[i]
@@ -160,19 +173,22 @@ build(60, "random", updown(0.6, 10))
 build(500, "binary", bydepth)
 build(3000, "spider", updown(0.5, 1000))
 build(10000, "random", uni(1, 50))
+build(20000, "path", lambda i, d, ph: 1 + i // 2)               # equal neighbours break the runs
+build(20000, "random", updown(0.5, 10**6))
 # hidden: maximum size
 N = MAXN
+S = int(N ** 0.5)
 build(N, "path", lambda i, d, ph: i + 1)                         # every pair counts
 build(N, "path", lambda i, d, ph: MAXH - 2 * i)
 build(N, "path", lambda i, d, ph: 1 + abs(i - N // 2) * 7)      # lowest in the middle
 build(N, "twopaths", lambda i, d, ph: 1 + d)
-build(N, "spider", bydepth)
+build(N, "spider", lambda i, d, ph: MAXH // 2 + (1 if (i - 1) // S % 2 else -1) * (d * 1000 + ri(0, 999)))
 build(N, "star", uni(1, MAXH))
-build(N, "random", bydepth)
-build(N, "random", updown(0.5, 10**6))
+build(N, "random", bydepth, 80_000)
+build(N, "random", updown(0.5, 10**6), 80_000)
 build(N, "deep", bydepth)
 build(N, "broom", bydepth)
-build(N, "path", lambda i, d, ph: 1 + i // 2)                   # equal neighbours break the runs
+build(N, "star", lambda i, d, ph: MAXH // 2 if i == 0 else MAXH // 2 + ri(-1, 1) * ri(1, 10**6))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

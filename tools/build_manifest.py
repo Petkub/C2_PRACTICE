@@ -27,7 +27,9 @@ installs the bootstrap (so it gets the new updater), restarts, and the new judge
 
 "moves": tools/moves/problems_<v>.json are the problems.json of earlier releases (exact bytes); a problem is the same
 problem when its English title is the same, so its student file goes from its old folder to the new one; a problem
-no longer in any topic goes to <old folder>/old/N_<Title>.cpp. Judge/updater.py follow_moves() applies them once.
+replaced by a new problem (tools/replaced.json, written by C2_PRACTICE_SRC build.py all from its bank/) goes to
+<the slot's new topic folder>/old/N_<Title>.cpp; any other problem no longer in a topic goes to
+<old folder>/old/N_<Title>.cpp. Judge/updater.py follow_moves() applies them once.
 """
 import hashlib
 import json
@@ -161,6 +163,7 @@ def bundles(pairs, files, write):
 
 MOVES = os.path.join(REPO, "tools", "moves")
 RENAMED = {}                        # old English title -> new title, if a problem is renamed between releases
+REPLACED_FILE = os.path.join(REPO, "tools", "replaced.json")   # old English title -> "NN_Name/n" (C2_PRACTICE_SRC bank/)
 
 
 def slug(title):
@@ -171,6 +174,10 @@ def moves():
     """{sha256 of an old problems.json: [[from, to], ...]} for every file in tools/moves/."""
     with open(os.path.join(REPO, "problems", "batch", "problems.json"), encoding="utf-8") as f:
         now = {e["en"]: e["dir"] for e in json.load(f).values()}
+    replaced = {}
+    if os.path.exists(REPLACED_FILE):
+        with open(REPLACED_FILE, encoding="utf-8") as f:
+            replaced = json.load(f)
     out = {}
     for name in sorted(os.listdir(MOVES)) if os.path.isdir(MOVES) else []:
         path = os.path.join(MOVES, name)
@@ -182,6 +189,9 @@ def moves():
             if title in now:
                 if now[title] != e["dir"]:
                     pairs.append([src, now[title] + ".cpp"])
+            elif title in replaced:                 # its slot holds a new problem: park it in that topic's old/
+                k, n = replaced[title].split("/")
+                pairs.append([src, f"{k}/old/{n}_{slug(e['en'])}.cpp"])
             else:
                 k, n = e["dir"].split("/")
                 pairs.append([src, f"{k}/old/{n}_{slug(e['en'])}.cpp"])

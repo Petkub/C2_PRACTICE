@@ -1,8 +1,13 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
+from bisect import bisect_right
 
-random.seed(20210)
-MAXN, MAXV = 200_000, 10**9
+random.seed(40901)
+MAXK = 50_000
+MAXQ = 50_000
+MAXU = 10**12
+MAXP = 10**6
+MAXA = 10**18
 tests = []
 
 
@@ -11,56 +16,140 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+class Tariff:
+    def __init__(self, steps):
+        self.u = [s[0] for s in steps]
+        self.p = [s[1] for s in steps]
+        self.C = [0]
+        for j in range(1, len(steps)):
+            self.C.append(self.C[-1] + (self.u[j] - self.u[j - 1]) * self.p[j - 1])
+        # the largest total use whose bill is at most 10^18
+        j = bisect_right(self.C, MAXA) - 1
+        self.maxT = self.u[j] - 1 + (MAXA - self.C[j]) // self.p[j]
+        if j + 1 < len(steps):
+            self.maxT = min(self.maxT, self.u[j + 1] - 1)
+
+    def f(self, m):
+        if m <= 0:
+            return 0
+        j = bisect_right(self.u, m) - 1
+        return self.C[j] + (m - self.u[j] + 1) * self.p[j]
+
+    def query(self, x, y):
+        assert 1 <= x <= y and x + y <= self.maxT
+        return self.f(x + y), self.f(y) - self.f(x)
+
+    def pick(self, kind, tmax=None):
+        """a pair (x, y) of the given kind"""
+        top = self.maxT if tmax is None else min(self.maxT, tmax)
+        if kind == "big":                     # total use near the largest allowed
+            T = ri(max(2, top - top // 10), top)
+        elif kind == "edge":                  # x and y at step boundaries
+            j, k = ri(0, len(self.u) - 1), ri(0, len(self.u) - 1)
+            x, y = self.u[j] - 1 + ri(0, 1), self.u[k] - 1 + ri(0, 1)
+            x, y = max(1, min(x, y)), max(1, max(x, y))
+            if x + y <= top:
+                return x, y
+            T = ri(2, top)
+        else:
+            T = ri(2, top)
+        r = ri(0, 9)
+        if r == 0:
+            x = T // 2                        # equal or almost equal use
+        elif r == 1:
+            x = ri(1, min(3, T // 2))         # tiny x
+        else:
+            x = ri(1, T // 2)
+        return x, T - x
 
 
-def add(k, a, b):
-    n, m = len(a), len(b)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXN
-    assert 1 <= k <= n * m
-    assert all(1 <= x <= MAXV for x in a + b)
-    tests.append(f"{n} {m} {k}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, b)) + "\n")
+def add(steps, qs, sample=False):
+    k, q = len(steps), len(qs)
+    assert 1 <= k <= MAXK and 1 <= q <= MAXQ
+    assert steps[0][0] == 1 and all(steps[j][0] < steps[j + 1][0] for j in range(k - 1))
+    assert steps[-1][0] <= MAXU and all(1 <= p <= MAXP for _, p in steps)
+    tar = Tariff(steps)
+    lines = []
+    for x, y in qs:
+        A, B = tar.query(x, y)
+        assert 1 <= A <= MAXA and 0 <= B <= MAXA
+        if sample:
+            assert A <= 10**9
+        lines.append(f"{A} {B}\n")
+    tests.append(f"{k} {q}\n" + "".join(f"{u} {p}\n" for u, p in steps) + "".join(lines))
+
+
+def rnd_steps(k, umax, plo, phi, order="any"):
+    us = sorted(random.sample(range(2, umax + 1), k - 1)) if umax < 10**7 else None
+    if us is None:
+        s = set()
+        while len(s) < k - 1:
+            s.add(ri(2, umax))
+        us = sorted(s)
+    ps = [ri(plo, phi) for _ in range(k)]
+    if order == "up":
+        ps.sort()
+    elif order == "down":
+        ps.sort(reverse=True)
+    return list(zip([1] + us, ps))
+
+
+def mix(steps, q, kinds=("any", "edge", "big"), tmax=None):
+    tar = Tariff(steps)
+    return [tar.pick(kinds[ri(0, len(kinds) - 1)], tmax) for _ in range(q)]
 
 
 # samples
-add(4, [5, 1, 3], [2, 4])
-add(3, [1, 1], [1, 2])
-add(1, [MAXV], [MAXV])
-add(9, [7, 2, 9], [4, 4, 1])
-add(1, [6, 3, 8, 3], [5, 2, 9])
-add(7, [10, 20, 30, 40], [1, 2, 3])
-# hidden: small
-add(2, [1], [5, 1, 3])
-add(5, [4, 4, 4], [4, 4])
-add(33, rnd(7, 1, 20), rnd(9, 1, 20))
-add(1000, rnd(40, 1, 1000), rnd(50, 1, 1000))
-add(80_000, rnd(300, 1, MAXV), rnd(400, 1, MAXV))
-add(250_000, rnd(500, 1, 50), rnd(700, 1, 50))      # many equal prices
-add(2_000_000, rnd(2000, MAXV - 100, MAXV), rnd(1000, MAXV - 100, MAXV))
-add(999 * 777, rnd(999, 1, MAXV), rnd(777, 1, MAXV))   # the largest price
-# hidden: big (K far from both ends, so taking sums one by one is too slow)
-B = 100_000
-add(B * B // 2, rnd(B, 1, MAXV), rnd(B, 1, MAXV))
-add(B * B // 3 + 12_345, rnd(B, 1, MAXV), rnd(B, 1, MAXV))
-add(B * B - 1, rnd(B, 1, MAXV), rnd(B, 1, MAXV))
-add(B * B, [MAXV] * B, [MAXV] * B)                     # 2 * 10^9 does not fit in int
-add(B * B // 2 + 1, rnd(B, MAXV - 1000, MAXV), rnd(B, MAXV - 1000, MAXV))
-add(5_000_000_000 - 7, rnd(B, 1, 10), rnd(B, 1, 10))   # huge numbers of equal sums
-add(ri(1, B * B), rnd(B, 1, MAXV), rnd(B, 1, 1000))
-add(ri(1, 2 * 10**10), rnd(2 * MAXN // 2, 1, 999_999), rnd(MAXN // 2, 1, 999_999))
-add(ri(1, 10**10), sorted(rnd(B, 1, MAXV)), sorted(rnd(B, 1, MAXV), reverse=True))
-add(MAXN * 1000 // 2, rnd(MAXN, 1, 999_999), rnd(1000, 1, MAXV))
-add(ri(1, MAXN) * 7, [ri(1, 999_999) for _ in range(7)], rnd(MAXN, 1, 999_999))
-add(3 * 10**9, [1 + 2 * i for i in range(B)], [2 + 2 * i for i in range(B)])
-add(4 * 10**9, rnd(150_000, 1, 99_999), rnd(150_000, 1, 99_999))
-add(1, rnd(B, 1, MAXV), rnd(B, 1, MAXV))
-add(B * B // 4, rnd(B, 1, MAXV // 1000), rnd(B, 1, MAXV))
-add(B * B // 4 + 99, rnd(B, MAXV // 2, MAXV), rnd(B // 2, 1, MAXV // 2))
+add([(1, 2), (5, 3), (11, 5)], [(3, 6), (4, 10), (7, 7), (2, 20)], sample=True)
+add([(1, 7)], [(2, 5), (1, 1), (3, 30)], sample=True)
+add([(1, 10), (3, 1)], [(1, 4), (2, 3), (5, 5)], sample=True)
+add([(1, 1000000), (1000, 1)], [(999, 1000), (5, 999999), (1, 1)], sample=True)
+add([(1, 3), (16, 4), (26, 5), (36, 6), (101, 7)], [(10, 40), (50, 50), (15, 135), (1, 2)], sample=True)
+# hidden: small (checked by brute force)
+add([(1, 1)], [(1, 1), (1, 2), (3, 4), (500, 500), (1, 9999)])
+add([(1, 5), (2, 1), (3, 5), (4, 1)], [(1, 1), (1, 2), (2, 2), (1, 3), (2, 3), (3, 3), (1, 4), (2, 7), (5, 9)])
+s = rnd_steps(6, 30, 1, 10)
+add(s, mix(s, 60, tmax=200))
+s = rnd_steps(40, 2000, 1, 50, "up")
+add(s, mix(s, 100, tmax=20000))
+s = rnd_steps(200, 5000, 1, 1000, "down")
+add(s, mix(s, 100, tmax=30000))
+s = rnd_steps(1000, 30000, 1, 100)
+add(s, mix(s, 50, ("any", "edge"), tmax=60000))
+# hidden: large values, smaller sizes
+s = rnd_steps(3, MAXU, MAXP - 10, MAXP)
+add(s, mix(s, 3000))
+s = [(1, MAXP)]                                          # one price for everything
+add(s, mix(s, 3000) + [(1, (MAXA // MAXP) - 1), (MAXA // MAXP // 2, MAXA // MAXP // 2)])
+s = rnd_steps(2000, MAXU, 1, MAXP)
+add(s, mix(s, 3000))
+# hidden: maximum size
+s = rnd_steps(MAXK, MAXU, 1, MAXP, "up")
+add(s, mix(s, MAXQ))
+s = rnd_steps(MAXK, MAXU, 1, MAXP, "up")
+add(s, mix(s, MAXQ, ("big",)))
+s = rnd_steps(MAXK, MAXU, 1, MAXP)
+add(s, mix(s, MAXQ))
+s = rnd_steps(MAXK, MAXU, 1, MAXP, "down")
+add(s, mix(s, MAXQ, ("big", "edge")))
+s = rnd_steps(MAXK, MAXU, MAXP // 2, MAXP)
+add(s, mix(s, MAXQ, ("edge",)))
+s = rnd_steps(MAXK, 10**8, 1, 100, "up")                 # steps end early, large bills come from the last step
+s[-1] = (s[-1][0], MAXP)
+add(s, mix(s, MAXQ))
+s = [(1 + j * 20_000_000, MAXP - j) for j in range(MAXK)]  # equal-width steps, slowly falling prices
+add(s, mix(s, MAXQ))
+s = rnd_steps(MAXK, MAXU, 1, 3)                          # cheap units: totals up to 10^12 only
+add(s, mix(s, MAXQ))
+s = rnd_steps(MAXK, MAXU, 1, MAXP)
+add(s, mix(s, MAXQ, ("big", "edge")))
+s = rnd_steps(MAXK, MAXU, 1, MAXP, "up")
+tar = Tariff(s)
+add(s, [(x, x) if ri(0, 1) else (1, 2 * x - 1) for x in (ri(1, tar.maxT // 2) for _ in range(MAXQ))])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
-print("total bytes", sum(len(t) for t in tests))
+print("total bytes", sum(len(t) for t in tests), "max", max(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

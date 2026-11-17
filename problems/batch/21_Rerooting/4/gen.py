@@ -91,74 +91,48 @@ def write_tests():
         with open(f"tests/{i:02d}.in", "w") as f:
             f.write(t)
 
-random.seed(2104)
-MAXN, MAXC = 100_000, 10**9
+random.seed(2102)
+MAXN = 200_000
 
 
-def add(n, roads, from_shape=False):
-    """roads: (u, v, c) = a one-way road u -> v, turning it around costs c"""
-    assert 1 <= n <= MAXN and len(roads) == n - 1
+def add(n, edges, from_shape=False):
+    assert 1 <= n <= MAXN and len(edges) == n - 1
     if not from_shape:
-        check_tree(n, roads)
-    assert all(1 <= c <= MAXC for u, v, c in roads)
-    tests.append(f"{n}\n" + "".join(f"{u} {v} {c}\n" for u, v, c in roads))
+        check_tree(n, edges)
+    tests.append(f"{n}\n" + "".join(f"{u} {v}\n" for u, v in edges))
 
 
-def make(n, kind, lo=1, hi=MAXC, mode="random", root_first=False):
-    """mode: random directions; "out" = all roads point away from the shape's node 1 (one cheap capital);
-    "in" = all roads point towards node 1; "alt" = directions alternate with the depth (many ties with equal costs)"""
-    par = shape(n, kind)
-    lab = list(range(1, n + 1))
-    shuffle(lab)
-    if root_first:
-        j = lab.index(1)
-        lab[0], lab[j] = lab[j], lab[0]
-    depth = [0] * (n + 1)
-    roads = []
-    span = hi - lo + 1
-    for i in range(2, n + 1):
-        depth[i] = depth[par[i]] + 1
-        a, b = lab[par[i] - 1], lab[i - 1]      # a is the shape parent of b
-        if mode == "random":
-            down = random.random() < 0.5
-        elif mode == "out":
-            down = random.random() < 0.97
-        elif mode == "in":
-            down = random.random() < 0.03
-        else:
-            down = depth[i] % 2 == 0
-        roads.append((a, b, lo + int(random.random() * span)) if down else (b, a, lo + int(random.random() * span)))
-    shuffle(roads)
-    add(n, roads, True)
+def make(n, kind, root_first=False):
+    edges, lab = relabel(shape(n, kind), root_first)
+    add(n, edges, True)
 
 
 # samples
-add(4, [(2, 1, 5), (2, 3, 2), (4, 3, 1)])
-add(3, [(1, 2, 4), (3, 2, 4)])
+add(6, [(1, 2), (2, 3), (3, 4), (4, 5), (3, 6)])
+add(4, [(1, 2), (1, 3), (4, 1)])
 add(1, [])
-add(6, [(1, 2, 3), (3, 1, 2), (1, 4, 6), (4, 5, 1), (6, 4, 1)])
-add(7, [(2, 1, 1), (3, 1, 1), (1, 4, 1), (5, 4, 1), (4, 6, 1), (7, 6, 1)])
+add(2, [(2, 1)])
+add(9, [(1, 2), (2, 3), (2, 4), (4, 5), (5, 6), (7, 5), (1, 8), (8, 9)])
 # hidden: small and medium
-add(2, [(1, 2, MAXC)])
-make(10, "random", 1, 3)
-make(30, "path", 1, 1, "alt")
-make(60, "star", 1, 2)
-make(300, "caterpillar", 1, 5)
-make(2000, "binary", 1, 1, "alt", True)
-make(5000, "chains", 1, 10**9, "in")
-make(8000, "spider", 1, 1, "alt")
+add(3, [(1, 2), (2, 3)])
+make(10, "random")
+make(30, "deep")
+make(60, "star")
+make(300, "caterpillar")
+make(1000, "binary")
+make(3000, "path", root_first=True)
+make(6000, "spider")
+make(9000, "broom")
 # hidden: maximum size
 N = MAXN
-make(N, "path", MAXC, MAXC, "in", True)          # the largest costs
-make(N, "path", 1, 1, "alt")                     # about half of the cities are the best
-make(N, "deep", 1, 3)
-make(N, "caterpillar", 1, 2, "alt")
-make(N, "broom", mode="out")
-make(N, "twopaths", 1, 1, "alt", True)
+make(N, "path")
+make(N, "path", root_first=True)
+make(N, "deep")
+make(N, "twopaths", root_first=True)
+make(N, "caterpillar")
+make(N, "broom")
+make(N, "random")
+make(N, "star")
 make(N, "chains")
-make(N, "random", 1, 10)
-make(N, "binary", 1, 1, "alt", True)
-make(N, "star", 1, 1)
-make(N, "spider", 1, 1, "alt")
-make(N, "bushy", mode="in")
+make(N, "bushy")
 write_tests()

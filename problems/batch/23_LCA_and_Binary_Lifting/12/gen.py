@@ -12,6 +12,7 @@ def shape(n, kind):
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
+    h = max(1, 7 * n // 10)
     for i in range(2, n + 1):
         if kind == "path":
             p = i - 1
@@ -31,6 +32,12 @@ def shape(n, kind):
             p = 1 if i <= 3 else i - 2
         elif kind == "chains":                      # chains of length about sqrt(n) glued at random
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
+        elif kind == "longrandom":                  # a chain of 7n / 10 nodes, the rest hung at random
+            p = i - 1 if i <= h else ri(1, i - 1)
+        elif kind == "longbinary":                  # a chain of 7n / 10 nodes ending in a binary tree
+            p = i - 1 if i <= h else h - 1 + (i - h + 1) // 2
+        elif kind == "longstar":                    # a chain of 7n / 10 nodes plus a star around node 1
+            p = i - 1 if i <= h else 1
         else:
             raise ValueError(kind)
         par.append(p)
@@ -116,11 +123,11 @@ def add(c, edges, qs, tree_ok=False):
                  + "".join(f"{u} {v} {x}\n" for u, v, x in qs))
 
 
-def make(n, kind, q, cheap=0.001, far=False, xmode="rare"):
+def make(n, kind, q, cheap=0.001, far=False, xmode="rare", root_first=False):
     """prices: a fraction `cheap` of the towns cost 1..1000, the others 1001..10^6;
     xmode rare: x below 1001 (only cheap towns count, long scans), any: x anything, none: x below every price"""
     par = shape(n, kind)
-    edges, lab = relabel(par)
+    edges, lab = relabel(par, root_first)
     rnd = random.random
     c = [1 + int(rnd() * 1000) if rnd() < cheap else 1001 + int(rnd() * (MAXC - 1000)) for _ in range(n)]
     if xmode == "none":
@@ -158,16 +165,19 @@ make(60, "caterpillar", 200, 0.05)
 make(100, "deep", 300, 0.03, True)
 make(3000, "path", 3000, 0.002, True)
 make(4000, "twopaths", 3000, 0.001, True)
+make(5000, "random", 5000, 0.01)
+make(5000, "chains", 5000, 0.001)
+make(5000, "star", 5000, 0.01)
 # hidden: maximum size
-make(MAXN, "path", MAXQ, 0.0001, True)
-make(MAXN, "path", MAXQ, 0.0, True, "none")
+make(MAXN, "path", MAXQ, 0.0001, True, root_first=True)
+make(MAXN, "path", MAXQ, 0.0, True, "none", True)
 make(MAXN, "twopaths", MAXQ, 0.0002, True)
 make(MAXN, "deep", MAXQ, 0.0002, True)
 make(MAXN, "caterpillar", MAXQ, 0.0005, True)
 make(MAXN, "broom", MAXQ, 0.0002, True)
 make(MAXN, "twopaths", MAXQ, 0.01, True, "any")
-make(MAXN, "random", MAXQ, 0.01)
-make(MAXN, "chains", MAXQ, 0.001)
-make(MAXN, "star", MAXQ, 0.01)
+make(MAXN, "longrandom", MAXQ, 0.001, True, root_first=True)
+make(MAXN, "path", MAXQ, 0.00003, True, "any", True)
+make(MAXN, "longstar", MAXQ, 0.001, True, root_first=True)
 
 write_all()

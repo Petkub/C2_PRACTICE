@@ -1,162 +1,159 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100707)
-MAXN = 200_000
+random.seed(150081)
+MAXN, MAXW = 100_000, (1 << 30) - 1
 tests = []
 
 
-_rnd = random.random
-
-
 def ri(lo, hi):
-    return lo + int(_rnd() * (hi - lo + 1))
-
-
-def shuf(a):
-    rnd = _rnd
-    for i in range(len(a) - 1, 0, -1):
-        j = int(rnd() * (i + 1))                                 # = ri(0, i)
-        a[i], a[j] = a[j], a[i]
+    return lo + int(random.random() * (hi - lo + 1))
 
 
 def shape(n, kind):
-    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is the root"""
-    par = [-1] * n
-    h = max(1, n // 2)
-    for i in range(1, n):
-        if kind == "random":
-            par[i] = int(_rnd() * i)                            # = ri(0, i - 1)
-        elif kind == "path":
-            par[i] = i - 1
+    """par[i] (< i) for the cities 2..n of a tree of the given shape, before relabelling"""
+    par = [0, 0]
+    half = max(1, n // 2)
+    b = max(2, int(n ** 0.5))
+    for i in range(2, n + 1):
+        if kind == "path":
+            p = i - 1
         elif kind == "star":
-            par[i] = 0
-        elif kind == "deep":                    # depth about n / 2, a few short side branches
-            par[i] = ri(max(0, i - 3), i - 1)
+            p = 1
+        elif kind == "random":
+            p = ri(1, i - 1)
+        elif kind == "deep":
+            p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
-            par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
-            par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
-            par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "twopaths":                # two long chains below the root
-            par[i] = 0 if i <= 2 else i - 2
+            p = i // 2
+        elif kind == "caterpillar":
+            p = i - 1 if i <= half else ri(1, half)
+        elif kind == "broom":
+            p = i - 1 if i <= half else half
+        elif kind == "chains":
+            p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
             raise ValueError(kind)
+        par.append(p)
     return par
 
 
-def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1; node 0 gets the number root if given"""
+def add(n, k, edges):
+    assert 2 <= n <= MAXN and 0 <= k <= MAXW and len(edges) == n - 1
+    adj = [[] for _ in range(n + 1)]
+    for u, v, w in edges:
+        assert 1 <= u <= n and 1 <= v <= n and u != v and 0 <= w <= MAXW
+        adj[u].append(v)
+        adj[v].append(u)
+    seen = [False] * (n + 1)              # connected (n - 1 edges, so a tree)
+    seen[1] = True
+    st = [1]
+    while st:
+        u = st.pop()
+        for v in adj[u]:
+            if not seen[v]:
+                seen[v] = True
+                st.append(v)
+    assert all(seen[1:])
+    tests.append(f"{n} {k}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges))
+
+
+def tree(n, kind, code):
+    """edges of a tree of the given shape with random labels, edge order and ends; code() gives each code"""
+    par = shape(n, kind)
     lab = list(range(1, n + 1))
-    shuf(lab)
-    if root is not None:
-        j = lab.index(root)
-        lab[0], lab[j] = lab[j], lab[0]
-    return lab
+    random.shuffle(lab)
+    lab = [0] + lab
+    edges = []
+    for i in range(2, n + 1):
+        u, v = lab[i], lab[par[i]]
+        if random.random() < 0.5:
+            u, v = v, u
+        edges.append((u, v, code()))
+    random.shuffle(edges)
+    return edges
 
 
-def add(n, edges, is_tree=False):
-    """is_tree: from_par() already checked that the edges form a tree"""
-    assert 1 <= n <= MAXN and len(edges) == n - 1
-    if not is_tree:
-        assert all(1 <= a <= n and 1 <= b <= n and a != b for a, b in edges)
-        adj = [[] for _ in range(n + 1)]                        # n - 1 edges connecting everything: a tree
-        for e in edges:
-            adj[e[0]].append(e[1])
-            adj[e[1]].append(e[0])
-        seen, order = [False] * (n + 1), [1]
-        seen[1] = True
-        for v in order:
-            for u in adj[v]:
-                if not seen[u]:
-                    seen[u] = True
-                    order.append(u)
-        assert len(order) == n
-    t = f"{n}\n" + "".join(f"{a} {b}\n" for a, b in edges)
-    assert len(t) <= 3_000_000
-    tests.append(t)
+def pair_code(n, edges):
+    """the code of the route between two random cities (so that the answer is at least 1)"""
+    adj = [[] for _ in range(n + 1)]
+    for u, v, w in edges:
+        adj[u].append((v, w))
+        adj[v].append((u, w))
+    px = [-1] * (n + 1)
+    px[1] = 0
+    st = [1]
+    while st:
+        u = st.pop()
+        for v, w in adj[u]:
+            if px[v] < 0:
+                px[v] = px[u] ^ w
+                st.append(v)
+    a = ri(1, n)
+    b = ri(1, n - 1)
+    b += b >= a
+    return px[a] ^ px[b]
 
 
-def from_par(par, lab=None):
-    n = len(par)
-    if lab is None:
-        lab = labels(n)
-    # every node i >= 1 hangs below an earlier node and lab is a numbering 1..n: the edges form a tree
-    assert all(0 <= par[i] < i for i in range(1, n)) and sorted(lab) == list(range(1, n + 1))
-    rnd = _rnd
-    edges = [(lab[par[i]], lab[i]) if rnd() >= 0.5 else (lab[i], lab[par[i]]) for i in range(1, n)]
-    shuf(edges)
-    add(n, edges, True)
+def case(n, kind, mode, k=None):
+    if mode == "big":                       # any 30-bit code: few pairs, K taken from a real pair
+        code = lambda: ri(0, MAXW)
+    elif mode == "small":                   # codes 0..3: a huge number of pairs
+        code = lambda: ri(0, 3)
+    elif mode == "zero":
+        code = lambda: 0
+    elif mode == "bits":                    # one bit out of the lowest 6
+        code = lambda: 1 << ri(0, 5)
+    elif mode == "mid":                     # codes 0..255
+        code = lambda: ri(0, 255)
+    else:
+        raise ValueError(mode)
+    edges = tree(n, kind, code)
+    if k is None:
+        k = pair_code(n, edges)
+    add(n, k, edges)
 
 
-def tree(n, kind):
-    from_par(shape(n, kind))
-
-
-def broom(n, handle):
-    """a path of handle + 1 nodes, the other nodes are leaves at its end"""
-    par = [-1] + [i - 1 if i <= handle else handle for i in range(1, n)]
-    from_par(par)
-
-
-def spider(n, legs, length_fun):
-    """a centre with legs of the given lengths (the remaining nodes go to the first leg)"""
-    lens = [length_fun() for _ in range(legs)]
-    lens[0] += n - 1 - sum(lens)
-    assert lens[0] >= 1
-    par, cur = [-1], 0
-    for L in lens:
-        prev = 0
-        for _ in range(L):
-            cur += 1
-            par.append(prev)
-            prev = cur
-    from_par(par)
-
-
-def two_centres(n, small_first):
-    """a path of even node count (two centres) with leaves near the middle; the centre with the smaller
-    number is the first or the second middle node"""
-    L = max(2, n // 4 * 2)                                      # number of path nodes (even)
-    par = [-1] + [i - 1 for i in range(1, L)]
-    for i in range(L, n):                                       # hang leaves on the middle part only
-        par.append(ri(L // 4, 3 * L // 4))
-    lab = labels(n)
-    a, b = L // 2 - 1, L // 2                                   # the two centres
-    if (lab[a] < lab[b]) != small_first:
-        lab[a], lab[b] = lab[b], lab[a]
-    from_par(par, lab)
+def planted(n, kind, k, vals):
+    """codes chosen so that the route code from city 1 to every city is one of vals (picked at random):
+    a huge number of pairs"""
+    t = [0] + [vals[int(random.random() * len(vals))] for _ in range(n)]
+    t[1] = 0
+    edges = [(u, v, t[u] ^ t[v]) for u, v, _ in tree(n, kind, lambda: 0)]
+    add(n, k, edges)
 
 
 # samples
-add(6, [(4, 2), (2, 6), (6, 1), (1, 5), (6, 3)])
-add(4, [(3, 1), (1, 4), (4, 2)])
-add(1, [])
-add(5, [(5, 1), (2, 5), (5, 3), (4, 5)])
-add(2, [(2, 1)])
-add(8, [(7, 3), (3, 6), (6, 2), (2, 8), (3, 1), (6, 5), (8, 4)])
-# hidden: small
-add(3, [(1, 3), (3, 2)])
-add(4, [(4, 3), (3, 2), (2, 1)])
-for n, kind in ((7, "random"), (10, "path"), (11, "path"), (12, "binary"), (30, "cater"), (100, "deep"),
-                (1000, "random"), (3000, "twopaths")):
-    tree(n, kind)
-broom(500, 300)
-two_centres(2000, False)
-spider(5000, 20, lambda: ri(1, 100))
+add(5, 3, [(1, 2, 1), (1, 3, 2), (2, 4, 3), (2, 5, 2)])
+add(4, 0, [(1, 2, 5), (3, 1, 5), (1, 4, 5)])
+add(2, 7, [(2, 1, 7)])
+add(4, 6, [(1, 2, 1), (2, 3, 2), (3, 4, 4)])
+add(7, 4, [(3, 1, 6), (1, 5, 2), (3, 2, 4), (6, 3, 0), (5, 7, 6), (4, 5, 2)])
+# hidden: small and medium (the brute force checks these)
+case(3, "path", "small", 0)
+case(10, "random", "bits")
+case(20, "star", "small", 3)
+case(40, "binary", "mid")
+case(60, "caterpillar", "zero", 0)
+case(100, "deep", "big")
+case(300, "chains", "small", 1)
+case(2000, "random", "mid", 0)
+case(5000, "path", "bits")
 # hidden: maximum size
 N = MAXN
-tree(N, "path")
-tree(N - 1, "path")
-tree(N, "star")
-tree(N, "random")
-tree(N, "deep")
-tree(N, "binary")
-broom(N, 2 * N // 3)                                            # centre is in the handle, not at the busy end
-two_centres(N, False)
-two_centres(N - 1, True)
-spider(N, 100, lambda: ri(1000, 2000))
+case(N, "path", "big")
+planted(N, "path", 6, [0, 6])                   # about N^2 / 4 pairs
+case(N, "star", "zero", 0)                      # every pair: N (N - 1) / 2
+planted(N, "random", 0, [0, 9])
+case(N, "random", "big")
+planted(N, "binary", 3, [1, 2])
+planted(N, "caterpillar", 5, [0, 5, 0, 5, 7])
+case(N, "broom", "mid")
+planted(N, "deep", 0, [MAXW, 0])
+case(N, "chains", "bits", 0)
+case(N, "random", "zero", 5)                    # no pair at all
+planted(N, "chains", 1 << 29, [0, 1 << 29])
+case(N, "deep", "small", 3)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

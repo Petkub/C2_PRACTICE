@@ -82,12 +82,13 @@ add(N, ops_of(N, Q, 0.6, lambda: long_rng(N, 10), lambda: long_rng(N, 1000), lam
 add(N, ops_of(N, Q, 0.6, lambda: long_rng(N, 10), lambda: any_rng(N), lambda: -MAXX))         # most negative
 add(N, ops_of(N, Q, 0.5, lambda: any_rng(N), lambda: any_rng(N), anyx))
 add(N, ops_of(N, Q, 0.5, lambda: short_rng(N, 1000), lambda: long_rng(N, 50), anyx))
-add(N, ops_of(N, Q, 0.5, lambda: (1, N), lambda: (1, N), anyx))
+add(N, ops_of(N, Q, 0.5, lambda: (1, N), lambda: (1, N), lambda: ri(-MAXX // 3, MAXX)))       # scores drift up
 add(N, ops_of(N, Q, 0.4, lambda: long_rng(N, N // 2), lambda: short_rng(N, 3), anyx))           # point-like queries
 add(N, ops_of(N, Q, 0.5, lambda: long_rng(N, 3000), lambda: long_rng(N, 3000),
               lambda: ri(MAXX - 10, MAXX) * random.choice((1, 1, 1, -1))))
 add(N, ops_of(N, Q, 0.7, lambda: any_rng(N), lambda: long_rng(N, 5), lambda: ri(-MAXX, MAXX // 2)))
-add(400_000, ops_of(400_000, Q, 0.5, lambda: short_rng(400_000, 200_000), lambda: any_rng(400_000), anyx))
+add(400_000, ops_of(400_000, Q, 0.5, lambda: short_rng(400_000, 200_000), lambda: any_rng(400_000),
+                     lambda: ri(-MAXX // 2, MAXX)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

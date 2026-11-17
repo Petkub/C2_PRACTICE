@@ -1,7 +1,15 @@
-3 3
-bin/
-  run 3
-run 0
-run
-bin/run
-bin
+14
+LOOP 1
+LOOP n
+LOOP 1
+OP 1
+END
+END
+END
+LOOP 1000
+LOOP 1000
+LOOP n
+OP 999
+END
+END
+END

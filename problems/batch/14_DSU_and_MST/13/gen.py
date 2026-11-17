@@ -1,9 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(91301)
-MAXN, MAXK, MAXL, MAXCH = 100_000, 200_000, 20, 2_000_000
-OK = set("abcdefghijklmnopqrstuvwxyz0123456789@.")
+random.seed(91101)
+MAXN, MAXM = 400_000, 400_000
 tests = []
 
 
@@ -11,79 +10,53 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(accs):
-    n = len(accs)
-    assert 1 <= n <= MAXN and all(len(a) >= 1 for a in accs)
-    assert sum(len(a) for a in accs) <= MAXK
-    assert sum(len(e) for a in accs for e in a) <= MAXCH
-    assert all(1 <= len(e) <= MAXL and set(e) <= OK for a in accs for e in a)
-    tests.append(f"{n}\n" + "".join(f"{len(a)} " + " ".join(a) + "\n" for a in accs))
+def add(n, ps):
+    m = len(ps)
+    assert 1 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= p <= n for p in ps)
+    tests.append(f"{n} {m}\n" + " ".join(map(str, ps)) + "\n")
 
 
-DOMS = ["a.com", "m.th", "x.co", "p.net", "ac.th", "q.org"]
-LET = "abcdefghijklmnopqrstuvwxyz0123456789"
-
-
-def email(i, long=False):
-    """a different address for every i"""
-    s, x = "", i + 1
-    while x:
-        s += LET[x % 36]
-        x //= 36
-    if long:
-        return (s + ".abcdefgh")[:13] + "@" + DOMS[0]
-    return s + "@" + DOMS[i % len(DOMS)]
-
-
-def shuffled(accs):
-    accs = [list(a) for a in accs]
-    for a in accs:
-        random.shuffle(a)
-    random.shuffle(accs)
-    return accs
-
-
-def from_pool(n, total, pool, long=False):
-    """every account takes random addresses from a pool"""
-    ks = [1] * n
-    for _ in range(total - n):
-        ks[ri(0, n - 1)] += 1
-    return [[email(ri(0, pool - 1), long) for _ in range(k)] for k in ks]
+def block_then_middle(n, m, filled):
+    """first a long run of taken spots (cheap), then every car wants the middle of that run"""
+    start = ri(1, n)
+    ps = [(start - 1 + i) % n + 1 for i in range(filled)]
+    mid = (start - 1 + filled // 2) % n + 1
+    return ps + [mid] * (m - filled)
 
 
 # samples
-add([["ann@a.com", "ann.k@b.org"], ["bob@a.com"], ["ann.k@b.org", "kk@c.net"], ["kk@c.net"]])
-add([["a@x"], ["b@x"], ["b@x", "a@x"]])
-add([["p@q", "p@q", "r@s"], ["t@u"]])
-add([["m1@y.th"], ["m2@y.th"], ["m3@y.th", "m1@y.th"], ["m4@y.th"], ["m2@y.th", "m4@y.th"]])
-add([["z@z"], ["c@c", "d@d"], ["e@e"], ["d@d", "e@e"], ["z@z", "f@f"], ["f@f", "g@g"]])
+add(6, [3, 3, 3, 4, 1, 6, 2])
+add(5, [5, 5, 5, 1])
+add(1, [1, 1])
+add(8, [4, 5, 3, 4, 4, 8, 2])
+add(10, [10, 1, 10, 9, 2, 1, 10, 5, 6])
 # hidden: small
-add([["x"]])
-add([["a@b"], ["a@b"]])
-add(from_pool(8, 14, 10))
-add(from_pool(30, 50, 40))
-add(from_pool(200, 400, 300))
-add(shuffled([[email(i), email(i + 1)] for i in range(500)]))
-add(from_pool(2000, 3000, 2500))
+add(1, [1])
+add(2, [2, 2, 1, 2])
+add(7, [ri(1, 7) for _ in range(10)])
+add(30, [ri(1, 30) for _ in range(40)])
+add(100, [50] * 100)
+add(500, [1] * 600)
+add(1000, block_then_middle(1000, 1200, 700))
+add(3000, [ri(1, 3000) for _ in range(3000)])
+add(5000, [ri(1, 10) for _ in range(5000)])
 # hidden: maximum size
-N, K = MAXN, MAXK
-add([[email(0), email(i + 1)] for i in range(N)])               # one address in every account
-add([[email(i + 1), email(0)] for i in range(N)])
-add([[email(i), email(i + 1)] for i in range(N)])               # a chain 1-2-3-...
-add([[email(i), email(i + 1)] for i in range(N)][::-1])
-add(shuffled([[email(i), email(i + 1)] for i in range(N)]))
-add([[email(i)] * 2 for i in range(N)])                         # nobody shares: N persons
-add(from_pool(N, K, N))                                         # one big person and many small ones
-add(from_pool(N, K, 3 * N))
-add(from_pool(N // 2, K // 2, 200_000, long=True))              # long addresses
-accs = []                                                       # 20 persons, accounts interleaved
-for i in range(N):
-    g = i % 20
-    accs.append([email(10**6 + g), email(i)] if random.random() < 0.5 else [email(i), email(10**6 + g)])
-add(accs)
-add([[email(ri(0, 29))] for _ in range(N)])                     # one address each, from 30 addresses
-accs = [[email(5 * (i // 5) + j) for j in range(2)] for i in range(N)]   # groups of five neighbours
-add(shuffled(accs))
+N, M = MAXN, MAXM
+add(N, [N // 2] * M)                                         # one run grows to both sides
+add(N, [1] * M)                                              # ... across the end of the ring
+add(N, block_then_middle(N, M, N * 3 // 4))
+add(N, block_then_middle(N, M, N // 2))
+add(N // 2, block_then_middle(N // 2, M, N // 2 - 20000))     # the lot fills up, then many cars get 0
+add(N, [ri(1, N) for _ in range(M)])
+add(N, [ri(1, 100) for _ in range(M)])
+add(N // 4, [ri(N // 8 - 50, N // 8 + 50) for _ in range(M)])  # the lot fills up, M = 4N
+add(N, [ri(1, N) if i % 2 else N // 3 for i in range(M)])
+ps = [i for i in range(1, N + 1, 2)]                         # every other spot first
+random.shuffle(ps)
+add(N, ps + [ri(1, N) for _ in range(M - len(ps))])
+add(N, [N - (i % 7) for i in range(M)])
+add(3, [ri(1, 3) for _ in range(M)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

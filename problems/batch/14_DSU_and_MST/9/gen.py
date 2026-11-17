@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(90901)
-MAXN, MAXM, MAXQ, MAXC = 100_000, 100_000, 100_000, 10**6
+random.seed(140909)
+MAXN, MAXK, MAXM = 100_000, 10, 200_000
 tests = []
 
 
@@ -10,100 +10,117 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, roads, qs):
-    m, q = len(roads), len(qs)
-    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= q <= MAXQ
-    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= c <= MAXC for (u, v, c) in roads)
-    assert all(1 <= v <= n and 1 <= w <= MAXC for (v, w) in qs)
-    tests.append(f"{n} {m} {q}\n" + "".join(f"{u} {v} {c}\n" for (u, v, c) in roads)
-                 + "".join(f"{v} {w}\n" for (v, w) in qs))
+def shuffle(a):
+    for i in range(len(a) - 1, 0, -1):
+        j = int(random.random() * (i + 1))
+        a[i], a[j] = a[j], a[i]
 
 
-def relabel(n, roads):
-    p = list(range(1, n + 1))
-    random.shuffle(p)
-    res = [(p[u - 1], p[v - 1], c) if random.random() < 0.5 else (p[v - 1], p[u - 1], c) for (u, v, c) in roads]
-    random.shuffle(res)
-    return res
+def add(n, k, links, mix=True):
+    links = list(links)
+    if mix:
+        shuffle(links)
+    m = len(links)
+    assert 2 <= n <= MAXN and 1 <= k <= MAXK and 1 <= m <= MAXM
+    for u, v, p in links:
+        assert 1 <= u <= n and 1 <= v <= n and u != v and 1 <= p <= k
+    tests.append(f"{n} {k} {m}\n" + "".join(f"{u} {v} {p}\n" for u, v, p in links))
 
 
-def tree(n, cmax=MAXC, cmin=1):
-    return [(ri(1, v - 1), v, ri(cmin, cmax)) for v in range(2, n + 1)]
-
-
-def extra(n, k, cmax=MAXC, cmin=1):
+def tree_links(group, p, shape="random"):
+    """links of app p joining the students of `group` (a fresh random tree each time)"""
+    g = list(group)
+    shuffle(g)
     res = []
-    while len(res) < k:
-        u, v = ri(1, n), ri(1, n)
-        if u != v:
-            res.append((u, v, ri(cmin, cmax)))
+    for i in range(1, len(g)):
+        j = i - 1 if shape == "path" else (0 if shape == "star" else ri(0, i - 1))
+        a, b = g[i], g[j]
+        res.append((a, b, p) if random.random() < 0.5 else (b, a, p))
     return res
 
 
-def queries(n, q, roads, low=1, high=MAXC, near=0.3):
-    cs = [c for (_, _, c) in roads] or [1]
-    res = []
-    for _ in range(q):
-        if random.random() < near:
-            w = min(MAXC, max(1, random.choice(cs) + ri(0, 1)))   # exactly a limit or one more
-        else:
-            w = ri(low, high)
-        res.append((ri(1, n), w))
-    return res
+def planted(n, k, fine, coarse, m, cover=None, shape="random", common=0.0):
+    """`cover` students (all if None) are split into `fine` small groups; app p merges them into `coarse[p]`
+    bigger groups at random and joins each bigger group with its own random links. The close pairs are the
+    pairs in the same bigger group of every app. `common`: share of the fine groups whose tree is the same in
+    every app (the 'common links' shortcut finds those). The other students get no link at all. The links
+    left over (up to m) are extra random links inside the bigger groups."""
+    who = list(range(1, n + 1))
+    shuffle(who)
+    cover = n if cover is None else cover
+    who = who[:cover]
+    cut = sorted(set(ri(1, cover - 1) for _ in range(fine - 1)))
+    groups = [who[a:b] for a, b in zip([0] + cut, cut + [cover])]
+    links, bigs = [], []
+    shared = [tree_links(g, 0, shape) for g in groups]
+    for p in range(1, k + 1):
+        c = coarse[p - 1]
+        big = {}
+        for gi in range(len(groups)):
+            big.setdefault(ri(1, c), []).append(gi)
+        for key in sorted(big):
+            gis = big[key]
+            for gi in gis:
+                if gi < common * len(groups):
+                    links += [(a, b, p) for a, b, _ in shared[gi]]
+                else:
+                    links += tree_links(groups[gi], p, shape)
+            for t in range(1, len(gis)):
+                a = groups[gis[t]][ri(0, len(groups[gis[t]]) - 1)]
+                prev = groups[gis[ri(0, t - 1)]]
+                links.append((a, prev[ri(0, len(prev) - 1)], p))
+            members = [x for gi in gis for x in groups[gi]]
+            if len(members) > 1:
+                bigs.append((p, members))
+    m = max(m, len(links))          # small tests: at least the links that build the groups
+    assert bigs
+    while len(links) < m:
+        p, members = bigs[ri(0, len(bigs) - 1)]
+        a, b = members[ri(0, len(members) - 1)], members[ri(0, len(members) - 1)]
+        if a != b:
+            links.append((a, b, p))
+    return n, k, links
+
+
+def random_apps(n, k, m):
+    links = []
+    while len(links) < m:
+        a, b = ri(1, n), ri(1, n)
+        if a != b:
+            links.append((a, b, ri(1, k)))
+    return n, k, links
 
 
 # samples
-add(5, [(1, 2, 5), (2, 3, 3), (3, 4, 8), (4, 5, 2), (2, 5, 6)], [(1, 4), (1, 3), (4, 9)])
-add(3, [(1, 2, 2), (1, 2, 7), (3, 2, 4)], [(1, 7), (3, 5), (3, 4)])
-add(4, [], [(2, 1), (4, 1000000)])
-add(4, [(1, 2, 10), (2, 3, 20), (3, 4, 10), (4, 1, 30)], [(1, 30), (3, 11), (4, 10)])
-add(3, [(1, 3, 5), (3, 2, 5)], [(2, 5), (2, 6)])
-# hidden: small
-add(1, [], [(1, 1)])
-add(2, [(1, 2, 1000000)], [(1, 1000000), (2, 1), (1, 999999)])
-n = 8
-r = relabel(n, tree(n, 10) + extra(n, 6, 10))
-add(n, r, queries(n, 30, r, 1, 11))
-n = 50
-r = relabel(n, tree(n, 100) + extra(n, 40, 100))
-add(n, r, queries(n, 200, r, 1, 101))
-n = 300
-r = relabel(n, extra(n, 250, 1000))
-add(n, r, queries(n, 1000, r, 1, 1000))
-n = 2000
-r = relabel(n, [(i, i + 1, ri(1, MAXC)) for i in range(1, n)])
-add(n, r, queries(n, 3000, r))
-n = 3000
-r = relabel(n, tree(n, 5) + extra(n, 3000, 5))                 # many equal limits
-add(n, r, queries(n, 5000, r, 1, 6, 0.5))
+add(5, 2, [(1, 2, 1), (2, 3, 1), (4, 5, 1), (1, 2, 2), (2, 3, 2), (3, 4, 2)], mix=False)
+add(4, 3, [(1, 2, 1), (2, 1, 2), (3, 4, 3), (1, 2, 1)], mix=False)
+add(6, 1, [(1, 2, 1), (3, 4, 1), (4, 5, 1), (5, 3, 1), (2, 6, 1)], mix=False)
+add(4, 2, [(1, 2, 1), (2, 1, 2), (1, 2, 2), (3, 4, 1), (4, 3, 2), (2, 3, 1)], mix=False)
+add(7, 3, [(1, 2, 1), (2, 3, 1), (3, 4, 1), (5, 6, 1), (1, 2, 2), (2, 3, 2), (3, 4, 2), (6, 7, 2), (1, 2, 3),
+           (2, 3, 3), (3, 4, 3), (5, 7, 3), (4, 5, 3)], mix=False)
+# hidden: small (checked against brute.cpp)
+add(2, 1, [(2, 1, 1)])
+add(2, 2, [(1, 2, 1), (1, 2, 1)])
+add(5, 2, [(1, 2, 1), (2, 3, 1), (1, 3, 2), (3, 2, 2), (4, 5, 2)])     # 1-2 joined by different routes
+add(*planted(8, 2, 3, [2, 2], 9))
+add(*planted(12, 3, 4, [2, 3, 2], 20, cover=10))
+add(*random_apps(10, 10, 60))
+add(*planted(2000, 3, 60, [10, 12, 8], 7000))
+add(*planted(1500, 1, 30, [6], 2000))
+add(*planted(1800, 4, 40, [5, 5, 5, 5], 8000, common=0.5))
 # hidden: maximum size
-N, M, Q = MAXN, MAXM, MAXQ
-r = relabel(N, tree(N) + extra(N, M - N + 1))
-add(N, r, queries(N, Q, r, 1, 10**5))                          # light trucks: huge reachable areas
-r = relabel(N, [(i, i + 1, ri(1, MAXC)) for i in range(1, N)])
-add(N, r, queries(N, Q, r, 1, 2000, 0.1))
-r = relabel(N, [(i, i + 1, MAXC - i) for i in range(1, N)])    # limits fall along a path
-add(N, r, queries(N, Q, r, MAXC - N, MAXC))
-r = relabel(N, [(1, v, ri(1, MAXC)) for v in range(2, N + 1)])  # star
-add(N, r, queries(N, Q, r, 1, 3000, 0.2))
-r = relabel(N, tree(N, 1, 1))                                  # every limit 1
-add(N, r + [(1, 2, 1)], [(ri(1, N), ri(1, 2)) for _ in range(Q)])
-r = relabel(N, tree(N, 10) + extra(N, M - N + 1, 10))          # limits 1..10
-add(N, r, queries(N, Q, r, 1, 11))
-r = relabel(N, tree(N) + extra(N, M - N + 1))
-add(N, r, queries(N, Q, r))
-r = []
-for k in range(0, N, 1000):                                    # 100 separate groups
-    for v in range(k + 2, k + 1001):
-        r.append((ri(k + 1, v - 1), v, ri(1, MAXC)))
-r = relabel(N, r)
-add(N, r, queries(N, Q, r, 1, 10**5))
-r = relabel(N, tree(N, MAXC, MAXC - 1000))                     # the largest limits
-add(N, r, queries(N, Q, r, MAXC - 1100, MAXC, 0.5))
-r = relabel(N, [(i, i + 1, ri(1, 10)) for i in range(1, N)])   # long path with few distinct limits
-add(N, r, [(ri(1, N), 1) for _ in range(Q // 2)] + queries(N, Q // 2, r, 1, 11))
-r = relabel(N, [(ri(1, 10), ri(11, N), ri(1, MAXC)) for _ in range(M)])   # parallel roads to few hubs
-add(N, r, queries(N, Q, r, 1, 10**5))
+N, M = MAXN, MAXM
+add(*planted(N, 2, 50, [1, 2], M))                                   # big groups: over 2 * 10^9 pairs
+add(*planted(N, 1, 1, [1], M, shape="path"))                         # one app, everyone reaches everyone
+add(*planted(N, 2, 1, [1, 1], M, shape="star"))                      # 4 999 950 000 pairs
+add(*planted(N, 10, 400, [3] * 10, M, cover=18_000))
+add(*planted(N, 5, 2000, [20, 30, 25, 40, 15], M, cover=35_000))
+add(*planted(N, 3, 300, [1, 1, 1], M, cover=66_000, common=0.3))   # one group of 66 000
+add(*planted(N, 2, 20, [1, 2], M, shape="path"))
+add(*random_apps(N, 2, M))                                           # two random graphs with a giant part each
+add(*planted(N, 10, 30, [2] * 10, M, cover=19_000, shape="star"))
+add(*planted(N, 4, 5000, [100, 120, 90, 110], M, cover=45_000, common=0.8))
+add(*planted(N, 7, 150, [4, 5, 3, 6, 4, 5, 3], M, cover=25_000))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

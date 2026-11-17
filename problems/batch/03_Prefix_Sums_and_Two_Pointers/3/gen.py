@@ -1,72 +1,70 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(1103)
-MAXN, MAXM = 1_000_000, 200_000
+random.seed(30232)
+MAXN, MAXQ = 500_000, 150_000
 tests = []
 
-def add(n, k, jobs):
-    m = len(jobs)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM and 1 <= k <= MAXM
-    assert all(1 <= l <= r <= n for l, r in jobs)
-    lines = [f"{n} {m} {k}"] + [f"{l} {r}" for l, r in jobs]
-    tests.append("\n".join(lines) + "\n")
 
-def rand_jobs(n, m, mode):
-    jobs = []
-    for _ in range(m):
+def add(s, qs):
+    n, q = len(s), len(qs)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ and set(s) <= set("OX")
+    assert all(1 <= l <= r <= n for l, r in qs)
+    tests.append(f"{n} {q}\n{s}\n" + "\n".join(f"{l} {r}" for l, r in qs) + "\n")
+
+
+def song(n, p_miss):
+    return "".join("X" if random.random() < p_miss else "O" for _ in range(n))
+
+
+def runs(n, lo, hi):
+    # runs of O with lengths in [lo, hi], separated by single X
+    out = []
+    while len(out) < n:
+        out.extend("O" * random.randint(lo, hi))
+        out.append("X")
+    return "".join(out[:n])
+
+
+def queries(n, q, mode):
+    out = []
+    for _ in range(q):
         if mode == "long":
-            l = random.randint(1, max(1, n // 10))
-            r = random.randint(min(n, n - n // 10), n)
+            l = random.randint(1, max(1, n // 20))
+            r = random.randint(n - n // 20, n)
         elif mode == "short":
             l = random.randint(1, n)
-            r = min(n, l + random.randint(0, 20))
+            r = min(n, l + random.randint(0, 50))
         else:
             l, r = sorted((random.randint(1, n), random.randint(1, n)))
-        jobs.append((l, r))
-    return jobs
-
-def layers(n, jobs):
-    d = [0] * (n + 2)
-    for l, r in jobs:
-        d[l] += 1
-        d[r + 1] -= 1
-    out, cur = [], 0
-    for i in range(1, n + 1):
-        cur += d[i]
-        out.append(cur)
+        out.append((min(l, r), max(l, r)))
     return out
 
-def median_k(n, jobs):       # a K that splits the cells into two non-trivial groups
-    ls = sorted(layers(n, jobs))
-    return max(1, ls[len(ls) // 2])
 
 # samples
-add(10, 2, [(1, 5), (3, 8), (5, 10)])
-add(5, 3, [(1, 5), (2, 4)])
-add(1, 1, [(1, 1)])
-add(8, 1, [(2, 3), (6, 6)])
-add(6, 4, [(1, 6), (2, 6), (1, 5), (3, 4), (6, 6)])
-# hidden: small
-add(1, 3, [(1, 1)] * 3)
-add(7, 1, [(7, 7)])
-add(7, 2, [(1, 1), (7, 7), (1, 7)])
-for n, m in [(20, 10), (100, 60), (1000, 500), (5000, 3000), (20000, 15000)]:
-    jobs = rand_jobs(n, m, "any")
-    add(n, median_k(n, jobs), jobs)
-jobs = rand_jobs(30000, 20000, "long")
-add(30000, 20000, jobs)
+add("OOXOOO", [(1, 6), (4, 6), (1, 2)])
+add("OOOOXOOXO", [(1, 9), (6, 9), (5, 7), (8, 8)])
+add("X", [(1, 1)])
+add("XOOOOOOOOO", [(1, 10), (2, 5), (1, 1)])
+add("OXOOXXOOOX", [(1, 10), (2, 8), (5, 9), (3, 4)])
+# hidden: small and medium
+add("O", [(1, 1)])
+add(song(20, 0.3), queries(20, 60, "any"))
+add(song(50, 0.1), queries(50, 200, "any"))
+add(runs(300, 5, 40), queries(300, 300, "any"))
+add("O" * 2000, queries(2000, 1000, "any"))
+add(song(5000, 0.5), queries(5000, 3000, "any"))
+add("O" * 70_000, [(1, 70_000), (2, 70_000), (35_000, 70_000)])     # 32-bit overflow
 # hidden: maximum size
-for mode in ["long", "any", "long"]:
-    jobs = rand_jobs(MAXN, MAXM, mode)
-    add(MAXN, median_k(MAXN, jobs), jobs)
-add(MAXN, MAXM, [(1, MAXN)] * MAXM)                          # every cell has exactly M layers
-add(MAXN, MAXM, [(1, MAXN)] * (MAXM - 1) + [(2, MAXN)])      # cell 1 misses one layer
-jobs = [(random.randint(1, 1000), random.randint(MAXN - 1000, MAXN)) for _ in range(MAXM)]
-add(MAXN, MAXM - 7, jobs)
-add(MAXN, 1, rand_jobs(MAXN, MAXM, "short"))
-jobs = rand_jobs(MAXN, MAXM, "long")
-add(MAXN, MAXM, jobs[:-1] + [(MAXN, MAXN)])
+add("O" * MAXN, queries(MAXN, MAXQ, "long"))
+add(runs(MAXN, 1000, 100_000), queries(MAXN, MAXQ, "long"))
+add(song(MAXN, 0.0001), queries(MAXN, MAXQ, "long"))
+add(runs(MAXN, 1, 30), queries(MAXN, MAXQ, "long"))
+add(song(MAXN, 0.01), queries(MAXN, MAXQ, "long"))
+add("X" + "O" * (MAXN - 2) + "X", queries(MAXN, MAXQ, "long"))
+add(runs(MAXN, 10_000, 200_000), [(random.randint(1, 100), MAXN) for _ in range(MAXQ)])
+add(song(MAXN, 0.3), queries(MAXN, MAXQ, "long"))
+add("O" * (MAXN // 2) + "X" + "O" * (MAXN - MAXN // 2 - 1), queries(MAXN, MAXQ, "long"))
 
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):

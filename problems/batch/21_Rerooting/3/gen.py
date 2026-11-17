@@ -36,6 +36,10 @@ def shape(n, kind):
             p = 1 if i <= b + 1 else i - b
         elif kind == "bushy":                       # star of stars: about sqrt(n) hubs, each with many leaves
             p = 1 if i <= b + 1 else ri(2, b + 1)
+        elif kind == "hubrand":                     # random tree in which node 1 gets about half of the nodes
+            p = 1 if random.random() < 0.5 else ri(1, i - 1)
+        elif kind == "doublestar":                  # nodes 1 and 2 joined, each with half of the leaves
+            p = 1 if i == 2 or i % 2 else 2
         else:
             raise ValueError(kind)
         par.append(p)
@@ -119,6 +123,10 @@ def make(n, kind, mode, lo=1, hi=MAXH, root_first=False):
             x = hi if i == 1 else max(lo, h[lab[par[i] - 1]] - ri(0, 1))
         elif mode == "valley":                  # node 1 is the bottom, never lower than the parent
             x = lo if i == 1 else min(hi, h[lab[par[i] - 1]] + ri(0, 2))
+        elif mode == "hublow":                  # the hubs (nodes 1, 2 of the shape) lowest, the rest close above
+            x = lo if i <= 2 else ri(lo, lo + 2)
+        elif mode == "mostlylow":               # big plateaus at the lowest height
+            x = lo if random.random() < 0.9 else lo + 1
         else:
             raise ValueError(mode)
         h[lab[i - 1]] = x
@@ -137,21 +145,21 @@ make(10, "random", "few", 1, 10)
 make(30, "deep", "random", 1, 20)
 make(60, "star", "few", 5, 10)
 make(300, "caterpillar", "mountain", 1, 100)
-make(2000, "path", "few", root_first=True)
+make(2000, "twopaths", "few", root_first=True)
 make(5000, "chains", "valley")
 make(8000, "spider", "few", 1, 10**9)
-# hidden: maximum size
+# hidden: maximum size (every one has huge plateaus or a hub that most pours reach)
 N = MAXN
 make(N, "path", "flat")                          # one plateau: water reaches everything from everywhere
 make(N, "path", "mountain", root_first=True)
 make(N, "deep", "mountain")
-make(N, "caterpillar", "few")
+make(N, "hubrand", "valley")                     # every pour runs down to the hub
 make(N, "broom", "mountain")
-make(N, "twopaths", "flat", root_first=True)
-make(N, "chains", "mountain")
-make(N, "random", "flat")
-make(N, "binary", "mountain", root_first=True)
-make(N, "star", "few")
-make(N, "spider", "valley")
-make(N, "bushy", "few")
+make(N, "broom", "valley", root_first=True)
+make(N, "hubrand", "mountain")
+make(N, "random", "mostlylow")
+make(N, "binary", "mostlylow", root_first=True)
+make(N, "star", "hublow")
+make(N, "bushy", "mostlylow")
+make(N, "doublestar", "hublow")
 write_tests()

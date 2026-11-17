@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(160006)
-MAXN, MAXH = 200_000, 10**9
+random.seed(160007)
+MAXN, MAXC, MAXP = 200_000, 10**9, 10**9
 tests = []
 
 
@@ -10,48 +10,43 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(h):
-    n = len(h)
-    assert 1 <= n <= MAXN and all(1 <= x <= MAXH for x in h)
-    tests.append(f"{n}\n" + " ".join(map(str, h)) + "\n")
+def add(c, p):
+    n = len(p)
+    assert 1 <= n <= MAXN and 1 <= c <= MAXC and all(1 <= x <= MAXP for x in p)
+    tests.append(f"{n} {c}\n" + " ".join(map(str, p)) + "\n")
 
 
 # samples
-add([2, 3, 3, 1, 2])
-add([2, 1, 2])
-add([7])
-add([1, 2, 3, 4])
-add([3, 1, 3, 1, 3])
-# hidden: small (checked by the exhaustive search)
-add([5, 5, 5])
-add([2, 1, 2, 1, 2, 1, 2, 1])
-add([1, 3, 2, 3, 1, 3, 2])
-add([ri(1, 4) for _ in range(8)])
-add([ri(1, 3) * 10**8 for _ in range(10)])
-add([3, 2, 1, 2, 3, 2, 1, 2])
-# hidden: medium (checked by the slab recursion)
-add([ri(1, 5) for _ in range(2000)])
-add([ri(1, MAXH) for _ in range(5000)])
-add([i % 50 + 1 for i in range(20000)])
+add(3, [5, 2, 7, 4, 1, 6])
+add(10, [4, 6, 3, 8, 2])
+add(1, [7])
+add(1, [3, 1, 4, 1])
+add(2, [6, 2, 9, 9, 3, 8, 5, 1])
+# hidden: small
+add(MAXC, [ri(1, 9) for _ in range(10)])
+add(3, [ri(1, 9) for _ in range(30)])
+add(ri(2, 20), [ri(1, 100) for _ in range(300)])
+add(50, [ri(1, MAXP) for _ in range(2000)])
+add(7, [3000 - i for i in range(3000)])              # cheaper and cheaper
+add(100, [i + 1 for i in range(5000)])               # dearer and dearer
+add(1000, [ri(1, 5) for _ in range(20000)])
+add(1, [ri(1, MAXP) for _ in range(20000)])         # the tank holds one litre
+add(1000, [ri(1, MAXP) for _ in range(20000)])
 # hidden: maximum size
 N = MAXN
-add([MAXH] * N)
-add([i + 1 for i in range(N)])                    # staircase up
-add([N - i for i in range(N)])                    # staircase down
-add([ri(1, MAXH) for _ in range(N)])
-add([ri(1, 3) for _ in range(N)])
-add([ri(1, 50) for _ in range(N)])
-add([N - abs(N // 2 - i) for i in range(N)])      # mountain
-add([1 + abs(N // 2 - i) for i in range(N)])      # valley
-add([MAXH if i % 2 else MAXH - 1 for i in range(N)])
-h, cur = [], 1                                    # random walk
-for _ in range(N):
-    cur = max(1, min(MAXH, cur + ri(-3, 3)))
-    h.append(cur)
-add(h)
-add([i * 1000 + ri(0, 3000) + 1 for i in range(N)])          # noisy ramp up
-add([(N - i) * 1000 + ri(0, 3000) for i in range(N)])        # noisy ramp down
-add([(i % 40000) * 20000 + ri(1, 9) for i in range(N)])      # five long ramps
+add(N // 2, [ri(1, MAXP) for _ in range(N)])
+add(N // 2, [i + 1 for i in range(N)])                # the window minimum is always the oldest station
+add(N - 1, [N - i for i in range(N)])                 # every station is the new minimum
+add(MAXC, [MAXP] * N)                                 # 2 * 10^14
+add(N, [ri(1, MAXP) for _ in range(N)])               # the tank holds the whole road
+add(N // 2, [ri(1, 10) for _ in range(N)])            # many equal prices
+add(N // 3, [MAXP - (i % 5000) for i in range(N)])    # saw teeth
+p = [MAXP] * N                                        # a few cheap stations far apart
+for k in range(0, N, 40000):
+    p[k] = 1
+add(39999, p)
+add(N // 4, [MAXP - abs(N // 2 - i) * 1000 for i in range(N)])
+add(ri(N // 3, N), [ri(MAXP - 100, MAXP) for _ in range(N)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

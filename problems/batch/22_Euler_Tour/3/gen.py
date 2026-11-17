@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(220003)
-MAXN, MAXQ, MAXV = 100_000, 200_000, 10**9
+random.seed(220303)
+MAXQ, MAXV = 200_000, 10**9
 tests = []
 
 
@@ -11,10 +11,11 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
+    """par[i] (< i) for the donors 2..n (donor i joins as the (i - 1)-th event of its kind)"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
+    L = max(2, n // 12)
     for i in range(2, n + 1):
         if kind == "path":
             p = i - 1
@@ -26,140 +27,83 @@ def shape(n, kind):
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":                 # a spine of n / 2 donors with legs
             p = i - 1 if i <= half else ri(1, half)
         elif kind == "broom":                       # a long handle ending in a star
             p = i - 1 if i <= half else half
         elif kind == "chains":                      # chains of length about sqrt(n) glued at random
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
+        elif kind == "steps":                       # chains of length n / 12, each hung on the previous one
+            k = (i - 2) // L
+            p = i - 1 if (i - 2) % L else (1 if k == 0 else ri(max(2, (k - 1) * L + 2), k * L + 1))
         else:
             raise ValueError(kind)
         par.append(p)
     return par
 
 
-def tree(n, kind):
-    """parent array p[0..n] (p[1] = 0) of a tree of the given shape with random labels (shape node 1 = branch 1);
-    also lab: lab[i - 1] = label of shape node i (small i = close to the root)"""
-    par = shape(n, kind)
-    lab = list(range(2, n + 1))
-    random.shuffle(lab)
-    lab = [1] + lab
-    p = [0] * (n + 1)
-    for i in range(2, n + 1):
-        p[lab[i - 1]] = lab[par[i] - 1]
-    return p, lab
-
-
-_seen = {}                                  # id(p) -> (p, depths): rops and add check the same tree once
-
-
-def depths(n, p):
-    """depth of every person (person 1 has depth 0); asserts that everybody reaches person 1"""
-    if id(p) in _seen and _seen[id(p)][0] is p:
-        return _seen[id(p)][1]
-    assert p[0] == 0 and p[1] == 0 and 1 <= min(p[2:]) and max(p[2:]) <= n
-    assert all(p[i] != i for i in range(2, n + 1))
-    ch = [[] for _ in range(n + 1)]
-    for i in range(2, n + 1):
-        ch[p[i]].append(i)
-    dep = [0] * (n + 1)
-    order = [1]
-    for u in order:
-        cu = ch[u]
-        if cu:
-            du = dep[u] + 1
-            for c in cu:
-                dep[c] = du
-            order.extend(cu)
-    assert len(order) == n
-    _seen[id(p)] = (p, dep)
-    return dep
-
-
-def add(n, w, p, ops):
+def add(c, ops):
     q = len(ops)
-    assert 2 <= n <= MAXN and 1 <= q <= MAXQ and len(w) == n and len(p) == n + 1
-    assert all(0 <= x <= MAXV for x in w)
-    depths(n, p)
-    assert all(len(op) == 3 for op in ops)
-    assert all(1 <= v <= n and (0 <= x <= MAXV if t == 1 else t == 2 and 0 <= x <= n) for t, v, x in ops)
+    assert 1 <= q <= MAXQ and 0 <= c <= MAXV
+    m = 1
+    for op in ops:
+        if op[0] == 1:
+            assert len(op) == 3 and 1 <= op[1] <= m and 0 <= op[2] <= MAXV
+            m += 1
+        else:
+            assert op[0] == 2 and len(op) == 2 and 1 <= op[1] <= m
     assert any(op[0] == 2 for op in ops)
-    t = (f"{n} {q}\n" + " ".join(map(str, p[2:])) + "\n" + " ".join(map(str, w)) + "\n"
-         + "".join("%d %d %d\n" % op for op in ops))
+    t = (f"{q} {c}\n" + "".join(("%d %d %d\n" if len(op) == 3 else "%d %d\n") % op for op in ops))
     assert len(t) <= 3_100_000
     tests.append(t)
 
 
-def rops(n, q, p, lab, p1=0.3, vhi=MAXV, top=None, upd=None, far=0.05):
-    """random operations. Questions: v among the top nodes closest to the root (or any), and k aimed at the depth
-    of a random person (so big generations are asked often); a few k beyond every generation.
-    Changes: among the upd deepest nodes of the shape (or any)."""
-    dep = depths(n, p)
-    maxd = max(dep)
-    res = []
-    rnd = random.random
-    for _ in range(q):
-        if rnd() < p1:
-            u = lab[n - 1 - int(rnd() * upd)] if upd else 1 + int(rnd() * n)
-            res.append((1, u, int(rnd() * (vhi + 1))))
+def case(q, kind, p_join, vhi, top=None, p_top=1.0):
+    """q events: joins follow the shape in order; a question asks, with probability p_top, one of the top donors
+    with the smallest numbers (the biggest chains in deep shapes), else a random donor who has joined"""
+    joins = sum(1 for _ in range(q) if random.random() < p_join)
+    par = shape(joins + 1, kind)
+    kinds = [1] * joins + [2] * (q - joins)
+    random.shuffle(kinds)
+    if kinds[-1] == 1 and 2 not in kinds:
+        kinds[-1] = 2
+    ops, m = [], 1
+    for k in kinds:
+        if k == 1 and m < len(par) - 1:
+            m += 1
+            ops.append((1, par[m], ri(0, vhi)))
+        elif top and random.random() < p_top:
+            ops.append((2, ri(1, min(m, top))))
         else:
-            v = lab[int(rnd() * top)] if top else 1 + int(rnd() * n)
-            if rnd() < far:
-                k = ri(maxd - dep[v], n)
-            else:
-                d = dep[1 + int(rnd() * n)]
-                k = d - dep[v] if d >= dep[v] else int(rnd() * 4)
-            res.append((2, v, k))
-    if not any(op[0] == 2 for op in res):
-        res.append((2, 1, 1))
-    return res
-
-
-def big(kind, q, p1, vhi, top, upd, n=MAXN):
-    p, lab = tree(n, kind)
-    w = [ri(0, vhi) for _ in range(n)]
-    add(n, w, p, rops(n, q, p, lab, p1, vhi, top, upd))
-
-
-def heavy(p1, n=MAXN, q=MAXQ):
-    """a handle 1 - 2 - ... - 20 ending in a star: questions from a handle person down to the huge last generation,
-    changes inside that generation"""
-    p = [0, 0] + [i - 1 if i <= 20 else 20 for i in range(2, n + 1)]
-    ops = []
-    for _ in range(q):
-        if random.random() < p1:
-            ops.append((1, ri(21, n), ri(0, 99)))
-        else:
-            v = ri(1, 20)
-            ops.append((2, v, 21 - v))
-    add(n, [ri(0, 99) for _ in range(n)], p, ops)
+            ops.append((2, ri(1, m)))
+    if not any(op[0] == 2 for op in ops):
+        ops[-1] = (2, 1)
+    add(ri(0, vhi), ops)
 
 
 # samples
-add(7, [3, 1, 5, 4, 2, 6, 7], [0, 0, 1, 1, 2, 2, 3, 3], [(2, 1, 2), (2, 2, 1), (1, 6, 10), (2, 1, 2), (2, 3, 0)])
-add(4, [5, 6, 7, 8], [0, 0, 1, 2, 3], [(2, 1, 3), (2, 2, 3), (1, 4, 0), (2, 1, 3)])
-add(2, [MAXV, MAXV], [0, 0, 1], [(2, 1, 0), (2, 1, 1), (2, 2, 1)])
-add(6, [1, 2, 3, 4, 5, 6], [0, 0, 6, 6, 1, 3, 1], [(2, 1, 3), (2, 6, 1), (1, 2, 20), (2, 6, 1)])
-add(5, [MAXV] * 5, [0, 0, 1, 1, 1, 1], [(2, 1, 1), (2, 1, 5), (2, 4, 0)])
+add(5, [(1, 1, 3), (1, 1, 4), (1, 2, 2), (2, 2), (1, 4, 6), (2, 2), (2, 1)])
+add(1, [(1, 1, 10), (2, 1), (1, 2, 100), (2, 2), (1, 3, 1000), (2, 1)])
+add(0, [(2, 1), (1, 1, 0), (2, 2)])
+add(7, [(1, 1, 1), (1, 1, 2), (1, 3, 3), (1, 2, 4), (1, 3, 5), (2, 3), (2, 2)])
+add(2, [(2, 1), (1, 1, 5), (1, 1, 5), (2, 1), (2, 3)])
 # hidden: small and medium
-for n, kind, q in ((3, "path", 6), (10, "random", 15), (30, "deep", 40), (50, "star", 60), (80, "caterpillar", 100),
-                   (200, "binary", 300)):
-    p, lab = tree(n, kind)
-    add(n, [ri(0, 100) for _ in range(n)], p, rops(n, q, p, lab, 0.3, 100))
-for n, kind in ((5000, "path"), (8000, "broom"), (8000, "chains")):
-    p, lab = tree(n, kind)
-    add(n, [ri(0, MAXV) for _ in range(n)], p, rops(n, 8000, p, lab, 0.3, MAXV, top=50, upd=n // 2))
-# hidden: maximum size
-big("path", 100_000, 0.2, 9999, 2_000, None)
-big("broom", 100_000, 0.5, 9999, 30_000, 50_000)          # one generation of 50 000 people
-big("broom", 60_000, 0.3, MAXV, 100, 50_000)              # the largest totals
-big("caterpillar", 100_000, 0.3, 9999, 5_000, 50_000)
-big("star", 200_000, 0.05, 99, 1, 99_999)                 # questions over the whole generation 1
-big("star", 200_000, 0.95, 99, 1, 99_999)                 # changes inside generation 1
-heavy(0.05)                                               # questions over the huge generation
-heavy(0.95)                                               # changes inside the huge generation
-big("binary", 100_000, 0.4, 9999, 30, 50_000)
+for q, kind in ((4, "path"), (15, "random"), (40, "deep"), (60, "star"), (100, "caterpillar"), (300, "binary")):
+    case(q, kind, 0.7, 100, top=5, p_top=0.5)
+case(8000, "random", 0.7, MAXV, top=30, p_top=0.5)
+case(8000, "star", 0.8, MAXV, top=1, p_top=0.5)
+case(8000, "chains", 0.7, MAXV, top=100, p_top=0.5)
+case(8000, "path", 0.6, MAXV, top=2000, p_top=0.5)
+# hidden: maximum size, long chains of inviters
+case(MAXQ, "path", 0.7, 10**6, top=1000, p_top=0.7)
+case(MAXQ, "path", 0.75, MAXV, top=100, p_top=0.8)
+case(MAXQ, "deep", 0.7, 10**6, top=1000, p_top=0.7)
+case(MAXQ, "caterpillar", 0.75, 10**6, top=3000, p_top=0.7)
+case(MAXQ, "broom", 0.75, 10**6, top=50_000, p_top=0.7)
+case(MAXQ, "steps", 0.75, 10**6, top=20_000, p_top=0.7)
+case(MAXQ, "steps", 0.7, MAXV, top=500, p_top=0.5)
+case(MAXQ, "deep", 0.85, 10**4, top=100, p_top=0.9)
+case(MAXQ, "path", 0.9, 10**4, top=10, p_top=0.9)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -2,65 +2,79 @@
 import os, random
 
 random.seed(11007)
-MAXS = 1500
+MAXS = 3000
+MAXM = 200000
 tests = []
 
 
-def add(K, grid):
-    R, C = len(grid), len(grid[0])
+def add(R, C, K, rocks):
     assert 1 <= R <= MAXS and 1 <= C <= MAXS and 1 <= K <= MAXS
+    assert 0 <= len(rocks) <= MAXM and len(set(rocks)) == len(rocks)
+    assert all(1 <= r <= R and 1 <= c <= C for r, c in rocks)
+    assert (1, 1) not in rocks and (R, C) not in rocks
+    lines = [f"{R} {C} {K} {len(rocks)}"] + [f"{r} {c}" for r, c in rocks]
+    tests.append("\n".join(lines) + "\n")
+
+
+def from_grid(K, grid):
+    """samples are drawn as pictures: '#' = rock"""
+    R, C = len(grid), len(grid[0])
     assert all(len(row) == C and set(row) <= set(".#") for row in grid)
-    assert grid[0][0] == "." and grid[-1][-1] == "."
-    tests.append(f"{R} {C} {K}\n" + "\n".join(grid) + "\n")
+    add(R, C, K, [(r + 1, c + 1) for r in range(R) for c in range(C) if grid[r][c] == "#"])
 
 
-def rgrid(R, C, p):
-    """each cell is a rock with probability p (start and end kept free)"""
-    cells = random.choices(".#", weights=[1 - p, p], k=R * C)
-    cells[0] = cells[-1] = "."
-    return ["".join(cells[r * C:(r + 1) * C]) for r in range(R)]
+def rand_p(R, C, K, p):
+    """each cell is a rock with probability p (start and end kept free), listed in random order"""
+    rocks = [(r, c) for r in range(1, R + 1) for c in range(1, C + 1)
+             if random.random() < p and (r, c) != (1, 1) and (r, c) != (R, C)]
+    random.shuffle(rocks)
+    add(R, C, K, rocks)
 
 
-def free(R, C):
-    return ["." * C] * R
+def rand_m(R, C, K, M):
+    """exactly M rocks at distinct random cells"""
+    cells = random.sample(range(1, R * C - 1), M)
+    add(R, C, K, [(x // C + 1, x % C + 1) for x in cells])
 
 
 # samples
-add(2, ["....", ".#..", "....", "...."])
-add(1, ["...", "...", "..."])
-add(3, ["....", ".#..", "...."])
-add(2, [".....", ".....", "..#..", ".....", "....."])
-add(5, [".#.", "#.#", ".#."])
-add(3, ["." * 6] * 5)
+from_grid(2, ["....", ".#..", "....", "...."])
+from_grid(1, ["...", "...", "..."])
+from_grid(3, ["....", ".#..", "...."])
+from_grid(2, [".....", ".....", "..#..", ".....", "....."])
+from_grid(5, [".#.", "#.#", ".#."])
+from_grid(3, ["." * 6] * 5)
 # hidden: small
-add(1, ["."])
-add(4, ["." * 7])
-add(1, free(7, 7))
-add(1, free(6, 7))
-add(3, rgrid(8, 9, 0.2))
-add(10, rgrid(10, 10, 0.1))
-add(2, rgrid(12, 7, 0.3))
-add(4, ["." + "#" * 9] + ["#" * 10] * 2 + ["#" * 9 + "."])
+add(1, 1, 1, [])
+add(1, 7, 4, [])
+rand_p(50, 60, 8, 0.2)
+rand_p(8, 9, 3, 0.2)
+rand_p(10, 10, 10, 0.1)
+rand_p(12, 7, 2, 0.3)
+add(4, 10, 4, [(1, c) for c in range(2, 11)] + [(r, c) for r in (2, 3) for c in range(1, 11)]
+    + [(4, c) for c in range(1, 10)])             # no path at all
+add(300, 300, 1, [])                              # one path: the diagonal
+add(300, 299, 2, [])
+add(300, 300, 3, [(r + 1, c + 1) for r in range(300) for c in range(300)
+                  if abs((r - c) - 3) <= 1 and 5 < r < 295])     # rocks along a diagonal band
 # hidden: medium
-add(20, rgrid(80, 90, 0.15))
-add(100, rgrid(100, 100, 0.05))
+rand_p(80, 90, 20, 0.15)
+rand_p(400, 400, 150, 0.35)
+rand_p(500, 450, 60, 0.6)
 # hidden: maximum size
 M = MAXS
-add(M, free(M, M))
-add(M // 2, free(M, M))
-add(1, free(M, M))                                  # one path: the diagonal
-add(2, free(M, M - 1))
-add(700, rgrid(M, M, 0.1))
-add(M, rgrid(M, M, 0.4))
-add(1000, rgrid(M, M, 0.02))
-add(M - 1, rgrid(M - 1, M, 0.2))
-wall = [["."] * M for _ in range(M)]
-for r in range(M):
-    for c in range(M):
-        if abs((r - c) - 3) <= 1 and 5 < r < M - 5:
-            wall[r][c] = "#"
-add(3, ["".join(row) for row in wall])              # rocks along a diagonal band
-add(999, rgrid(M, 1000, 0.25))
+add(M, M, M, [])
+add(M, M, M // 2, [])
+add(M, M - 1, 2400, [])
+rand_m(M, M, 2000, MAXM)
+rand_m(M, M, 1500, 100000)
+rand_m(M, M, M, MAXM)
+rand_m(M - 1, M, M - 1, MAXM)
+rand_m(M, M, 1800, 50000)
+add(M, M, 2500, [(r, c) for r in range(1301, 1701) for c in range(1201, 1701)])   # a solid block of rocks
+add(M, M, 1700, [(r, c) for r in range(2, M, 2) for c in range((50 - r % 50) % 50 or 50, M + 1, 50)])
+# dotted anti-diagonals: rocks where r is even and r + c is a multiple of 50
+rand_m(M, M, 1000, MAXM)
 
 for t in tests:
     assert t.endswith("\n") and " \n" not in t

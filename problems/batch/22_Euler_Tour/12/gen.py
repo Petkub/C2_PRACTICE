@@ -39,6 +39,9 @@ def shape(n, kind):
         par = [0, 0] + [i - 1 if i <= half else 1 + int(rnd() * half) for i in range(2, n + 1)]
     elif kind == "broom":                       # a long handle ending in a star
         par = [0, 0] + [i - 1 if i <= half else half for i in range(2, n + 1)]
+    elif kind == "longchains":                  # 20 chains of length n / 20 glued at random
+        L = max(2, n // 20)
+        par = [0, 0] + [i - 1 if (i - 1) % L else 1 + int(rnd() * (i - 1)) for i in range(2, n + 1)]
     elif kind == "chains":                      # chains of length about sqrt(n) glued at random
         par = [0, 0] + [i - 1 if (i - 1) % b else 1 + int(rnd() * (i - 1)) for i in range(2, n + 1)]
     else:
@@ -130,12 +133,14 @@ def case(n, kind, ckind, k=0):
 
 
 # samples
-add(6, [1, 2, 1, 3, 2, 3], [0, 0, 1, 1, 2, 2, 3])
+add(6, [1, 1, 2, 3, 2, 2], [0, 0, 1, 1, 2, 2, 3])
 add(5, [1, 2, 1, 2, 3], [0, 0, 1, 2, 3, 4])
 add(2, [2, 2], [0, 0, 1])
 add(5, [3, 1, 2, 2, 4], [0, 0, 1, 1, 1, 1])
+add(8, [2, 2, 1, 2, 3, 1, 3, 4], [0, 0, 1, 1, 2, 2, 3, 6, 6])
+# hidden: small and medium (the first two: a variety on both sides of a branch's range in the visiting order)
+add(6, [1, 2, 1, 3, 2, 3], [0, 0, 1, 1, 2, 2, 3])
 add(8, [1, 2, 2, 1, 3, 3, 1, 2], [0, 0, 1, 1, 2, 2, 3, 6, 6])
-# hidden: small and medium
 case(3, "path", "few", 2)
 case(10, "random", "few", 3)
 case(30, "deep", "any")
@@ -146,6 +151,7 @@ case(500, "random", "mix", 10)
 case(3000, "path", "blocks", 40)
 case(4000, "chains", "few", 30)
 case(5000, "broom", "pairs")
+case(20_000, "star", "few", 2)
 # hidden: maximum size (deep trees: walking every subtree is quadratic)
 N = MAXN
 case(N, "path", "few", 20)
@@ -156,8 +162,10 @@ case(N, "deep", "mix", 100)
 case(N, "caterpillar", "blocks", 300)
 case(N, "caterpillar", "distinct")
 case(N, "broom", "few", 1000)
-case(N, "chains", "depth", 3)
-case(N, "star", "few", 2)
+case(N, "longchains", "depth", 3)
+case(N, "path", "distinct")
+case(N, "deep", "pairs")
+case(N, "longchains", "few", 50)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

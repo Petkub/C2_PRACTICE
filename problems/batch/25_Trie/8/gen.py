@@ -63,21 +63,41 @@ def fixed(n, alpha, L):
 
 AZ = "abcdefghijklmnopqrstuvwxyz"
 N = MAXN
-ws = fixed(10_000, AZ, 3) + fixed(189_999, AZ, 5) + ["abcdefgh"]
+
+
+def longpart(ws, B=36_000, alpha="no"):
+    """add about twenty words base + a short end (their prefixes are long) until the length budget is used"""
+    room = MAXC - sum(len(w) for w in ws)
+    have = set(ws)
+    base = word(alpha, B, B)
+    extra = []
+    while room >= B + 3 and len(ws) + len(extra) < MAXN:
+        w = base + word(AZ, 1, 3)
+        if w not in have:
+            have.add(w); extra.append(w); room -= len(w)
+    random.shuffle(extra)
+    k = random.randint(0, len(ws))
+    return ws[:k] + extra + ws[k:]
+
+
+# hidden: maximum size. Most of them end with about twenty words of length about 36 000 that share a long start
+ws = fixed(5_000, AZ, 3) + distinct(25_000, lambda: word(AZ, 10, 14)) + ["abcdefgh"]
+ws = sorted(set(ws))
 random.shuffle(ws)
-add(ws)
-ws = fixed(7776, "abcdef", 5) + fixed(40_000, "abcdef", 6) + fixed(100_000, "abcdef", 7) + ["a" * 12]
+assert len({w[:i] for w in ws for i in range(1, len(w) + 1)}) > 210_000
+add(longpart(ws))
+ws = fixed(7776, "abcdef", 5) + fixed(10_000, "abcdef", 6) + fixed(20_000, "abcdef", 7) + ["a" * 12]
 random.shuffle(ws)
-add(ws)
-add(["kitti" + w for w in fixed(50_000, "abc", 11)] + ["kitta" + "b" * 20])
-add(["a" * k for k in range(1, 1414)])                                       # each word is a prefix of the next
+add(longpart(ws))
+add(longpart(["kitti" + w for w in fixed(15_000, "abc", 11)] + ["kitta" + "b" * 20]))
+add(longpart(["a" * k for k in range(1, 701)], alpha="ab"))                 # each word is a prefix of the next
 add(["m" * 500_000, "b" * 499_000] + distinct(100, lambda: word("abc", 1, 9)))   # two very long words
 ws = fixed(600, AZ, 2) + fixed(17_000, AZ, 3) + fixed(N - 17_601, AZ, 4)
 random.shuffle(ws)
 add(ws + ["a" * 100_000])                                                     # the longest word is lexicographically small
-add(sorted(fixed(50_000, "wxyz", 8) + fixed(50_000, "wxyz", 9) + ["w" * 12]))
-add(["d" * 30 + w for w in fixed(25_000, "abcdefgh", 5)] + ["d" * 29 + "a" * 10])
-add(distinct(1000, lambda: word("ab", 900, 990)))
+add(sorted(longpart(fixed(15_000, "wxyz", 8) + fixed(15_000, "wxyz", 9) + ["w" * 12])))
+add(longpart(["d" * 30 + w for w in fixed(7_000, "abcdefgh", 5)] + ["d" * 29 + "a" * 10]))
+add(longpart(distinct(250, lambda: word("ab", 900, 990))))
 base = word("st", 5000, 5000)
 add(distinct(100, lambda: base + word("st", 4800, 4900)))                    # long words with a long common start
 

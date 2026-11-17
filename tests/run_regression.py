@@ -123,7 +123,7 @@ def test_missed_last_reading():
         return 1024 * 1024
     setattr(judge, name, first_only)
     try:
-        verdict, _ = judge_sample(os.path.join(SAMPLES, "batch", "profit_mle.cpp"), "3-1", False)
+        verdict, _ = judge_sample(os.path.join(SAMPLES, "batch", "grid_mle.cpp"), "3-1", False)
     finally:
         setattr(judge, name, real)
     check(verdict == "MLE", "a 400 MB program is MLE even when the readings miss its growth", f"got {verdict}")
@@ -138,18 +138,18 @@ def run_judge(args, cwd=REPO, judge_path=None):
 
 def test_cli():
     print("Command line")
-    ok_cpp = os.path.join(SAMPLES, "batch", "profit_ok.cpp")
-    wa_cpp = os.path.join(SAMPLES, "batch", "profit_nowrap.cpp")
+    ok_cpp = os.path.join(SAMPLES, "batch", "grid_ok.cpp")
+    wa_cpp = os.path.join(SAMPLES, "batch", "grid_int.cpp")
     code, out, _ = run_judge([ok_cpp, "3-1", "--no-color"])
-    check(code == 0 and "ACCEPTED" in out, "judge.py profit_ok.cpp 3-1", f"exit {code}\n{out}")
-    code, out, _ = run_judge([os.path.join(SAMPLES, "batch", "profit_throw.cpp"), "3-1", "--no-color", "--stop"])
+    check(code == 0 and "ACCEPTED" in out, "judge.py grid_ok.cpp 3-1", f"exit {code}\n{out}")
+    code, out, _ = run_judge([os.path.join(SAMPLES, "batch", "grid_throw.cpp"), "3-1", "--no-color", "--stop"])
     check("out_of_range" in out and "stderr" in out, "RE shows the program's stderr (out_of_range)", out)
-    code, out, _ = run_judge([os.path.join(SAMPLES, "batch", "profit_warn.cpp"), "3-1", "--no-color", "--stop"])
+    code, out, _ = run_judge([os.path.join(SAMPLES, "batch", "grid_warn.cpp"), "3-1", "--no-color", "--stop"])
     check("g++ warning" in out and "unused" in out, "warnings are shown after Compiled", out)
     code, out, _ = run_judge([ok_cpp, "3-1", "--no-color", "--stop"])
     check("warning" not in out and "Memory  peak" in out and "256 MB per test" in out,
           "clean program: no warnings, memory line, limit in header", out)
-    mle_cpp = os.path.join(SAMPLES, "batch", "profit_mle.cpp")     # 400 MB: a tiny program is under 1 MB on macOS
+    mle_cpp = os.path.join(SAMPLES, "batch", "grid_mle.cpp")     # 400 MB: a tiny program is under 1 MB on macOS
     code, out, _ = run_judge([mle_cpp, "3-1", "--no-color", "--stop", "--ml", "100"])
     check("Memory Limit Exceeded" in out and "limit is 100 MB" in out, "--ml 100: a 400 MB program is MLE", out)
     code, out, _ = run_judge([mle_cpp, "3-1", "--no-color", "--stop", "--ml", "512"])
@@ -187,7 +187,7 @@ def test_student_package():
                     "    cin.tie(0); ios::sync_with_stdio(0);\n\n    return 0;\n}\n")
         check(judge.is_template(old), "the old main() starter still counts as untouched")
         os.remove(old)
-        shutil.copy(os.path.join(SAMPLES, "batch", "profit_ok.cpp"), os.path.join(set1, "1.cpp"))
+        shutil.copy(os.path.join(SAMPLES, "batch", "grid_ok.cpp"), os.path.join(set1, "1.cpp"))
         student_judge = os.path.join(os.pardir, "Judge", "judge.py")
         code, out, _ = run_judge(["1", "--no-color"], cwd=set1, judge_path=student_judge)
         check(code == 0 and "ACCEPTED" in out, "inside " + TOPIC3 + ": judge.py 1", f"exit {code}\n{out}")
@@ -284,7 +284,7 @@ def test_updater():
                        check=True, stdout=subprocess.DEVNULL)
         root = os.path.join(tmp, "C2_Practice")
         judge_dir, set1 = os.path.join(root, "Judge"), os.path.join(root, TOPIC3)
-        shutil.copy(os.path.join(SAMPLES, "batch", "profit_ok.cpp"), os.path.join(set1, "1.cpp"))
+        shutil.copy(os.path.join(SAMPLES, "batch", "grid_ok.cpp"), os.path.join(set1, "1.cpp"))
         student_hash, old_judge = sha(os.path.join(set1, "1.cpp")), sha(os.path.join(judge_dir, "judge.py"))
         template = sha(os.path.join(set1, "2.cpp"))
 
@@ -510,6 +510,21 @@ def test_moves(root, tmp, release="2.1"):
         if read(os.path.join(base, *dst.split("/"))) != written[src]:
             bad.append(f"{src} -> {dst}")
     check(not bad, "every written file is at its problem's new place (or in Topic_K/old/)", ", ".join(bad[:5]))
+    replaced_file = os.path.join(REPO, "tools", "replaced.json")
+    if os.path.exists(replaced_file):        # problems replaced by new ones (C2_PRACTICE_SRC bank/): their files
+        with open(replaced_file, encoding="utf-8") as f:     # go to the new topic's old/, never into the slot
+            replaced = json.load(f)
+        with open(old, encoding="utf-8") as f:
+            old_dirs = {e["en"]: e["dir"] for e in json.load(f).values()}
+        wrong = []
+        for title, slot in replaced.items():
+            if title in old_dirs:
+                dst = dict(pairs).get(old_dirs[title] + ".cpp")
+                folder, n = slot.split("/")
+                if not dst or not dst.startswith(folder + "/old/" + n + "_") or dst == slot + ".cpp":
+                    wrong.append(f"{title}: {dst}")
+        check(not wrong, "a replaced problem's file goes to its new topic's old/, not to the new problem's slot",
+              ", ".join(wrong[:5]))
     if clash:
         src = next(s for s, d in pairs if d == clash)
         kept = read(os.path.join(base, *clash.split("/"))) == "// written before the update\n"

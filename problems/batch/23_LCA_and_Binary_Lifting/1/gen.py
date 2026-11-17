@@ -9,6 +9,8 @@ def ri(lo, hi):
 
 def shape(n, kind):
     """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
+    global LONG, SPINE
+    LONG, SPINE = n * 85 // 100, n * 3 // 4
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -31,6 +33,10 @@ def shape(n, kind):
             p = 1 if i <= 3 else i - 2
         elif kind == "chains":                      # chains of length about sqrt(n) glued at random
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
+        elif kind == "lopsided":                    # node 1 joins a chain of 85% of the nodes and one of 15%
+            p = 1 if i == LONG + 2 else i - 1
+        elif kind == "comb":                        # a spine of 75% of the nodes, short teeth near its top
+            p = i - 1 if i <= SPINE or (i - 1 > SPINE and random.random() < 0.6) else ri(1, n // 10)
         else:
             raise ValueError(kind)
         par.append(p)
@@ -115,11 +121,13 @@ def add(n, edges, qs, tree_ok=False):
                  + "".join(f"{u} {v} {x}\n" for u, v, x in qs))
 
 
-def make(n, kind, q, far=False):
+def make(n, kind, q, far=False, split=False):
     """x: random, a random ancestor of an end (near or far up), an end itself, a child of an end,
-    or the root of the shape; shape numbering has parents smaller, lab gives the labels"""
+    or the root of the shape; shape numbering has parents smaller, lab gives the labels;
+    lopsided / comb: house 1 = shape node 1; split: u near the bottom of the long chain, v off it"""
     par = shape(n, kind)
-    edges, lab = relabel(par)
+    edges, lab = relabel(par, root_first=kind in ("lopsided", "comb"))
+    deep = LONG if kind == "lopsided" else SPINE
     near, far1 = random_ancestors(par, 0.8), random_ancestors(par, 0.9995)
     kid = [0] * (n + 1)                      # one child of every node (0 for a leaf)
     for i in range(2, n + 1):
@@ -129,7 +137,10 @@ def make(n, kind, q, far=False):
     lo = min(n, 200)
     qs = []
     for _ in range(q):
-        if far:
+        if split:
+            u = deep - int(rnd() * 3000)
+            v = deep + 1 + int(rnd() * (n - deep))
+        elif far:
             u = n - int(rnd() * lo)
             v = 1 + int(rnd() * lo) if rnd() < 0.5 else n - int(rnd() * 2 * lo) if n > 2 * lo else 1
         else:
@@ -173,8 +184,13 @@ make(MAXN, "twopaths", MAXQ, far=True)
 make(MAXN, "deep", MAXQ, far=True)
 make(MAXN, "caterpillar", MAXQ, far=True)
 make(MAXN, "broom", MAXQ, far=True)
-make(MAXN, "chains", MAXQ)
-make(MAXN, "random", MAXQ)
-make(MAXN, "star", MAXQ)
+make(MAXN, "lopsided", MAXQ, split=True)
+make(MAXN, "comb", MAXQ, split=True)
+make(MAXN, "lopsided", MAXQ)
+make(MAXN, "comb", MAXQ)
+# hidden: wide trees (not maximum size)
+make(20_000, "chains", 20_000)
+make(20_000, "random", 20_000)
+make(20_000, "star", 20_000)
 
 write_all()

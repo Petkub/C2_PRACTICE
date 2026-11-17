@@ -15,119 +15,183 @@ def shuffle(a):
         a[i], a[j] = a[j], a[i]
 
 
-random.seed(230103)
-MAXN, MAXQ, MAXK = 100_000, 50_000, 10**18
+def shape(n, kind, legs=4):
+    """par[i] (< i) for the nodes 2..n of a tree of the given shape (node 1 is the root), before relabelling"""
+    par = [0, 0]
+    half = max(1, n // 2)
+    leg = max(1, (n - 1) // legs)
+    for i in range(2, n + 1):
+        if kind == "path":
+            p = i - 1
+        elif kind == "star":
+            p = 1
+        elif kind == "random":
+            p = ri(1, i - 1)
+        elif kind == "binary":
+            p = i // 2
+        elif kind == "deep":                        # depth about n / 2, a few short branches
+            p = ri(max(1, i - 3), i - 1)
+        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+            p = i - 1 if i <= half else ri(1, half)
+        elif kind == "broom":                       # a long handle ending in a star
+            p = i - 1 if i <= half else half
+        elif kind == "spider":                      # legs long chains hanging from the root
+            p = 1 if (i - 2) % leg == 0 or i - 1 > leg * legs else i - 1
+        elif kind == "lopsided":                    # the root joins a chain of 90% and a chain of 10%
+            p = 1 if i == 2 or i == 2 + (n - 1) * 9 // 10 else i - 1
+        elif kind == "forkdeep":                    # a chain of n / 4, then two long chains
+            q = n // 4
+            if i <= q:
+                p = i - 1
+            elif i == q + 1 or i == q + 2:
+                p = q
+            else:
+                p = i - 2
+        else:
+            raise ValueError(kind)
+        par.append(p)
+    return par
 
 
-def add(a, c, qs):
-    n = len(a)
-    assert 1 <= n <= MAXN and len(c) == n and 1 <= len(qs) <= MAXQ
-    assert all(1 <= x <= n for x in a) and all(0 <= x <= 4 for x in c)
-    assert all(1 <= s <= n and 1 <= k <= MAXK for s, k in qs)
-    tests.append(f"{n} {len(qs)}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, c)) + "\n"
-                 + "".join(f"{s} {k}\n" for s, k in qs))
+def depths(par):
+    d = [0] * len(par)
+    for i in range(2, len(par)):
+        d[i] = d[par[i]] + 1
+    return d
 
 
-def graph(n, kind):
-    """arrows in a hidden numbering 1..n (node 1 is a far tail start where it matters), then relabelled;
-    returns (a, lab) with lab[i - 1] = label of hidden node i"""
-    nxt = [0] * (n + 1)
-    if kind == "rho":                         # tail 1 -> 2 -> ... -> h, then a cycle h+1 .. n
-        h = n // 2
-        for i in range(1, n):
-            nxt[i] = i + 1
-        nxt[n] = h + 1
-    elif kind == "cycle":
-        for i in range(1, n + 1):
-            nxt[i] = i % n + 1
-    elif kind == "tailloop":                  # a long tail into a self-loop
-        for i in range(1, n):
-            nxt[i] = i + 1
-        nxt[n] = n
-    elif kind == "random":
-        for i in range(1, n + 1):
-            nxt[i] = ri(1, n)
-    elif kind == "smallcycles":               # cycles of length 1..20, trees hanging on them
-        i = 1
-        core = []
-        while i <= n // 3:
-            ln = min(ri(1, 20), n // 3 - i + 1)
-            for j in range(ln):
-                nxt[i + j] = i + (j + 1) % ln
-            core.append(i)
-            i += ln
-        for v in range(i, n + 1):
-            nxt[v] = ri(1, v - 1)
-    elif kind == "twocycles":                 # tails of n/4 into two cycles of n/4
-        q = n // 4
-        for i in range(1, n + 1):
-            nxt[i] = i + 1
-        nxt[2 * q] = q + 1                    # tail 1..q, cycle q+1..2q
-        nxt[3 * q] = 1                        # tail 2q+1..3q joins at 1 (longer tail)
-        nxt[n] = 3 * q + 1                    # cycle 3q+1..n
-    else:
-        raise ValueError(kind)
+def relabel(par):
+    """random labels with the root keeping label 1; P[label] = label of its parent"""
+    n = len(par) - 1
+    assert all(1 <= par[i] < i for i in range(2, n + 1))
     lab = list(range(1, n + 1))
     shuffle(lab)
-    a = [0] * n
-    for i in range(1, n + 1):
-        a[lab[i - 1] - 1] = lab[nxt[i] - 1]
-    return a, lab
+    j = lab.index(1)
+    lab[0], lab[j] = lab[j], lab[0]
+    P = [0] * (n + 1)
+    for i in range(2, n + 1):
+        P[lab[i - 1]] = lab[par[i] - 1]
+    return P, lab
 
 
-def make(n, kind, q, cmode="rand", kmode="mix", start="any"):
-    a, lab = graph(n, kind)
+def check_tree(n, P):
+    """every member reaches member 1 by going to the parent"""
+    assert len(P) == n + 1
+    kids = [[] for _ in range(n + 1)]
+    for i in range(2, n + 1):
+        assert 1 <= P[i] <= n and P[i] != i
+        kids[P[i]].append(i)
+    seen, order = [False] * (n + 1), [1]
+    seen[1] = True
+    for v in order:
+        for c in kids[v]:
+            assert not seen[c]
+            seen[c] = True
+            order.append(c)
+    assert len(order) == n
+
+
+MAXN, MAXQ, MAXK = 100_000, 100_000, 200_000
+
+
+def add(n, P, qs):
+    assert 2 <= n <= MAXN and 1 <= len(qs) <= MAXQ and sum(len(g) for g in qs) <= MAXK
+    check_tree(n, P)
+    for g in qs:
+        assert len(g) >= 1 and len(set(g)) == len(g) and 1 <= min(g) and max(g) <= n
+    t = f"{n} {len(qs)}\n" + " ".join(str(P[i]) for i in range(2, n + 1)) + "\n" \
+        + "".join(f"{len(g)} " + " ".join(map(str, g)) + "\n" for g in qs)
+    assert t.endswith("\n") and "  " not in t and " \n" not in t and len(t) <= 3_400_000
+    tests.append(t)
+
+
+def pick(pool, k, used):
+    """k distinct members of pool that are not in used (fewer if the pool runs out)"""
+    if k > 500:                             # big group: a random part of the pool (one shuffle, no retries)
+        out = [x for x in pool if x not in used]
+        m = len(out)
+        k = min(k, m)
+        rnd = random.random
+        for i in range(k):                  # the first k places of a Fisher-Yates shuffle
+            j = i + int(rnd() * (m - i))
+            out[i], out[j] = out[j], out[i]
+        out = out[:k]
+        used.update(out)
+        return out
+    out = []
     rnd = random.random
-    if cmode == "max":
-        c = [4] * n
-    elif cmode == "rand":
-        c = [int(rnd() * 5) for _ in range(n)]
-    else:
-        c = [0 if rnd() < 0.8 else int(rnd() * 5) for _ in range(n)]
+    tries = 0
+    while len(out) < k and tries < 20 * k + 100:
+        tries += 1
+        x = pool[int(rnd() * len(pool))]
+        if x not in used:
+            used.add(x)
+            out.append(x)
+    return out
+
+
+def make(n, kind, sizes, mode="rand", legs=4, top=10, deep=0.01, ptop=0.5):
+    """sizes: the k of every group. mode rand: members anywhere; far: members among the deepest fraction `deep`
+    of the shape, and with probability ptop one member among the `top` shallowest villages (other than the mouth)"""
+    par = shape(n, kind, legs)
+    P, lab = relabel(par)
+    d = depths(par)
+    byd = sorted(range(1, n + 1), key=lambda i: d[i])
+    bottom = byd[-max(2, int(n * deep)):]
+    tops = byd[1:1 + max(1, top)] if n > 1 else byd
+    allv = list(range(1, n + 1))
+    rnd = random.random
     qs = []
-    for _ in range(q):
-        s = lab[int(rnd() * min(n, 50))] if start == "tail" else 1 + int(rnd() * n)
-        r = rnd()
-        if kmode == "max" or (kmode == "mix" and r < 0.3):
-            k = MAXK - int(rnd() * 1000)
-        elif r < 0.5:
-            k = 1 + int(rnd() * 3 * n)
-        elif r < 0.6:
-            k = 1 + int(rnd() * 20)
+    for k in sizes:
+        used = set()
+        if mode == "far":
+            g = []
+            if k >= 2 and rnd() < ptop:
+                g = pick(tops, 1, used)
+            g += pick(bottom, k - len(g), used)
+            if len(g) < k:
+                g += pick(allv, k - len(g), used)
         else:
-            k = 1 + int(rnd() * MAXK)
-        qs.append((s, k))
-    add(a, c, qs)
+            g = pick(allv, k, used)
+        if len(g) > 1:                      # the top member (if any) goes to a random place
+            j = int(rnd() * len(g))
+            g[0], g[j] = g[j], g[0]
+        qs.append([lab[x - 1] for x in g])
+    add(n, P, qs)
 
 
+random.seed(230302)
 # samples
-add([2, 3, 1, 2, 5], [1, 2, 3, 4, 4], [(4, 5), (5, 10**18), (1, 3), (2, 7)])
-add([2, 3, 2], [4, 0, 1], [(1, 1), (1, 4), (3, 999_999_999_999)])
-add([1], [3], [(1, 1), (1, 10**18)])
-add([3, 3, 4, 2, 4, 1], [0, 4, 1, 2, 0, 3], [(6, 2), (5, 10), (1, 123_456_789_012)])
-add([4, 1, 2, 5, 3, 7, 6], [1, 0, 2, 4, 3, 1, 1], [(1, 5), (7, 4), (2, 1000), (6, 3), (3, 10**17)])
-# hidden: small and medium
-add([1, 1], [0, 0], [(2, 1), (2, 10**18), (1, 5)])
-make(5, "random", 30)
-make(10, "rho", 40, start="tail")
-make(30, "smallcycles", 60)
-make(50, "twocycles", 80, start="tail")
-make(2000, "rho", 2000, start="tail")
-make(3000, "random", 3000, "sparse")
-# hidden: maximum size
-make(MAXN, "rho", MAXQ, start="tail")
-make(MAXN, "rho", MAXQ, "max", "max", start="tail")
-make(MAXN, "cycle", MAXQ)
-make(MAXN, "tailloop", MAXQ, "max", start="tail")
-make(MAXN, "twocycles", MAXQ, start="tail")
-make(MAXN, "random", MAXQ)
-make(MAXN, "smallcycles", MAXQ, "sparse")
-make(MAXN, "cycle", MAXQ, "max", "max")
-make(MAXN, "rho", MAXQ, "sparse")
+add(9, [0, 0, 5, 1, 2, 1, 4, 4, 3, 6], [[9, 7, 4], [7, 8], [6], [9, 2]])
+add(5, [0, 0, 4, 5, 1, 2], [[3, 4], [5, 3, 2]])
+add(2, [0, 0, 1], [[1, 2], [2]])
+add(6, [0, 0, 1, 1, 1, 1, 1], [[2, 3, 4, 5, 6], [4], [6, 1], [5, 2]])
+add(8, [0, 0, 7, 2, 2, 8, 4, 1, 1], [[5, 3], [4, 6, 3], [6, 8], [2, 7, 1], [3, 5, 4]])
+# hidden: small and medium (any shape)
+add(2, [0, 0, 1], [[2, 1], [1], [2]])
+make(10, "random", [ri(1, 4) for _ in range(30)])
+make(60, "deep", [ri(1, 6) for _ in range(100)], "far", top=3, deep=0.2)
+make(100, "caterpillar", [ri(2, 10) for _ in range(100)])
+make(300, "binary", [ri(1, 20) for _ in range(200)])
+make(3000, "star", [ri(1, 5) for _ in range(2000)])
+make(4000, "random", [ri(1, 8) for _ in range(2000)])
+make(5000, "spider", [ri(2, 4) for _ in range(3000)], "far", legs=6, deep=0.05)
+# hidden: maximum size, deep shapes, members far from the meeting village
+make(MAXN, "path", [2] * MAXQ, "far", top=50)
+make(MAXN, "spider", [2] * MAXQ, "far", legs=2)
+make(MAXN, "spider", [ri(2, 3) for _ in range(70_000)], "far", legs=7, deep=0.02)
+make(MAXN, "deep", [2] * MAXQ, "far", top=1000)
+make(MAXN, "caterpillar", [ri(1, 3) for _ in range(95_000)], "far", deep=0.05)
+make(MAXN, "broom", [2] * MAXQ, "far")
+make(MAXN, "path", [60_000, 40_000, 60_000, 40_000], "far", top=5, deep=0.65, ptop=1)
+make(MAXN, "broom", [48_000] * 4, "far", top=3, deep=0.5, ptop=1)
+make(MAXN, "path", [30_000] * 6 + [100, 2, 1], "far", top=20, deep=0.3, ptop=1)
+make(MAXN, "lopsided", [40_000] * 4 + [20_000] * 2, "far", top=2, deep=0.4, ptop=1)
+make(MAXN, "path", [MAXN, MAXN], "rand")
+make(MAXN, "forkdeep", [50_000] * 4, "far", top=20, deep=0.6, ptop=1)
+make(MAXN, "deep", [1000] * 200, "far", deep=0.4)
+make(MAXN, "spider", [10] * 20_000, "far", legs=4, deep=0.3)
 
-for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
-    assert len(t) <= 3_400_000
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

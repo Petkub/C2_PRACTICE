@@ -31,20 +31,53 @@ add([word("abc", 1, 6) for _ in range(100)])
 add([word("ab", 1, 12) for _ in range(1000)])
 add(["z" * random.randint(1, 50) + word("yz", 0, 5) for _ in range(2000)])
 add([word("abcdefghijklmnopqrstuvwxyz", 1, 8) for _ in range(3000)])
-# hidden: maximum size
+# hidden: maximum size. Every one has about thirty words of length about 20 000 that share a long start
+# (their prefixes are long); several also have words with more than 2.2 * 10^5 distinct prefixes (trie nodes)
 N = MAXN
-add([word("abcdefghijklmnopqrstuvwxyz", 1, 8) for _ in range(N)])
-add([word("ab", 1, 8) for _ in range(N)])                                # many shared prefixes
-add(["same"] * N)                                                        # every pair shares the whole word
-add(["a" * random.randint(1, 8) for _ in range(N)])
+AZ = "abcdefghijklmnopqrstuvwxyz"
+
+
+def nodes(ws):
+    return len({w[:i] for w in set(ws) for i in range(1, len(w) + 1)})
+
+
+def longpart(ws, B=20_000, alpha="xy"):
+    """add words base + a short end (some twice, and the base itself) until the length budget is used"""
+    room = MAXC - sum(len(w) for w in ws)
+    base = word(alpha, B, B)
+    extra = [base]
+    room -= B
+    while room >= B + 3 and len(ws) + len(extra) < MAXN:
+        w = random.choice(extra) if random.random() < 0.2 else base + word(AZ, 1, 3)
+        extra.append(w)
+        room -= len(w)
+    random.shuffle(extra)
+    k = random.randint(0, len(ws))
+    return ws[:k] + extra + ws[k:]
+
+
+def many_nodes(chars, lo, hi):
+    ws, used = [], 0
+    while used < chars:
+        ws.append(word(AZ, lo, hi))
+        used += len(ws[-1])
+    assert nodes(ws) > 225_000
+    return ws
+
+
+add(longpart(many_nodes(265_000, 12, 20)))
+add(longpart([word("ab", 1, 8) for _ in range(60_000)]))                # many shared prefixes
+add(longpart(["same"] * 60_000))                                        # every pair shares the whole word
+add(longpart(["a" * random.randint(1, 8) for _ in range(60_000)], alpha="ab"))
 base = word("ab", 990, 990)
-add([base[:random.randint(950, 990)] + word("ab", 0, 8) for _ in range(1000)])   # long common prefixes
+add(longpart([base[:random.randint(950, 990)] + word("ab", 0, 8) for _ in range(300)], alpha="cd"))
 add(["k" * 499_990, "k" * 499_990 + "x"] + ["k"] * 10)
 add(["m" * 800_000] + ["m"] * (N - 1))                                    # one long word, many short ones
-add([word("abc", 3, 5) for _ in range(N)])
-ws = [word("pq", 20, 30) for _ in range(30_000)]
-add([random.choice(ws) for _ in range(35_000)])                          # repeated long-ish words
-add(sorted(word("ab", 2, 7) for _ in range(N)))
+add(longpart(many_nodes(270_000, 5, 30)))
+ws = [word("pq", 20, 30) for _ in range(9_000)]
+add(longpart([random.choice(ws) for _ in range(11_000)]))                # repeated long-ish words
+ws = sorted(many_nodes(285_000, 10, 16))
+add(longpart(ws))                                                        # sorted words
 
 # a hundred words of length about 10^4 with a long common start (review)
 base = word("ab", 9000, 9000)

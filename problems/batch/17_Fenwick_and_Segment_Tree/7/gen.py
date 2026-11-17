@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110007)
-MAXN, MAXQ, MAXA, MAXX = 200_000, 200_000, 10**9, 10**6
+random.seed(110006)
+MAXRC, MAXQ, MAXX = 4000, 200_000, 10**9
 tests = []
 
 
@@ -10,72 +10,79 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(a, ops):
-    n, q = len(a), len(ops)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(0 <= v <= MAXA for v in a)
+def add(R, C, ops):
+    q = len(ops)
+    assert 1 <= R <= MAXRC and 1 <= C <= MAXRC and 1 <= q <= MAXQ
     for op in ops:
-        assert 1 <= op[1] <= op[2] <= n
         if op[0] == 1:
-            assert len(op) == 4 and 1 <= op[3] <= MAXX
+            assert len(op) == 4 and 1 <= op[1] <= R and 1 <= op[2] <= C and 1 <= op[3] <= MAXX
         else:
-            assert len(op) == 3 and op[0] == 2
+            assert len(op) == 5 and op[0] == 2
+            assert 1 <= op[1] <= R and 1 <= op[3] <= R and 1 <= op[2] <= C and 1 <= op[4] <= C
     assert any(op[0] == 2 for op in ops)
-    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n"
-                 + "".join(" ".join(map(str, op)) + "\n" for op in ops))
+    tests.append(f"{R} {C} {q}\n" + "".join(f"1 {op[1]} {op[2]} {op[3]}\n" if op[0] == 1 else
+                                            f"2 {op[1]} {op[2]} {op[3]} {op[4]}\n" for op in ops))
 
 
-def rng_range(n, kind):
-    if kind == "long":
-        return ri(1, min(n, 99)), ri(max(1, n - 99), n)
-    if kind == "short":
-        l = ri(1, n)
-        return l, min(n, l + ri(0, 3))
-    if kind == "suffix":
-        return ri(1, min(n, 99)), n
-    l = ri(1, n)
-    return l, ri(l, n)
+def corners(r1, c1, r2, c2):
+    """the same rectangle, its corners given in a random one of the four ways"""
+    return ((2, r1, c1, r2, c2), (2, r2, c2, r1, c1), (2, r1, c2, r2, c1), (2, r2, c1, r1, c2))[int(random.random() * 4)]
 
 
-def rnd_ops(n, q, p_add, xmax, kind="any"):
-    """p_add = chance of fertilising; kind of ranges: any / long / short / suffix (r = N)"""
+def rnd_ops(R, C, q, p_add, xmax, kind="any", where="any"):
+    """p_add = chance of planting; kind of rectangles: any / big (almost the whole field) / small;
+    where the planting happens: any / top (rows 1..9) / left (columns 1..9)"""
     ops = []
     for _ in range(q):
-        l, r = rng_range(n, kind)
         if random.random() < p_add:
-            ops.append((1, l, r, ri(1, xmax)))
+            r = ri(1, min(R, 9)) if where == "top" else ri(1, R)
+            c = ri(1, min(C, 9)) if where == "left" else ri(1, C)
+            ops.append((1, r, c, ri(1, xmax)))
+            continue
+        if kind == "big":
+            r1, r2 = ri(1, min(R, 9)), ri(max(1, R - 9), R)
+            c1, c2 = ri(1, min(C, 9)), ri(max(1, C - 9), C)
+        elif kind == "small":
+            r1, c1 = ri(1, R), ri(1, C)
+            r2, c2 = min(R, r1 + ri(0, 3)), min(C, c1 + ri(0, 3))
         else:
-            ops.append((2, l, r))
+            r1, r2 = sorted((ri(1, R), ri(1, R)))
+            c1, c2 = sorted((ri(1, C), ri(1, C)))
+        ops.append(corners(r1, c1, r2, c2))
     if all(op[0] == 1 for op in ops):
-        ops[-1] = (2, 1, n)
+        ops[-1] = (2, 1, 1, R, C)
     return ops
 
 
 # samples
-add([1, 2, 3, 4, 5], [(2, 1, 5), (1, 2, 4, 10), (2, 1, 3), (1, 1, 5, 1), (2, 4, 5)])
-add([MAXA, MAXA - 1], [(1, 1, 2, MAXX), (2, 1, 2), (2, 2, 2)])
-add([0], [(2, 1, 1), (1, 1, 1, 7), (1, 1, 1, 7), (2, 1, 1)])
-add([4, 0, 4, 0, 4, 0], [(1, 2, 5, 3), (1, 5, 6, 2), (2, 1, 6), (2, 5, 5), (2, 2, 3)])
-add([9, 8, 7, 6], [(1, 1, 2, 5), (2, 2, 4), (1, 4, 4, 1), (2, 1, 4)])
+add(3, 4, [(1, 1, 1, 5), (1, 2, 3, 2), (2, 1, 1, 3, 4), (1, 3, 4, 1), (2, 3, 4, 2, 2)])
+add(2, 2, [(1, 1, 2, 10), (1, 2, 1, 20), (2, 2, 1, 1, 2), (2, 2, 2, 2, 2)])
+add(1, 1, [(1, 1, 1, MAXX), (1, 1, 1, MAXX), (2, 1, 1, 1, 1)])
+add(1, 6, [(1, 1, 2, 3), (1, 1, 5, 4), (2, 1, 6, 1, 3), (1, 1, 3, 1), (2, 1, 2, 1, 5)])
+add(4, 3, [(1, 4, 1, 2), (1, 2, 2, 6), (1, 1, 3, 1), (2, 4, 3, 1, 1), (2, 2, 2, 4, 1)])
 # hidden: small
-add([MAXA], [(1, 1, 1, MAXX), (2, 1, 1)])
-for n, q, xmax in ((5, 10, 3), (10, 30, 10), (50, 100, 1000), (400, 800, MAXX), (3000, 3000, 100), (6000, 6000, MAXX)):
-    add([ri(0, 100) for _ in range(n)], rnd_ops(n, q, 0.5, xmax))
-add([ri(0, 9) for _ in range(5000)], rnd_ops(5000, 8000, 0.5, 9, "short"))
-add([MAXA] * 3000, rnd_ops(3000, 3000, 0.6, MAXX, "suffix"))
-# hidden: maximum size (short numbers keep the files small; long ranges make a loop per operation too slow)
-N, Q = MAXN, MAXQ
-add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.5, 9, "long"))
-add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.8, 9, "long"))
-add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.2, 99, "long"))
-add([ri(0, 9) for _ in range(N)], rnd_ops(N, Q, 0.5, 9, "suffix"))
-add([0] * N, [(1, 1, N, 1) if k % 2 == 0 else (2, 1, N) for k in range(Q)])
-add([ri(0, 99) for _ in range(N)], rnd_ops(N, 140_000, 0.5, 99))
-add([ri(0, 9) for _ in range(N)], rnd_ops(N, 160_000, 0.5, 9, "short"))
-# largest values: sums up to about 10^16
-add([MAXA] * N, [(1, 1, N, MAXX) if k % 3 else (2, 1, N) for k in range(45_000)])
-add([MAXA - ri(0, 9) for _ in range(N)], rnd_ops(N, 50_000, 0.5, MAXX, "long"))
-add([ri(0, MAXA) for _ in range(N)], rnd_ops(N, 40_000, 0.5, MAXX))
+add(1, 1, [(2, 1, 1, 1, 1), (1, 1, 1, 3), (2, 1, 1, 1, 1)])
+for R, C, q, xmax in ((3, 3, 15, 5), (5, 8, 40, 10), (20, 10, 100, 1000), (60, 60, 500, MAXX), (100, 300, 2000, 100), (1, 2000, 2000, MAXX), (2000, 1, 2000, 9)):
+    add(R, C, rnd_ops(R, C, q, 0.5, xmax))
+add(200, 200, rnd_ops(200, 200, 3000, 0.6, MAXX, "big"))
+add(300, 300, rnd_ops(300, 300, 5000, 0.5, 9, "small"))
+# hidden: maximum size (the rectangles cover almost the whole field; planting near the top or left edge
+# makes keeping prefix sums of every row or of every column slow as well)
+R = C = MAXRC
+Q = MAXQ
+add(R, C, rnd_ops(R, C, Q, 0.5, 9, "big"))
+add(R, C, rnd_ops(R, C, Q, 0.3, 9, "big"))
+add(R, C, rnd_ops(R, C, Q, 0.1, 9, "big"))
+add(R, C, rnd_ops(R, C, Q, 0.5, 9, "big", "top"))
+add(R, C, rnd_ops(R, C, Q, 0.6, 9, "big", "left"))
+add(R, C, rnd_ops(R, C, Q, 0.85, 9, "big", "top"))
+add(R, C, rnd_ops(R, C, Q, 0.5, 9, "big", "left"))
+add(R, C, [(1, ri(1, 9), ri(1, 9), ri(1, 9)) if k % 2 == 0 else corners(1, 1, R, C) for k in range(Q)])
+add(R, C, rnd_ops(R, C, 120_000, 0.5, 999))
+add(R, C, rnd_ops(R, C, 120_000, 0.5, 9, "small"))
+add(R, C, [(1, ri(1, R), ri(1, C), MAXX) if k % 2 == 0 else corners(1, 1, R, C) for k in range(140_000)])  # totals near 7 * 10^13
+add(1, MAXRC, rnd_ops(1, MAXRC, Q, 0.5, MAXX, "big"))
+add(MAXRC, 2, rnd_ops(MAXRC, 2, 150_000, 0.5, MAXX))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

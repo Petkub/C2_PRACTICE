@@ -91,53 +91,55 @@ def write_tests():
         with open(f"tests/{i:02d}.in", "w") as f:
             f.write(t)
 
-random.seed(2106)
-MAXN = 100_000
+random.seed(2107)
+MAXN, MAXA = 100_000, 10**9
 
 
-def add(n, hosp, edges, from_shape=False):
-    assert 1 <= n <= MAXN and len(edges) == n - 1
-    assert len(hosp) == n and set(hosp) <= {"0", "1"}
+def add(n, a, edges, from_shape=False):
+    assert 1 <= n <= MAXN and len(a) == n and len(edges) == n - 1
     if not from_shape:
         check_tree(n, edges)
-    tests.append(f"{n}\n{hosp}\n" + "".join(f"{u} {v}\n" for u, v in edges))
+    assert all(1 <= x <= MAXA for x in a)
+    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{u} {v}\n" for u, v in edges))
 
 
-def make(n, kind, k, root_first=False, near=False):
-    """k hospitals at random villages (near: only among the first nodes of the shape)"""
+def make(n, kind, lo=1, hi=MAXA, mode="random", root_first=False):
+    """mode "heavy": a few very large values among small ones"""
     edges, lab = relabel(shape(n, kind), root_first)
-    pool = lab[: max(1, n // 100)] if near else list(range(1, n + 1))
-    chosen = set(random.sample(pool, min(k, len(pool))))
-    add(n, "".join("1" if i in chosen else "0" for i in range(1, n + 1)), edges, True)
+    if mode == "heavy":
+        a = [hi if random.random() < 0.05 else ri(lo, lo + 10) for _ in range(n)]
+    else:
+        a = [ri(lo, hi) for _ in range(n)]
+    add(n, a, edges, True)
 
 
 # samples
-add(4, "0010", [(1, 2), (2, 3), (2, 4)])
-add(3, "101", [(1, 2), (2, 3)])
-add(3, "000", [(1, 2), (3, 1)])
-add(1, "1", [])
-add(7, "0100010", [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6), (7, 1)])
+add(5, [4, 5, 2, 6, 1], [(1, 2), (2, 3), (3, 4), (3, 5)])
+add(3, [10, 1, 1], [(1, 2), (1, 3)])
+add(1, [7], [])
+add(6, [3, 3, 3, 3, 3, 3], [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)])
+add(7, [2, 9, 4, 4, 7, 1, 8], [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (3, 7)])
 # hidden: small and medium
-add(2, "01", [(2, 1)])
-make(10, "random", 2)
-make(30, "deep", 1)
-make(60, "star", 5)
-make(300, "caterpillar", 30)
-make(2000, "path", 1, True)
-make(5000, "chains", 0)
-make(8000, "spider", 100, near=True)
+add(2, [MAXA, MAXA], [(1, 2)])
+make(10, "random", 1, 10)
+make(30, "deep", 1, 3)
+make(60, "star", 1, 100)
+make(300, "caterpillar", mode="heavy")
+make(2000, "path", MAXA, MAXA, root_first=True)
+make(5000, "chains", 1, 1000)
+make(8000, "spider", mode="heavy")
 # hidden: maximum size
 N = MAXN
-make(N, "path", 1)
-make(N, "path", N // 2, True)
-make(N, "deep", 10)
-make(N, "caterpillar", 1000)
-make(N, "broom", 1, near=True)
-make(N, "twopaths", 3, True)
-make(N, "chains", N)                     # every village has a hospital
-make(N, "random", 50)
-make(N, "binary", 1, True, near=True)
-make(N, "star", 0)                       # no hospital at all
-make(N, "spider", 20)
-make(N, "bushy", 300)
+make(N, "path", MAXA, MAXA)                 # the largest totals
+make(N, "path", 1, 2)
+make(N, "deep")
+make(N, "caterpillar", mode="heavy")
+make(N, "broom")
+make(N, "twopaths", 1, 5, root_first=True)
+make(N, "chains")
+make(N, "random", mode="heavy")
+make(N, "binary", root_first=True)
+make(N, "star", 1, 10)
+make(N, "spider")
+make(N, "bushy", mode="heavy")
 write_tests()

@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(100113)
-MAXN, MAXK, MAXW = 50_000, 500, 1000
+random.seed(100111)
+MAXN, MAXQ, MAXW = 100_000, 100_000, 10**6
 tests = []
 
 
@@ -72,67 +72,90 @@ def check_tree(n, edges):
         root[a] = b
 
 
+def add(n, wedges, qs, from_shape=False):
+    """from_shape: the edges come from relabel(), which already guarantees a tree"""
+    assert 2 <= n <= MAXN and 1 <= len(qs) <= MAXQ
+    assert len(wedges) == n - 1
+    if not from_shape:
+        check_tree(n, [(u, v) for u, v, w in wedges])
+    assert all(1 <= w <= MAXW for u, v, w in wedges)
+    assert all(1 <= a <= n and 1 <= b <= n and a != b for a, b in qs)
+    tests.append(f"{n} {len(qs)}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in wedges)
+                 + "".join(f"{a} {b}\n" for a, b in qs))
+
+
 def weigh(edges, lo=1, hi=MAXW):
     rnd, k = random.random, hi - lo + 1
     return [(u, v, lo + int(rnd() * k)) for u, v in edges]
 
 
-def add(n, k, wedges, from_shape=False):
-    """from_shape: the edges come from relabel(), which already guarantees a tree"""
-    assert 1 <= n <= MAXN and 1 <= k <= MAXK and len(wedges) == n - 1
-    if not from_shape:
-        check_tree(n, [(u, v) for u, v, w in wedges])
-    assert all(1 <= w <= MAXW for u, v, w in wedges)
-    tests.append(f"{n} {k}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in wedges))
+def rq(n, q):
+    rnd, res = random.random, []
+    while len(res) < q:
+        a, b = 1 + int(rnd() * n), 1 + int(rnd() * n)
+        if a != b:
+            res.append((a, b))
+    return res
 
 
-def make(n, kind, k, lo=1, hi=MAXW, root_first=False):
+def far_q(lab, q):
+    """both ends near the two ends of the shape (long paths)"""
+    n = len(lab)
+    return [(lab[ri(0, 99)], lab[n - 1 - ri(0, 99)]) for _ in range(q)]
+
+
+def deeper_heavier(edges, lab):
+    """a bridge further from node 1 of the shape is stronger, so the weakest one sits near the meeting point"""
+    n = len(lab)
+    inv = [0] * (n + 1)
+    for i, x in enumerate(lab, 1):
+        inv[x] = i
+    return [(u, v, max(1, min(MAXW, max(inv[u], inv[v]) * MAXW // n - ri(0, 5)))) for u, v in edges]
+
+
+def big(kind, root_first=False, lo=1, hi=MAXW, far=False, wfun=None, inc=False, n=MAXN):
+    q = MAXQ
     edges, lab = relabel(shape(n, kind), root_first)
-    add(n, k, weigh(edges, lo, hi), True)
-
-
-def two_level(a, b):
-    """a root with a children, each with b leaves"""
-    par = [0, 0] + [1] * a
-    for i in range(a):
-        par += [2 + i] * b
-    return par
+    if inc:
+        w = deeper_heavier(edges, lab)
+    else:
+        w = weigh(edges, lo, hi) if wfun is None else [(u, v, wfun()) for u, v in edges]
+    add(n, w, far_q(lab, q) if far else rq(n, q), True)
 
 
 # samples
-add(5, 3, [(1, 2, 1), (1, 3, 2), (3, 4, 1), (3, 5, 3)])
-add(4, 5, [(1, 2, 5), (2, 3, 2), (3, 4, 3)])
-add(1, 1, [])
-add(6, 2, [(2, 1, 1), (3, 2, 1), (2, 4, 1), (5, 2, 1), (2, 6, 1)])
-add(8, 4, [(1, 2, 1), (2, 3, 2), (2, 4, 3), (4, 5, 1), (1, 6, 2), (6, 7, 2), (6, 8, 1)])
+add(5, [(1, 2, 4), (1, 3, 7), (3, 4, 2), (3, 5, 6)], [(2, 5), (4, 5)])
+add(4, [(4, 3, 5), (3, 1, 3), (1, 2, 8)], [(4, 2), (2, 1), (4, 3)])
+add(2, [(1, 2, MAXW)], [(2, 1)])
+add(4, [(3, 1, 9), (3, 2, 4), (4, 3, 1)], [(1, 2), (4, 1)])
+add(5, [(5, 3, 8), (1, 5, 3), (2, 3, 4), (4, 1, 6)], [(2, 4)])
 # hidden: small and medium
-add(2, 7, [(1, 2, 7)])
-add(2, 3, [(2, 1, 4)])
-make(10, "random", 3, 1, 3)
-make(30, "deep", 6, 1, 2)
-make(50, "star", 2, 1, 1)
-make(200, "random", 10, 1, 5)
-make(2000, "chains", 50, 1, 3)
-make(5000, "caterpillar", 100, 1, 4)
-make(10_000, "random", 15, 1, 2)
+add(3, [(1, 2, 5), (2, 3, 5)], [(1, 3), (3, 1), (2, 3)])
+for n, kind in ((10, "random"), (30, "deep"), (40, "star"), (60, "caterpillar")):
+    e, lab = relabel(shape(n, kind))
+    add(n, weigh(e, 1, 20), rq(n, 50))
+e, lab = relabel(shape(3000, "path"), True)
+add(3000, weigh(e), rq(3000, 3000))
+e, lab = relabel(shape(5000, "chains"))
+add(5000, weigh(e, 1, 1000), rq(5000, 5000))
+e, lab = relabel(shape(200, "random"))
+add(200, deeper_heavier(e, lab), rq(200, 300))
+e, lab = relabel(shape(2000, "chains"))
+add(2000, deeper_heavier(e, lab), rq(2000, 2000))
+e, lab = relabel(shape(6000, "twopaths"), True)
+add(6000, weigh(e, 500_000, MAXW), far_q(lab, 6000))
 # hidden: maximum size
-N = MAXN
-make(N, "random", 10, 1, 1)
-make(N, "random", 25, 1, 3)
-make(N, "chains", 300, 1, 2)
-make(N, "chains", MAXK, 1, 5)
-make(N, "caterpillar", MAXK, 1, 1)
-make(N, "path", MAXK, 1, 1, True)
-make(N, "star", 2, 1, 1)                                        # about 1.25 * 10^9 pairs
-make(N, "deep", MAXK, 1, 1)
-make(N, "binary", 40, 1, 3, True)
-make(N, "broom", MAXK, 1, MAXW)
-make(N, "random", MAXK, 1, MAXW)
-edges, lab = relabel(two_level(220, 220))
-add(len(lab), 4, [(u, v, 1) for u, v in edges], True)
-edges, lab = relabel(two_level(100, 498))
-add(len(lab), 2, [(u, v, 1) for u, v in edges], True)
-make(N, "chains", 200, 1, 1)
+big("path", True)
+big("path", False, far=True)
+big("path", True, far=True, wfun=lambda: MAXW - int(random.random() * 3))      # many equal weights
+big("deep")
+big("caterpillar", True)
+big("broom", True, far=True)
+big("twopaths", True, far=True, lo=900_000)
+big("chains", inc=True)
+big("random", inc=True)
+big("star")
+big("deep", True, 1, 10, far=True)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

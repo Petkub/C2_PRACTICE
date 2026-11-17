@@ -1,8 +1,10 @@
-4 3
-x/
-  x/
-    x 7
-  y 1
-x
-x/x/x
-X
+9
+LOOP n
+LOOP n
+OP 1
+END
+OP 2
+END
+LOOP 2
+OP 3
+END

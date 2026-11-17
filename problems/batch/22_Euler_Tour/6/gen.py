@@ -127,8 +127,8 @@ big("caterpillar", 0.05, MAXQ, 0.3, 1_000, 5_000)
 big("broom", 0.2, MAXQ, 0.2, 500, 3_000)
 big("star", 0.01, MAXQ, 0.4, 1, 1_000, late=0.9)
 big("chains", 0.1, MAXQ, 0.2, 300, 2_000)
-big("random", 0.5, MAXQ, 0.3, None, None)
-big("path", 0.0, MAXQ, 0.05, 10_000, 1_000)                     # almost all closed: mostly -1
+big("random", 0.5, MAXQ, 0.3, 5, 2_000, late=0.9)
+big("path", 0.01, MAXQ, 0.05, 10_000, 1_000, late=1.3)          # k beyond the open shops: mostly -1
 big("deep", 0.9, MAXQ, 0.2, 3_000, 5_000, late=0.9)
 
 for t in tests:

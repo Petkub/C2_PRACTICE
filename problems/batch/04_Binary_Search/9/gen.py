@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(20209)
-MAXN, MAXX = 200_000, 10**9
+random.seed(20214)
+MAXN, MAXB = 200_000, 10**9
 tests = []
 
 
@@ -11,86 +11,60 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def distinct(n, lo, hi):
-    """n distinct integers in [lo, hi], in random order"""
-    s = set()
-    while len(s) < n:
-        s.add(ri(lo, hi))
-    a = sorted(s)
-    random.shuffle(a)
-    return a
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
-def add(k, x):
-    n = len(x)
-    assert 2 <= k <= n <= MAXN
-    assert all(0 <= v <= MAXX for v in x)
-    assert len(set(x)) == n
-    tests.append(f"{n} {k}\n" + " ".join(map(str, x)) + "\n")
+def add(m, k, b):
+    n = len(b)
+    assert 1 <= n <= MAXN
+    assert 1 <= m <= n and 1 <= k <= n
+    assert all(1 <= x <= MAXB for x in b)
+    tests.append(f"{n} {m} {k}\n" + " ".join(map(str, b)) + "\n")
 
 
 # samples
-add(3, [1, 2, 8, 4, 9])
-add(4, [10, 0, 3, 7])
-add(2, [5, 100, 37])
-add(3, [0, MAXX, 500_000_000, 1, 2, 999_999_999])
-add(4, [3, 9, 1, 15, 6, 12, 20])
-add(4, [14, 2, 30, 7, 22, 11, 27, 4])
+add(2, 2, [3, 1, 4, 1, 5, 9, 2])
+add(3, 2, [1, 2, 3, 4, 5])
+add(1, 5, [5, 4, 3, 2, 1])
+add(1, 1, [MAXB])
+add(2, 3, [1, 1, 1, 9, 1, 1, 2, 1])
+add(3, 2, [6, 2, 8, 3, 3, 7, 1, 9, 4, 4])
 # hidden: small
-add(2, [0, 1])
-add(2, [MAXX, 0])
-add(3, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10][::-1])
-add(5, distinct(12, 0, 60))
-add(7, distinct(40, 0, 1000))
-add(20, distinct(100, 0, MAXX))
-add(150, distinct(200, 0, 2000))
-add(9, distinct(250, 0, 300))
-# hidden: maximum size (uneven spreads: the answer is far from both 1 and (max - min) / (K - 1))
+add(1, 1, [7])
+add(2, 2, [7, 3, 4])                           # M K > N
+add(1, 2, [5, 5])
+add(2, 2, [1, 9, 1, 1, 9, 1])                  # bloomed pairs split by late flowers
+add(3, 3, rnd(9, 1, 5))
+add(4, 3, rnd(20, 1, 30))
+add(5, 4, rnd(60, 1, 1000))
+add(7, 10, rnd(80, 1, MAXB))                   # M K = 70 <= 80
+add(9, 10, rnd(80, 1, MAXB))                   # M K = 90 > 80
+add(30, 3, rnd(150, 1, 50))
+add(1, 300, rnd(300, 1, MAXB))
+# hidden: maximum size (the answer is a late bloom day)
 N = MAXN
-
-
-def skewed(n, power, hi=MAXX):
-    """n distinct points, dense near 0 and sparse near hi"""
-    s = set()
-    while len(s) < n:
-        s.add(int(hi * random.random() ** power))
-    a = sorted(s)
-    random.shuffle(a)
-    return a
-
-
-def clusters(n, c, width):
-    """n distinct points in c random clusters of the given width"""
-    centers = [ri(0, MAXX - width) for _ in range(c)]
-    s = set()
-    while len(s) < n:
-        s.add(centers[ri(0, c - 1)] + ri(0, width))
-    a = sorted(s)
-    random.shuffle(a)
-    return a
-
-
-add(2, distinct(N, 0, MAXX))                       # answer = max - min, huge
-add(3, distinct(N - 1, 0, 1_000_000) + [MAXX])
-add(1000, skewed(N, 2))
-add(30_000, skewed(N, 3))
-add(N // 2, skewed(N, 2))
-x = distinct(N // 2, 0, 1_000_000) + distinct(N // 2, MAXX - 1_000_000, MAXX)
-random.shuffle(x)
-add(50, x)                                          # two far clusters
-add(5000, clusters(N, 20, 20_000_000))
-add(300, clusters(N, 7, 30_000_000))
-x = [i * i for i in range(N)]
-x = [v for v in x if v <= MAXX]
-random.shuffle(x)
-add(len(x) // 3, x)                                 # gaps grow along the road
-add(N, distinct(N, 0, MAXX))                        # every point is used
-x = distinct(N - 10, 0, 10**6) + [MAXX - i * 50_000_000 for i in range(10)]
-random.shuffle(x)
-add(20, x)                                          # a dense block and a few far points
-add(77_777, skewed(N, 4))
-add(5, skewed(N, 1.5))
-add(6, sorted(skewed(N, 5)))
+add(N, 1, rnd(N, 1, MAXB))                     # every flower is needed
+add(N // 2, 1, rnd(N, 1, MAXB))
+add(1, N, rnd(N, 1, MAXB))
+add(N // 1000, 1000, rnd(N, 1, MAXB))
+add(N // 3, 3, rnd(N, 1, MAXB))
+add(400, 400, rnd(N, 1, MAXB))
+add(N // 2, 2, sorted(rnd(N, 1, MAXB)))
+add(N // 7, 7, sorted(rnd(N, 1, MAXB), reverse=True))
+add(N // 4, 4, rnd(N, 1, MAXB))
+add(65536, 65536, rnd(N, 1, MAXB))              # M K = 2^32: impossible
+add(N // 2 + 1, 2, rnd(N, 1, MAXB))            # impossible by one bouquet
+add(N // 2, 2, [MAXB] * N)
+add(N // 5, 4, rnd(N, 1, 100_000))              # many equal days
+b = rnd(N, 1, MAXB // 2)
+for i in range(0, N, 50):
+    b[i] = MAXB - i                             # a late flower in every block of 50
+add(N // 50, 49, b)
+add(ri(1, N // 10), 10, rnd(N, 1, MAXB))
+add(1, N // 2, rnd(N, 1, MAXB))
+add(N - 5, 1, rnd(N, 1, MAXB))
+add(N // 30, 25, rnd(N, 1, MAXB))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -122,6 +122,7 @@ for n, hi in ((5, 6), (7, 10), (8, 8), (10, 12), (12, 15)):
 add(clusters(6, 2, 3, 4))
 add(rand_pts(500, 0, 60_000_000))
 add(clusters(150, 10, 1000, 200))
+add([(x, y, 0) for x, y, r in rand_pts(3000, 0, 0)])                     # nobody sets off anybody
 # hidden: maximum size (most of them have a large group that many firecrackers reach)
 N = MAXN
 bl = blob(N - 4000, 500_000_000, 500_000_000, 63, 10)       # a one-way chain that ends next to a big group: 1
@@ -142,7 +143,6 @@ add(clusters(2500, 4, 100, 3750))
 add(rand_pts(N, 0, 30_000_000))
 add(rand_pts(N, 20_000_000, 40_000_000))
 add(rand_pts(N, 0, 120_000_000, 400_000_000))
-add([(x, y, 0) for x, y, r in rand_pts(N, 0, 0)])                        # nobody sets off anybody: N
 add([(10 * (i // 100), 10 * (i % 100), 10) for i in range(N)])           # a grid: one group, deep search
 add([(x, y, MAXR) for x, y, r in rand_pts(N, 0, 0, 700_000_000)])        # everyone sets off everyone: 1
 # 40 one-way chains in separate lanes; 27 of them end next to a tall column of 5999 firecrackers

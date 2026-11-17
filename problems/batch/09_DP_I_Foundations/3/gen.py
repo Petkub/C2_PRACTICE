@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(50303)
-MAXN, MAXA = 200_000, 10**9
+random.seed(50505)
+MAXN, MAXP = 100_000, 10**9
 tests = []
 
 
@@ -11,51 +11,50 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(k, a):
-    n = len(a)
-    assert 1 <= k <= n <= MAXN
-    assert all(1 <= x <= MAXA for x in a)
-    tests.append(f"{n} {k}\n" + " ".join(map(str, a)) + "\n")
+def add(p):
+    n = len(p)
+    assert 1 <= n <= MAXN
+    assert all(len(d) == 3 and all(-MAXP <= x <= MAXP for x in d) for d in p)
+    tests.append(f"{n}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in p))
 
 
 def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+    return [(ri(lo, hi), ri(lo, hi), ri(lo, hi)) for _ in range(n)]
 
 
 # samples
-add(1, [5, 1, 2, 10, 6, 2])
-add(2, [5, 1, 2, 10, 6, 2])
-add(4, [3, 9, 4, 1])
-add(1, [8])
-add(1, [10**9, 1, 10**9, 1, 10**9])
-add(1, [4, 7, 4, 1, 2, 8, 3])
+add([(5, 1, 0), (10, 0, 0), (2, 6, 3)])
+add([(-3, -5, -2), (-1, -4, -6)])
+add([(4, -7, 9)])
+add([(3, 3, 3)] * 4)
+add([(10**9, -10**9, 0), (10**9, 10**9, 10**9), (10**9, 0, -10**9)])
+add([(7, 2, 4), (8, 9, 1), (6, 3, 3), (1, 5, 8), (9, 9, 2)])
 # hidden: small (the brute force checks these)
-add(1, [3, 3])
-add(2, [1, 5, 1])
-add(1, rnd(18, 1, 10))
-add(3, rnd(20, 1, 100))
-add(2, rnd(22, 1, MAXA))
-add(5, rnd(22, 1, 50))
-add(1, [1, 2] * 11)
-add(4, [2, 1, 1, 1, 2, 1, 1, 1, 2, 9, 9, 9, 9, 2])
+add([(-10**9, -10**9, -10**9)])
+add([(0, 0, 0), (0, 0, 0)])
+add(rnd(8, -10, 10))
+add(rnd(10, 0, 100))
+add(rnd(11, -MAXP, MAXP))
+add(rnd(12, -100, -1))                      # every point negative
+add([(1, 0, 0)] * 12)                       # the same activity is best every day
+add([(5, 5, 0), (9, 0, 0), (0, 9, 0)] * 4)
 # hidden: maximum size
 N = MAXN
-add(1, rnd(N, 1, MAXA))
-add(1, [MAXA] * N)                      # the largest total
-add(2, rnd(N, 1, MAXA))
-add(3, rnd(N, 1, 10))
-add(7, rnd(N, 1, MAXA))
-add(50, rnd(N, 1, MAXA))
-add(1, [MAXA if i % 3 == 0 else MAXA - 1 for i in range(N)])
-add(2, list(range(1, N + 1)))
-add(1, [ri(1, 3) for _ in range(N)])
-add(1000, rnd(N, 1, MAXA))
-add(N, rnd(N, 1, MAXA))                 # only one lot can be taken
-add(N - 1, rnd(N, 1, MAXA))
-add(10, [1] * N)
+add(rnd(N, -MAXP, MAXP))
+add(rnd(N, 0, MAXP))
+add([(MAXP, MAXP, MAXP)] * N)               # the largest total
+add([(-MAXP, -MAXP, -MAXP)] * (N - 10_000))   # the smallest total
+add(rnd(N, -MAXP, -1))
+add([(MAXP, MAXP - 1, -MAXP)] * N)          # the best activity is never allowed twice
+add([(ri(0, 5), ri(0, 5), ri(0, 5)) for _ in range(N)])
+add([(MAXP, ri(-MAXP, MAXP), -MAXP) if i % 2 else (MAXP - ri(0, 3), 0, 0) for i in range(N)])
+add(rnd(N, -10, 10))
+add([(-1, -1, -MAXP)] * N)
+add(rnd(N, -MAXP, MAXP // 10))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
+print("total bytes", sum(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

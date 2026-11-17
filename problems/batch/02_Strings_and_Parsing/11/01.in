@@ -1,8 +1,8 @@
-4 3
-docs/
-  a.txt 100
-  img/
-    cat.png 20
-docs
-docs/img
-img
+7
+OP 5
+LOOP n
+OP 4
+LOOP 3
+OP 2
+END
+END

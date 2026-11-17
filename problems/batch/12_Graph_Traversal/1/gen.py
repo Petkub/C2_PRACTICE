@@ -1,7 +1,7 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(7001)
+random.seed(7002)
 MAXN, MAXM = 200_000, 200_000
 tests = []
 
@@ -11,78 +11,68 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, edges):
-    m = len(edges)
+def add(n, roads):
+    m = len(roads)
     assert 1 <= n <= MAXN and 0 <= m <= MAXM
-    assert all(1 <= a <= n and 1 <= b <= n and a != b for a, b in edges)
-    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in edges))
+    assert all(1 <= u <= n and 1 <= v <= n for u, v in roads)
+    tests.append(f"{n} {m}\n" + "".join(f"{u} {v}\n" for u, v in roads))
 
 
-def relabel(n, edges):
-    """random person numbers and random order of pairs and of the two ends"""
-    p = list(range(1, n + 1))
+def relabel(n, roads, keep_order=False):
+    """random numbers for intersections 2..n (home stays 1), random order of roads"""
+    p = list(range(2, n + 1))
     random.shuffle(p)
-    res = [(p[a - 1], p[b - 1]) if random.random() < 0.5 else (p[b - 1], p[a - 1]) for a, b in edges]
-    random.shuffle(res)
+    p = [1] + p
+    res = [(p[u - 1], p[v - 1]) for u, v in roads]
+    if not keep_order:
+        random.shuffle(res)
     return res
 
 
-def path(start, k):
-    return [(start + i, start + i + 1) for i in range(k - 1)]
-
-
-def rnd_edges(n, m):
+def rnd_roads(n, m, loops=True):
     res = []
     while len(res) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a != b:
-            res.append((a, b))
+        u, v = ri(1, n), ri(1, n)
+        if loops or u != v:
+            res.append((u, v))
     return res
 
 
 # samples
-add(6, [(1, 2), (4, 2), (3, 6)])
-add(5, [(2, 5), (4, 3), (3, 4)])
+add(5, [(2, 1), (3, 2), (1, 4), (4, 3), (5, 4)])
+add(4, [(1, 2), (2, 3), (3, 1)])
 add(1, [])
+add(3, [(2, 2), (3, 1), (3, 1), (1, 2)])
+add(6, [(4, 1), (2, 4), (2, 5), (5, 6), (6, 1), (3, 2), (1, 3)])
 add(4, [])
-add(7, [(5, 7), (7, 3), (1, 2), (6, 4)])
-add(5, [(1, 2), (2, 3), (3, 1), (4, 5), (5, 3), (2, 1)])
 # hidden: small
-add(2, [(2, 1)])
-add(2, [(1, 2), (2, 1), (1, 2)])
-add(3, [(2, 3)])                                     # the largest group does not contain 1
-add(8, [(8, 7), (6, 5), (4, 3)])                     # three groups of size 2, answer 3
-add(10, relabel(10, path(1, 4) + path(5, 4)))        # two groups of size 4 with random numbers
-add(12, rnd_edges(12, 6))
-add(30, rnd_edges(30, 20))
-add(50, relabel(50, path(1, 50)))
-add(200, rnd_edges(200, 120))
-add(2000, rnd_edges(2000, 1500))
-add(5000, relabel(5000, path(1, 2500) + path(2501, 2500)))
+add(1, [(1, 1), (1, 1)])
+add(2, [(1, 2)])                                     # only away from home
+add(2, [(2, 1), (1, 2), (2, 1)])
+add(8, [(i, i + 1) for i in range(1, 8)])            # all roads point away from home
+add(8, [(i + 1, i) for i in range(1, 8)])
+add(10, rnd_roads(10, 12))
+add(30, rnd_roads(30, 40))
+add(60, relabel(60, [(i + 1, i) for i in range(1, 60)] + rnd_roads(60, 30)))
+add(300, rnd_roads(300, 450))
+add(3000, rnd_roads(3000, 4000))
+add(5000, relabel(5000, [(i + 1, i) for i in range(1, 5000)]))
 # hidden: large
 N = MAXN
-add(N, relabel(N, path(1, N)))                       # one long path, random numbers: labels spread slowly
-add(N, [(i + 1, i) for i in range(N - 1, 0, -1)])    # path N - (N-1) - ... - 1, listed from the far end
-add(N, relabel(N, path(1, N // 2) + path(N // 2 + 1, N // 2)))   # two equal halves
-add(N, [(1, i) for i in range(2, N + 1)])            # a star
-add(N, [])                                           # nobody has a friend
-add(N, rnd_edges(N, MAXM))
-add(N, rnd_edges(N, N // 2))                         # many small groups
-add(N, relabel(N, [(1, 2)] * MAXM))                  # one pair repeated
-edges = []
-for s in range(1, N + 1, 50_000):                    # 4 paths of 50 000; the first is cut, 3 tie
-    edges += path(s, 50_000)
-edges.pop(0)
-add(N, relabel(N, edges))
-rest = [(150_000 + a, 150_000 + b) for a, b in rnd_edges(50_000, 49_999)]
-add(N, relabel(N, path(1, 150_000) + rest))          # a long path and a random part
-comb = path(1, N // 2) + [(i, N // 2 + i) for i in range(1, N // 2 + 1)]
-add(N, relabel(N, comb))                             # a path with one extra friend at every person
-edges = [(a + 100_000, b + 100_000) for a, b in relabel(100_000, path(1, 100_000))]
-for s in range(1, 100_001, 1000):                    # many groups of 1000 among 1..100 000
-    edges += path(s, 1000)
-random.shuffle(edges)
-add(N, edges)                                        # the unique largest group is 100 001..200 000
+add(N, [(i + 1, i) for i in range(N - 1, 0, -1)])    # chain N -> ... -> 1, roads listed from the far end
+add(N, relabel(N, [(i + 1, i) for i in range(1, N)]))
+add(N, relabel(N, [(i, i + 1) for i in range(1, N)] + [(N, 1)]))   # one big cycle through home
+add(N, [(i, 1) for i in range(2, N + 1)])            # everyone is one road from home
+add(N, [(1, i) for i in range(2, N + 1)])            # nobody can come back
+add(N, rnd_roads(N, MAXM))
+add(N, rnd_roads(N, N // 2 * 3 // 2))
+tree = [(i, ri(max(1, i - 3), i - 1)) for i in range(2, N + 1)]     # a long thin tree pointing home
+add(N, relabel(N, tree))
+half = N // 2                                        # long chain home, the other half pointing away
+add(N, relabel(N, [(i + 1, i) for i in range(1, half)] + [(i, i + 1) for i in range(half, N)]
+              + [(ri(1, N), ri(1, N)) for _ in range(MAXM - N + 1)]))
+add(N, relabel(N, [(i + 1, i) for i in range(N - 1, 0, -1)], keep_order=True))  # far end first, random numbers
+add(N, [(ri(1, N), ri(1, N)) for _ in range(MAXM - N // 2)] + [(v, v) for v in range(1, N // 2 + 1)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

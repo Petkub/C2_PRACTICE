@@ -114,6 +114,21 @@ def plain(case):
     return case[:3]
 
 
+def chain_of_turns(k, no=False):
+    """a satisfiable case (or NO with no=True) where row 2 + i going east forces column 2 + i south, which forces
+    row 3 + i east (through requests ending at (R, 2) and (2, C) whose other streets are fixed), and so on up to
+    column k + 2, which must go north: rows 3, 4, ... all have to go west, but each one is found out only at the
+    end of a long chain of forced streets"""
+    R = C = k + 3
+    q = [(1, 2, 1, 1), (2, 1, 1, 1), (2, 1, 2, 2), (2, C, 1, C), (R, 2, R, 1), (1, 2, 2, 2), (2, k + 2, 1, k + 2)]
+    q += [(i + 2, i + 2, R, 2) for i in range(1, k + 1)]
+    q += [(i + 3, i + 2, 2, C) for i in range(1, k)]
+    if no:
+        q.append((k + 2, 1, k + 2, 2))                    # the last row of the chain must go east: NO
+    random.shuffle(q)
+    return R, C, q
+
+
 # samples
 add([(2, 2, [(1, 1, 2, 2), (2, 2, 1, 1)]), (1, 3, [(1, 1, 1, 3), (1, 3, 1, 2)])])
 add([(2, 2, [(1, 1, 2, 2), (2, 2, 1, 1), (1, 1, 1, 2), (2, 1, 2, 2)])])
@@ -142,16 +157,24 @@ cs = [rand_case(100, 100, k) for k in (30, 40, 50, 60, 70)] + [plain(planted_cas
 add(cs)
 cs = [rand_case(1000, 1000, k) for k in range(400, 660, 50)] + [plain(planted_case(1000, 1000, 3000)) for _ in range(3)]
 add(cs)
-# hidden: maximum size (a file holds several big cases, so answering one word for all of them fails)
-add([plain(planted_case(50_000, 50_000, 50_000)), spoil_chain(planted_case(50_000, 50_000, 40_000), 4999)])
-add([spoil_chain(planted_case(50_000, 50_000, 49_990), 4), plain(planted_case(50_000, 50_000, 50_000))])
-add([spoil_chain(planted_case(50_000, 50_000, 10_000, 0.0, 1.0), 19_999), plain(planted_case(50_000, 50_000, 50_000, 0.0, 1.0))])
-add([rand_case(25_000, 25_000, k) for k in (7000, 9000, 11000, 13000)])
-add([rand_case(20_000, 30_000, k) for k in (9000, 11000, 13000)] + [plain(planted_case(25_000, 25_000, 67_000))])
-add([plain(planted_case(1000, 99_000, 50_000, 0.1)), plain(planted_case(99_000, 1000, 50_000, 0.1))])
-add([spoil_chain(planted_case(1000, 99_000, 49_000, 0.1), 499), plain(planted_case(99_000, 1000, 50_000, 0.1))])
-add([plain(planted_case(300, 300, 33_000, 0.0)), spoil_chain(planted_case(300, 300, 32_000, 0.0), 299), plain(planted_case(99_000, 99_000, 33_000))])
-add([rand_case(1, 2, 1), rand_case(99_998, 99_999, 99_999)])
+# hidden: maximum size (a file holds several big cases, so answering one word for all of them fails;
+# each one has a long chain of forced streets)
+K0 = 25_000
+add([chain_of_turns(K0), plain(planted_case(37_000, 37_000, 25_000)),
+     spoil_chain(planted_case(37_000, 37_000, 14_000), 4999)])
+add([spoil_chain(planted_case(37_000, 37_000, 24_990), 4), chain_of_turns(K0, True),
+     plain(planted_case(37_000, 37_000, 24_990))])
+add([spoil_chain(planted_case(37_000, 37_000, 5000, 0.0, 1.0), 9999), plain(planted_case(37_000, 37_000, 24_990, 0.0, 1.0)),
+     chain_of_turns(K0)])
+add([rand_case(18_000, 18_000, k) for k in (2500, 3500, 4000, 4500)] + [chain_of_turns(K0)])
+add([rand_case(14_000, 21_000, k) for k in (3000, 3800, 4600)] + [plain(planted_case(10_000, 10_000, 26_000)),
+                                                                   chain_of_turns(K0, True)])
+add([chain_of_turns(K0), plain(planted_case(1000, 73_000, 25_000, 0.1)), plain(planted_case(73_000, 1000, 24_990, 0.1))])
+add([spoil_chain(planted_case(1000, 73_000, 24_000, 0.1), 499), chain_of_turns(K0, True),
+     plain(planted_case(73_000, 1000, 24_990, 0.1))])
+add([plain(planted_case(300, 300, 16_000, 0.0)), spoil_chain(planted_case(300, 300, 16_000, 0.0), 299),
+     chain_of_turns(K0), plain(planted_case(74_000, 74_000, 17_000))])
+add([rand_case(1, 2, 1), chain_of_turns(K0), rand_case(74_000, 75_000, 49_990)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

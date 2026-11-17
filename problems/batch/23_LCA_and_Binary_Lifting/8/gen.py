@@ -99,77 +99,212 @@ def write_all():
         with open(f"tests/{i:02d}.in", "w") as f:
             f.write(t)
 
-random.seed(230108)
-MAXN, MAXM = 100_000, 100_000
+random.seed(230107)
+MAXN, MAXQ, MAXK = 100_000, 100_000, 200_000
 
 
-def add(n, edges, extra, tree_ok=False):
-    assert 2 <= n <= MAXN and 1 <= len(extra) <= MAXM
+def add(n, edges, qs, tree_ok=False):
+    assert 1 <= n <= MAXN and 1 <= len(qs) <= MAXQ
     if tree_ok:
         assert len(edges) == n - 1
     else:
         check_tree(n, edges)
-    assert all(1 <= c <= n and 1 <= d <= n and c != d for c, d in extra)
-    tests.append(f"{n} {len(extra)}\n" + "".join(f"{a} {b}\n" for a, b in edges)
-                 + "".join(f"{c} {d}\n" for c, d in extra))
+    assert sum(len(s) for s in qs) <= MAXK
+    for s in qs:
+        assert 1 <= len(s) <= n and len(set(s)) == len(s) and 1 <= min(s) and max(s) <= n
+    tests.append(f"{n} {len(qs)}\n" + "".join(f"{a} {b}\n" for a, b in edges)
+                 + "".join(f"{len(s)} " + " ".join(map(str, s)) + "\n" for s in qs))
 
 
-def make(n, kind, m, mode="rand"):
-    """mode rand: random extra roads; far: between the two end regions of the shape (long covers); mix: 30% far,
-    the rest local;
-    local: next to a shape node (short covers, many uncovered roads); same: all on one main road"""
-    par = shape(n, kind)
-    edges, lab = relabel(par)
+def sample(pop, k):
+    """k distinct items of pop (partial Fisher-Yates on a copy, only random.random)"""
+    a = list(pop)
     rnd = random.random
-    near = random_ancestors(par, 0.7)
-    extra = []
-    for _ in range(m):
-        if mode == "rand":
-            c, d = 1 + int(rnd() * n), 1 + int(rnd() * n)
-            if c == d:
-                d = c % n + 1
-            extra.append((c, d))
-            continue
-        if mode == "far" or (mode == "mix" and rnd() < 0.3):
-            x = 1 + int(rnd() * min(n, 30))
-            y = n - int(rnd() * min(n, 30)) if mode == "far" else n // 2 + int(rnd() * (n - n // 2))
-        elif mode in ("local", "mix"):
-            y = 2 + int(rnd() * (n - 1))
-            x = near[y]
+    n = len(a)
+    for i in range(k):
+        j = i + int(rnd() * (n - i))
+        a[i], a[j] = a[j], a[i]
+    return a[:k]
+
+
+class Tree:
+    def __init__(self, n, kind):
+        self.n = n
+        self.par = shape(n, kind)
+        self.edges, self.lab = relabel(self.par)
+        self._kids, self.mark, self.stamp = None, None, 0
+
+    @property
+    def kids(self):
+        """children lists in shape numbering (built on first use: cater() never needs them)"""
+        if self._kids is None:
+            self._kids = [[] for _ in range(self.n + 1)]
+            for i in range(2, self.n + 1):
+                self._kids[self.par[i]].append(i)
+            self.mark = [0] * (self.n + 1)
+        return self._kids
+
+    def down(self, x, m):
+        """a random walk of up to m steps down from x (x not included)"""
+        out, rnd, kids = [], random.random, self.kids
+        for _ in range(m):
+            ch = kids[x]
+            if not ch:
+                break
+            x = ch[int(rnd() * len(ch))]
+            out.append(x)
+        return out
+
+    def pool(self, length):
+        """the nodes of a random path of about `length` nodes (shape numbering)"""
+        rnd, kids, par = random.random, self.kids, self.par
+        z = 1 + int(rnd() * self.n)
+        ch = kids[z]
+        if len(ch) >= 2 and rnd() < 0.7:
+            i = int(rnd() * len(ch))
+            j = (i + 1 + int(rnd() * (len(ch) - 1))) % len(ch)
+            p = [z, ch[i], ch[j]] + self.down(ch[i], length // 2) + self.down(ch[j], length // 2)
         else:
-            y = 2
-            x = par[2]
-        if x == y:
-            y = x % n + 1
-        extra.append((lab[x - 1], lab[y - 1]) if rnd() < 0.5 else (lab[y - 1], lab[x - 1]))
-    add(n, edges, extra, True)
+            p = [z] + self.down(z, length // 2)
+            y = z
+            for _ in range(length // 2):     # and up from z
+                if y == 1:
+                    break
+                y = par[y]
+                p.append(y)
+        return p, z
+
+    def query(self, k, length, bad):
+        """k nodes from one path (YES), and if bad: one of them replaced by a node next to the path"""
+        rnd = random.random
+        p, z = self.pool(max(length, k))
+        k = min(k, len(p))
+        s = sample(p, k)
+        if bad:
+            self.stamp += 1
+            kids = self.kids                 # builds kids and mark on first use
+            mark, st = self.mark, self.stamp
+            for x in p:
+                mark[x] = st
+            cand = [c for y in [z] + s[:3] for c in kids[y][:4] if mark[c] != st]
+            if self.par[z] and mark[self.par[z]] != st:
+                cand.append(self.par[z])
+            s[int(rnd() * k)] = cand[int(rnd() * len(cand))] if cand else 1 + int(rnd() * self.n)
+            s = list(dict.fromkeys(s))
+        return [self.lab[x - 1] for x in s]
+
+
+def make(n, kind, sizes, length=None, pbad=0.5):
+    t = Tree(n, kind)
+    rnd = random.random
+    qs = []
+    for k in sizes:
+        if rnd() < 0.08:                     # any k points
+            s = sample(range(1, n + 1), min(k, n)) if k > 50 else list(dict.fromkeys(1 + int(rnd() * n) for _ in range(k)))
+        else:
+            s = t.query(k, length or 2 * k, rnd() < pbad)
+        qs.append(s)
+    add(n, t.edges, qs, True)
+
+
+def cater(n, sizes):
+    """caterpillar: spine 1..h (a path) and legs; each list = spine points spread over the whole spine plus
+    one or two legs, at the ends of the chosen spine part (YES) or inside it (NO): long paths, few points"""
+    t = Tree(n, "caterpillar")
+    h = n // 2
+    rnd = random.random
+    leg = [0] * (h + 1)
+    for c in range(h + 1, n + 1):
+        leg[t.par[c]] = c
+    with_leg = [p for p in range(1, h + 1) if leg[p]]
+    lab1 = [0] + t.lab                       # lab1[x] = label of shape node x
+    qs = []
+    for k in sizes:
+        p = with_leg[int(rnd() * len(with_leg))]
+        r = rnd()
+        if r < 0.4:                          # leg at the low end: spine points above p
+            sp = [p + 1 + int(rnd() * (h - p)) for _ in range(k - 1)] if p < h else [p]
+        elif r < 0.7:                        # spine points on both sides of p
+            sp = [1 + int(rnd() * h) for _ in range(k - 1)]
+            if p > 1 and p < h:
+                sp[0], sp[-1] = 1 + int(rnd() * (p - 1)), p + 1 + int(rnd() * (h - p))
+        else:                                # two legs at the two ends
+            q2 = with_leg[int(rnd() * len(with_leg))]
+            lo, hi = min(p, q2), max(p, q2)
+            sp = [lo + int(rnd() * (hi - lo + 1)) for _ in range(k - 2)] + [leg[q2]]
+        s = list(dict.fromkeys([leg[p]] + sp))
+        qs.append([lab1[x] for x in s])
+    add(n, t.edges, qs, True)
+
+
+def deeplong(n, q, kind="deep", kmax=3):
+    """deep tree (depth about n / 2) or caterpillar; every list = k (3..kmax) nodes along one long path (the root
+    path of shape node n, or the caterpillar's spine), spread over the whole path, so the ends are thousands of
+    nodes apart: the lowest = a path node or a leaf hanging on it, the highest = a leaf hanging on a higher path
+    node, the others = path nodes between them (YES), or one of them replaced by a leaf hanging on it (NO)"""
+    t = Tree(n, kind)
+    par, kids = t.par, t.kids
+    chain = [n if kind == "deep" else n // 2]       # from the bottom
+    while chain[-1] != 1:
+        chain.append(par[chain[-1]])
+    on = set(chain)
+    leaf = [0] * (n + 1)                     # a leaf child that is not on the path
+    for i in range(2, n + 1):
+        if not kids[i] and i not in on:
+            leaf[par[i]] = i
+    good = [y for y in chain if leaf[y]]
+    rnd = random.random
+    qs, total, g = [], 0, len(good)
+    while len(qs) < q:
+        k = 3 + int(rnd() * (kmax - 2))
+        idx = [int(rnd() * g) for _ in range(k)]
+        idx.sort()
+        if any(idx[i] == idx[i + 1] for i in range(k - 1)):
+            continue
+        s = [good[idx[0]] if rnd() < 0.5 else leaf[good[idx[0]]]] + [good[i] for i in idx[1:-1]] \
+            + [leaf[good[idx[-1]]]]
+        if rnd() < 0.5:
+            j = 1 + int(rnd() * (k - 2))
+            s[j] = leaf[s[j]]
+        r = int(rnd() * k)
+        s = [t.lab[x - 1] for x in s[r:] + s[:r]]
+        if rnd() < 0.5:
+            s.reverse()
+        if total + k > MAXK:
+            break
+        total += k
+        qs.append(s)
+    add(n, t.edges, qs, True)
 
 
 # samples
-add(6, [(1, 2), (2, 3), (2, 4), (1, 5), (5, 6)], [(3, 4), (6, 3)])
-add(4, [(1, 2), (2, 3), (3, 4)], [(1, 3)])
-add(2, [(1, 2)], [(1, 2), (2, 1)])
-add(5, [(4, 2), (2, 5), (5, 1), (1, 3)], [(4, 5), (3, 2), (1, 3)])
-add(7, [(1, 2), (1, 3), (3, 4), (3, 5), (5, 6), (6, 7)], [(2, 4), (7, 4), (6, 5), (2, 3)])
+add(7, [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (5, 7)], [[4, 1, 6], [4, 5, 3], [7, 2, 3, 6], [5, 4]])
+add(4, [(1, 2), (1, 3), (1, 4)], [[3], [2, 3, 4], [4, 1, 2]])
+add(1, [], [[1]])
+add(6, [(2, 5), (5, 1), (1, 6), (6, 3), (5, 4)], [[2, 3, 1], [4, 3, 2], [6, 5, 4, 3]])
+add(8, [(1, 2), (2, 3), (3, 4), (2, 5), (5, 6), (3, 7), (7, 8)], [[8, 6, 2], [4, 6, 8], [6, 1, 3, 4], [7, 5]])
 # hidden: small and medium
-make(3, "path", 1, "far")
-make(8, "random", 4)
-make(12, "binary", 6, "local")
-make(20, "caterpillar", 10, "far")
-make(60, "random", 30, "local")
-make(3000, "path", 3000, "far")
-make(4000, "chains", 2000, "local")
+make(8, "random", [3] * 40)
+make(15, "binary", [ri(1, 6) for _ in range(60)])
+make(30, "caterpillar", [ri(2, 8) for _ in range(80)])
+make(60, "chains", [ri(3, 10) for _ in range(100)])
+make(2000, "deep", [ri(3, 30) for _ in range(500)])
+make(3000, "random", [3] * 2000)
 # hidden: maximum size
-make(MAXN, "path", MAXM, "far")
-make(MAXN, "path", MAXM, "mix")
-make(MAXN, "path", MAXM, "same")
-make(MAXN, "twopaths", MAXM, "far")
-make(MAXN, "deep", MAXM, "far")
-make(MAXN, "caterpillar", MAXM, "mix")
-make(MAXN, "broom", MAXM, "far")
-make(MAXN, "random", MAXM)
-make(MAXN, "deep", MAXM, "mix")
-make(MAXN, "star", MAXM, "local")
-make(MAXN, "deep", 1, "far")
+cater(MAXN, [3] * 66_000)
+cater(MAXN, [5] * 40_000)
+deeplong(MAXN, 66_000)
+cater(MAXN, [4] * 50_000)
+deeplong(MAXN, 45_000, "deep", 6)
+deeplong(MAXN, 66_000, "caterpillar")
+deeplong(MAXN, 36_000, "caterpillar", 8)
+deeplong(MAXN, 28_000, "deep", 12)
+deeplong(MAXN, 50_000, "caterpillar", 5)
+cater(MAXN, [8] * 25_000)
+# hidden: wide trees or few long lists (not maximum size)
+make(20_000, "random", [3] * 8000, 8)
+make(30_000, "deep", [6000] * 5, 9000)
+cater(30_000, [15_000, 14_999])
+make(20_000, "binary", [ri(2, 40) for _ in range(2000)], pbad=0.6)
 
 write_all()

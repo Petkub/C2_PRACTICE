@@ -59,9 +59,11 @@ s = [ri(1, 1000) for _ in range(300)]
 add(7, s, queries(300, 7, 500, 0.3, 0.3))
 s = [ri(1, MAXV) for _ in range(2000)]
 add(40, s, queries(2000, 40, 2000, 0.3, 0.3))
+s = [ri(1, MAXV) for _ in range(2000)]
+add(2000, s, queries(2000, 2000, 2000, 0.3, 0.3))                       # K = N: a single stage
 # hidden: maximum size (values kept short so the input stays <= 3 MB)
 N = MAXN
-for k, q in ((1, 120_000), (2, 120_000), (50, 120_000), (700, 120_000), (N // 2, 110_000), (N, 100_000)):
+for k, q in ((1, 120_000), (2, 120_000), (50, 120_000), (700, 120_000), (N // 2, 110_000), (5000, 120_000)):
     add(k, [ri(1, 999_999) for _ in range(N)], queries(N, k, q, 0.8))
 s = [MAXV] * N
 add(N // 3, s, queries(N, N // 3, 50_000, 0.8))                         # all equal

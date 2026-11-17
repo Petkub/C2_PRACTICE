@@ -1,10 +1,9 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(14005)
+random.seed(14004)
 MAXQ = 100_000
-MAXN = 10 ** 18
-P = 10 ** 9 + 7
+MAXV = 5_000_000
 tests = []
 
 
@@ -14,34 +13,43 @@ def ri(lo, hi):
 
 def add(qs):
     assert 1 <= len(qs) <= MAXQ
-    assert all(1 <= n <= MAXN and 0 <= d <= 9 for n, d in qs)
-    tests.append(f"{len(qs)}\n" + "".join(f"{n} {d}\n" for n, d in qs))
+    assert all(1 <= l <= r <= MAXV for l, r in qs)
+    tests.append(f"{len(qs)}\n" + "".join(f"{l} {r}\n" for l, r in qs))
 
+
+def rq(lo, hi, maxlen=None):
+    l = ri(lo, hi)
+    r = ri(l, hi if maxlen is None else min(hi, l + maxlen))
+    return (l, r)
+
+
+PERFECT = [6, 28, 496, 8128]
 
 # samples
-add([(1, 7), (2, 7), (2, 0)])
-add([(1, 0), (3, 0)])
-add([(3, 5), (6, 9), (10, 1)])
-add([(MAXN, 0), (MAXN, 9), (MAXN - 1, 3)])
-add([(19, 0), (20, 4), (P - 1, 5), (P, 0)])
-# hidden: small (the digit-by-digit count checks them)
-add([(1, d) for d in range(10)])
-add([(n, d) for n in range(1, 101) for d in range(10)])
-add([(ri(1, 2000), ri(0, 9)) for _ in range(1000)])
-add([(ri(10 ** 5, 3 * 10 ** 5), ri(0, 9)) for _ in range(100)])
-add([(ri(1, 30), 0) for _ in range(500)] + [(ri(1, 30), ri(1, 9)) for _ in range(500)])
-add([(ri(P - 50, P + 50), ri(0, 9)) for _ in range(20)])
+add([(1, 12), (6, 6), (20, 30)])
+add([(1, 1), (945, 945)])
+add([(1, 10_000), (496, 8128)])
+add([(4_999_000, MAXV), (8128, 8128), (2, 5)])
+add([(1, MAXV)])
+# hidden: small (the brute force does trial division for every x)
+add([(1, 1)])
+add([(x, x) for x in range(1, 3001)])
+add([rq(1, 2000) for _ in range(300)])
+add([(p - ri(0, 3), p + ri(0, 3)) for p in PERFECT for _ in range(50)])
+add([rq(MAXV - 3000, MAXV, 50) for _ in range(500)])
+add([rq(1, MAXV, 30) for _ in range(800)])
+add([(ri(1, MAXV), MAXV) for _ in range(5)] + [(1, ri(1, 30_000)) for _ in range(5)])
 # hidden: large
-add([(ri(1, MAXN), ri(0, 9)) for _ in range(MAXQ)])
-add([(MAXN - ri(0, 10 ** 6), ri(0, 9)) for _ in range(MAXQ)])
-add([(ri(1, MAXN), 0) for _ in range(MAXQ)])
-add([(ri(1, MAXN), 9) for _ in range(MAXQ)])
-add([(MAXN, d % 10) for d in range(MAXQ)])
-add([((P - 1) * ri(1, 10 ** 8) + ri(0, 2), ri(0, 9)) for _ in range(MAXQ)])
-add([(ri(10 ** 9, 10 ** 12), ri(0, 9)) for _ in range(MAXQ)])
-add([(ri(1, 10), ri(0, 9)) if i % 2 else (ri(1, MAXN), ri(0, 9)) for i in range(MAXQ)])
-add([(2 ** ri(30, 59) - ri(0, 1), ri(0, 9)) for _ in range(MAXQ)])
-add([(ri(10 ** 6, 10 ** 7), ri(0, 9)) for _ in range(MAXQ)])
+add([(1, MAXV)] * MAXQ)
+add([rq(1, MAXV) for _ in range(MAXQ)])
+add([(ri(1, 10), MAXV - ri(0, 10)) for _ in range(MAXQ)])
+add([(p, p) for p in random.choices(PERFECT, k=MAXQ // 2)] + [rq(1, MAXV) for _ in range(MAXQ // 2)])
+add([rq(1, MAXV, 1000) for _ in range(MAXQ)])
+add([(x, x) for x in random.sample(range(1, MAXV + 1), MAXQ)])
+add([(1, ri(1, MAXV)) for _ in range(MAXQ)])
+add([(ri(MAXV // 2, MAXV), MAXV) for _ in range(MAXQ)])
+add([(l, l + ri(10 ** 6, MAXV - l)) for l in [ri(1, MAXV - 10 ** 6) for _ in range(MAXQ)]])  # long ranges
+add([(MAXV, MAXV)] + [rq(1, MAXV) for _ in range(MAXQ - 1)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

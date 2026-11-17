@@ -92,60 +92,79 @@ def write_tests():
             f.write(t)
 
 random.seed(2101)
-MAXN, MAXT = 100_000, 10**6
+MAXN, MAXA = 100_000, 10**9
 
 
-def add(n, roads, from_shape=False):
-    """roads: (u, v, a, b) = a minutes from u to v, b minutes from v to u"""
-    assert 1 <= n <= MAXN and len(roads) == n - 1
+def add(n, a, edges, from_shape=False):
+    assert 1 <= n <= MAXN and len(a) == n and len(edges) == n - 1
     if not from_shape:
-        check_tree(n, roads)
-    assert all(1 <= a <= MAXT and 1 <= b <= MAXT for u, v, a, b in roads)
-    tests.append(f"{n}\n" + "".join(f"{u} {v} {a} {b}\n" for u, v, a, b in roads))
+        check_tree(n, edges)
+    assert all(-MAXA <= x <= MAXA for x in a)
+    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{u} {v}\n" for u, v in edges))
 
 
-def make(n, kind, lo=1, hi=MAXT, mode="random", root_first=False):
+def values(n, mode):
+    if mode == "big":                           # any profit or loss
+        return [ri(-MAXA, MAXA) for _ in range(n)]
+    if mode == "small":                         # many groups with total exactly 0
+        return [ri(-3, 3) for _ in range(n)]
+    if mode == "pos":                           # every group is profitable
+        return [MAXA] * n
+    if mode == "neg":                           # no group is profitable
+        return [-MAXA] * n
+    if mode == "mostpos":                       # big profits, a few huge losses
+        return [ri(MAXA // 2, MAXA) if random.random() < 0.8 else -MAXA for _ in range(n)]
+    if mode == "edge":                          # only +10^9 and -10^9
+        return [MAXA if random.random() < 0.5 else -MAXA for _ in range(n)]
+    if mode == "balanced":                      # big values whose total is exactly 0
+        a = [ri(-MAXA, MAXA) for _ in range(n)]
+        s = sum(a)
+        i = 0
+        while s != 0:                           # move the total to 0 one value at a time
+            d = max(-MAXA - a[i], min(MAXA - a[i], -s))
+            a[i] += d
+            s += d
+            i += 1
+        return a
+    raise ValueError(mode)
+
+
+def make(n, kind, mode, root_first=False):
     edges, lab = relabel(shape(n, kind), root_first)
-    k = hi - lo + 1
-    rnd = random.random
-    roads = []
-    for u, v in edges:
-        a, b = lo + int(rnd() * k), lo + int(rnd() * k)
-        if mode == "steep":                    # one direction cheap, the other expensive
-            a, b = (lo, hi) if rnd() < 0.5 else (hi, lo)
-        elif mode == "max":
-            a = b = hi
-        roads.append((u, v, a, b))
-    add(n, roads, True)
+    v = values(n, mode)
+    a = [0] * (n + 1)
+    for i in range(1, n + 1):
+        a[lab[i - 1]] = v[i - 1]
+    add(n, a[1:], edges, True)
 
 
 # samples
-add(4, [(1, 2, 3, 5), (2, 3, 1, 2), (2, 4, 4, 1)])
-add(3, [(1, 2, 1, 10), (3, 2, 2, 2)])
-add(1, [])
-add(5, [(2, 1, 7, 7), (3, 2, 1, 9), (4, 3, 5, 2), (5, 4, 3, 3)])
-add(6, [(1, 2, 2, 6), (1, 3, 4, 1), (4, 1, 3, 3), (5, 2, 8, 1), (2, 6, 1, 5)])
+add(5, [2, -4, 3, 1, -1], [(1, 2), (2, 3), (2, 4), (4, 5)])
+add(3, [2, -2, 0], [(1, 2), (2, 3)])
+add(1, [-7], [])
+add(6, [-5, 2, 3, -1, 4, -2], [(1, 2), (1, 3), (4, 1), (1, 5), (6, 1)])
+add(8, [-30, 25, -10, -40, 12, 50, -60, 8], [(1, 2), (1, 3), (2, 4), (5, 2), (3, 6), (6, 7), (8, 6)])
 # hidden: small and medium
-add(2, [(2, 1, MAXT, 1)])
-make(10, "random", 1, 10)
-make(40, "star", 1, 5, "steep")
-make(200, "caterpillar")
-make(1000, "binary", 1, 100)
-make(3000, "path", 1, 10**6, "steep", True)
-make(5000, "chains")
-make(8000, "spider", 1, 20)
+add(2, [5, -5], [(2, 1)])
+make(10, "random", "small")
+make(30, "deep", "small")
+make(60, "star", "small")
+make(300, "caterpillar", "big")
+make(2000, "path", "small", root_first=True)
+make(5000, "chains", "balanced")
+make(8000, "spider", "edge")
 # hidden: maximum size
 N = MAXN
-make(N, "path", mode="max", root_first=True)            # the largest totals
-make(N, "path", mode="steep")
-make(N, "deep")
-make(N, "caterpillar")
-make(N, "broom", mode="steep")
-make(N, "twopaths", root_first=True)
-make(N, "chains")
-make(N, "random")
-make(N, "binary", 1, 10, root_first=True)
-make(N, "star", mode="steep")
-make(N, "spider")
-make(N, "bushy")
+make(N, "path", "big", root_first=True)
+make(N, "random", "big")
+make(N, "star", "pos")
+make(N, "binary", "neg", root_first=True)
+make(N, "caterpillar", "small")
+make(N, "broom", "balanced")
+make(N, "deep", "big")
+make(N, "twopaths", "small", root_first=True)
+make(N, "chains", "mostpos")
+make(N, "spider", "small")
+make(N, "bushy", "edge")
+make(N, "random", "balanced")
 write_tests()

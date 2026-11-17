@@ -91,50 +91,69 @@ def write_tests():
         with open(f"tests/{i:02d}.in", "w") as f:
             f.write(t)
 
-random.seed(2109)
-MAXN, MAXK = 100_000, 50
+random.seed(2108)
+MAXN = 100_000
 
 
-def add(n, k, edges, from_shape=False):
-    assert 1 <= n <= MAXN and 0 <= k <= MAXK and len(edges) == n - 1
+def add(n, edges, from_shape=False):
+    assert 1 <= n <= MAXN and len(edges) == n - 1
     if not from_shape:
         check_tree(n, edges)
-    tests.append(f"{n} {k}\n" + "".join(f"{u} {v}\n" for u, v in edges))
+    tests.append(f"{n}\n" + "".join(f"{u} {v}\n" for u, v in edges))
 
 
-def make(n, kind, k, root_first=False):
+def make(n, kind, root_first=False):
     edges, lab = relabel(shape(n, kind), root_first)
-    add(n, k, edges, True)
+    add(n, edges, True)
+
+
+def make_par(par, root_first=False):
+    edges, lab = relabel(par, root_first)
+    add(len(par) - 1, edges, True)
+
+
+def full_binary_with_tails(n):
+    """a complete binary tree (high orders everywhere) whose leaves grow paths"""
+    par = [0, 0]
+    m = max(1, n // 2)
+    for i in range(2, n + 1):
+        par.append(i // 2 if i <= m else i - m)
+    return par
+
+
+def ternary(n):
+    """every node has three children: three equal orders meet, so the top-2 shortcut breaks"""
+    return [0, 0] + [(i + 1) // 3 for i in range(2, n + 1)]
 
 
 # samples
-add(6, 2, [(1, 2), (2, 3), (3, 4), (2, 5), (5, 6)])
-add(5, 1, [(1, 2), (2, 3), (3, 4), (4, 5)])
-add(1, 5, [])
-add(3, 0, [(1, 2), (1, 3)])
-add(7, 50, [(1, 2), (1, 3), (3, 4), (4, 5), (4, 6), (6, 7)])
+add(7, [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (3, 7)])
+add(3, [(1, 2), (2, 3)])
+add(1, [])
+add(8, [(1, 2), (1, 3), (1, 4), (4, 5), (4, 6), (6, 7), (6, 8)])
+add(10, [(1, 2), (2, 3), (3, 4), (2, 5), (5, 6), (5, 7), (3, 8), (8, 9), (8, 10)])
 # hidden: small and medium
-add(2, 1, [(1, 2)])
-make(10, "random", 2)
-make(30, "deep", 7)
-make(60, "star", 1)
-make(300, "caterpillar", 3)
-make(1000, "bushy", 2)
-make(3000, "path", 50, True)
-make(5000, "chains", 10)
-make(8000, "random", 6)
+add(2, [(2, 1)])
+make(10, "random")
+make_par(ternary(13))
+make(40, "star")
+make(300, "caterpillar")
+make_par(full_binary_with_tails(1000))
+make(3000, "path", True)
+make_par(ternary(5000))
+make(8000, "random")
 # hidden: maximum size
 N = MAXN
-make(N, "path", MAXK)
-make(N, "bushy", 4)              # every ball holds the whole tree (leaf, hub, centre, hub, leaf)
-make(N, "bushy", MAXK)
-make(N, "random", 20)
-make(N, "random", MAXK)
-make(N, "caterpillar", MAXK)
-make(N, "broom", 30)
-make(N, "spider", 25, True)
-make(N, "binary", 12, True)
-make(N, "deep", MAXK)
-make(N, "chains", 40)
-make(N, "star", 2)
+make(N, "path")
+make(N, "deep")
+make(N, "caterpillar")
+make(N, "broom")
+make(N, "twopaths", True)
+make(N, "chains")
+make(N, "random")
+make(N, "binary", True)
+make_par(full_binary_with_tails(N))
+make_par(ternary(N))
+make(N, "spider")
+make(N, "bushy")
 write_tests()

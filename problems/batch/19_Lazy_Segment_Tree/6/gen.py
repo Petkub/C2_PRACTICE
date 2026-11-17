@@ -33,8 +33,9 @@ class Ground:
         self.n, self.f = n, [0] * (n + 2)
 
     def _add(self, i, x):
-        while i <= self.n:
-            self.f[i] += x
+        f, n = self.f, self.n
+        while i <= n:
+            f[i] += x
             i += i & -i
 
     def add(self, l, r, x):
@@ -43,9 +44,9 @@ class Ground:
             self._add(r + 1, -x)
 
     def at(self, i):
-        s = 0
+        f, s = self.f, 0
         while i > 0:
-            s += self.f[i]
+            s += f[i]
             i -= i & -i
         return s
 
@@ -82,6 +83,34 @@ def scenario(n, q, pw, pt, wall_w, wall_h, terr, ask_p, delta, cap=10**9):
     return ops
 
 
+def tall(n, q, pa, rng, addx, delta):
+    """ground built by many big changes on ranges from rng() (heights far outside int);
+    questions at a random p with level a_p + delta() (kept inside |h| <= 10^12)"""
+    g, ops = Ground(n), []
+    for _ in range(q):
+        if random.random() < pa:
+            l, rr = rng()
+            x = addx()
+            ops.append(('D', l, rr, x))
+            g.add(l, rr, x)
+        else:
+            p = ri(1, n)
+            h = max(-MAXH, min(MAXH, g.at(p) + delta()))
+            ops.append(('W', p, h))
+    if not any(op[0] == 'W' for op in ops):
+        ops[-1] = ('W', 1, 0)
+    return ops
+
+
+def big_delta():
+    r = random.random()
+    if r < 0.05:
+        return random.choice((-1, 1)) * 2 * MAXH             # clipped to -10^12 or 10^12
+    if r < 0.15:
+        return ri(-10, 10)
+    return ri(1, 10**ri(4, 10))
+
+
 def any_rng(n):
     l = ri(1, n)
     return l, ri(l, n)
@@ -111,17 +140,25 @@ N, Q = MAXN, MAXQ
 mid = lambda: ri(N // 2 - 1000, N // 2 + 1000)
 add(N, scenario(N, Q, 0.05, 0.25, 5, MAXX, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(1, 3000), cap=10))
 add(N, scenario(N, Q, 0.1, 0.2, 50, MAXX, lambda: any_rng(N), mid, lambda: ri(1, 5000), cap=40))
-add(N, scenario(N, Q, 0.3, 0.2, 100, 10**5, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(-100, 5 * 10**4)))
+add(N, scenario(N, Q, 0.2, 0.35, 100, 10**5, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(-100, 5 * 10**4)))
 add(N, scenario(N, Q, 0.02, 0.4, 0, MAXX, lambda: (ri(1, 10), ri(N - 10, N)), lambda: ri(1, N),
-                lambda: ri(1, 10**4), cap=3))       # almost no walls: whole-road floods
+                lambda: ri(1, 10**4) if random.random() < 0.9 else random.choice((1, -1)) * ri(10**11, 9 * 10**11),
+                cap=3))                              # almost no walls: whole-road floods, some very high levels
 add(N, scenario(N, Q, 0.2, 0.3, 1000, MAXX, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(-5, 50)))
 add(N, scenario(N, Q, 0.4, 0.1, 3, 1000, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(0, 2000)))
 add(N, scenario(N, Q, 0.08, 0.3, 2, MAXX, lambda: any_rng(N), lambda: random.choice((1, N, ri(1, N))),
                 lambda: ri(1, 10**6), cap=20))
-add(N, scenario(N, Q, 0.15, 0.35, 10, 5000, lambda: short_rng(N, 3000), mid, lambda: ri(-2, 3000), cap=20))
-add(N, scenario(N, Q, 0.05, 0.05, 0, MAXX, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(1, 2 * 10**6),
+add(N, scenario(N, Q, 0.15, 0.35, 10, 5000, lambda: short_rng(N, 3000), mid, lambda: ri(-2, 3000), cap=10))
+add(N, scenario(N, Q, 0.05, 0.05, 0, MAXX, lambda: any_rng(N), lambda: ri(1, N),
+                lambda: ri(1, 2 * 10**6) if random.random() < 0.8 else ri(-MAXH // 2, MAXH // 2),
                 cap=30))                             # mostly questions
 add(N, scenario(N, Q, 0.25, 0.25, 20_000, MAXX, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(-10, 10**6)))
+# heights far outside int
+add(N, tall(N, Q, 0.6, lambda: any_rng(N), lambda: ri(MAXX // 2, MAXX), big_delta))
+add(N, tall(N, Q, 0.6, lambda: any_rng(N), lambda: -ri(MAXX // 2, MAXX), big_delta))
+add(N, tall(N, Q, 0.5, lambda: short_rng(N, 300_000), lambda: random.choice((-1, 1, 1)) * MAXX, big_delta))
+n = 3000
+add(n, tall(n, 4000, 0.6, lambda: any_rng(n), lambda: random.choice((-1, 1, 1)) * ri(1, MAXX), big_delta))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

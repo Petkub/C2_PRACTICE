@@ -1,67 +1,68 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(10110)
+random.seed(10113)
 MAXN = 200_000
+MAXM = 200_000
 tests = []
 
 
-def add(t, c):
-    n, k = len(t), len(c)
-    assert 1 <= k <= n <= MAXN
-    assert all(1 <= x <= k for x in t)
-    assert all(1 <= x <= n for x in c)
-    tests.append(f"{n} {k}\n" + " ".join(map(str, t)) + "\n" + " ".join(map(str, c)) + "\n")
+def ri(lo, hi):
+    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def rnd(n, k):
-    return [random.randint(1, k) for _ in range(n)]
+def add(n, ops):
+    assert 1 <= n <= MAXN and 1 <= len(ops) <= MAXM
+    assert all(1 <= l <= r <= n for (l, r) in ops)
+    tests.append(f"{n} {len(ops)}\n" + "".join(f"{l} {r}\n" for (l, r) in ops))
+
+
+def rnd_ops(n, m, maxlen=None):
+    out = []
+    for _ in range(m):
+        if maxlen is None:
+            a, b = ri(1, n), ri(1, n)
+            out.append((min(a, b), max(a, b)))
+        else:
+            ln = ri(1, min(maxlen, n))
+            l = ri(1, n - ln + 1)
+            out.append((l, l + ln - 1))
+    return out
 
 
 # samples
-add([1, 2, 1, 3, 2, 2, 1, 3, 1, 2], [2, 1, 1])
-add([1, 1, 2, 1, 1], [1, 2])
-add([1, 1, 1], [1])
-add([2, 1, 1, 3, 2, 2, 3, 1], [1, 1, 1])
-add([3, 1, 2, 1, 3], [2, 1, 2])
-add([2, 2, 1, 2, 1, 2, 2], [1, 3])
+add(6, [(2, 4), (3, 6)])
+add(5, [(1, 5), (5, 5), (1, 1)])
+add(1, [(1, 1)])
+add(4, [(1, 3), (1, 3), (2, 4)])
+add(7, [(3, 3), (1, 7), (6, 7)])
 # hidden (small)
-add([1], [1])
-add([1, 1, 2], [3, 1])                      # not enough of type 1
-add([1, 2, 3, 4], [1, 1, 1, 1])
-add([1, 2, 1, 2, 1, 2], [1, 1])             # many ties
-add([5, 1, 2, 3, 4], [1, 1, 1, 1, 1])
-add(rnd(30, 3), [2, 3, 1])
-add(rnd(200, 5), [random.randint(1, 8) for _ in range(5)])
-add(rnd(2000, 40), [random.randint(1, 30) for _ in range(40)])
-t = rnd(3000, 10)
-add(t, [t.count(j) for j in range(1, 11)])   # need every stamp: the whole street (or a trimmed piece)
+add(3, [(3, 3)])
+add(10, [(1, 10)] * 3)
+add(50, rnd_ops(50, 40))
+add(500, rnd_ops(500, 300, 20))
+add(2000, rnd_ops(2000, 2000))
+add(5000, [(1, 5000)] * 1000 + rnd_ops(5000, 1000))
+add(3000, [(i, 3000) for i in range(1, 3001)])
 # large
-N = MAXN
-t = rnd(N, 2)
-add(t, [t.count(1) - 5, 3])                  # almost every stamp of type 1
-t = [2] + rnd(N - 2, 1) + [2]
-add(t, [1, 2])                               # the only type-2 stamps are at both ends
-t = rnd(N, 50)
-add(t, [t.count(j) // 2 + 1 for j in range(1, 51)])
-t = list(range(1, N + 1))
-random.shuffle(t)
-add(t, [1] * N)                              # K = N: the whole street
-t = rnd(N, 3)
-add(t, [t.count(1), 1, 1])
-t = rnd(N, 1000)
-add(t, [1] * 999 + [N])                      # impossible (type 1000 is too rare)
-add([1] * (N - 1) + [2], [N - 1, 1])
-t = list(range(1, 100_001)) * 2
-random.shuffle(t)
-add(t, [1] * 100_000)
-t = [1 + (i % 7) for i in range(N)]
-add(t, [N // 7 - 3] * 7)
-t = rnd(N, 20)
-add(t, [random.randint(1, 3) for _ in range(20)])
-t = rnd(N, 5)
-add(t, [N // 5 - 2000] * 5)
-add([1, 2] * (N // 2), [N // 2, N // 2 - 1])
+N, M = MAXN, MAXM
+add(N, [(1, N)] * M)                                  # every column as high as possible
+add(N, rnd_ops(N, M))
+add(N, rnd_ops(N, M, 10))
+add(N, [(ri(1, N),) * 2 for _ in range(M)])           # single columns only
+add(N, [(1, ri(N // 2, N)) for _ in range(M)])
+add(N, [(ri(1, N // 2), N) for _ in range(M)])
+add(N, [(i % N + 1, N) for i in range(M)])
+add(N, rnd_ops(N, M // 2) + [(1, N)] * (M // 2))
+add(N, rnd_ops(N, M, 20000))
+add(N - 1, [(1, N - 1)] * 1000 + rnd_ops(N - 1, M - 1000))
+add(N, [(ri(1, 10), ri(N - 10, N)) for _ in range(M)])
+add(N, [(1, N)])
+add(N, [(ri(1, 100), ri(N - 100, N)) for _ in range(M // 2)])
+add(N, [(1, ri(3 * N // 4, N)) for _ in range(M // 2)])
+add(N, rnd_ops(N, M // 2, N // 2))
+add(N, [(ri(1, N // 4), ri(3 * N // 4, N)) for _ in range(M // 2)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

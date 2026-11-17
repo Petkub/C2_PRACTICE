@@ -141,6 +141,12 @@ def falling(i, d):
     return (max(1, top - ri(500, 3000)), top)
 
 
+def falling_slow(i, d):
+    """like falling, but the ranges come down slowly: they stay high all along a long path"""
+    top = max(1, MAXV - d // 2)
+    return (max(1, top - ri(500, 3000)), top)
+
+
 # samples
 add([1, 1, 2], [(2, 3), (1, 3), (2, 2), (1, 2)])
 add([1], [(1, 2), (3, 4)])
@@ -160,7 +166,7 @@ build(1000, "random", sub(2000, 2100))          # many zero factors
 N = MAXN
 build(N, "path", full)
 build(N, "path", wide)
-build(N, "path", falling)
+build(N, "path", falling_slow)
 build(N, "star", full)
 build(N, "random", wide)
 build(N, "random", falling)

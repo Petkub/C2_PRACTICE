@@ -62,6 +62,31 @@ def blocks(n, m, size_fn, links):
     return e
 
 
+def funnel(n, m, size_fn, sinks):
+    """consecutive blocks (cycles); every block but the last `sinks` ones gets a road to a random later block,
+    and the other roads go forward at random: many groups without a road in, few without a road out"""
+    e, bl, start = [], [], 1
+    while start <= n:
+        s = min(size_fn(), n - start + 1)
+        bl.append((start, start + s - 1))
+        if s >= 2:
+            e += [(i, i + 1) for i in range(start, start + s - 1)] + [(start + s - 1, start)]
+        start += s
+    k = len(bl)
+    for j in range(k - sinks):
+        a, b = bl[j]
+        c, d = bl[ri(j + 1, k - 1)]
+        e.append((ri(a, b), ri(c, d)))
+    lim = bl[k - sinks][0]                          # roads never leave the last `sinks` blocks
+    while len(e) < m:
+        u = 1 + int(rnd() * n)
+        v = 1 + int(rnd() * n)
+        if u < v and u < lim:
+            e.append((u, v))
+    assert len(e) <= m
+    return e
+
+
 def rand_edges(n, m):
     e = []
     while len(e) < m:
@@ -88,21 +113,22 @@ for n, m in ((5, 3), (5, 5), (5, 6), (4, 3)):
     add(n, rand_edges(n, m))
 add(2000, relabel(2000, blocks(2000, 3000, lambda: ri(1, 3), 1200)))
 add(3000, rand_edges(3000, 3000))
+add(50_000, relabel(50_000, [(i, i + 1) for i in range(1, 50_000)] + [(50_000, 1)]))  # one long cycle: 0
 # hidden: maximum size
 N = MAXN
-add(N, relabel(N, blocks(N, MAXM, lambda: 1, MAXM)))                         # a random DAG
+add(N, relabel(N, funnel(N, MAXM, lambda: 1, 50)))                          # a random DAG, few sinks
 add(N, relabel(N, [(i, i + 1) for i in range(1, N)]))                       # one chain: 1
-add(N, relabel(N, [(i, i + 1) for i in range(1, N)] + [(N, 1)]))            # one long cycle: 0
 add(N, relabel(N, blocks(N, N, lambda: 2, 0)))                              # separate pairs, nobody without a road in
-add(170_000, relabel(170_000, blocks(170_000, MAXM, lambda: ri(2, 6), 20_000)))           # sources and sinks are cycles
+add(170_000, relabel(170_000, blocks(170_000, MAXM, lambda: ri(2, 3), 20_000)))           # sources and sinks are cycles
 add(N, relabel(N, [(1, i) for i in range(2, N + 1)]))                       # a star going out
 add(N, relabel(N, [(i, 1) for i in range(2, N // 3)] + [(1, i) for i in range(N // 3, N + 1)]))
-add(N, rand_edges(N, MAXM))
+add(145_000, relabel(145_000, funnel(145_000, MAXM, lambda: ri(1, 2), 1000)))
 add(N, rand_edges(N, N // 2))
 add(N, [])
-add(150_000, relabel(150_000, blocks(150_000, 0, lambda: ri(2, 3), 8000)))      # cycles joined by a few roads
-add(N - 1000, relabel(N - 1000, blocks(N - 1000, MAXM, lambda: ri(500, 1500), 150)))
-add(N - 10, relabel(N - 10, blocks(N - 10, MAXM, lambda: 50_000, 3)))
+add(190_000, relabel(190_000, blocks(190_000, 0, lambda: ri(2, 3), 8000)))      # cycles joined by a few roads
+add(190_000, relabel(190_000, funnel(190_000, MAXM, lambda: ri(500, 1500) if rnd() < 0.0005 else 1, 3000)))
+big = iter([45_000] * 3)
+add(190_000, relabel(190_000, funnel(190_000, MAXM, lambda: next(big, 1), 500)))  # 3 big groups, the rest alone
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

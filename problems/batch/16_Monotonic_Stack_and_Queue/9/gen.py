@@ -29,23 +29,30 @@ add([ri(1, 10) for _ in range(300)])
 add([ri(1, MAXA) for _ in range(2000)])
 add([i // 3 + 1 for i in range(3000)])                 # increasing with plateaus
 add([i * 10 + ri(0, 25) for i in range(8000)])          # increasing with noise
-# hidden: maximum size
+add([20000 - i for i in range(20000)])                 # no pair
+add([MAXA] * 20000)                                     # no pair (ties)
+add([ri(1, MAXA) for _ in range(20000)])
+add([ri(1, 5) for _ in range(20000)])
+# hidden: maximum size (mostly rising: most days stay the lowest for a long time)
 N = MAXN
 add([i + 1 for i in range(N)])                          # every pair: about 2 * 10^10
 add([MAXA - N + 1 + i for i in range(N)])
-add([N - i for i in range(N)])                          # no pair
-add([MAXA] * N)                                         # no pair (ties)
 add([i * 1000 + ri(0, 1500) + 1 for i in range(N)])     # increasing with noise
 add([i // 2 + 1 for i in range(N)])                     # pairs of equal prices
-add([ri(1, MAXA) for _ in range(N)])
-add([ri(1, 5) for _ in range(N)])
-add([(i % 50000) * 10 + 1 for i in range(N)])           # four long ramps
-a = [i * 2 + 2 for i in range(N)]                        # a ramp with dips
+add([(i % 50000) + (i // 50000) * 25000 + 1 for i in range(N)])  # four ramps, each starting higher
+a = [i * 2 + 100 for i in range(N)]                      # a ramp with small dips
 for k in range(1000, N, 1000):
-    a[k] = 1
+    a[k] -= 50
 add(a)
 add([i + 1 if i < N // 2 else N - i for i in range(N)])  # mountain
-add([i // 3 + ri(1, 3) for i in range(N)])               # rising with small noise and ties
+add([i + ri(1, 3) for i in range(N)])                    # rising with small noise and ties
+a, cur = [], 1                                           # a walk drifting up
+for _ in range(N):
+    a.append(cur)
+    cur = max(1, cur + ri(-3, 10))
+add(a)
+add([30000 - i if i < 30000 else i - 29999 for i in range(N)])  # short fall, long climb
+add([ri(1, MAXA) for _ in range(20000)] + [MAXA - 180000 + i for i in range(180000)])  # random, then a climb
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

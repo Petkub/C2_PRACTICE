@@ -49,18 +49,27 @@ def tree(n, kind):
     for i in range(2, n + 1):
         p[lab[i - 1]] = lab[par[i] - 1]
     return p, lab
-def add(n, a, p, ops):
+def add(n, a, p, ops, lab=None):
+    """lab (from tree()): every node listed after its parent, so reaching person 1 is checked along lab"""
     q = len(ops)
     assert 2 <= n <= MAXN and 1 <= q <= MAXQ and len(a) == n and len(p) == n + 1
     assert all(-MAXV <= x <= MAXV for x in a)
-    assert p[0] == p[1] == 0 and 1 <= min(p[2:]) and max(p[2:]) <= n and all(p[i] != i for i in range(2, n + 1))
-    ch = [[] for _ in range(n + 1)]
-    for i in range(2, n + 1):
-        ch[p[i]].append(i)
-    order = [1]
-    for u in order:
-        order.extend(ch[u])
-    assert len(order) == n                     # everybody reaches person 1
+    assert p[0] == p[1] == 0 and 1 <= min(p[2:]) and max(p[2:]) <= n and all(map(int.__ne__, p[2:], range(2, n + 1)))
+    if lab is not None:
+        assert lab[0] == 1 and sorted(lab) == list(range(1, n + 1))
+        seen = [False] * (n + 1)
+        seen[1] = True
+        for v in lab[1:]:
+            assert seen[p[v]]                  # the boss was already shown to reach person 1
+            seen[v] = True
+    else:
+        ch = [[] for _ in range(n + 1)]
+        for i in range(2, n + 1):
+            ch[p[i]].append(i)
+        order = [1]
+        for u in order:
+            order.extend(ch[u])
+        assert len(order) == n                 # everybody reaches person 1
     assert all(1 <= op[1] <= n and (len(op) == 3 and -MAXV <= op[2] <= MAXV if op[0] == 1 else op[0] == 2 and len(op) == 2)
                for op in ops)
     assert any(op[0] == 2 for op in ops)
@@ -90,7 +99,7 @@ def big(kind, q, p1, av, xv, top, n=MAXN):
     p, lab = tree(n, kind)
     rnd, span = random.random, av[1] - av[0] + 1
     a = [av[0] + int(rnd() * span) for _ in range(n)]
-    add(n, a, p, rops(n, q, lab, p1, xv[0], xv[1], top))
+    add(n, a, p, rops(n, q, lab, p1, xv[0], xv[1], top), lab)
 
 
 # samples
@@ -116,6 +125,10 @@ big("caterpillar", 90_000, 0.5, (-99, 99), (-99, 99), 1_000)
 big("broom", 90_000, 0.5, (-99, 99), (-99, 99), 30_000)
 big("chains", 90_000, 0.5, (-99, 99), (-99, 99), 200)
 big("star", 90_000, 0.3, (-99, 99), (-99, 99), 1)
+# hidden: maximum size, changes mostly negative so whole teams sink far below -10^9
+big("deep", 55_000, 0.5, (-99, 99), (-MAXV, MAXV // 5), 500)
+big("caterpillar", 55_000, 0.5, (-99, 99), (-MAXV, MAXV // 5), 300)
+big("broom", 55_000, 0.5, (-99, 99), (-MAXV, MAXV // 5), 2_000)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

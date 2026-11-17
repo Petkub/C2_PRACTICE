@@ -81,13 +81,15 @@ def extra(n, e, k):
 
 # samples
 add(6, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (4, 6)])
-add(3, [(1, 2), (2, 1), (2, 3)])
+add(5, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 3)])
 add(4, [(1, 2), (2, 3), (3, 4), (4, 1)])
 add(1, [])
 add(5, [(1, 2), (3, 4), (4, 5), (5, 3)])
-add(7, [(1, 2), (2, 3), (3, 4), (4, 2), (5, 6), (6, 7), (6, 5)])
+add(7, [(1, 2), (2, 3), (3, 4), (4, 2), (5, 6), (6, 7), (7, 5)])
 # hidden: small
 add(2, [(1, 2), (1, 2)])
+add(3, [(1, 2), (2, 1), (2, 3)])
+add(7, [(1, 2), (2, 3), (3, 4), (4, 2), (5, 6), (6, 7), (6, 5)])
 add(2, [])
 for n, m in ((6, 6), (8, 9), (10, 10), (12, 14)):
     add(n, extra(n, [], m))
@@ -97,13 +99,14 @@ add(1500, relabel(1500, cactus(1500, 1, 6)))
 # hidden: maximum size
 N = MAXN
 add(N, relabel(N, path(N)))                                                   # every cable critical, deep DFS
-h = N // 2 + 1
-add(h, relabel(h, path(h) + path(h)))                                         # every cable doubled: none critical
+h, c = 50_001, 100_000
+add(h + c - 1, relabel(h + c - 1, path(h) + path(h) + path(c) + [(h + c - 1, h - 1)]))
+#                                       a path of doubled cables, then a long cycle: none critical
 t = 133_334
 add(t, relabel(t, path(t) + [(i, i + 1) for i in range(1, t, 2)]))                 # every other cable doubled
 add(N, relabel(N, path(N) + [(N, 1)]))                                       # one long cycle
-add(N // 2, relabel(N // 2, cactus(N // 2, 1, 5)))
-add(N // 2, relabel(N // 2, cactus(N // 2, 2, 2)))                           # pairs of parallel cables in a chain
+add(157_000, relabel(157_000, cactus(157_000, 1, 5)))
+add(133_332, relabel(133_332, cactus(133_332, 2, 2)))                         # pairs of parallel cables in a chain
 add(N - 50, relabel(N - 50, extra(N - 50, tree(N - 50, "deep"), 50)))
 add(N // 2, relabel(N // 2, extra(N // 2, tree(N // 2, "random"), N // 2)))
 add(N, relabel(N, extra(N, [], MAXM)))                                       # random, many separate groups

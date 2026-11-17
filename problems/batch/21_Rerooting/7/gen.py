@@ -36,6 +36,16 @@ def shape(n, kind):
             p = 1 if i <= b + 1 else i - b
         elif kind == "bushy":                       # star of stars: about sqrt(n) hubs, each with many leaves
             p = 1 if i <= b + 1 else ri(2, b + 1)
+        elif kind == "longspider":                  # 2000 legs of length about n / 2000 from node 1
+            p = 1 if i <= 2001 else i - 2000
+        elif kind == "fatcaterpillar":              # a spine of 100 nodes, every other node a leg of the spine
+            p = i - 1 if i <= 100 else ri(1, 100)
+        elif kind == "hubpath":                     # a path of 40 hubs, each with about n / 40 leaves
+            p = i - 1 if i <= 40 else ri(1, 40)
+        elif kind == "hubrand":                     # random tree in which node 1 gets about half of the nodes
+            p = 1 if random.random() < 0.5 else ri(1, i - 1)
+        elif kind == "doublestar":                  # nodes 1 and 2 joined, each with half of the leaves
+            p = 1 if i == 2 or i % 2 else 2
         else:
             raise ValueError(kind)
         par.append(p)
@@ -91,55 +101,50 @@ def write_tests():
         with open(f"tests/{i:02d}.in", "w") as f:
             f.write(t)
 
-random.seed(2107)
-MAXN, MAXA = 100_000, 10**9
+random.seed(2109)
+MAXN, MAXK = 100_000, 50
 
 
-def add(n, a, edges, from_shape=False):
-    assert 1 <= n <= MAXN and len(a) == n and len(edges) == n - 1
+def add(n, k, edges, from_shape=False):
+    assert 1 <= n <= MAXN and 0 <= k <= MAXK and len(edges) == n - 1
     if not from_shape:
         check_tree(n, edges)
-    assert all(1 <= x <= MAXA for x in a)
-    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{u} {v}\n" for u, v in edges))
+    tests.append(f"{n} {k}\n" + "".join(f"{u} {v}\n" for u, v in edges))
 
 
-def make(n, kind, lo=1, hi=MAXA, mode="random", root_first=False):
-    """mode "heavy": a few very large values among small ones"""
+def make(n, kind, k, root_first=False):
     edges, lab = relabel(shape(n, kind), root_first)
-    if mode == "heavy":
-        a = [hi if random.random() < 0.05 else ri(lo, lo + 10) for _ in range(n)]
-    else:
-        a = [ri(lo, hi) for _ in range(n)]
-    add(n, a, edges, True)
+    add(n, k, edges, True)
 
 
 # samples
-add(5, [4, 5, 2, 6, 1], [(1, 2), (2, 3), (3, 4), (3, 5)])
-add(3, [10, 1, 1], [(1, 2), (1, 3)])
-add(1, [7], [])
-add(6, [3, 3, 3, 3, 3, 3], [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)])
-add(7, [2, 9, 4, 4, 7, 1, 8], [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (3, 7)])
-# hidden: small and medium
-add(2, [MAXA, MAXA], [(1, 2)])
-make(10, "random", 1, 10)
-make(30, "deep", 1, 3)
-make(60, "star", 1, 100)
-make(300, "caterpillar", mode="heavy")
-make(2000, "path", MAXA, MAXA, root_first=True)
-make(5000, "chains", 1, 1000)
-make(8000, "spider", mode="heavy")
-# hidden: maximum size
+add(6, 2, [(1, 2), (2, 3), (3, 4), (2, 5), (5, 6)])
+add(5, 1, [(1, 2), (2, 3), (3, 4), (4, 5)])
+add(1, 5, [])
+add(3, 0, [(1, 2), (1, 3)])
+add(7, 50, [(1, 2), (1, 3), (3, 4), (4, 5), (4, 6), (6, 7)])
+# hidden: small and medium (thin trees, where every ball is small, stay below the maximum size)
+add(2, 1, [(1, 2)])
+make(10, "random", 2)
+make(30, "deep", 7)
+make(60, "star", 1)
+make(300, "caterpillar", 3)
+make(1000, "bushy", 2)
+make(3000, "path", 50, True)
+make(8000, "chains", 10)
+make(60000, "deep", MAXK)
+# hidden: maximum size (bushy shapes: the balls hold a large part of the tree)
 N = MAXN
-make(N, "path", MAXA, MAXA)                 # the largest totals
-make(N, "path", 1, 2)
-make(N, "deep")
-make(N, "caterpillar", mode="heavy")
-make(N, "broom")
-make(N, "twopaths", 1, 5, root_first=True)
-make(N, "chains")
-make(N, "random", mode="heavy")
-make(N, "binary", root_first=True)
-make(N, "star", 1, 10)
-make(N, "spider")
-make(N, "bushy", mode="heavy")
+make(N, "random", MAXK)
+make(N, "bushy", 4)              # every ball holds the whole tree (leaf, hub, centre, hub, leaf)
+make(N, "broom", 30)
+make(N, "fatcaterpillar", MAXK)
+make(N, "random", 20)
+make(N, "longspider", MAXK, True)
+make(N, "doublestar", 3)
+make(N, "binary", 30, True)
+make(N, "hubpath", MAXK)
+make(N, "bushy", MAXK)
+make(N, "hubrand", 5)
+make(N, "star", 2)
 write_tests()

@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(11018)
-MAXS = 1500
+random.seed(11019)
+MAXN, MAXK, MAXV = 100_000, 400, 10**6
 tests = []
 
 
@@ -10,80 +10,54 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(grid):
-    R, C = len(grid), len(grid[0])
-    assert 1 <= R <= MAXS and 1 <= C <= MAXS
-    assert all(len(row) == C and set(row) <= set(".#") for row in grid)
-    tests.append(f"{R} {C}\n" + "\n".join(grid) + "\n")
+def add(K, A, B, a, p):
+    n = len(a)
+    assert 1 <= n <= MAXN and 1 <= K <= min(n, MAXK) and len(p) == K and 1 <= A <= B <= n
+    assert all(1 <= x <= MAXV for x in a) and all(1 <= x <= MAXV for x in p)
+    tests.append(f"{n} {K} {A} {B}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, p)) + "\n")
 
 
-def dense(R, C, p):
-    cells = random.choices(".#", weights=[1 - p, p], k=R * C)
-    return ["".join(cells[r * C:(r + 1) * C]) for r in range(R)]
-
-
-def sparse(R, C, cells):
-    g = [["."] * C for _ in range(R)]
-    for r, c in cells:
-        g[r][c] = "#"
-    return ["".join(row) for row in g]
-
-
-def perm(R, C, k):
-    """k almonds in k different rows and k different columns"""
-    rows = sorted(random.sample(range(R), k))
-    cols = random.sample(range(C), k)
-    return list(zip(rows, cols))
-
-
-def rcells(R, C, k):
-    s = set()
-    while len(s) < k:
-        s.add((ri(0, R - 1), ri(0, C - 1)))
-    return sorted(s)
+def rnd(n, lo=1, hi=MAXV):
+    return [ri(lo, hi) for _ in range(n)]
 
 
 # samples
-add(["#..", "...", "..#"])
-add(["##", "##"])
-add(["#.#.#"])
-add([".#..", "#...", "...#", "..#."])
-add(["#"])
-add(["#..#", "....", ".#.."])
-# hidden: small
-add(["."])
-add(["..", ".."])
-add(sparse(6, 7, [(i, i) for i in range(6)]))            # almonds on a diagonal
-add(sparse(8, 8, perm(8, 8, 6)))
-add(sparse(10, 9, perm(10, 9, 9)))
-add(dense(12, 12, 0.05))
-add(sparse(9, 9, [(8 - i, i) for i in range(9)]))        # anti-diagonal
+add(2, 1, 3, [4, 1, 5, 2, 3], [2, 5])
+add(2, 1, 3, [1, 1, 1, 1, 1, 1, 1], [1, 1])
+add(3, 2, 2, [5, 3, 8, 1, 2, 9], [3, 1, 2])
+add(1, 1, 4, [7, 7, 7, 7], [10])
+add(3, 1, 4, [6, 2, 9, 4, 1, 8, 3, 5], [1, 4, 2])
+add(4, 2, 3, [9, 1, 1, 9, 9, 1, 1, 9, 2, 7], [5, 1, 5, 2])
+# hidden: small (the brute tries every split)
+add(1, 1, 1, [MAXV], [MAXV])
+add(3, 2, 5, rnd(9, 1, 9), rnd(3, 1, 9))          # 3 days need at least 6 crates: fine
+add(4, 3, 5, rnd(11, 1, 9), rnd(4, 1, 9))         # 4 * 3 > 11: -1
+add(5, 1, 3, rnd(12, 1, 100), rnd(5, 1, 100))
+add(6, 1, 12, rnd(12), rnd(6))
+add(4, 2, 4, rnd(12, 1, 5), [1, 100, 1, 100])
 # hidden: medium
-add(dense(150, 170, 0.002))
-add(sparse(200, 200, [(i * 10 + 3, (i * 37) % 200) for i in range(20)]))
+add(30, 10, 200, rnd(2000), rnd(30))
+add(100, 1, 60, rnd(3000, 1, 1000), rnd(100, 1, 1000))
+add(400, 50, 50, rnd(20_000), rnd(400))           # every day exactly 50 crates
+add(400, 51, 60, rnd(20_000), rnd(400))           # 400 * 51 > N: -1
+add(400, 49, 51, rnd(20_000), rnd(400))
 # hidden: maximum size
-M = MAXS
-add(sparse(M, M, [(0, 0), (M // 2, M // 2), (M - 1, M - 1)]))          # few almonds, long cut ranges
-add(sparse(M, M, [(i * 150, i * 150 + 7) for i in range(10)]))
-add(sparse(M, M, [(i, i) for i in range(M)]))                          # every almond on the diagonal
-add(sparse(M, M, [(M - 1 - i, i) for i in range(0, M, 3)]))
-add(sparse(M, M, rcells(M, M, 25)))
-add(sparse(M, M, perm(M, M, 300)))
-add(sparse(M, M, perm(M, M, M)))
-add(sparse(M, M, perm(M, M, 8)))
-add(sparse(M, M, [(ri(0, M - 1), ri(0, M - 1)) for _ in range(5)] + [(0, M - 1), (M - 1, 0)]))
-add(sparse(M, 1000, [(i * 3, i) for i in range(500)]))
-# three almonds (a, M-1), (M-1, b), (M-1, M-1): every row and every column of the remaining piece
-# sees a long run of valid cut lines (looping over the valid cut lines is about M^3 / 2 steps)
-core = [(M // 2, M - 1), (M - 1, M // 2), (M - 1, M - 1)]
-add(sparse(M, M, core + [(r, c) for r, c in perm(M // 6, M // 6, 30)]))
-add(dense(M, 1000, 0.3))
-add(sparse(M, M, [(i * 120, (i * 7919) % M) for i in range(12)]))
-add(sparse(M, M, core))
-add(sparse(M, M, [(M // 3, M - 1), (M - 1, 2 * M // 3), (M - 1, M - 1), (M - 1, M - 3)]))
+N, K = MAXN, MAXK
+add(K, 1, N, rnd(N), rnd(K))                       # every split allowed
+add(K, 1, N, [MAXV] * N, [MAXV] * K)               # 10^17
+add(K, 100, 1000, rnd(N), rnd(K))
+add(K, 150, 300, rnd(N), sorted(rnd(K)))           # prices rise
+add(K, 1, 400, rnd(N), sorted(rnd(K), reverse=True))
+add(K, 100, 600, rnd(N, MAXV - 1000, MAXV), rnd(K, MAXV - 1000, MAXV))
+add(K, 1, 240, rnd(N), rnd(K))                     # 400 * 240 < N: -1
+add(K, 1, 249, rnd(N), rnd(K))                     # 400 * 249 < N: -1
+add(K, 240, 400, rnd(N), rnd(K))
+add(300, 1, 5000, rnd(N, 1, 10), rnd(300))
+add(K, 50, 2000, [MAXV if i % 977 < 5 else 1 for i in range(N)], rnd(K))
+add(K, 1, N // 2, rnd(N), [MAXV if d % 2 else 1 for d in range(K)])
 
 for t in tests:
-    assert t.endswith("\n") and " \n" not in t
+    assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

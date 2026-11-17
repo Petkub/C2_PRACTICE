@@ -30,6 +30,8 @@ def shape(n, kind):
             p = i - 1 if i <= half else ri(1, half)
         elif kind == "broom":                       # a long handle ending in a star
             p = i - 1 if i <= half else half
+        elif kind == "longchains":                  # 20 chains of length n / 20 glued at random
+            p = i - 1 if (i - 1) % max(2, n // 20) else ri(1, i - 1)
         elif kind == "chains":                      # chains of length about sqrt(n) glued at random
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
@@ -111,16 +113,17 @@ for n, kind in ((5000, "path"), (8000, "broom"), (8000, "chains")):
     p, lab = tree(n, kind)
     add(n, [ri(0, MAXA) for _ in range(n)], p, rops(n, 8000, lab, 0.5, 1, MAXX, top=50, low=200))
 # hidden: maximum size (commissions deep down, questions on big teams)
-big("path", 100_000, 0.5, 9999, 9999, 2_000, 2_000)
+big("path", 100_000, 0.5, 9999, MAXX, 2_000, 2_000)
 big("path", 60_000, 0.7, MAXA, MAXX, 100, 100, n=90_000, xlo=MAXX)   # the largest totals (about 4 * 10^15)
-big("deep", 100_000, 0.5, 9999, 9999, 1_000, 1_000)
+big("deep", 100_000, 0.5, 9999, MAXX, 1_000, 1_000)
 big("deep", 100_000, 0.8, 9999, 9999, 100, 20_000)
-big("caterpillar", 100_000, 0.5, 9999, 9999, 1_000, 5_000)
-big("broom", 100_000, 0.5, 9999, 9999, 500, 20_000)
-big("chains", 100_000, 0.5, 9999, 9999, 200, 10_000)
-big("path", 100_000, 0.1, 9999, 9999, 1_000, 1_000)         # mostly questions on huge teams
-big("star", 100_000, 0.1, 9999, 9999, 1, None)
-big("path", 100_000, 0.3, 9999, 9999, 50_000, 50_000)
+big("caterpillar", 100_000, 0.5, 9999, MAXX, 1_000, 5_000)
+big("broom", 100_000, 0.5, 9999, MAXX, 500, 20_000)
+big("longchains", 100_000, 0.6, 9999, MAXX, 200, 5_000)
+big("path", 100_000, 0.4, 9999, MAXX, 1_000, 1_000)         # many questions on huge teams
+big("star", 100_000, 0.1, 9999, 9999, 1, None, n=20_000)
+big("path", 100_000, 0.3, 9999, MAXX, 50_000, 50_000)
+big("caterpillar", 100_000, 0.6, MAXA, MAXX, 100, 2_000, xlo=MAXX // 2)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

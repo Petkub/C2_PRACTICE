@@ -1,85 +1,77 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30109)
+random.seed(30111)
 MAXN = 200_000
-MAXT = 10**9
 tests = []
 
 
-def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
-    return lo + int(random.random() * (hi - lo + 1))
-
-
-def add(lec):
-    n = len(lec)
+def add(a):
+    n = len(a)
     assert 1 <= n <= MAXN
-    assert all(0 <= s < e <= MAXT for s, e in lec)
-    tests.append(f"{n}\n" + "".join(f"{s} {e}\n" for s, e in lec))
+    assert sorted(a) == list(range(1, n + 1))
+    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
 
 
-def rnd(n, tmax, lenmax):
+def perm(n):
+    a = list(range(1, n + 1))
+    random.shuffle(a)
+    return a
+
+
+def merge_runs(runs):
+    """interleave the given increasing lists at random, keeping each list in order"""
+    idx = [k for k, r in enumerate(runs) for _ in r]
+    random.shuffle(idx)
+    ptr = [0] * len(runs)
     res = []
-    for _ in range(n):
-        s = ri(0, tmax - 1)
-        res.append((s, min(tmax, s + ri(1, lenmax))))
+    for k in idx:
+        res.append(runs[k][ptr[k]])
+        ptr[k] += 1
     return res
 
 
-def adv(n, h):
-    """h long lectures that end late, then n - h short ones in a row while all long ones still run"""
-    lec = [(ri(0, h), ri(MAXT // 2, MAXT)) for _ in range(h)]
-    step = (MAXT // 2 - h - 10) // (n - h)
-    lec += [(h + 1 + k * step, h + 1 + k * step + ri(1, step)) for k in range(n - h)]
-    random.shuffle(lec)
-    return lec
-
-
 # samples
-add([(1, 4), (2, 5), (4, 7), (5, 6)])
-add([(1, 5), (1, 3), (2, 4), (6, 8)])
-add([(0, 1000000000)])
-add([(3, 9), (1, 2), (3, 4), (0, 3), (2, 6)])
-add([(7, 9), (1, 3), (5, 7), (3, 5)])
-add([(2, 8), (0, 4), (6, 7), (1, 3), (3, 6), (0, 2), (4, 10)])
-# hidden: small
-add([(5, 6), (5, 6)])
-for n, tmax, ln in ((6, 10, 4), (8, 15, 6), (10, 20, 5), (12, 12, 12), (40, 50, 10), (300, 1000, 100)):
-    add(rnd(n, tmax, ln))
-add([(i, i + 1) for i in range(30)][::-1])                       # touching only: one room
-add(rnd(12000, MAXT, MAXT // 20))
+add([3, 1, 4, 2, 5])
+add([4, 1, 2, 3])
+add([1, 2, 3, 4, 5, 6])
+add([1])
+add([5, 4, 3, 2, 1])
+add([2, 6, 3, 7, 1, 4, 8, 5])
+# hidden: small (checked by BFS over all piles)
+add([2, 1])
+add([2, 3, 1])
+add([3, 4, 1, 2])
+add([1, 5, 2, 6, 3, 7, 4, 8])
+add([6, 1, 7, 2, 8, 3, 9, 4, 5])
+add([9, 8, 7, 6, 5, 4, 3, 2, 1])
+for n in (6, 7, 8, 9, 9):
+    add(perm(n))
+add(perm(3000))
 # hidden: large
-N = 150_000                                                     # 10-digit times: about 3 MB
-add(rnd(N, MAXT, MAXT))                                         # tens of thousands of rooms
-add(adv(N, N // 2))
-add([(0, MAXT)] * MAXN)                                         # every lecture at once
-add([(i, 2 * MAXN - i) for i in range(MAXN)][::-1])                   # nested
-add([(3 * i, 3 * i + 3) for i in range(MAXN)])                   # back to back
-h = MAXN // 2                                                   # many long lectures, then short ones that
-add([(0, MAXT)] * h + [(2 * i + 1, 2 * i + 2) for i in range(MAXN - h)])   # all need the room after them
-h = N // 2
-lec = [(0, MAXT - i) for i in range(h)]                         # rooms become free one by one from the top
-lec += [(MAXT - h + 2 * i, MAXT - h + 2 * i + 1) for i in range(1, (N - h) // 2)]
-add(lec[:N])
-add(rnd(N, MAXT, 5000))                                         # few rooms
-add(rnd(MAXN, 10**6, 10**4))                                      # thousands of rooms, many equal times
-add(rnd(MAXN, 1000, 1000))                                       # many equal start times (index order)
-lec = []
-for i in range(MAXN // 2):                                      # pairs [a, b), [b, c): touching does not clash
-    a = 4 * i
-    lec += [(a, a + 2), (a + 2, a + 4)]
-random.shuffle(lec)
-add(lec)
-lec = rnd(N // 2, MAXT // 2, MAXT // 2) + [(MAXT // 2 + ri(0, 1000), MAXT) for _ in range(N // 2)]
-random.shuffle(lec)
-add(lec)                                                        # every room frees, then the smallest numbers reuse
-add(adv(N, N // 3))
-h = MAXN // 3                                                   # like adv() with small times, at full size
-lec = [(ri(0, h), 10**6 + ri(0, 10**6)) for _ in range(h)]
-lec += [(h + 1 + 2 * k, h + 2 + 2 * k + ri(0, 1)) for k in range(MAXN - h)]
-random.shuffle(lec)
-add(lec)
+N = MAXN
+add(list(range(1, N + 1)))                                       # already sorted
+add(list(range(N, 0, -1)))
+add(list(range(70_001, N + 1)) + list(range(1, 70_001)))         # two blocks swapped
+add(merge_runs([list(range(1, 50_001)), list(range(50_001, 160_001)), list(range(160_001, N + 1))]))
+add([x for k in range(N // 2) for x in (k + 1, N // 2 + k + 1)])  # 1, N/2+1, 2, N/2+2, ...
+a = list(range(1, N + 1))
+for _ in range(3):                                               # a few random swaps
+    i, j = random.randrange(N), random.randrange(N)
+    a[i], a[j] = a[j], a[i]
+add(a)
+mid = list(range(60_001, 150_001))                               # the best run is in the middle of the values
+others = [x for x in range(1, N + 1) if not 60_001 <= x <= 150_000]
+random.shuffle(others)
+add(merge_runs([mid] + [[x] for x in others]))
+add(merge_runs([list(range(1, 90_001)), list(range(90_001, N + 1))]))
+add(perm(N))
+a = list(range(1, N + 1))
+a[0], a[-1] = a[-1], a[0]                                        # N on top, 1 at the bottom
+add(a)
+a = list(range(2, N + 1)) + [1]
+add(a)
+add(merge_runs([list(range(k, min(N + 1, k + 66_667))) for k in range(1, N + 1, 66_667)]))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

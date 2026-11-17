@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(40110)
-MAXN, MAXQ, MAXX, MAXP, MAXC = 80_000, 80_000, 10**9, 10**5, 10**10
+random.seed(40108)
+MAXN, MAXC = 3000, 10**9
 tests = []
 
 
@@ -10,105 +10,91 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(groups, qs):
-    n, q = len(groups), len(qs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= s < e <= MAXX and 1 <= p <= MAXP for (s, e, p) in groups)
-    assert all(1 <= c <= MAXC for c in qs)
-    tests.append(f"{n} {q}\n" + "".join(f"{s} {e} {p}\n" for (s, e, p) in groups)
-                 + " ".join(map(str, qs)) + "\n")
+def add(rs):
+    n = len(rs)
+    assert 1 <= n <= MAXN
+    for (x1, y1, x2, y2) in rs:
+        assert 0 <= x1 < x2 <= MAXC and 0 <= y1 < y2 <= MAXC
+    tests.append(f"{n}\n" + "".join(f"{a} {b} {c} {d}\n" for (a, b, c, d) in rs))
 
 
-def loads(groups):
-    """the load right after boarding at every position where somebody boards"""
-    ev = sorted([(s, p) for (s, e, p) in groups] + [(e, -p) for (s, e, p) in groups])
-    res, cur, i = [], 0, 0
-    while i < len(ev):
-        j = i
-        while j < len(ev) and ev[j][0] == ev[i][0]:
-            cur += ev[j][1]
-            j += 1
-        res.append(cur)
-        i = j
-    return res
+def rnd_rect(lo, hi, minside=1):
+    x1 = ri(lo, hi - minside)
+    x2 = ri(x1 + minside, hi)
+    y1 = ri(lo, hi - minside)
+    y2 = ri(y1 + minside, hi)
+    return (x1, y1, x2, y2)
 
 
-def near(groups, q, spread=0.15):
-    """capacities close to the largest load (answers late in the trip, or OK)"""
-    m = max(loads(groups))
-    lo, hi = max(1, int(m * (1 - spread))), min(MAXC, int(m * (1 + spread / 3)) + 1)
-    return [ri(lo, hi) for _ in range(q)]
-
-
-def exact(groups, q):
-    """capacities equal to a load or one less (the boundary of 'more than C')"""
-    ls = loads(groups)
-    return [max(1, random.choice(ls) - ri(0, 1)) for _ in range(q)]
-
-
-def rnd_group(lo, hi, maxp):
-    s = ri(lo, hi - 1)
-    return (s, ri(s + 1, hi), ri(1, maxp))
+def big_rect():
+    """a carpet that spans most of the hall (the worst case for marking cells)"""
+    return (ri(0, MAXC // 3), ri(0, MAXC // 3), ri(2 * MAXC // 3, MAXC), ri(2 * MAXC // 3, MAXC))
 
 
 # samples
-add([(2, 5, 3), (4, 8, 2), (5, 9, 4)], [4, 5, 6, 2])
-add([(1, 3, 5), (3, 6, 5)], [5, 4])
-add([(10, 20, 7)], [7, 6, 1])
-add([(1, 100, 1), (50, 60, 2), (60, 70, 2), (2, 3, 1), (60, 61, 1)], [2, 3, 1, 4])
-add([(5, 6, 100000), (1, 10, 100000), (3, 6, 100000)], [100000, 200000, 299999, 300000, 10000000000])
+add([(0, 0, 4, 3), (2, 1, 6, 5)])
+add([(0, 0, 10, 10), (2, 2, 5, 5), (10, 0, 12, 1)])
+add([(0, 0, MAXC, MAXC)])
+add([(1, 0, 3, 6), (0, 2, 4, 4), (1, 0, 3, 6)])
+add([(0, 0, 2, 2), (5, 5, 7, 6), (2, 2, 3, 3), (6, 0, 9, 1)])
 # hidden: small
-add([(1, 2, 1)], [1])
-add([(i, i + 1, 9) for i in range(1, 30)], [9, 8, 10])          # people leave exactly where others board
-g = [rnd_group(1, 20, 5) for _ in range(10)]
-add(g, exact(g, 10))
-g = [rnd_group(1, 100, 100) for _ in range(50)]
-add(g, exact(g, 25) + near(g, 25))
-g = [rnd_group(1, 1000, MAXP) for _ in range(500)]
-add(g, exact(g, 300) + [ri(1, MAXC) for _ in range(200)])
-g = [rnd_group(1, MAXX, MAXP) for _ in range(3000)]
-add(g, exact(g, 1500) + near(g, 1500))
-g = []
-for i in range(5000):                                           # many shared stops
-    s = ri(1, 300)
-    g.append((s, s + ri(1, 5), ri(1, 1000)))
-add(g, exact(g, 5000))
+add([(3, 4, 5, 9)])
+add([(0, 0, 1, 1), (1, 0, 2, 1), (0, 1, 1, 2), (1, 1, 2, 2)])          # four touching unit squares
+add([rnd_rect(0, 10) for _ in range(8)])
+add([rnd_rect(0, 20) for _ in range(30)])
+add([rnd_rect(0, 100) for _ in range(120)])
+add([rnd_rect(0, MAXC) for _ in range(200)])
+add([(i, i, 1000 - i, 1000 - i) for i in range(0, 500, 3)])             # nested squares
 # hidden: maximum size
-N, Q = MAXN, MAXQ
-g = [(ri(1, MAXX - 1), MAXX, ri(1, MAXP)) for _ in range(N)]   # everybody rides to the end: load grows
-add(g, near(g, Q))
-g = [(ri(1, MAXX - 1), MAXX, MAXP) for _ in range(N)]          # load up to 10^10
-add(g, near(g, Q, 0.05))
-g = [rnd_group(1, MAXX, MAXP) for _ in range(N)]
-add(g, near(g, Q // 2) + exact(g, Q // 2))
-g = [rnd_group(1, MAXX, MAXP) for _ in range(N)]
-m = max(loads(g))
-add(g, [ri(1, m + 10) for _ in range(Q)])
-g = [(1, MAXX, MAXP)] * N                                      # one stop, 10^10 people
-add(g, [MAXC - ri(0, 1) for _ in range(Q)])
-g = []
-x = 1
-for i in range(N):                                             # chain: leave where the next boards
-    d = ri(1, 9000)
-    g.append((x, x + d, MAXP - ri(0, 3)))
-    x += d
-add(g, [ri(MAXP - 4, MAXP + 1) for _ in range(Q)])
-g = [(ri(1, MAXX - 1), MAXX, ri(1, MAXP)) for _ in range(N)]
-add(g, [MAXC] * Q)                                             # nobody ever exceeds: all OK
-g = []
-for i in range(N):                                             # load grows slowly with many shared stops
-    s = ri(1, 50_000)
-    g.append((s, ri(s + 1, s + 3) if i % 3 == 0 else MAXX, ri(1, MAXP)))
-add(g, near(g, Q, 0.1))
-g = [(1, ri(2, MAXX), ri(1, MAXP)) for _ in range(N)]          # everybody boards at the start
-add(g, exact(g, Q))
-g = []
-for i in range(N):                                             # a rising staircase of short trips
-    s = ri(1, MAXX - 10**7)
-    g.append((s, s + ri(1, 10**7), 1 + s // 10**4))
-add(g, near(g, Q, 0.3))
-g = [(ri(1, MAXX - 1), MAXX, ri(1, MAXP)) for _ in range(N)]
-add(g, near(g, Q // 2, 0.02) + exact(g, Q // 2))
+add([rnd_rect(0, MAXC) for _ in range(MAXN)])
+add([big_rect() for _ in range(MAXN)])
+add([big_rect() for _ in range(MAXN)])
+add([(0, 0, MAXC, MAXC)] * MAXN)                                         # all identical, area 10^18
+h = [(0, ri(0, MAXC - 10**5), MAXC, 0) for _ in range(MAXN // 2)]       # horizontal and vertical strips
+h = [(0, y, MAXC, y + ri(1, 10**5)) for (_, y, _, _) in h]
+v = [(x, 0, x + ri(1, 10**5), MAXC) for x in (ri(0, MAXC - 10**5) for _ in range(MAXN // 2))]
+s = h + v
+random.shuffle(s)
+add(s)
+s = [(ri(0, 5 * 10**8), 0, 0, MAXC) for _ in range(MAXN)]               # wide strips, heavy overlaps
+s = [(x, ri(0, 4 * 10**8), x + ri(10**8, 5 * 10**8), 0) for (x, _, _, _) in s]
+s = [(a, b, c, b + ri(10**8, 6 * 10**8)) for (a, b, c, _) in s]
+add(s)
+s = [(i * 150_000, i * 150_000, MAXC - i * 150_000, MAXC - i * 150_000) for i in range(MAXN)]
+random.shuffle(s)
+add(s)                                                                   # nested: the answer is the outer one
+s = []
+for i in range(MAXN):                                                    # staircase of overlapping squares
+    x = i * 250_000
+    s.append((x, x, x + 2 * 10**8, x + 2 * 10**8))
+add(s)
+add([rnd_rect(0, 1000) for _ in range(MAXN)])                            # many equal coordinates
+add([rnd_rect(0, MAXC, 4 * 10**8) for _ in range(MAXN)])
+s = [(ri(0, MAXC - 1), ri(0, MAXC - 1)) for _ in range(MAXN)]           # tiny disjoint-ish squares
+add([(x, y, x + 1, y + 1) for (x, y) in s])
+add([big_rect() for _ in range(MAXN - 1)] + [(0, 0, MAXC, MAXC)])
+s = []                                                                   # wide and tall carpets crossing
+for i in range(MAXN):
+    a, b = ri(0, MAXC // 10), ri(9 * MAXC // 10, MAXC)
+    c = ri(0, MAXC // 2)
+    d = c + ri(MAXC // 3, MAXC // 2)
+    s.append((a, c, b, d) if i % 2 else (c, a, d, b))
+add(s)
+add([big_rect() for _ in range(MAXN // 2)] + [rnd_rect(0, MAXC) for _ in range(MAXN // 2)])
+# more maximum tests where marking every compressed cell is expensive
+s = [(i * 100_000 + ri(0, 50_000), i * 120_000 + ri(0, 50_000), 0, 0) for i in range(MAXN)]
+s = [(a, b, MAXC - (a // 2) - ri(0, 1000), MAXC - (b // 3) - ri(0, 1000)) for (a, b, _, _) in s]
+random.shuffle(s)
+add(s)                                                                   # nearly nested, every side distinct
+add([rnd_rect(0, MAXC, 6 * 10**8) for _ in range(MAXN)])
+s = []                                                                   # crossing bands, all edges distinct
+for i in range(MAXN):
+    a, b = ri(0, MAXC // 5), ri(4 * MAXC // 5, MAXC)
+    c = ri(0, 2 * MAXC // 5)
+    d = c + ri(MAXC // 2, 3 * MAXC // 5)
+    s.append((a, c, b, d) if i % 2 else (c, a, d, b))
+add(s)
+add([(ri(0, MAXC // 2), ri(0, MAXC // 2), ri(MAXC // 2 + 1, MAXC), ri(MAXC // 2 + 1, MAXC)) for _ in range(MAXN)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

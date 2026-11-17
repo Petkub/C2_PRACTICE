@@ -80,18 +80,26 @@ for n, m in ((6, 8), (8, 12), (10, 9), (12, 25)):
 add(2000, relabel(2000, blocks(2000, 5000, lambda: ri(1, 4))))
 add(3000, rand_graph(3000, 3300))
 add(1500, relabel(1500, [(i, i + 1) for i in range(1, 1500)] + [(1500, 1)]))
-# hidden: maximum size
+# hidden: maximum size (every one has many groups; most also have a group of more than 46 000 users)
 N = MAXN
+
+
+def sizes_list(lst):
+    """a sizes_fn that hands out the sizes of lst in order, then 1 forever"""
+    it = iter(lst)
+    return lambda: next(it, 1)
+
+
 add(N, relabel(N, blocks(N, MAXM, lambda: 1)))                              # a DAG: every user alone
 add(N, relabel(N, [(i, i + 1) for i in range(1, N)]))                       # one long chain
-add(N, relabel(N, [(i, i + 1) for i in range(1, N)] + [(N, 1)]))            # one long cycle: N(N-1)/2 pairs
+add(N, relabel(N, [(i, i + 1) for i in range(1, N)] + [(N, N // 2 + 1)]))   # a chain into a cycle of N/2
 add(N, relabel(N, blocks(N, MAXM, lambda: 2)))                              # pairs chained one after another
-add(N, relabel(N, blocks(N, MAXM, lambda: ri(1, 5))))
-add(N, relabel(N, blocks(N, MAXM, lambda: ri(1, 1000))))
-add(N, relabel(N, blocks(N, MAXM, lambda: 50_000)))
+add(N, relabel(N, blocks(N, MAXM, sizes_list([ri(1, 5) for _ in range(20_000)] + [80_000]))))
+add(N, relabel(N, blocks(N, MAXM, sizes_list([70_000]))))                   # one big group, then users alone
+add(N, relabel(N, blocks(N, MAXM, sizes_list([60_000, 1, 2, 3, 60_000]))))  # two big groups and many alone
 add(N, rand_graph(N, MAXM))                                                  # random: one big group + singles
-add(N, relabel(N, [(1, i) for i in range(2, N + 1)]))                       # a star, all alone
-add(N - 1, relabel(N - 1, [(i, i + 1) for i in range(1, N - 1)] + [(i + 1, i) for i in range(1, 2)]))
+add(N, relabel(N, [(1, i) for i in range(2, 133_335)] + [(i, 1) for i in range(2, 66_668)]))  # star, half back
+add(N - 1, relabel(N - 1, [(i, i + 1) for i in range(1, N - 1)] + [(130_000, 60_000)]))  # chain with a back edge
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

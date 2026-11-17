@@ -44,14 +44,15 @@ def short_rng(n, d):
     return l, min(n, l + ri(0, d))
 
 
-def ops_of(n, q, ps, pb, upd, ask, setx, addx):
-    """each operation: a set on upd() to setx() with probability ps, an add of addx() with probability pb,
-    otherwise a question on ask()"""
+def ops_of(n, q, ps, pb, upd, ask, setx, addx, supd=None):
+    """each operation: a set on supd() (default upd()) to setx() with probability ps, an add of addx() on upd()
+    with probability pb, otherwise a question on ask()"""
+    supd = supd or upd
     ops = []
     for _ in range(q):
         r = random.random()
         if r < ps:
-            ops.append(('S',) + upd() + (setx(),))
+            ops.append(('S',) + supd() + (setx(),))
         elif r < ps + pb:
             ops.append(('B',) + upd() + (addx(),))
         else:
@@ -107,16 +108,25 @@ add(400, nested(400, 4000, 30))
 add(3000, nested(3000, 4000, 200))
 # hidden: maximum size
 N, Q = MAXN, MAXQ
-add(N, ops_of(N, Q, 0.3, 0.3, lambda: any_rng(N), lambda: any_rng(N), sety, anyx))
-add(N, ops_of(N, Q, 0.1, 0.6, lambda: long_rng(N, 1000), lambda: long_rng(N, 1000), sety, lambda: MAXX))   # largest totals
+add(N, ops_of(N, Q, 0.3, 0.3, lambda: any_rng(N), lambda: any_rng(N), sety, anyx,
+              lambda: short_rng(N, 1000)))     # sets on short ranges: long runs of adds
+add(N, ops_of(N, Q, 0.1, 0.6, lambda: long_rng(N, 1000), lambda: long_rng(N, 1000), sety, lambda: MAXX,
+              lambda: short_rng(N, 1000)))     # largest totals
 add(N, ops_of(N, Q, 0.35, 0.35, lambda: long_rng(N, N // 3), lambda: short_rng(N, 1000), sety, anyx))
-add(N, nested(N, Q, 50_000))
+add(N, nested(N, Q, 150_000))
 add(N, nested(N, Q, 300, far=True))
 add(N, ops_of(N, Q, 0.3, 0.4, lambda: short_rng(N, 3000), lambda: long_rng(N, 100), sety, anyx))
 add(N, ops_of(N, Q, 0.25, 0.25, lambda: (1, N), lambda: any_rng(N), sety, anyx))
 add(N, ops_of(N, Q, 0.4, 0.4, lambda: long_rng(N, 200_000), lambda: long_rng(N, 5), lambda: 0, anyx))
 add(N, ops_of(N, Q, 0.3, 0.4, lambda: any_rng(N), lambda: short_rng(N, 20), sety, anyx))
-add(N, ops_of(N, Q, 0.02, 0.7, lambda: any_rng(N), lambda: any_rng(N), sety, lambda: MAXX))
+add(N, ops_of(N, Q, 0.05, 0.7, lambda: any_rng(N), lambda: any_rng(N), sety, lambda: MAXX,
+              lambda: short_rng(N, 100)))
+add(N, ops_of(N, Q, 0.2, 0.5, lambda: (1, N), lambda: short_rng(N, 20), sety, anyx,
+              lambda: short_rng(N, 0)))       # one-member sets, adds to everyone
+add(N, ops_of(N, Q, 0.0002, 0.7, lambda: long_rng(N, 10), lambda: any_rng(N), lambda: MAXX, lambda: MAXX,
+              lambda: (1, N)))                # rare sets of everyone, then thousands of adds on top
+add(N, ops_of(N, Q, 0.3, 0.4, lambda: long_rng(N, N // 3), lambda: long_rng(N, 100), sety, anyx,
+              lambda: short_rng(N, 10)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

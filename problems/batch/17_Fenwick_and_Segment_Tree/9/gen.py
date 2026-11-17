@@ -1,75 +1,110 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(110009)
-MAXN, MAXQ, MAXV = 300_000, 200_000, 10**9
+random.seed(170109)
+MAXN, MAXT, MAXX, MAXP = 200_000, 10**9, 10**9, 10**9
 tests = []
 
 
+_rnd = random.random
+
+
 def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+    return lo + int(_rnd() * (hi - lo + 1))
 
 
-def add(a, qs):
-    n, q = len(a), len(qs)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(1 <= v <= MAXV for v in a)
-    assert all(1 <= l <= r <= n for (l, r) in qs)
-    t = f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{l} {r}\n" for (l, r) in qs)
-    assert len(t) <= 3_100_000
-    tests.append(t)
+def add(ev):
+    n = len(ev)
+    assert 1 <= n <= MAXN
+    ts, xs, ps = zip(*ev)
+    assert 0 <= min(ts) and max(ts) <= MAXT and -MAXX <= min(xs) and max(xs) <= MAXX
+    assert 1 <= min(ps) and max(ps) <= MAXP
+    tests.append(f"{n}\n" + "\n".join(f"{t} {x} {p}" for t, x, p in ev) + "\n")
 
 
-def queries(n, q, long_frac=0.9):
-    res = []
-    for _ in range(q):
-        if random.random() < long_frac:
-            l = ri(1, max(1, n // 20))
-            res.append((l, ri(max(l, n - n // 20), n)))
+def cone(n, tmax, pmax, out=0.0):
+    """events inside the reachable cone |x| <= t, a share `out` outside it"""
+    ev = []
+    for _ in range(n):
+        t = ri(0, tmax)
+        if random.random() < out:
+            x = random.choice((1, -1)) * ri(t + 1, min(MAXX, t + 1 + tmax // 10 + 5))
         else:
-            l = ri(1, n)
-            res.append((l, ri(l, n)))
-    return res
+            x = ri(-t, t)
+        ev.append((t, x, ri(1, pmax)))
+    return ev
+
+
+def diagonals(n, tmax, pmax, step):
+    """events on lines of full speed: x = t - c or x = c - t (equal t - x or equal t + x)"""
+    ev = []
+    while len(ev) < n:
+        c = ri(0, tmax // 2)
+        sgn = random.choice((1, -1))
+        t = c + ri(0, step)
+        for _ in range(ri(2, 30)):
+            if t > tmax:
+                break
+            x = sgn * (t - c)
+            ev.append((t, x, ri(1, pmax)))
+            t += ri(0, step)
+    ev = ev[:n]
+    random.shuffle(ev)
+    return ev
+
+
+def walk(n, pmax, dtmax, slack):
+    """one long feasible route (a random walk at speed <= 1) plus noise events near it"""
+    ev, t, x = [], 0, 0
+    while len(ev) < n:
+        dt = ri(0, dtmax)
+        t += dt
+        x += ri(-dt, dt)
+        ev.append((t, x, ri(1, pmax)))
+        if random.random() < 0.5:
+            ev.append((t + ri(0, slack), x + ri(-slack, slack), ri(1, pmax)))
+    ev = [(t, x, p) for t, x, p in ev[:n] if abs(x) <= MAXX and t <= MAXT]
+    random.shuffle(ev)
+    return ev
 
 
 # samples
-add([1, 2, 1, 3, 2, 2], [(1, 3), (2, 5), (6, 6), (1, 6)])
-add([5, 5, 5, 5], [(1, 4), (2, 3)])
-add([42], [(1, 1)])
-add([9, 30, 9, 70000, 30], [(1, 5), (2, 3), (3, 4), (1, 2)])
-add([4, 1, 4, 4, 2, 1, 3, 2], [(1, 8), (3, 4), (2, 6), (5, 8), (4, 7)])
-# hidden: small
-add([ri(1, 3) for _ in range(10)], [(l, r) for l in range(1, 11) for r in range(l, 11)])
-add([ri(1, 20) for _ in range(100)], queries(100, 300, 0.3))
-add(list(range(1, 501)), queries(500, 500, 0.3))                       # all different
-add([MAXV] * 1000, queries(1000, 1000, 0.3))                            # all equal
-add([ri(1, MAXV) if random.random() < 0.5 else ri(1, 50) for _ in range(5000)], queries(5000, 5000, 0.4))
-add([ri(1, 2000) for _ in range(20000)], queries(20000, 10000, 0.3))
-add([(i % 37) + 1 for i in range(10000)], queries(10000, 10000, 0.3))  # periodic
-# hidden: maximum size
-N = MAXN
-add([ri(1, 9999) for _ in range(N)], queries(N, 100_000))
-add([ri(1, 10) for _ in range(N)], queries(N, 160_000, 0.8))
-add([ri(1, 999) for _ in range(N)], queries(N, 100_000))
-p = list(range(1, N + 1))
-random.shuffle(p)
-add(p, queries(N, 50_000))                                              # all different
-add([1] * N, queries(N, 120_000))                                       # all equal
-add([(i % 5000) + 1 for i in range(N)], queries(N, 100_000))           # periodic
-a = [ri(1, 9999) for _ in range(N // 2)]
-add(a + a[::-1], queries(N, 100_000))                                   # mirrored halves
-pool = [ri(1, MAXV) for _ in range(1000)]
-add([random.choice(pool) for _ in range(200_000)], queries(200_000, 60_000))   # big values
-add([ri(MAXV - 10**5, MAXV) for _ in range(200_000)], queries(200_000, 60_000))
-a = []
-while len(a) < N:                                                       # long runs of one value
-    v, k = ri(1, 9999), ri(1, 100)
-    a.extend([v] * k)
-add(a[:N], queries(N, 100_000))
-add([ri(1, 9999) for _ in range(N)], [(1, N)] * 20_000 + queries(N, 50_000, 0.0))
-# the most queries on (almost) the whole street: short numbers keep the file under 3 MB
-add([ri(1, 99) for _ in range(N)], [(ri(1, 99), ri(N - 99, N)) for _ in range(MAXQ)])
-add([(i * 7919) % 300 + 1 for i in range(N)], [(ri(1, 99), ri(N - 99, N)) for _ in range(MAXQ)])
+add([(2, 1, 5), (3, -1, 4), (4, 2, 3), (5, 0, 6), (1, 3, 100)])
+add([(3, 2, 4), (3, 2, 1), (3, -2, 6), (5, 0, 2)])
+add([(1, 5, 7)])
+add([(MAXT, MAXX, 1000), (MAXT, -MAXX, 999), (0, 0, 1)])
+add([(4, -2, 3), (1, 1, 2), (6, 1, 4), (2, 0, 5), (6, -1, 4), (3, 3, 9)])
+# hidden: small (the brute force checks these)
+add([(0, 0, 5)])
+add([(0, 1, 5), (0, 0, 2), (0, 0, 3)])
+for n, tmax, pmax, out in ((8, 5, 10, 0.2), (40, 10, 10, 0.1), (200, 30, 100, 0.1), (500, 1000, MAXP, 0.1),
+                           (800, 50, MAXP, 0.05)):
+    add(cone(n, tmax, pmax, out))
+add(diagonals(600, 200, MAXP, 3))
+add(walk(700, 50, 5, 3))
+ev = [(ri(0, 10), 0, ri(1, 9)) for _ in range(300)]        # many events at the same places
+ev += [(t, random.choice((-1, 1)) * t, ri(1, 9)) for t in range(0, 11) for _ in range(20)]
+random.shuffle(ev)
+add(ev)
+# hidden: maximum size (inputs kept near 3 MB: small numbers when N is large)
+add(cone(MAXN, 200_000, 9))
+add(cone(MAXN, 100_000, 9, out=0.3))
+add(diagonals(MAXN, 100_000, 9, 3))
+add(diagonals(130_000, 10_000, MAXP, 1))
+add(walk(MAXN, 9, 3, 2))
+n = 120_000                                                 # large points: totals near 10^14
+add(cone(n, 50_000, MAXP))
+add([(t, x, MAXP) for t, x, _ in walk(120_000, 1, 2, 1)])
+ev = []                                                     # many events at the same time, few places
+for t in range(0, 4000, 2):
+    for _ in range(90):
+        ev.append((t, ri(-min(t, 20), min(t, 20)), ri(1, 9)))
+add(ev[:MAXN])
+add(cone(130_000, MAXT, 9, out=0.2))                         # wide coordinates: few pairs can follow each other
+add(diagonals(MAXN, 60_000, 9, 2))
+add(cone(190_000, 150_000, 99, out=0.05))
+# hidden: a medium test
+add(cone(20_000, 20_000, MAXP, out=0.1))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

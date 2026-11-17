@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(8005)
-MAXR = MAXC = 1000
+random.seed(8004)
+MAXN, MAXM, MAXC = 3000, 6000, 10**9
 tests = []
 
 
@@ -11,134 +11,93 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(rows):
-    r, c = len(rows), len(rows[0])
-    assert 1 <= r <= MAXR and 1 <= c <= MAXC
-    assert all(len(x) == c and all(ch in "0123456789#" for ch in x) for x in rows)
-    assert rows[0][0] != "#" and rows[-1][-1] != "#"
-    tests.append(f"{r} {c}\n" + "".join(x + "\n" for x in rows))
+def add(n, roads):
+    m = len(roads)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n and -MAXC <= c <= MAXC for a, b, c in roads)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in roads))
 
 
-def digit(lo, hi):
-    return chr(48 + ri(lo, hi))
+def relabel(n, roads, keep_order=False):
+    """random numbers for towns 2..n (town 1 stays), random order of roads"""
+    p = list(range(2, n + 1))
+    random.shuffle(p)
+    p = [0, 1] + p
+    res = [(p[a], p[b], c) for a, b, c in roads]
+    if not keep_order:
+        random.shuffle(res)
+    return res
 
 
-def rnd(r, c, lo, hi, wall=0.0):
-    pop = [chr(48 + d) for d in range(lo, hi + 1)] + ["#"]
-    wt = [(1 - wall) / (hi - lo + 1)] * (hi - lo + 1) + [wall]
-    g = ["".join(random.choices(pop, wt, k=c)) for _ in range(r)]
-    g[0] = digit(lo, hi) + g[0][1:]
-    g[-1] = g[-1][:-1] + digit(lo, hi)
-    return g
+def potential_roads(n, m, lo, hi, spread, h=None):
+    """roads with cost = base + h[b] - h[a] where base in [lo, hi] >= 0: no negative cycle, many negative roads"""
+    if h is None:
+        h = [0] + [ri(-spread, spread) for _ in range(n)]
+    res = []
+    while len(res) < m:
+        a, b = ri(1, n), ri(1, n)
+        c = ri(lo, hi) + h[b] - h[a]
+        if -MAXC <= c <= MAXC:
+            res.append((a, b, c))
+    return res
 
 
-def maze(r, c, lo, hi, wallch="#", wlo=0, whi=9):
-    """recursive backtracker maze; r and c odd; passages get digits lo..hi, walls get wallch or digits wlo..whi"""
-    h, w = r // 2 + 1, c // 2 + 1
-    seen = bytearray(h * w)
-    passage = bytearray(r * c)
-    seen[0] = passage[0] = 1
-    stack = [0]
-    rand = random.random
-    while stack:
-        x = stack[-1]
-        i, j = divmod(x, w)
-        nb = []
-        if i + 1 < h and not seen[x + w]:
-            nb.append(x + w)
-        if i > 0 and not seen[x - w]:
-            nb.append(x - w)
-        if j + 1 < w and not seen[x + 1]:
-            nb.append(x + 1)
-        if j > 0 and not seen[x - 1]:
-            nb.append(x - 1)
-        if not nb:
-            stack.pop()
-            continue
-        y = nb[int(rand() * len(nb))]
-        a, b = divmod(y, w)
-        seen[y] = 1
-        passage[2 * a * c + 2 * b] = 1
-        passage[(i + a) * c + (j + b)] = 1
-        stack.append(y)
-    pd = random.choices([chr(48 + d) for d in range(lo, hi + 1)], k=r * c)
-    wd = ["#"] * (r * c) if wallch == "#" else random.choices([chr(48 + d) for d in range(wlo, whi + 1)], k=r * c)
-    cells = [pd[k] if passage[k] else wd[k] for k in range(r * c)]
-    return ["".join(cells[i * c:(i + 1) * c]) for i in range(r)]
-
-
-def serpentine(r, c, lo, hi):
-    """walls on every other row with one gap at alternating ends"""
-    g = []
-    for i in range(r):
-        if i % 2 == 0:
-            g.append("".join(random.choices([chr(48 + d) for d in range(lo, hi + 1)], k=c)))
-        else:
-            gap = c - 1 if i % 4 == 1 else 0
-            g.append("".join(digit(lo, hi) if j == gap else "#" for j in range(c)))
-    return g
-
-
-def diagonal(r, c, lo, hi):
-    """staircase corridors along anti-diagonals (i + j) mod 4 in {0, 1}, joined at alternating ends"""
-    assert (r + c - 2) % 4 in (0, 1)
-    digits = [chr(48 + d) for d in range(lo, hi + 1)]
-    g = []
-    for i in range(r):
-        row = random.choices(digits, k=c)
-        for j in range(c):
-            if (i + j) % 4 >= 2:
-                row[j] = "#"
-        g.append(row)
-    for s in range(2, r + c - 1):
-        if s % 4 < 2:
-            continue
-        t = s // 4
-        i = max(0, s - (c - 1)) if t % 2 == 0 else min(r - 1, s)
-        g[i][s - i] = random.choice(digits)
-    return ["".join(x) for x in g]
-
-
-def transpose(g):
-    return ["".join(g[i][j] for i in range(len(g))) for j in range(len(g[0]))]
+def dag_roads(n, m, lo, hi):
+    """roads only from a smaller to a larger index (no cycle at all), any signs"""
+    res = [(i, i + 1, ri(lo, hi)) for i in range(1, n)]
+    while len(res) < m:
+        a, b = ri(1, n), ri(1, n)
+        if a < b:
+            res.append((a, b, ri(lo, hi)))
+    return res
 
 
 # samples
-add(["19111", "19191", "11191"])
-add(["5#1", "3#4"])
-add(["1111", "###1", "1111", "1###", "1111"])
-add(["7"])
-add(["000", "000"])
-add(["2#315", "41190", "3#2#6", "12843"])
+add(5, [(1, 2, 4), (1, 3, 2), (3, 2, -3), (2, 4, 5), (5, 4, -10)])
+add(4, [(1, 2, 1), (2, 3, -4), (3, 2, 2), (3, 4, 1)])
+add(4, [(1, 2, 3), (3, 4, -5), (4, 3, 1), (2, 1, -1)])
+add(3, [(1, 2, -2), (2, 3, 5), (3, 1, -3)])
+add(3, [(1, 2, 7), (2, 2, -1), (2, 3, 1)])
+add(2, [(1, 1, 0), (1, 2, -MAXC), (1, 2, MAXC)])
 # hidden: small
-add(["9" * 20])
-add(["3"] * 25)
-add(rnd(5, 5, 0, 9, 0.3))
-add(rnd(10, 12, 1, 9, 0.25))
-add(maze(15, 21, 1, 9))
-add(serpentine(17, 9, 0, 9))
-add(maze(41, 41, 0, 9, "0", 5, 9))
-add(diagonal(30, 28, 1, 9))
-add(rnd(60, 60, 1, 9, 0.35))
+add(1, [])
+add(1, [(1, 1, -1)])
+add(8, relabel(8, potential_roads(8, 15, 0, 5, 10)))
+add(8, [(i, i + 1, -1) for i in range(1, 8)] + [(8, 1, 7)])         # the whole cycle sums to 0
+add(8, [(i, i + 1, -1) for i in range(1, 8)] + [(8, 1, 6)])         # the whole cycle sums to -1
+add(30, relabel(30, potential_roads(30, 80, 0, 100, 1000)))
+add(30, relabel(30, potential_roads(30, 80, 0, 100, 1000) + [(15, 16, -100), (16, 15, 99)]))
+add(60, [(i, i + 1, ri(-5, 5)) for i in range(1, 30)] + [(40, 41, -3), (41, 40, 2), (40, 50, 1)])
+add(100, relabel(100, dag_roads(100, 300, -MAXC, MAXC)))
+add(200, relabel(200, potential_roads(200, 600, 0, 50, 10**6)))
+add(300, relabel(300, [(i, i + 1, -MAXC) for i in range(1, 300)]))
 # hidden: large
-R = C = MAXR
-add(rnd(R, C, 1, 9))
-add(rnd(R, C, 0, 9, 0.35))
-add(rnd(R, C, 1, 9, 0.2))
-add(maze(999, 999, 1, 9))
-add(maze(999, 999, 9, 9))
-add(maze(999, 999, 0, 1, "9", 9, 9))            # walls are only expensive, not closed
-add(serpentine(999, C, 1, 9))
-add(transpose(serpentine(999, C, 0, 9)))
-g = maze(999, 999, 1, 9)                       # closed exit
-g[-1] = g[-1][:-2] + "#" + g[-1][-1]
-g[-2] = g[-2][:-1] + "#"
-add(g)
-add(["5" * C] * R)                             # everything equal
-add(diagonal(R, 999, 1, 9))                    # one long staircase corridor
-add(transpose(diagonal(R, 999, 0, 9)))
-add(diagonal(998, 1000, 9, 9))
-add(maze(999, 999, 0, 9, "0", 3, 9))
+N, M = MAXN, MAXM
+add(N, [(i, i + 1, ri(-MAXC, MAXC)) for i in range(N - 1, 0, -1)] + dag_roads(N, M - N + 1, -MAXC, MAXC)[N - 1:])
+add(N, [(i, i + 1, -MAXC) for i in range(N - 1, 0, -1)])            # the most negative distances
+add(N, [(i, i + 1, MAXC) for i in range(N - 1, 0, -1)])
+r = [(i, i + 1, -1) for i in range(N - 1, 0, -1)] + [(N, 1, N - 1)]    # one long cycle of total 0
+add(N, r + potential_roads(N, M - N, 0, 10, 0, [0] + [-(i - 1) for i in range(1, N + 1)]))
+r = [(i, i + 1, -1) for i in range(N - 1, 0, -1)] + [(N, N - 1, 0)]    # a cycle at the far end of a long chain
+add(N, r + [(a, b, c) for a, b, c in dag_roads(N, M - N, 0, MAXC) if b < N - 1])
+add(N, relabel(N, potential_roads(N, M, 0, 10**6, 10**8)))
+r = potential_roads(N, M - 2, 0, 3, 10**8)                           # plus one negative 2-cycle
+x, y = ri(2, N), ri(2, N)
+add(N, relabel(N, r + [(x, y, 5), (y, x, -6)]))
+h = N // 2                                                          # a negative cycle nobody can reach,
+r = relabel(h, potential_roads(h, M // 2, 0, 1000, 10**6))          # with negative roads into the reachable half
+r += [(a + h, b + h, c) for a, b, c in potential_roads(N - h, M // 2 - 22, 0, 1000, 10**6)]
+r += [(N - 1, N, -5), (N, N - 1, 4)] + [(ri(h + 1, N), ri(1, h), -MAXC) for _ in range(20)]
+add(N, r)
+r = [(i, i + 1, -MAXC) for i in range(h + 1, N)] + [(N, h + 1, -MAXC)]  # unreachable, very negative cycle
+r += [(ri(h + 1, N), ri(1, h), ri(-MAXC, 0)) for _ in range(100)]
+add(N, relabel(h, potential_roads(h, M - len(r), 0, 10, 1000)) + r)
+r = dag_roads(N, M - 2, -MAXC, MAXC)                                # a DAG plus one short negative cycle
+add(N, relabel(N, r + [(N - 5, N - 4, MAXC - 1), (N - 4, N - 5, -MAXC)]))
+r = dag_roads(N, M - 1, -10, MAXC)                                  # a DAG plus a negative self-loop
+add(N, relabel(N, r + [(N, N, -1)]))
+add(N, relabel(N, [(i, i + 1, -MAXC) for i in range(1, N)] + [(N, 1, MAXC)] * 2
+                  + potential_roads(N, M - N - 1, MAXC // 2, MAXC, 0)))   # one long very negative cycle
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

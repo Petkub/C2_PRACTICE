@@ -9,6 +9,8 @@ def ri(lo, hi):
 
 def shape(n, kind):
     """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
+    global LONG, SPINE
+    LONG, SPINE = n * 85 // 100, n * 3 // 4
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -31,6 +33,10 @@ def shape(n, kind):
             p = 1 if i <= 3 else i - 2
         elif kind == "chains":                      # chains of length about sqrt(n) glued at random
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
+        elif kind == "lopsided":                    # node 1 joins a chain of 85% of the nodes and one of 15%
+            p = 1 if i == LONG + 2 else i - 1
+        elif kind == "comb":                        # a spine of 75% of the nodes, short teeth near its top
+            p = i - 1 if i <= SPINE or (i - 1 > SPINE and random.random() < 0.6) else ri(1, n // 10)
         else:
             raise ValueError(kind)
         par.append(p)
@@ -114,14 +120,20 @@ def add(n, edges, qs, tree_ok=False):
                  + "".join(f"{u} {v}\n" for u, v in qs))
 
 
-def make(n, kind, q, far=False):
+def make(n, kind, q, far=False, split=False, root=False):
+    """root: house 1 = shape node 1 (always for lopsided / comb); split: one end near the bottom of the long
+    chain, the other off it (split 2: near the bottom of the short chain)"""
     par = shape(n, kind)
-    edges, lab = relabel(par)
+    edges, lab = relabel(par, root_first=root or kind in ("lopsided", "comb"))
+    deep = LONG if kind == "lopsided" else SPINE
     rnd = random.random
     m = min(n, 100)
     qs = []
     for _ in range(q):
-        if far:
+        if split:
+            u = lab[deep - 1 - int(rnd() * 3000)]
+            v = lab[deep + int(rnd() * (n - deep))] if split == 1 else lab[n - 1 - int(rnd() * 3000)]
+        elif far:
             u = lab[int(rnd() * m)] if rnd() < 0.5 else lab[n // 2 - int(rnd() * m)]
             v = lab[n - 1 - int(rnd() * m)]
         else:
@@ -157,14 +169,21 @@ spiky(300, 300)
 make(3000, "path", 3000, far=True)
 make(4000, "chains", 4000)
 # hidden: maximum size
-make(MAXN, "path", MAXQ, far=True)
+make(MAXN, "path", MAXQ, far=True, root=True)
 make(MAXN, "caterpillar", MAXQ, far=True)
 spiky(MAXN, MAXQ)
 make(MAXN, "deep", MAXQ, far=True)
 make(MAXN, "twopaths", MAXQ, far=True)
 make(MAXN, "broom", MAXQ, far=True)
-make(MAXN, "random", MAXQ)
-make(MAXN, "star", MAXQ)
-make(MAXN, "chains", MAXQ)
+make(MAXN, "lopsided", MAXQ, split=2)
+make(MAXN, "lopsided", MAXQ, split=1)
+make(MAXN, "comb", MAXQ, split=1)
+make(MAXN, "lopsided", MAXQ)
+make(MAXN, "comb", MAXQ)
+make(MAXN, "lopsided", MAXQ, split=2)
+# hidden: wide trees (not maximum size)
+make(20_000, "chains", 20_000)
+make(20_000, "random", 20_000)
+make(20_000, "star", 20_000)
 
 write_all()

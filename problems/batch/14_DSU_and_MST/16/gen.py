@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(90116)
-MAXN, MAXM, MAXW = 50_000, 150_000, 10**6
+random.seed(90115)
+MAXN, MAXQ, MAXW = 100_000, 100_000, 10**6
 tests = []
 
 
@@ -10,125 +10,92 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, edges, shuffle=True):
-    m = len(edges)
-    assert 2 <= n <= MAXN and n - 1 <= m <= MAXM
-    par = list(range(n + 1))                     # all cables together connect every city
-    comps = n
+def add(n, edges, qs, shuffle=True):
+    assert 2 <= n <= MAXN and 1 <= len(qs) <= MAXQ and len(edges) == n - 1
+    assert all(1 <= w <= MAXW for _, _, w in edges) and all(1 <= x <= MAXW for x in qs)
+    par = list(range(n + 1))                     # n - 1 roads without a cycle form a tree
     for u, v, w in edges:
-        assert 1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW
+        assert 1 <= u <= n and 1 <= v <= n and u != v
         while par[u] != u:
             par[u] = par[par[u]]
             u = par[u]
         while par[v] != v:
             par[v] = par[par[v]]
             v = par[v]
-        if u != v:
-            par[u] = v
-            comps -= 1
-    assert comps == 1
-    if shuffle:
-        edges = edges[:]
-        random.shuffle(edges)
-    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges))
+        assert u != v
+        par[u] = v
+    if shuffle:                                  # labels are random: sorting mixes the structure
+        edges = sorted(edges)
+    tests.append(f"{n} {len(qs)}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges)
+                 + " ".join(map(str, qs)) + "\n")
 
 
-def tree(n, kind):
-    """(parent, depth) arrays of a tree on 1..n before relabelling"""
-    p, d = [0, 0], [0, 0]
+def shape(n, kind):
+    """parent of vertex i (2..n) for a tree shape, then random labels"""
+    p = [0, 0]
     for i in range(2, n + 1):
         if kind == "path":
             p.append(i - 1)
-        elif kind == "deep":
-            p.append(ri(max(1, i - 4), i - 1))
         elif kind == "star":
             p.append(1)
+        elif kind == "cater":                    # a spine with legs
+            p.append(i - 1 if i <= n // 2 else ri(1, n // 2))
+        elif kind == "binary":
+            p.append(i // 2)
+        elif kind == "deep":                     # random but deep
+            p.append(ri(max(1, i - 5), i - 1))
         else:
             p.append(ri(1, i - 1))
-        d.append(d[p[i]] + 1)
-    return p, d
-
-
-def layered(n, m, kind, step, lo, extra, needles=0):
-    """the cable from a city to its parent costs g(depth), g never decreasing; any other cable
-    between x and y costs g(max depth) + delta: delta >= 1 keeps the cheapest network unique,
-    delta = 0 (a needle) gives a second one. The first needle runs from the deepest city to the
-    root; it and the network cable of the deepest city are the last two lines"""
-    p, d = tree(n, kind)
-    g = [lo + dd // step for dd in range(n + 1)]
     lab = list(range(1, n + 1))
     random.shuffle(lab)
     lab = [0] + lab
-    deepest = max(range(1, n + 1), key=lambda v: d[v])
-    edges, last = [], []
-    for i in range(2, n + 1):
-        e = (lab[i], lab[p[i]], g[d[i]])
-        (last if needles and i == deepest else edges).append(e)
-    r = random.random
-    for k in range(m - (n - 1)):
-        x = 1 + int(r() * n)
-        y = 1 + int(r() * (n - 1))
-        y += y >= x
-        if k == 0 and needles:
-            x, y = deepest, 1
-        e = (lab[x], lab[y], g[max(d[x], d[y])] + (0 if k < needles else ri(1, extra)))
-        (last if k == 0 and needles else edges).append(e)
-    if n < 1000:
-        random.shuffle(edges)
-    random.shuffle(last)
-    return edges + last
+    return [(lab[i], lab[p[i]]) for i in range(2, n + 1)]
 
 
-def rnd_graph(n, m, wlo, whi):
-    p, d = tree(n, "rnd")
-    lab = list(range(1, n + 1))
-    random.shuffle(lab)
-    lab = [0] + lab
-    edges = [(lab[i], lab[p[i]], ri(wlo, whi)) for i in range(2, n + 1)]
-    while len(edges) < m:
-        x = ri(1, n)
-        y = ri(1, n - 1)
-        edges.append((x, y + (y >= x), ri(wlo, whi)))
-    return edges
+def weigh(pairs, lo, hi):
+    r, d = random.random, hi - lo + 1
+    return [(u, v, lo + int(r() * d)) for u, v in pairs]
+
+
+def near(edges, q):
+    """abilities equal to a slope or one less"""
+    ws = [w for _, _, w in edges]
+    m = len(ws)
+    return [max(1, ws[int(random.random() * m)] - (random.random() < 0.5)) for _ in range(q)]
 
 
 # samples
-add(4, [(1, 2, 1), (2, 3, 2), (3, 4, 2), (1, 4, 3), (2, 4, 2)], False)
-add(3, [(1, 2, 5), (2, 3, 5), (1, 3, 6)], False)
-add(2, [(1, 2, 4), (2, 1, 4)], False)
-add(2, [(1, 2, 1000000)], False)
-add(5, [(1, 2, 3), (2, 3, 3), (3, 1, 4), (3, 4, 1), (4, 5, 3), (4, 3, 3), (1, 5, 5)], False)
+add(5, [(1, 2, 3), (2, 3, 1), (2, 4, 5), (4, 5, 2)], [1, 2, 3, 5, 4], False)
+add(2, [(1, 2, 7)], [6, 7], False)
+add(4, [(1, 2, 2), (2, 3, 2), (3, 4, 2)], [1, 2, 1000000], False)
+add(6, [(3, 1, 4), (3, 6, 8), (2, 6, 3), (5, 3, 6), (4, 2, 1)], [5, 8, 3, 6, 1, 4], False)
+add(3, [(1, 3, 1000000), (2, 3, 999999)], [999999, 1000000, 999998], False)
 # hidden: small
-add(2, [(1, 2, 1)])
-add(3, [(1, 2, 2), (2, 3, 2), (1, 3, 2)])                        # a triangle of equal cables
-add(4, [(1, 2, 1), (1, 2, 1), (2, 3, 5), (3, 4, 2)])             # equal parallel cables
-add(4, [(1, 2, 1), (1, 2, 2), (2, 3, 5), (3, 4, 5), (2, 4, 6)])  # different parallel cables
-for n, m, wmax in ((5, 8, 3), (6, 10, 2), (7, 12, 4), (8, 14, 3), (9, 16, 5), (10, 18, 3)):
-    add(n, rnd_graph(n, m, 1, wmax))
-add(9, layered(9, 18, "rnd", 2, 1, 2), False)
-add(10, layered(10, 18, "deep", 1, 5, 1), False)
-add(10, layered(10, 18, "rnd", 3, 1, 3, 1), False)
-add(300, rnd_graph(300, 900, 1, 1000))
-add(500, layered(500, 1500, "deep", 3, 1, 2), False)
-add(500, layered(500, 1500, "rnd", 1, 1, 2, 1), False)
-add(1000, layered(1000, 3000, "deep", 1, 1, 2, 20), False)  # a few needles
+add(2, [(2, 1, 1)], [1, 1000000, 1])
+for n, kind in ((7, "rnd"), (10, "path"), (12, "star"), (30, "cater"), (60, "rnd"), (200, "deep")):
+    e = weigh(shape(n, kind), 1, 3 * n)
+    add(n, e, near(e, 2 * n) + [ri(1, 3 * n) for _ in range(n)])
+e = weigh(shape(300, "rnd"), 1, 5)                                  # many equal slopes
+add(300, e, [ri(1, 6) for _ in range(300)])
+e = weigh(shape(1500, "binary"), 1, MAXW)
+add(1500, e, near(e, 1500))
 # hidden: maximum size
-N, M = MAXN, MAXM
-add(N, layered(N, M, "path", 7, 1, 3), False)                   # unique, many equal costs
-add(N, layered(N, M, "deep", 1, 1, 2), False)
-add(N, layered(N, M, "deep", 50, 1, 1), False)
-add(N, layered(N, M, "path", 1, 1, 2, 1), False)                # exactly one needle
-add(N, layered(N, M, "deep", 1, 1, 5, 1), False)
-add(N, layered(N, M, "deep", 5, 1, 3), False)
-add(N, layered(N, M, "star", 1, MAXW - 2, 1), False)            # all network cables cost the same
-add(N, rnd_graph(N, M, 1, MAXW), False)                         # random costs
-add(N, rnd_graph(N, M, 1, 20), False)                           # many equal costs
-add(N, rnd_graph(N, N - 1, MAXW, MAXW), False)                  # only a tree: unique, largest total
-add(N, rnd_graph(N, N, MAXW, MAXW), False)                      # one more cable of the same cost
-add(N, layered(N, M, "path", 1, MAXW - N, 1), False)
-add(N, layered(N, M, "deep", 3, 1, 1), False)
-add(N, layered(N, M, "path", 20, MAXW - N, 1), False)
-add(N, layered(N, M, "path", 2, 1, 1), False)
+N, Q = MAXN, MAXQ
+for kind in ("rnd", "path", "star", "cater", "binary", "deep"):
+    e = weigh(shape(N, kind), 1, MAXW)
+    big = sorted(w for _, _, w in e)[N // 2:]
+    add(N, e, [max(1, big[int(random.random() * len(big))] - (random.random() < 0.5)) for _ in range(Q)])   # mostly large abilities
+e = weigh(shape(N, "rnd"), MAXW, MAXW)                              # every pair: 4999950000
+add(N, e, [MAXW] * (Q - 1) + [MAXW - 1])
+e = weigh(shape(N, "path"), 1, 100)
+add(N, e, [ri(90, 100) for _ in range(Q)])
+pairs = shape(N, "path")                                            # slopes rise along the path
+e = [(u, v, MAXW - N + i) for i, (u, v) in enumerate(pairs)]
+add(N, e, [MAXW - ri(0, 3000) for _ in range(Q)])
+e = weigh(shape(N, "rnd"), 1, MAXW)
+add(N, e, sorted(near(e, Q), reverse=True))
+e = weigh(shape(N, "star"), 1, 10)
+add(N, e, [ri(1, 10) for _ in range(Q)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

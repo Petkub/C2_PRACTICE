@@ -1,9 +1,9 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(140901)
-MAXN = 200_000
-MAXA = 10 ** 8
+random.seed(141101)
+MAXQ = 10_000
+MAXA = MAXB = 10 ** 18
 tests = []
 
 
@@ -11,53 +11,49 @@ def ri(lo, hi):
     return random.randint(lo, hi)
 
 
-def add(a):
-    assert 1 <= len(a) <= MAXN
-    for x in a:
-        assert 1 <= x <= MAXA
-    tests.append(f"{len(a)}\n" + " ".join(map(str, a)) + "\n")
+def add(qs):
+    assert 1 <= len(qs) <= MAXQ
+    for a, b, k in qs:
+        assert 0 <= a <= MAXA and 1 <= b <= MAXB and 1 <= k <= 18
+    tests.append(f"{len(qs)}\n" + "".join(f"{a} {b} {k}\n" for a, b, k in qs))
 
 
-def smooth(n, hi=MAXA):     # numbers 2^x 3^y 5^z with large exponents: gcds shrink slowly
-    out = []
-    while len(out) < n:
-        v = 2 ** ri(10, 26) * 3 ** ri(0, 6) * 5 ** ri(0, 3)
-        if v <= hi:
-            out.append(v)
-    return out
+def near_border(k):
+    # a^b close to 10^k from either side
+    a = ri(2, 99)
+    b = 1
+    while a ** (b + 1) < 10 ** k:
+        b += 1
+    return (a, b + ri(0, 1), k)
 
 
 # samples
-add([6, 4, 2])
-add([12, 18, 5, 10])
-add([MAXA])
-add([MAXA] * 3)
-add([36, 24, 60, 7, 14, 28, 56, 1])
-# hidden: small (the brute force is O(N^2))
-add([1])
-add([ri(1, 30) for _ in range(50)])
-add([ri(1, MAXA) for _ in range(2000)])
-add(smooth(2000))
-add([720720 * ri(1, 138) for _ in range(1500)])
-add([MAXA] * 2999 + [1])
-# hidden: large
-add([MAXA] * MAXN)                                                  # every gcd is 10^8
-add([MAXA] * (MAXN - 1) + [1])                                      # gcd stays 10^8 until the last element
-add([1] + [MAXA] * (MAXN - 1))
-add([ri(1, MAXA) for _ in range(MAXN)])
-add(smooth(MAXN - 1) + [1])                                         # gcds stay >= 2^10 until the end
-add([2 ** 26] * (MAXN // 2) + smooth(MAXN // 2 - 1) + [3])
-add([67_108_864 if i % 1000 else 99_999_989 for i in range(MAXN)])  # 2^26 with a prime every 1000
-add([2 ** 26 >> (i * 27 // MAXN) for i in range(MAXN)])            # slowly halving powers of two
-add([ri(1, 10) * 9_999_991 for _ in range(MAXN - 1)] + [ri(1, 9_999_990)])
-add([720720 * ri(1, 138) for _ in range(MAXN - 1)] + [1])
-add([2 * ri(1, MAXA // 2) for _ in range(MAXN - 1)] + [99_999_989])          # even numbers, then an odd prime
-add([ri(1, 1000) for _ in range(MAXN)])
-add([MAXA - (i % 2) for i in range(MAXN)])
-add(sorted(smooth(MAXN)))
-# gcd of a left part stays > 1 until it meets the right part (beats "stop once the gcd equals the suffix gcd")
-add([6 * ri(1, MAXA // 6) for _ in range(MAXN // 2)] + [35 * ri(1, MAXA // 35) for _ in range(MAXN // 2)])
-add([2 ** 26] * (MAXN // 2) + [3 ** 16] * (MAXN // 2))
+add([(2, 10, 3), (2, 10, 5), (7, 2, 2)])
+add([(0, 5, 3), (1, MAXB, 18), (10, 3, 3)])
+add([(2, MAXB, 18)])
+add([(MAXA - 1, MAXB - 1, 18), (MAXA, 1, 18)])
+add([(5, 3, 3), (12345, 1, 3), (3, 40, 1), (13, 2, 2)])
+# hidden: small b (the brute force multiplies b times)
+add([(ri(0, 20), ri(1, 30), ri(1, 18)) for _ in range(500)])
+add([(ri(0, MAXA), ri(1, 300), ri(1, 18)) for _ in range(300)])
+add([near_border(ri(1, 18)) for _ in range(1000)])
+add([(10 ** ri(0, 18), ri(1, 20), ri(1, 18)) for _ in range(500)])
+add([(ri(0, 1), ri(1, MAXB), ri(1, 18)) for _ in range(200)] + [(MAXA - ri(0, 9), ri(1, 2), 18) for _ in range(200)])
+add([(ri(MAXA // 10, MAXA), ri(1000, 3000), 18) for _ in range(30)])
+add([(ri(2, 9) * 10 ** ri(0, 3), ri(1000, 20000), ri(10, 18)) for _ in range(5)])
+# hidden: large (b up to 10^18)
+add([(ri(0, MAXA), ri(1, MAXB), ri(1, 18)) for _ in range(MAXQ)])
+add([(ri(MAXA - 10 ** 9, MAXA), ri(MAXB - 10 ** 9, MAXB), 18) for _ in range(MAXQ)])
+add([(ri(2, MAXA), ri(MAXB // 2, MAXB), ri(10, 18)) for _ in range(MAXQ)])
+add([(MAXA - 1, MAXB, 18)] * MAXQ)
+add([(random.choice([2, 3, 7, 999_999_999_999_999_999, 123_456_789_123_456_789]), ri(1, MAXB), ri(13, 18)) for _ in range(MAXQ)])
+add([(ri(1, 10 ** 6) * random.choice([1, 2, 5, 10, 16, 625]), ri(10 ** 15, MAXB), ri(1, 18)) for _ in range(MAXQ)])
+add([(ri(0, MAXA), ri(1, MAXB), 18) if i % 3 else (ri(0, 1), ri(1, MAXB), ri(1, 18)) for i in range(MAXQ)])
+add([(ri(2, MAXA), ri(10 ** 17, MAXB), ri(1, 9)) if i % 2 else (ri(2, MAXA), ri(10 ** 17, MAXB), ri(10, 18)) for i in range(MAXQ)])
+add([near_border(ri(1, 18)) if i % 2 else (ri(10 ** 17, MAXA), ri(10 ** 17, MAXB), ri(16, 18)) for i in range(MAXQ)])
+add([(ri(3, 10 ** 6) | 1, MAXB - ri(0, 1000), 18) for _ in range(MAXQ)])
+# a^b just past 10^K with a big base: a check that multiplies before comparing overflows here
+add([(ri(10 ** 9, MAXA), ri(2, 4), ri(10, 18)) if i % 2 else (ri(3 * 10 ** 9, MAXA), 2, 18) for i in range(MAXQ)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

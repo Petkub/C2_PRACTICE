@@ -1,66 +1,90 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(41500)
-MAXN = 200_000
-MAXV = 10**9
+random.seed(60116)
+MAXN, MAXD, MAXV = 150_000, 10**9, 10**9
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(jobs):
-    n = len(jobs)
-    assert 1 <= n <= MAXN
-    assert all(0 <= a <= MAXV and 1 <= t <= MAXV for a, t in jobs)
-    tests.append(f"{n}\n" + "".join(f"{a} {t}\n" for a, t in jobs))
+def add(d, riders, shuffle=True):
+    riders = list(riders)
+    if shuffle:
+        random.shuffle(riders)
+    n = len(riders)
+    assert 1 <= n <= MAXN and 1 <= d <= MAXD
+    assert all(0 <= p < d and 1 <= v <= MAXV for (p, v) in riders)
+    assert len(set(p for p, v in riders)) == n
+    tests.append(f"{n} {d}\n" + "".join(f"{p} {v}\n" for (p, v) in riders))
 
 
-def rnd(n, amax, tmax):
-    return [(ri(0, amax), ri(1, tmax)) for _ in range(n)]
+def rnd(n, d, vmax=MAXV):
+    return [(p, ri(1, vmax)) for p in random.sample(range(d), n)]
+
+
+def farey_block(x, y, c_start, k):
+    """k riders with distances c and speeds e (c = d - p) such that x * e - y * c = 1: their times c / e rise
+    towards x / y, and two neighbours differ by only 1 / (e * e') (too little for a double to see)"""
+    c = c_start
+    while (1 + y * c) % x:
+        c += 1
+    e = (1 + y * c) // x
+    out = []
+    for _ in range(k):
+        out.append((c, e))
+        c += x
+        e += y
+    return out
+
+
+def staircase(n, levels, d=MAXD):
+    """blocks of Farey riders, farther blocks with larger times, so that every rider sets a new record"""
+    per = n // len(levels)
+    riders, base = [], d // 10
+    for j, (x, y) in enumerate(levels):
+        k = per if j + 1 < len(levels) else n - per * (len(levels) - 1)
+        blk = farey_block(x, y, base, k)
+        riders += [(d - c, e) for (c, e) in blk]
+        base = blk[-1][0] + 10**8
+    assert all(c <= d for c in [d - p for p, e in riders])
+    return riders
 
 
 # samples
-add([(0, 3), (1, 5), (2, 1), (2, 2), (20, 1)])
-add([(5, 2), (3, 2), (3, 2), (0, 4)])
-add([(7, 7)])
-add([(0, 5), (5, 1), (1, 3)])
-add([(100, 100), (0, 100), (99, 1), (100, 1)])
-# hidden: small
-add([(0, 1), (0, 1)])
-add([(3, 1), (0, 1), (1, 1)])
-add(rnd(8, 5, 3))                       # many ties on length and arrival
-add(rnd(30, 20, 4))
-add(rnd(200, 100, 10))
-add(rnd(1000, 10**6, 1000))             # long idle stretches
-add([(0, ri(1, 5)) for _ in range(2000)])
-add(rnd(3000, 5000, 3))
-# large (N = MAXN, or about 130 000 when every value has 10 digits so the input stays near 3 MB)
+add(10, [(0, 2), (4, 1), (6, 4)], False)
+add(12, [(0, 3), (4, 2), (9, 2), (5, 5)], False)
+add(1000000000, [(0, 3)], False)
+add(1000000000, [(0, 1000000000), (999999999, 1)], False)
+add(100, [(10, 6), (40, 4), (70, 9), (20, 25), (55, 10)], False)
+# hidden: small and medium
+add(1, [(0, MAXV)])
+add(100, [(90, 1), (50, 10), (0, 20)])                          # held up by a rider who is held up himself
+add(30, rnd(8, 30, 6))
+add(50, rnd(20, 50, 10))
+m = MAXD - 50
+add(MAXD, [(MAXD - (m + k - 1), m + k) for k in range(1, 51)])  # times (m+k-1)/(m+k): neighbours differ by ~1e-18
+add(10**6, rnd(1000, 10**6, 1000))
+add(MAXD, staircase(3000, [(1, 3), (1, 2), (2, 3), (1, 1), (3, 2), (2, 1)]))
+add(MAXD, rnd(5000, MAXD))
+# hidden: maximum size
 N = MAXN
-# shorter jobs all arrive late: scanning jobs sorted by length from the start meets them every time
-add([(0, 2)] * (N // 2) + [(MAXV, 1)] * (N // 2))
-add([(0, ri(1, 10**4)) for _ in range(N)])                 # everybody waits from the start
-add([(0, 7)] * N)                                          # all equal: order by index
-add([(i, ri(1000, 10**4)) for i in range(N)])              # one arrival per minute, queue keeps growing
-jobs = [(N - i, ri(1, 3)) for i in range(N)]               # later index arrives earlier, many equal lengths
-add(jobs)
-add([(ri(0, 20) * 1000, ri(1, 10)) for _ in range(N)])     # bursts, ties on length and arrival
-jobs = [(0, ri(2, 20)) for _ in range(N // 2)] + [(ri(0, 2 * 10**6), 1) for _ in range(N // 2)]
-random.shuffle(jobs)                                       # short jobs keep arriving while long ones wait
-add(jobs)
-jobs = [(ri(0, 1000), ri(1, 5)) for _ in range(N // 3)] + \
-       [(ri(10**6, 10**6 + 1000), ri(1, 5)) for _ in range(N // 3)] + \
-       [(MAXV, 1) for _ in range(N - 2 * (N // 3))]
-random.shuffle(jobs)
-add(jobs)
-M = 130_000
-add([(ri(0, MAXV), ri(MAXV - 10**6, MAXV)) for _ in range(M)])  # total time far beyond 32 bits
-add([(MAXV - i, MAXV - ri(0, 2)) for i in range(M)])
-jobs = [(ri(0, 99), ri(1, 3)) for _ in range(N - 1)] + [(MAXV, 1)]
-add(jobs)
+add(MAXD, rnd(N, MAXD))
+add(MAXD, rnd(N, MAXD, 1000))                                    # slow riders: long chains of hold-ups
+step = MAXD // (N + 1)
+add(MAXD, [(MAXD - (k + 1) * step, 1 + k * 6000) for k in range(N)])   # the farther, the faster: all caught
+add(MAXD, [(k, MAXV - 3 * (N - k)) for k in range(N)])           # the farther, the slower: nobody is caught
+m = MAXD - N
+add(MAXD, [(MAXD - (m + k - 1), m + k) for k in range(1, N + 1)])
+add(MAXD, staircase(N, [(1, 3), (1, 2), (2, 3), (1, 1), (3, 2), (2, 1)]))
+add(MAXD, staircase(N, [(1, 2), (3, 5), (1, 1), (4, 3), (5, 3)]))
+add(N + 5, rnd(N, N + 5, MAXV))                                  # short track, fast riders
+add(MAXD, [(p, MAXV) for p in random.sample(range(MAXD), N)])    # same speed: nobody is caught
+s = [(MAXD - 1, 1)] + [(p, ri(10**8, MAXV)) for p in random.sample(range(MAXD - 1), N - 1)]
+add(MAXD, s)                                                     # a very slow rider at the front holds up everybody
+add(MAXD, staircase(N, [(1, 4), (2, 5), (3, 4), (5, 4), (7, 4)]), False)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

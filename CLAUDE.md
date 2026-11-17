@@ -58,9 +58,9 @@ C2_PRACTICE/
     set_files/{Makefile, Makefile_<n>, judge.bat, template.cpp}   # in every topic folder (Makefile_<n> for n != 20
                                                                   # problems); template.cpp (empty) -> 1.cpp ... n.cpp
   samples/                      # known-verdict programs used as regression tests
-    batch/profit_ok.cpp, profit_nowrap.cpp, profit_loop.cpp, profit_crash.cpp, profit_syntax.cpp   # problem 3-1
+    batch/grid_ok.cpp, grid_int.cpp, grid_loop.cpp, grid_crash.cpp, grid_syntax.cpp      # problem 3-1
     interactive/guess_ok.cpp, guess_noflush.cpp, guess_linear.cpp, guess_crash.cpp
-    expected.json               # {"batch/profit_ok.cpp": {"problem": "3-1", "verdict": "AC", "score": 100}, ...}
+    expected.json               # {"batch/grid_ok.cpp": {"problem": "3-1", "verdict": "AC", "score": 100}, ...}
                                 # verdict: AC/WA/TLE/RE/MLE/CE (first failing test); "score" optional (runs all tests)
   tools/
     build_manifest.py           # writes manifest.json (VERSION + SHA-256 of every file in Judge/); --check for CI
@@ -178,7 +178,7 @@ python3 tests/run_regression.py          # must pass before every commit
 python3 tools/build_manifest.py          # after changing anything under core/, problems/ or student/ (and bump VERSION)
 python3 tools/build_manifest.py --check  # CI: fails if manifest.json is stale
 python3 tools/build_dist.py              # build dist/C2_Practice/ + dist/C2_Practice.zip (--out DIR, --no-zip)
-python3 core/judge.py samples/batch/profit_ok.cpp 3-1       # judge one file from the repo (topic 3, problem 1)
+python3 core/judge.py samples/batch/grid_ok.cpp 3-1       # judge one file from the repo (topic 3, problem 1)
 python3 core/interactive_judge.py guess samples/interactive/guess_ok.cpp
 ```
 

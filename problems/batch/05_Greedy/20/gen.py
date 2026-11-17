@@ -1,9 +1,10 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(30320)
-MAXN = 50_000
-MAXV = 10**9
+random.seed(30319)
+MAXN = 200_000
+MAXH = 10**9
+MAXD = 10**4
 tests = []
 
 
@@ -12,90 +13,69 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(pairs):
-    n = len(pairs)
+def add(D, h):
+    n = len(h)
     assert 1 <= n <= MAXN
-    lines = [f"{n}\n"]
-    for q in pairs:
-        assert len(q) == 4 and all(1 <= x <= MAXV for x in q)
-        lines.append("%d %d %d %d\n" % q)
-    tests.append("".join(lines))
+    assert 0 <= D <= MAXD
+    assert all(0 <= x <= MAXH for x in h)
+    tests.append(f"{n} {D}\n" + " ".join(map(str, h)) + "\n")
 
 
-def rnd(n, wlo, whi, slo, shi):
-    return [(ri(wlo, whi), ri(slo, shi), ri(wlo, whi), ri(slo, shi)) for _ in range(n)]
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
-def trap(n, big):
-    """a heavy weak acrobat with a light, slightly stronger partner: the stronger one must stand on top"""
-    res = []
+def clip(x):
+    return min(MAXH, max(0, x))
+
+
+def near(n, D, base, noise):
+    """almost a valid staircase: base + i * D plus noise"""
+    return [clip(base + i * D + ri(-noise, noise)) for i in range(n)]
+
+
+def walk(n, start, step):
+    res, x = [], start
     for _ in range(n):
-        s = ri(big // 10, big)
-        heavy = (ri(big // 2, big), ri(1, s - 1))
-        light = (ri(1, big // 100), ri(s, min(MAXV, s + big // 50)))
-        q = heavy + light if random.random() < 0.5 else light + heavy
-        res.append(q)
-    return res
-
-
-def trap2(n, big):
-    """a heavy but weak acrobat with a lighter strong partner: the heavy one must stand on top"""
-    res = []
-    for _ in range(n):
-        heavy = (ri(big // 5, big // 3), ri(1, big // 100))
-        light = (ri(big // 20, big // 10), ri(big // 2, big))
-        q = heavy + light if random.random() < 0.5 else light + heavy
-        res.append(q)
-    return res
-
-
-def same_key(n, total):
-    """every acrobat has w + s = total"""
-    res = []
-    for _ in range(n):
-        w1, w2 = ri(1, total - 1), ri(1, total - 1)
-        res.append((w1, total - w1, w2, total - w2))
+        x = clip(x + ri(-step, step))
+        res.append(x)
     return res
 
 
 # samples
-add([(3, 2, 1, 6), (2, 1, 2, 3)])
-add([(100, 50, 1, 60)])
-add([(5, 5, 5, 5), (1, 1, 1, 1), (3, 9, 4, 2)])
-add([(10, 3, 2, 8), (6, 6, 1, 1), (4, 12, 7, 5)])
-add([(2, 7, 3, 4), (8, 1, 1, 9), (5, 5, 5, 5), (1, 2, 9, 3)])
-add([(4, 20, 6, 3), (1, 9, 2, 30)])
-# hidden (small, every arrangement is tried by brute.cpp)
-add([(1, 1, 1, 1)])
-add([(MAXV, MAXV, MAXV, MAXV)] * 3)
-add([(MAXV, 1, 1, MAXV)])
-add(rnd(4, 1, 10, 1, 10))
-add(rnd(5, 1, 100, 1, 300))
-add(trap(6, 1000))
-add(same_key(7, 50))
-add(rnd(8, 1, MAXV, 1, MAXV))
-add(rnd(8, 1, 1000, 1, 10))
-add(trap2(8, 1000))
+add(0, [3, 1, 2, 5, 4])
+add(2, [5, 5, 5, 5])
+add(1, [1, 2, 4, 8, 16])
+add(7, [42])
+add(1, [4, 9, 2, 6, 3, 8, 7])
+add(3, [10, 0, 10, 0, 10, 0])
+# hidden (small)
+add(MAXD, [MAXH, 0])
+add(0, [MAXH, 0])
+add(0, rnd(10, 0, 5))
+add(1, rnd(10, 0, 20))
+add(2, near(12, 2, 3, 3))
+add(5, rnd(60, 0, 100))
+add(0, rnd(300, 0, MAXH))
+add(37, walk(2000, 10**5, 300))
+add(MAXD, rnd(3000, 0, MAXH))
+add(1, near(5000, 1, 10**6, 20))
+add(0, rnd(20_000, 0, 1000))
 # large
 N = MAXN
-add(rnd(N, 1, MAXV, 1, MAXV))
-add(rnd(N, 1, 1000, 1, MAXV))
-add(rnd(N, 1, MAXV, 1, 1000))
-add([(MAXV, MAXV, MAXV, MAXV)] * N)
-add([(1, 1, 1, 1)] * N)
-add(trap(N, MAXV))
-mix = trap2(N // 2, 10**6) + trap(N // 2, MAXV)              # the trap blocks are at the bottom
-random.shuffle(mix)
-add(mix)
-add(same_key(N, MAXV))
-add(rnd(N, 1, 10**5, 1, 10**9))
-add(sorted(rnd(N, 1, MAXV, 1, MAXV), key=lambda q: -(q[0] + q[1] + q[2] + q[3])))
-add([(w, s, w, s) for w, s, _, _ in rnd(N, 1, MAXV, 1, MAXV)])
-add(rnd(N, 1, 10, 1, 10))
-add(trap2(N, MAXV))
-mix = trap(N // 2, 10**6) + trap2(N // 2, MAXV)              # the trap2 blocks are at the bottom
-random.shuffle(mix)
-add(mix)
+add(0, rnd(N, 0, MAXH))
+add(1, rnd(N, 0, MAXH))
+add(MAXD, rnd(N, 0, MAXH))
+add(0, list(range(MAXH, MAXH - N, -1)))                 # strictly decreasing
+add(MAXD, [MAXH] * N)                                   # all equal, but each step must rise by D
+add(MAXD, [0] * (N // 2) + [MAXH] * (N - N // 2))
+add(MAXD, [MAXH - i * 4000 for i in range(N)])          # decreasing against a large D
+add(3, near(N, 3, 1000, 50))
+add(5000, near(N, 4999, 0, 10**6))
+add(0, walk(N, MAXH // 2, 10**6))
+add(0, [MAXH if i % 2 else 0 for i in range(N)])
+add(1, rnd(N, 0, 10))
+add(100, sorted(rnd(N, 0, MAXH)))                       # rising, but often by less than D
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

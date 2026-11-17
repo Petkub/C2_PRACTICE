@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
 import os, random
 
-random.seed(180011)
-MAXN, MAXQ = 200_000, 200_000
+random.seed(180010)
+MAXN, MAXQ, MAXV = 200_000, 200_000, 10**9
 tests = []
 
 
@@ -11,89 +11,66 @@ def ri(lo, hi):
 
 
 def add(a, qs):
-    n, q = len(a) + 1, len(qs)
-    assert 2 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(i < a[i - 1] <= n for i in range(1, n))
-    assert all(1 <= s < t <= n for s, t in qs)
-    t = f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{s} {t}\n" for s, t in qs)
+    n, q = len(a), len(qs)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(1 <= v <= MAXV for v in a)
+    assert all(1 <= l <= r <= n for l, r in qs)
+    t = f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{l} {r}\n" for l, r in qs)
     assert len(t) <= 3_100_000
     tests.append(t)
 
 
-def reach(n, lo, hi):
-    """a_i = i + (random step in [lo, hi]), capped at n"""
-    return [min(n, i + ri(lo, hi)) for i in range(1, n)]
+def rnd_q(n):
+    l = ri(1, n)
+    return (l, ri(l, n))
 
 
-def far_qs(n, q):
-    res = []
-    for _ in range(q):
-        s = ri(1, max(1, n // 20))
-        res.append((s, ri(max(s + 1, n - n // 20), n)))
-    return res
+def long_q(n):
+    l = ri(1, max(1, n // 10))
+    return (l, ri(max(l, n - n // 10), n))
 
 
-def rnd_qs(n, q):
-    res = []
-    for _ in range(q):
-        s = ri(1, n - 1)
-        res.append((s, ri(s + 1, n)))
-    return res
+def queries(n, q, long_frac):
+    return [long_q(n) if random.random() < long_frac else rnd_q(n) for _ in range(q)]
 
 
-def decoys(n, step):
-    """every station reaches far, but the farthest station is a dead end: the far jump is wrong"""
+def blocks_of_distinct(n, lo, hi):
+    """runs of distinct values (a permutation piece), restarted at random: long distinct runs"""
     a = []
-    for i in range(1, n):
-        if i % step == 0:
-            a.append(min(n, i + 1))                     # dead end at the far station
-        else:
-            a.append(min(n, (i // step + 1) * step + step - 1 if i % step == step - 1 else (i // step + 1) * step))
-    return a
+    while len(a) < n:
+        m = ri(lo, hi)
+        a.extend(random.sample(range(1, 10 * m + 1), m))
+    return a[:n]
 
 
 # samples
-add([3, 5, 4, 6, 7, 7], [(1, 7), (1, 5), (2, 4), (3, 7)])
-add([2, 3, 4], [(1, 4), (2, 3)])
-add([2], [(1, 2)])
-add([4, 3, 6, 8, 6, 8, 8], [(1, 8), (1, 4), (2, 6), (3, 5), (5, 8), (7, 8)])
-add([10, 3, 4, 5, 6, 7, 8, 9, 10], [(1, 10), (2, 10), (2, 9), (5, 6), (3, 10)])
+add([1, 2, 1, 3, 4, 2, 5, 3], [(1, 8), (1, 4), (4, 8), (6, 6), (3, 5)])
+add([7, 7, 7, 7], [(1, 4), (2, 3)])
+add([MAXV], [(1, 1)])
+add([1, 2, 3, 1, 2, 3, 4], [(1, 7), (1, 3), (2, 5), (4, 7), (3, 4)])
+add([5, 1, 5, 2, 6, 3, 2, 1, 4], [(1, 9), (1, 3), (2, 6), (4, 9), (6, 9), (5, 5)])
 # hidden: small
-n = 12
-add(reach(n, 1, 3), [(s, t) for s in range(1, n) for t in range(s + 1, n + 1)])
-add(reach(300, 1, 10), rnd_qs(300, 300))
-add(reach(1000, 1, 40), rnd_qs(1000, 500) + far_qs(1000, 100))
-add(decoys(800, 7), rnd_qs(800, 400))
-a = reach(2000, 1, 2)
-for _ in range(20):
-    i = ri(1, 1999)
-    a[i - 1] = ri(i + 1, 2000)                          # a few express stations
-add(a, rnd_qs(2000, 500) + far_qs(2000, 100))
-# hidden: maximum size
+a = [ri(1, 4) for _ in range(10)]
+add(a, [(l, r) for l in range(1, 11) for r in range(l, 11)])
+add([ri(1, 20) for _ in range(300)], queries(300, 500, 0.3))
+add(blocks_of_distinct(1000, 1, 60), queries(1000, 1000, 0.4))
+add([ri(1, MAXV) for _ in range(1500)], queries(1500, 1500, 0.3))           # all distinct (almost surely)
+add([ri(1, 2) for _ in range(3000)], queries(3000, 3000, 0.3))
+# hidden: maximum size (values kept short so the input stays <= 3 MB)
 N = MAXN
-add(reach(N, 1, 1), far_qs(N, 120_000))                 # one station per ticket: answers ~ N
-add(reach(N, 1, 3), far_qs(N, 120_000))
-add(reach(N, 1, 60), far_qs(N, 100_000) + rnd_qs(N, 20_000))
-add(reach(N, 500, 3000), rnd_qs(N, 120_000))
-add(decoys(N, 13), far_qs(N, 120_000))
-a = reach(N, 1, 2)
-for _ in range(30):
-    i = ri(1, N - 1)
-    a[i - 1] = min(N, i + ri(100, 2000))                  # a few short express trains
-add(a, far_qs(N, 120_000))
-a = [N] * (N - 1)                                        # every station goes to the end
-add(a, rnd_qs(N, 120_000))
-a = [min(N, i + (i & -i)) for i in range(1, N)]           # reach i + lowbit(i)
-add(a, far_qs(N, 60_000) + rnd_qs(N, 60_000))
-a = reach(N, 1, 2)
-add(a, [(1, N)] * 1000 + [(ri(1, 10), ri(N - 10, N)) for _ in range(110_000)])
-add(decoys(N, 3), far_qs(N, 120_000))
-add(reach(N, 1, 8), far_qs(N, 120_000))
-add(reach(N, 2, 5), far_qs(N, 90_000) + rnd_qs(N, 30_000))
-a = reach(N, 1, 1)
-for i in range(1, N, 2):
-    a[i - 1] = min(N, i + 3)                                 # odd stations reach 3, even ones only 1
-add(a, far_qs(N, 120_000))
+add(list(range(1, N + 1)), queries(N, 120_000, 0.9))                         # all distinct
+add([i % 50_000 + 1 for i in range(N)], queries(N, 120_000, 0.9))            # period 50 000
+add(blocks_of_distinct(N, 1000, 30_000), queries(N, 120_000, 0.9))
+add([ri(1, 300_000) for _ in range(N)], queries(N, 120_000, 0.9))            # random, runs of ~700
+add([ri(1, 999_999) for _ in range(N)], queries(N, 120_000, 0.9))
+a = list(range(1, N + 1))
+for i in range(0, N, 40_000):
+    a[i] = 1                                                                # a few repeats far apart
+add(a, queries(N, 120_000, 0.9))
+a = list(range(1, N // 2 + 1)) * 2                                           # the second half repeats the first
+add(a, queries(N, 120_000, 0.7))
+add([ri(1, 5) for _ in range(N)], queries(N, 150_000, 0.9))                  # tiny runs
+add(blocks_of_distinct(N, 50, 5000), [(ri(1, N), N) for _ in range(120_000)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

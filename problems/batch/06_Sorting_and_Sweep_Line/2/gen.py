@@ -1,8 +1,8 @@
 # Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
 import os, random
 
-random.seed(40402)
-MAXN, MAXT, MAXG = 150_000, 10**9, 10**9
+random.seed(40406)
+MAXN, MAXA = 200_000, 10**9
 tests = []
 
 
@@ -11,70 +11,48 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(G, a, shuffle=True):
-    a = list(a)
-    if shuffle:
-        random.shuffle(a)
+def add(a):
     n = len(a)
-    assert 1 <= n <= MAXN and 1 <= G <= MAXG
-    assert all(0 <= s < e <= MAXT for s, e in a)
-    tests.append(f"{n} {G}\n" + "".join(f"{s} {e}\n" for s, e in a))
+    assert 1 <= n <= MAXN
+    assert all(0 <= x <= MAXA for x in a)
+    tests.append(f"{n}\n" + " ".join(map(str, a)) + "\n")
 
 
-def rnd(n, T, maxlen):
-    out = []
-    for _ in range(n):
-        s = ri(0, T - 1)
-        out.append((s, min(T, s + ri(1, maxlen))))
-    return out
+def rnd(n, lo, hi):
+    return [ri(lo, hi) for _ in range(n)]
 
 
 # samples
-add(10, [(95, 110), (0, 30), (200, 230), (60, 90), (35, 50)], False)
-add(1, [(0, 100), (10, 20), (30, 40), (106, 110), (100, 105)], False)
-add(5, [(3, 8)], False)
-add(1000, [(500, 600), (0, 1), (2000, 2001)], False)
-add(3, [(4, 6), (4, 6), (1, 2)], False)
-add(2, [(10, 20), (1, 9), (22, 30), (11, 12)], False)
+add([50, 80, 50, 100, 70])
+add([7, 7, 7])
+add([0])
+add([0, MAXA])
+add([5, 3, 5, 1, 3, 9])
+add([10, 9, 8, 7])
 # hidden: small
-add(MAXG, [(0, MAXT)])
-add(1, [(0, 1), (1, 2), (2, 3), (4, 5)])
-add(2, [(0, 10), (2, 3), (5, 6), (11, 12), (14, 15)])   # nested: compare with the largest end
-add(3, rnd(8, 40, 5))
-add(5, rnd(30, 300, 8))
-add(20, rnd(100, 10_000, 50))
-add(100, rnd(500, 10**6, 500))
-add(1, rnd(800, 2000, 3))
-a = [(0, 1000)] + [(ri(0, 990), 0) for _ in range(300)]
-a = [(s, s + ri(1, 9)) if e == 0 else (s, e) for s, e in a] + [(1000 + 7 * i, 1003 + 7 * i) for i in range(300)]
-add(4, a)
-add(MAXG, rnd(1000, MAXT, 10))                          # everything in one group
+add([MAXA, MAXA])
+add([1, 2, 2, 2, 3])
+add(rnd(10, 0, 5))
+add(rnd(50, 0, 100))
+add(rnd(400, 0, 20))
+add(rnd(2000, 0, MAXA))
+add(rnd(5000, 0, 3))
+add(list(range(3000)))
 # hidden: large
 N = MAXN
-add(1000, rnd(N, MAXT, 4000))
-add(6000, rnd(N, MAXT, 2000))
-add(1, rnd(N, MAXT, 6000))
-a = [(i * 6000, i * 6000 + 3000) for i in range(N)]     # gaps of exactly G: N separate groups
-add(3000, a)
-a = [(i * 6000, i * 6000 + 3000 + (i % 2)) for i in range(N)]  # gaps alternate G and G - 1
-add(3000, a, False)
-a = []
-for blk in range(N // 50):                              # long appointment covering 49 short ones, then a gap
-    base = blk * 6000
-    a.append((base, base + 5000))
-    for j in range(49):
-        s = base + ri(0, 4000)
-        a.append((s, s + ri(1, 100)))
-add(900, a)
-a = [(MAXT - 1 - 6000 * i - 3000, MAXT - 1 - 6000 * i) for i in range(N)]
-add(2999, a, False)                                     # reverse sorted input
-add(MAXG, rnd(N, MAXT, 1))                              # all one group
-a = [(ri(0, 10) * 1000, 0) for _ in range(N)]
-a = [(s, s + 500) for s, _ in a]                        # heavy duplicates
-add(500, a)
-add(10, [(ri(0, MAXT - 1), MAXT) for _ in range(N)])    # all end at the latest time
-add(2, [(2 * i, 2 * i + 1) for i in range(N)])          # touching nothing, gap 1 < G
-add(5000, rnd(N, MAXT, 500))
+add(rnd(N, 0, MAXA))
+add(rnd(N, 0, 1000))
+add([ri(0, 1) * MAXA for _ in range(N)])        # two values, gap 10^9
+add([123_456_789] * N)                          # everyone first
+add([5] * (N - 1) + [6])                        # one leader, all others tied
+add([6] + [5] * (N - 1))
+add(list(range(N)))                             # all distinct, increasing
+add(list(range(MAXA, MAXA - N, -1)))            # all distinct, decreasing, large
+add([ri(0, 9) * 100_000_000 for _ in range(N)])  # ten groups of equal scores
+a = rnd(N, 0, MAXA)
+a[ri(0, N - 1)] = MAXA
+add(a)
+add(sorted(rnd(N, 0, 50_000), reverse=True))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

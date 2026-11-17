@@ -45,19 +45,22 @@ add(40, [(t, 2000 - i) for i, t in enumerate(ts)])            # decreasing value
 ts = times(5000, 1000)
 add(MAXD, [(t, ri(0, 50)) for t in ts])
 ts = times(10000, 10)
-add(ri(5, 500), [(t, ri(0, MAXV)) for t in ts])
+add(ri(5, 500), [(t, ri(0, 20)) for t in ts])                  # many equal maxima leave the window
+ts = times(20000, 3)
+add(ri(100, 200), [(t, ri(0, MAXV)) for t in ts])              # tiny window
+add(0, [(t, ri(0, MAXV)) for t in ts])
 # hidden: maximum size
 N = MAXN
 ts = times(N, 6000)
 add(MAXD, [(t, N - i) for i, t in enumerate(ts)])             # everything stays in the window, decreasing
 add(MAXD, [(t, MAXV) for t in ts])                             # all equal
-add(MAXD, [(t, i % 1000) for i, t in enumerate(ts)])          # saw teeth
+add(ts[-1] // 2, [(t, i % 1000) for i, t in enumerate(ts)])   # saw teeth: equal peaks leave the window
 add(ts[-1] // 2, [(t, N - i) for i, t in enumerate(ts)])      # half the history, decreasing
 add(ts[-1] // 3, [(t, ri(0, MAXV)) for t in ts])
 add(ts[-1] - ts[0] - 1, [(t, i) for i, t in enumerate(ts)])  # increasing: the newest always wins
 ts = times(N, 3)
-add(ri(100, 200), [(t, ri(0, MAXV)) for t in ts])
-add(0, [(t, ri(0, MAXV)) for t in ts])
+add(ts[-1] // 5, [(t, ri(0, 30)) for t in ts])                 # many equal maxima, wide window
+add(ts[-1] // 4, [(t, ri(0, 5) * 200_000) for t in ts])
 ts = [MAXT - N + 1 + i for i in range(N)]                       # consecutive seconds near 10^9
 add(N - 2, [(t, MAXV - i // 2) for i, t in enumerate(ts)])
 
