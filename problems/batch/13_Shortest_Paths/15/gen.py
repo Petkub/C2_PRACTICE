@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(81414)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def add(n, edges, shuffle=True, relabel=True):
-    """relabel: intersections other than 1 get random numbers; each road gets a random orientation"""
     edges = list(edges)
     if relabel:
         p = list(range(2, n + 1))
@@ -55,13 +54,12 @@ def grid(r, c, wfun):
     return r * c, e
 
 
-# samples
 add(4, [(1, 2, 2), (2, 4, 3), (1, 3, 4), (3, 4, 2), (2, 3, 1)], False, False)
 add(3, [(1, 2, 5), (2, 2, 1)], False, False)
 add(4, [(1, 2, 3), (1, 2, 3), (2, 3, 1), (1, 3, 4)], False, False)
 add(3, [(2, 3, 7)], False, False)
 add(3, [(1, 2, MAXW), (2, 3, MAXW)], False, False)
-# hidden: small
+
 add(2, [(1, 2, 1)])
 add(2, [(1, 1, 4)])
 add(5, [(1, 2, 3), (1, 3, 3), (2, 4, 2), (3, 4, 2), (4, 5, 1)])
@@ -75,34 +73,34 @@ n, e = grid(10, 12, lambda h: ri(1, 3))
 add(n, e)
 add(200, rnd(200, 400, 1, 10**6))
 add(300, tree(300, 1, 10, True) + rnd(300, 50, 1, 10))
-add(150, rnd(100, 300, 1, 5))                                                   # intersections 101..150 cut off
-# hidden: maximum size
+add(150, rnd(100, 300, 1, 5))
+
 N, M = MAXN, MAXM
 add(N, rnd(N, M, 1, MAXW))
-add(50_000, rnd(50_000, M, 1, 3))                                               # many ties
-add(N, tree(N, 1, MAXW, True))                                                  # only back-and-forth detours
-add(N, tree(N, MAXW, MAXW, True), True, False)                                  # lengths near 10^14
+add(50_000, rnd(50_000, M, 1, 3))
+add(N, tree(N, 1, MAXW, True))
+add(N, tree(N, MAXW, MAXW, True), True, False)
 n, e = grid(200, 250, lambda h: 1)
 add(n, e)
-n, e = grid(10_000, 5, lambda h: ri(1, 10) if h else ri(10**8, MAXW))            # cheap rows, costly columns
+n, e = grid(10_000, 5, lambda h: ri(1, 10) if h else ri(10**8, MAXW))
 add(n, e)
-e = [(i, i + 1, 2) for i in range(1, N)]                                         # a path with parallel roads
+e = [(i, i + 1, 2) for i in range(1, N)]
 e += [(i, i + 1, 2 + random.choice((0, 1, 2))) for i in range(1, N - 1, 10)]
 add(N, e[:M], True, False)
-add(70_000, rnd(60_000, M, 1, 10**4, 0.01))                                      # some intersections cut off
-e = tree(N - 1, 1, 10**4, True) + [(v, v, ri(1, 3)) for v in range(1, N, 1000)]      # self-loops, one isolated
+add(70_000, rnd(60_000, M, 1, 10**4, 0.01))
+e = tree(N - 1, 1, 10**4, True) + [(v, v, ri(1, 3)) for v in range(1, N, 1000)]
 add(N, e[:M])
-add(N, [(1, v, ri(1, MAXW)) for v in range(2, N + 1)] + [(2, 3, 1)])               # a star
+add(N, [(1, v, ri(1, MAXW)) for v in range(2, N + 1)] + [(2, 3, 1)])
 n, e = grid(220, 225, lambda h: ri(1, 1000))
 add(n, e[:M])
-e = [(i, i + 1, ri(1, 100)) for i in range(1, 50_000)]                           # long thin band
+e = [(i, i + 1, ri(1, 100)) for i in range(1, 50_000)]
 while len(e) < M:
     a = ri(1, 49_999)
     e.append((a, min(50_000, a + ri(1, 10)), ri(1, 100)))
 add(50_000, e)
 add(30_000, rnd(30_000, M, 1, 2, 0.001))
 e = []
-for b in range(25_000):                                                          # blocks of two equal routes
+for b in range(25_000):
     a, x, y, z = 3 * b + 1, 3 * b + 2, 3 * b + 3, 3 * b + 4
     e += [(a, x, 1), (x, z, 1), (a, y, 1), (y, z, 1)]
 add(75_001, e)

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(180006)
@@ -31,7 +31,6 @@ def long_q(n):
 
 
 def near_k(n, k):
-    """ranges of length close to K (some too short)"""
     ln = max(1, min(n, k + ri(-2, 3)))
     l = ri(1, n - ln + 1)
     return (l, l + ln - 1)
@@ -45,13 +44,12 @@ def queries(n, k, q, long_frac, near_frac=0.1):
     return res
 
 
-# samples
 add(3, [4, 8, 6, 2, 9, 7, 5], [(1, 7), (1, 4), (2, 5), (3, 4)])
 add(1, [3, 1, 4, 1], [(1, 4), (2, 2), (4, 4)])
 add(1, [MAXV], [(1, 1)])
 add(4, [5, 5, 5, 1, 5, 5, 5, 5], [(1, 8), (1, 7), (2, 7), (5, 8), (1, 3)])
 add(2, [6, 2, 7, 7, 1, 8, 3, 9], [(1, 8), (1, 2), (2, 3), (5, 8), (3, 4), (8, 8)])
-# hidden: small
+
 for k in (1, 2, 5, 10):
     s = [ri(1, 20) for _ in range(10)]
     add(k, s, [(l, r) for l in range(1, 11) for r in range(l, 11)])
@@ -60,18 +58,18 @@ add(7, s, queries(300, 7, 500, 0.3, 0.3))
 s = [ri(1, MAXV) for _ in range(2000)]
 add(40, s, queries(2000, 40, 2000, 0.3, 0.3))
 s = [ri(1, MAXV) for _ in range(2000)]
-add(2000, s, queries(2000, 2000, 2000, 0.3, 0.3))                       # K = N: a single stage
-# hidden: maximum size (values kept short so the input stays <= 3 MB)
+add(2000, s, queries(2000, 2000, 2000, 0.3, 0.3))
+
 N = MAXN
 for k, q in ((1, 120_000), (2, 120_000), (50, 120_000), (700, 120_000), (N // 2, 110_000), (5000, 120_000)):
     add(k, [ri(1, 999_999) for _ in range(N)], queries(N, k, q, 0.8))
 s = [MAXV] * N
-add(N // 3, s, queries(N, N // 3, 50_000, 0.8))                         # all equal
-s = list(range(1, N + 1))                                              # increasing: best stage at the right end
+add(N // 3, s, queries(N, N // 3, 50_000, 0.8))
+s = list(range(1, N + 1))
 add(1000, s, queries(N, 1000, 130_000, 0.8))
 s = [ri(1, 999_999) for _ in range(N)]
 for i in range(0, N, 300):
-    s[i] = 1                                                           # weak plank every 300: stages of 300 always hit one
+    s[i] = 1
 add(300, s, queries(N, 300, 120_000, 0.8, 0.2))
 
 for t in tests:

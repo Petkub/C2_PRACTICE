@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(80190)
@@ -20,12 +20,10 @@ def add(n, roads):
 
 
 def shuffle(lst):
-    """a random order (faster than random.shuffle, still deterministic)"""
     lst.sort(key=lambda _: random.random())
 
 
 def relabel(n, roads, first, last):
-    """junction `first` becomes 1, `last` becomes n, the others get random numbers; roads shuffled"""
     others = [v for v in range(1, n + 1) if v != first and v != last]
     nums = list(range(2, n))
     shuffle(nums)
@@ -52,7 +50,6 @@ class G:
         self.roads.append((a, b, w))
 
     def chain(self, a, b, length, inner):
-        """a route from a to b of total length `length` through `inner` new junctions"""
         assert length >= inner + 1
         cuts = sorted(random.sample(range(1, length), inner))
         prev, pos = a, 0
@@ -63,7 +60,6 @@ class G:
         self.road(prev, b, length - pos)
 
     def count_gadget(self, a, p):
-        """junction b with exactly p shortest routes from a, all of length 2k + 1 (k = bit length of p)"""
         k = p.bit_length()
         xs = [a]
         for _ in range(k):
@@ -80,7 +76,6 @@ class G:
         return b, 2 * k + 1
 
     def filler(self, attach, cnt, extra, wlo):
-        """cnt junctions hanging around (long roads, never on a shortest route)"""
         vs = [self.new() for _ in range(cnt)]
         pool = list(attach)
         rnd, span = random.random, MAXW - wlo + 1
@@ -94,8 +89,6 @@ class G:
 
 
 def collision(p, big):
-    """the routes through one junction v plus p other shortest routes: v is NOT on every shortest route,
-    but counting routes modulo p (or with 64-bit overflow when p = 2^64) says it is"""
     g = G()
     s = g.new()
     b, L = g.count_gadget(s, p)
@@ -110,8 +103,6 @@ def collision(p, big):
 
 
 def blobs(n_target, m_target, seg, wmax, p_single=0.3, p_jump=0.2):
-    """a chain of cut junctions; between two of them several routes of equal length (sometimes only one),
-    sometimes one direct road of the same length, and some longer routes"""
     g = G()
     s = g.new()
     cur = s
@@ -150,13 +141,12 @@ def grid(R, C, wmax):
     return R * C, relabel(R * C, roads, 1, R * C)
 
 
-# samples
 add(6, [(1, 2, 2), (2, 3, 2), (1, 4, 1), (4, 3, 3), (3, 5, 1), (5, 6, 4), (3, 6, 6)])
 add(3, [(1, 2, 3), (2, 3, 3), (1, 3, 6)])
 add(4, [(1, 2, 5), (3, 4, 5)])
 add(2, [(2, 1, 7)])
 add(7, [(1, 2, 4), (2, 3, 1), (1, 3, 5), (3, 4, 2), (4, 7, 3), (3, 5, 1), (5, 6, 1), (6, 7, 4), (2, 6, 9)])
-# hidden: small
+
 add(2, [(1, 2, MAXW), (1, 2, MAXW - 1)])
 add(5, [(1, 2, 1), (2, 3, 1), (3, 4, 1), (4, 5, 1), (1, 5, 4)])
 for n, m, w in ((6, 8, 2), (9, 14, 3), (12, 20, 2), (30, 50, 3), (200, 350, 4)):
@@ -166,19 +156,19 @@ for p in (10**9 + 7, 998_244_353):
 add(*collision(1 << 64, False))
 add(*blobs(1500, 3000, 4, 3))
 add(*grid(30, 40, 2))
-# hidden: largest
+
 N, M = MAXN, MAXM
-add(N, relabel(N, [(i, i + 1, ri(1, MAXW)) for i in range(1, N)], 1, N))      # a path: every junction
+add(N, relabel(N, [(i, i + 1, ri(1, MAXW)) for i in range(1, N)], 1, N))
 add(*blobs(N, M, 5, 4))
 add(*blobs(N, M, 3, 2, 0.6, 0.4))
 add(*blobs(N, M, 8, 50, 0.4, 0.1))
 add(*blobs(60_000, 80_000, 2, 3, 0.9, 0.05))
-add(*grid(170, 350, 1))                                                      # astronomically many routes
+add(*grid(170, 350, 1))
 add(*grid(170, 345, 3))
 for p in (10**9 + 7, 1 << 64):
     add(*collision(p, True))
 add(N, rnd_graph(N, M, 3))
-# a long path with direct roads over some stretches (same length): junctions inside them can be avoided
+
 L = N
 pos = [0]
 for i in range(1, L):
@@ -191,7 +181,7 @@ while len(roads) < M:
 add(N, relabel(N, roads, 1, N))
 roads = rnd_graph(N // 2, M // 2, 10)
 roads += [(a + N // 2, b + N // 2, w) for a, b, w in rnd_graph(N // 2, M // 2, 10)]
-add(N, relabel(N, roads, 1, N))                                              # two separate halves: -1
+add(N, relabel(N, roads, 1, N))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

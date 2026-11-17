@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(150009)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the rooms 2..n of a mine of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     for i in range(2, n + 1):
@@ -21,15 +20,15 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # long and narrow, many short side tunnels
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 rooms with dead ends hanging from it
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "combs":                       # 20 long spines from room 1, dead ends on every spine
+        elif kind == "combs":
             p = 1 if i <= 21 else (i - 20 if random.random() < 0.5 else ri(2, i - 1))
         else:
             raise ValueError(kind)
@@ -38,7 +37,6 @@ def shape(n, kind):
 
 
 def mine(n, kind):
-    """p[2..n] with random labels (the entrance is always room 1)"""
     par = shape(n, kind)
     assert all(1 <= par[i] < i for i in range(2, n + 1))
     lab = list(range(2, n + 1))
@@ -56,7 +54,7 @@ def add(n, a, p):
     for i in range(2, n + 1):
         assert 1 <= p[i] <= n and p[i] != i
         kids[p[i]].append(i)
-    seen, k = [1], 0                      # every room is reached from room 1 going down
+    seen, k = [1], 0
     while k < len(seen):
         seen.extend(kids[seen[k]])
         k += 1
@@ -66,15 +64,12 @@ def add(n, a, p):
 
 
 def gold(n, lo=1, hi=MAXA, rich=0.0):
-    """gold amounts in [lo, hi]; with rich = r, a share r of the rooms are rich (near hi), the rest poor"""
     if rich == 0.0:
         return [0] + [ri(lo, hi) for _ in range(n)]
     return [0] + [ri(hi // 2, hi) if random.random() < rich else ri(lo, lo + 9) for _ in range(n)]
 
 
 def trunk(n, t):
-    """a rich trunk of t rooms from room 1 with many dead ends at its bottom, and many light side tunnels
-    of length 2 from room 1: the richest single ways all share the trunk"""
     p = [0, 0]
     a = [0, ri(1, 10)]
     for i in range(2, n + 1):
@@ -105,13 +100,12 @@ def case(n, kind, lo=1, hi=MAXA, rich=0.0):
     add(n, gold(n, lo, hi, rich), mine(n, kind))
 
 
-# samples
 add(6, [0, 5, 3, 1, 4, 2, 7], [0, 0, 1, 1, 2, 2, 3])
 add(7, [0, 1, 1, 1, 3, 9, 4, 2], [0, 0, 1, 2, 3, 3, 3, 2])
 add(2, [0, 7, 3], [0, 0, 1])
 add(5, [0, 4, 5, 1, 3, 2], [0, 0, 1, 1, 1, 1])
 add(10, [0, 2, 8, 1, 6, 3, 5, 4, 9, 2, 1], [0, 0, 6, 10, 1, 6, 1, 5, 4, 10, 4])
-# hidden: small and medium (the brute force checks these)
+
 case(3, "path")
 case(9, "random", 1, 10)
 case(14, "binary", 1, 20)
@@ -123,15 +117,15 @@ case(2000, "random", rich=0.1)
 case(5000, "path")
 case(5000, "broom", 1, 1000)
 add(4000, *trunk(4000, 300))
-# hidden: maximum size (many dead ends)
+
 N = MAXN
 case(N, "random", rich=0.05)
 case(N, "random", 1, 10)
 case(N, "deep")
 case(N, "binary", rich=0.2)
 case(N, "caterpillar")
-case(N, "caterpillar", MAXA, MAXA)                                 # the largest totals
-case(N, "broom", 1, 3)                                             # many equal ways
+case(N, "caterpillar", MAXA, MAXA)
+case(N, "broom", 1, 3)
 case(N, "star")
 case(N, "combs", rich=0.02)
 add(N, *trunk(N, 3000))

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(11015)
@@ -20,36 +20,35 @@ def rnd(n, lo, hi):
     return [ri(lo, hi) for _ in range(n)]
 
 
-# samples
 add(2, [3, -1, 4, -9, 2, 6, -5, 1])
 add(2, [-5, -2, -8, -1])
 add(1, [2, -3, 5, -1, 4])
 add(3, [1, 2, 3])
 add(2, [5, -10, 5, -10, 5])
 add(3, [-1, 7, -2, 7, -100, 3, -3, 4, -6])
-# hidden: small (the brute tries everything)
+
 add(1, [-MAXV])
 add(1, [MAXV, -1, MAXV])
 add(3, rnd(10, -10, 10))
 add(4, rnd(12, -100, 100))
 add(2, rnd(12, -5, 1))
 add(5, rnd(11, -MAXV, MAXV))
-# hidden: medium
+
 add(20, rnd(2000, -1000, 1000))
 add(10, rnd(1500, -MAXV, MAXV // 2))
-# hidden: maximum size
+
 N, K = MAXN, MAXK
 add(K, rnd(N, -MAXV, MAXV))
-add(K, rnd(N, -MAXV, MAXV // 20))                      # mostly negative
-add(K, rnd(N, -MAXV, -1))                              # all negative: the K largest days
-add(K, [MAXV] * N)                                     # 2 * 10^14
+add(K, rnd(N, -MAXV, MAXV // 20))
+add(K, rnd(N, -MAXV, -1))
+add(K, [MAXV] * N)
 add(K, [MAXV if i % 2 == 0 else -MAXV for i in range(N)])
-add(1, rnd(N, -MAXV, MAXV))                            # one stretch
+add(1, rnd(N, -MAXV, MAXV))
 add(K, rnd(N, -10**6, 10**6))
 add(K - 1, [(MAXV if i % 1000 < 3 else -ri(1, 10**6)) for i in range(N)])
 add(K, [ri(-MAXV, MAXV) if i % 7 else -MAXV for i in range(N)])
 add(150, rnd(N, -10**4, 10**4))
-add(K, [ri(1, 1000) if (i // 500) % 2 else -ri(1, 1000) for i in range(N)])   # 200 good blocks, K = 300
+add(K, [ri(1, 1000) if (i // 500) % 2 else -ri(1, 1000) for i in range(N)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

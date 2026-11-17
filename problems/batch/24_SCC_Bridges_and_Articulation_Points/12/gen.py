@@ -1,8 +1,8 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import gc, os, random
 
 random.seed(2412)
-gc.disable()                    # millions of small tuples: no cyclic GC needed, much faster
+gc.disable()
 rnd = random.random
 MAXRC, SUMRC, SUMK = 100_000, 200_000, 100_000
 tests = []
@@ -13,7 +13,6 @@ def ri(lo, hi):
 
 
 def add(cases):
-    """cases: list of (R, C, requests)"""
     assert 1 <= len(cases)
     assert sum(R + C for R, C, q in cases) <= SUMRC and sum(len(q) for R, C, q in cases) <= SUMK
     for R, C, q in cases:
@@ -41,7 +40,6 @@ def rand_case(R, C, K, straight=0.02):
 
 
 def ok(east, south, q):
-    """does request q work with the directions east[r] (row r goes east) and south[c] (column c goes south)?"""
     r1, c1, r2, c2 = q
     row = lambda r: east[r] == (c2 > c1)
     col = lambda c: south[c] == (r2 > r1)
@@ -53,7 +51,6 @@ def ok(east, south, q):
 
 
 def planted_case(R, C, K, straight=0.02, one_route=0.7):
-    """random directions, then requests that these directions satisfy (YES); most of them by one route only"""
     east = [random.random() < 0.5 for _ in range(R + 1)]
     south = [random.random() < 0.5 for _ in range(C + 1)]
     q = []
@@ -71,7 +68,6 @@ def planted_case(R, C, K, straight=0.02, one_route=0.7):
 
 
 def spoil(case, k):
-    """add k requests that the planted directions do not satisfy (the case usually becomes NO)"""
     R, C, q, east, south = case
     q = list(q)
     while k > 0:
@@ -83,22 +79,18 @@ def spoil(case, k):
 
 
 def chain(R, C, k):
-    """2k + 2 requests that no directions satisfy: a staircase of k blocks, block i has east-west streets
-    rows[i], rows[i + 1] and north-south streets cols[i], cols[i + 1]; the two diagonal requests of a block force
-    a clockwise or anticlockwise loop around it, neighbouring blocks must turn opposite ways, and the two straight
-    requests at the ends ask for the wrong parity"""
     rows = sorted(random.sample(range(1, R + 1), k + 1))
     cols = sorted(random.sample(range(1, C + 1), k + 1))
     q = []
     for i in range(k):
         q.append((rows[i], cols[i], rows[i + 1], cols[i + 1]))
         q.append((rows[i + 1], cols[i + 1], rows[i], cols[i]))
-    q.append((rows[0], cols[0], rows[0], cols[1]))        # first row goes east: block 0 clockwise
-    # block k-1 is clockwise when k is odd, and then its lower row goes west; ask for the opposite
+    q.append((rows[0], cols[0], rows[0], cols[1]))
+
     if k % 2 == 1:
-        q.append((rows[k], cols[0], rows[k], cols[k]))    # east
+        q.append((rows[k], cols[0], rows[k], cols[k]))
     else:
-        q.append((rows[k], cols[k], rows[k], cols[0]))    # west
+        q.append((rows[k], cols[k], rows[k], cols[0]))
     return q
 
 
@@ -115,27 +107,22 @@ def plain(case):
 
 
 def chain_of_turns(k, no=False):
-    """a satisfiable case (or NO with no=True) where row 2 + i going east forces column 2 + i south, which forces
-    row 3 + i east (through requests ending at (R, 2) and (2, C) whose other streets are fixed), and so on up to
-    column k + 2, which must go north: rows 3, 4, ... all have to go west, but each one is found out only at the
-    end of a long chain of forced streets"""
     R = C = k + 3
     q = [(1, 2, 1, 1), (2, 1, 1, 1), (2, 1, 2, 2), (2, C, 1, C), (R, 2, R, 1), (1, 2, 2, 2), (2, k + 2, 1, k + 2)]
     q += [(i + 2, i + 2, R, 2) for i in range(1, k + 1)]
     q += [(i + 3, i + 2, 2, C) for i in range(1, k)]
     if no:
-        q.append((k + 2, 1, k + 2, 2))                    # the last row of the chain must go east: NO
+        q.append((k + 2, 1, k + 2, 2))
     random.shuffle(q)
     return R, C, q
 
 
-# samples
 add([(2, 2, [(1, 1, 2, 2), (2, 2, 1, 1)]), (1, 3, [(1, 1, 1, 3), (1, 3, 1, 2)])])
 add([(2, 2, [(1, 1, 2, 2), (2, 2, 1, 1), (1, 1, 1, 2), (2, 1, 2, 2)])])
 add([(3, 3, [(1, 1, 3, 3), (3, 1, 1, 3), (2, 2, 2, 1)]), (2, 1, [(1, 1, 2, 1)])])
 add([(4, 4, [(1, 1, 4, 4), (4, 4, 1, 1), (1, 4, 4, 1), (4, 1, 1, 4)])])
 add([(1, 2, [(1, 1, 1, 2), (1, 2, 1, 1)]), (2, 2, [(1, 2, 2, 1)])])
-# hidden: many tiny cases (brute force over all directions)
+
 for sizes in ((2, 4), (3, 5), (4, 6)):
     cs = []
     for _ in range(300):
@@ -152,13 +139,13 @@ for _ in range(200):
     R, C = ri(3, 10), ri(3, 10)
     cs.append(spoil(planted_case(R, C, ri(5, 25)), 1) if random.random() < 0.5 else plain(planted_case(R, C, ri(5, 30))))
 add(cs)
-# hidden: medium
+
 cs = [rand_case(100, 100, k) for k in (30, 40, 50, 60, 70)] + [plain(planted_case(100, 100, 600))] + [spoil(planted_case(100, 100, 500), 1), spoil_chain(planted_case(100, 100, 300), 60)]
 add(cs)
 cs = [rand_case(1000, 1000, k) for k in range(400, 660, 50)] + [plain(planted_case(1000, 1000, 3000)) for _ in range(3)]
 add(cs)
-# hidden: maximum size (a file holds several big cases, so answering one word for all of them fails;
-# each one has a long chain of forced streets)
+
+
 K0 = 25_000
 add([chain_of_turns(K0), plain(planted_case(37_000, 37_000, 25_000)),
      spoil_chain(planted_case(37_000, 37_000, 14_000), 4999)])

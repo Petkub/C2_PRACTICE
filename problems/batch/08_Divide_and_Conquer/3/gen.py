@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(13006)
@@ -15,7 +15,6 @@ def add(k, p):
 
 
 def from_cycles(n, lengths):
-    """a permutation of 1..n whose cycles have the given lengths (the rest fixed points), placed at random"""
     pos = list(range(1, n + 1))
     random.shuffle(pos)
     p = list(range(n + 1))
@@ -50,7 +49,6 @@ PR = primes_upto(5000)
 
 
 def prime_cycles(n):
-    """cycles of distinct prime lengths, largest first, filling n as far as possible"""
     lengths, total = [], 0
     for q in PR:
         if total + q > n:
@@ -60,13 +58,12 @@ def prime_cycles(n):
     return from_cycles(n, lengths)
 
 
-# samples
 add(2, [2, 3, 1, 5, 4])
 add(1, [2, 4, 1, 3])
 add(0, [3, 1, 2])
 add(10 ** 18, [4, 1, 2, 3, 6, 7, 5])
 add(7, [1])
-# hidden: small (the brute force shuffles k times)
+
 add(1, [1, 2])
 add(3, [2, 1])
 add(5, perm(8))
@@ -76,14 +73,14 @@ add(1000, perm(1000))
 add(150, perm(20000))
 add(MAXK, perm(1000))
 add(MAXK - 1, prime_cycles(5000))
-# hidden: large
+
 N = MAXN
 add(MAXK, perm(N))
 add(random.randint(MAXK // 2, MAXK), perm(N))
 add(MAXK - 7, from_cycles(N, [N]))
 add(MAXK - 1, prime_cycles(N))
 add(random.randint(1, MAXK), prime_cycles(N))
-add(N - 1 + N * random.randint(10 ** 9, 10 ** 12), from_cycles(N, [N]))      # k mod N = N - 1
+add(N - 1 + N * random.randint(10 ** 9, 10 ** 12), from_cycles(N, [N]))
 add(MAXK, list(range(N, 0, -1)))
 add(MAXK - 1, list(range(N, 0, -1)))
 add(MAXK, list(range(1, N + 1)))

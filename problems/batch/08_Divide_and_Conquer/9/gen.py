@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(131201)
@@ -26,7 +26,6 @@ def rq(n, p1=0.5):
 
 
 def edge_q(n):
-    """steps next to the borders of the quadrants of every level, cells on borders and diagonals"""
     side = 1 << n
     k = random.randint(0, n - 1)
     r = random.random()
@@ -42,20 +41,19 @@ def edge_q(n):
     return (2, min(x, side - 1), min(y, side - 1))
 
 
-# samples
 add(2, [(1, 6), (1, 13), (2, 3, 3), (2, 0, 2)])
 add(1, [(1, 3), (2, 0, 1), (2, 1, 1)])
 add(3, [(1, 21), (2, 4, 3), (2, 7, 0)])
 add(30, [(1, 5), (2, 0, 2**30 - 1), (2, 2**30 - 1, 0)])
 add(5, [(1, 500), (2, 31, 16), (1, 1023)])
-# hidden: small (the brute force walks the whole curve)
+
 add(1, [(1, d) for d in range(4)] + [(2, x, y) for x in range(2) for y in range(2)])
 add(3, [(1, d) for d in range(64)] + [(2, x, y) for x in range(8) for y in range(8)])
 add(4, [(1, d) for d in range(256)][::-1] + [(2, x, y) for y in range(16) for x in range(16)])
 add(7, [rq(7) for _ in range(3000)])
 add(9, [edge_q(9) for _ in range(5000)])
 add(11, [rq(11) for _ in range(20000)])
-# hidden: large
+
 add(30, [rq(30) for _ in range(MAXQ)])
 add(30, [rq(30, 1.0) for _ in range(MAXQ)])
 add(30, [rq(30, 0.0) for _ in range(MAXQ)])

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(11004)
@@ -20,36 +20,35 @@ def rnd(n, k, lo=1):
     return [ri(lo, lo + k - 1) for _ in range(n)]
 
 
-# samples
 add([5, 5, 7])
 add([4, 4, 4, 4])
 add([3, 1, 3, 2, 1])
 add([1000000000, 7, 1000000000, 7, 999999999])
 add([42])
 add([2, 1, 1, 2, 3, 3, 1, 2])
-# hidden: small (the brute tries every set)
+
 add([1, 2])
 add([9, 9])
-add(list(range(1, 21)))                      # all different: 2^20 - 1
+add(list(range(1, 21)))
 add(rnd(18, 2))
 add(rnd(20, 3))
 add(rnd(19, 5, MAXG - 4))
 add([1, 2] * 10)
-# hidden: medium
+
 add(rnd(3000, 3))
 add(rnd(5000, 50, 10**8))
-# hidden: maximum size
+
 N = MAXN
-M = 200_000                                  # 10-digit genres: shorter (file size)
+M = 200_000
 add(rnd(N, 2))
 add(rnd(N, 1000))
 add(rnd(N, 30))
-add([7] * N)                                 # only single songs: answer N
-add(list(range(1, N + 1)))                   # all different: 2^N - 1
-add([1 + i % 2 for i in range(N)])           # alternating
-add([1 + (i // 3) % 4 for i in range(N)])    # blocks of equal genres
-add(rnd(M, MAXG))                            # big ids, mostly distinct
-add(rnd(M, 5, MAXG - 4))                     # big ids, few genres
+add([7] * N)
+add(list(range(1, N + 1)))
+add([1 + i % 2 for i in range(N)])
+add([1 + (i // 3) % 4 for i in range(N)])
+add(rnd(M, MAXG))
+add(rnd(M, 5, MAXG - 4))
 add([MAXG - (i % 3) * 400_000_000 for i in range(M)])
 add([1 if random.random() < 0.95 else 2 for _ in range(N)])
 

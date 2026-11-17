@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(80220)
@@ -24,14 +24,13 @@ def rnd_x(n, q):
     return [random.randint(1, 1 << n) for _ in range(q)]
 
 
-# samples
 add(3, "11001001", [8, 3, 6])
 add(3, "00000000", [5, 5, 8])
 add(1, "11", [1, 2, 1])
 add(2, "1111", [2, 4, 1, 3, 2])
 add(4, "1011000101110100", [7, 16, 1, 9, 12])
 
-# hidden: small (the brute force replays every day)
+
 add(1, "00", [1])
 add(1, "10", [1, 2, 2, 1, 1, 2])
 add(2, "0000", [1, 2, 3, 4, 1, 2, 3, 4])
@@ -41,7 +40,7 @@ add(10, rnd_s(10), rnd_x(10, 2000))
 add(10, "1" * 1024, list(range(1, 1025)) + list(range(1024, 0, -1)))
 add(12, "0" * 4096, [random.choice([1, 2048, 2049, 4096]) for _ in range(2000)])
 add(14, rnd_s(14, 0.9), rnd_x(14, 1000))
-# hidden: largest (N = 20, 100 000 days)
+
 M = 1 << MAXN
 add(MAXN, rnd_s(MAXN), rnd_x(MAXN, MAXQ))
 add(MAXN, "1" * M, rnd_x(MAXN, MAXQ))

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(100120)
@@ -35,14 +35,13 @@ def add(n, edges, qs):
 
 
 def shape(n, kind):
-    """parent of point i (2..n) is par[i] < i, in creation order"""
     par = [0, 0]
     for i in range(2, n + 1):
         if kind == "random":
             p = ri(1, i - 1)
         elif kind == "path":
             p = i - 1
-        elif kind == "twoarms":                    # a path with point 1 in the middle
+        elif kind == "twoarms":
             p = 1 if i <= 3 else i - 2
         elif kind == "star":
             p = 1
@@ -61,7 +60,6 @@ def shape(n, kind):
 
 
 class Tree:
-    """a tree in creation order (par[i] < i, root 1) with jump tables, to build queries quickly"""
 
     def __init__(self, n, kind, wgen):
         self.n = n
@@ -73,7 +71,7 @@ class Tree:
         self.D = D
         p0 = self.par[:]
         p0[1] = 1
-        self.jump = [p0]                           # jump[k][x] = 2^k-th ancestor (1 if none)
+        self.jump = [p0]
         for _ in range(16):
             j = self.jump[-1]
             self.jump.append([j[j[x]] for x in range(n + 1)])
@@ -99,7 +97,6 @@ class Tree:
 
 
 def q_random(T):
-    """any two points; t anywhere up to D[u] + D[v] (at least the distance, often more)"""
     u, v = ri(1, T.n), ri(1, T.n)
     hi = T.D[u] + T.D[v]
     r = random.random()
@@ -108,24 +105,22 @@ def q_random(T):
 
 
 def q_line(T):
-    """v is an ancestor of u (or the other way round); t hits points exactly or just misses them"""
     u = ri(1, T.n)
     v = T.ancestor(u, ri(0, T.n))
     a = T.ancestor(u, ri(0, T.n))
     if T.D[a] < T.D[v]:
         a = v
     d = T.D[u] - T.D[v]
-    if random.random() < 0.5:                      # walking up from u
+    if random.random() < 0.5:
         t = T.D[u] - T.D[a]
         t = max(0, min(d, t + pick((0, 0, -1, 1))))
         return u, v, t
-    t = T.D[a] - T.D[v]                            # walking down from v to u
+    t = T.D[a] - T.D[v]
     t = max(0, min(d + 1, t + pick((0, 0, -1, 1))))
     return v, u, t
 
 
 def q_fork(T):
-    """u and v in different branches below l, t near points on the way, including l itself"""
     l = ri(1, T.n)
     ks = T.kids[l]
     u = T.down(pick(ks), ri(0, 12)) if ks else l
@@ -176,13 +171,12 @@ def build(n, kind, wgen, q, qgen):
     add(n, edges, qs)
 
 
-# samples
 add(6, [(1, 2, 3), (2, 3, 2), (2, 4, 4), (1, 5, 5), (5, 6, 1)], [(3, 6, 4), (3, 6, 9), (6, 3, 3)])
 add(3, [(1, 2, 10), (2, 3, 10)], [(1, 3, 15), (3, 1, 20), (1, 3, 99)])
 add(1, [], [(1, 1, 0), (1, 1, 5)])
 add(4, [(2, 1, 1), (3, 2, 1), (4, 3, 1)], [(4, 1, 2), (1, 4, 0), (2, 4, 1)])
 add(4, [(1, 2, 100000), (1, 3, 100000), (1, 4, 100000)], [(2, 3, 150000), (3, 4, 1)])
-# hidden: small
+
 add(2, [(2, 1, 7)], [(1, 2, t) for t in range(0, 9)] + [(2, 1, t) for t in range(0, 9)] + [(1, 1, 3), (2, 2, 0)])
 build(10, "random", lambda: ri(1, 5), 100, q_mix)
 build(50, "path", lambda: ri(1, 3), 200, q_mix)
@@ -190,7 +184,7 @@ build(300, "random", lambda: ri(1, MAXW), 300, q_mix)
 build(1000, "cater", lambda: ri(1, 20), 1000, q_mix)
 build(2000, "spider", lambda: ri(1, MAXW), 1000, q_mix)
 build(3000, "binary", lambda: 1, 2000, q_mix)
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
 build(N, "path", lambda: MAXW, Q, q_mix)
 build(N, "twoarms", lambda: ri(1, MAXW), Q, q_random)

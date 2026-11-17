@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(12011)
@@ -19,7 +19,6 @@ def add(L, btns, qs):
 
 
 def pat(L, x):
-    """pattern of mask x: character t is lamp t + 1"""
     return format(x, f"0{L}b")[::-1]
 
 
@@ -32,13 +31,12 @@ def span(L, btns):
     s = {0}
     for b in btns:
         mk = sum(1 << (x - 1) for x in b)
-        if mk not in s:                                  # s is a subspace: adding mk doubles it
+        if mk not in s:
             s |= {v ^ mk for v in s}
     return sorted(s)
 
 
 def queries(L, btns, q, p_same=0.02, p_reach=0.5):
-    """random pairs; with probability p_reach the pair differs by a reachable mask (so the answer is not -1)"""
     sp = span(L, btns)
     full = 1 << L
     pats = [pat(L, x) for x in range(full)]
@@ -57,7 +55,6 @@ def queries(L, btns, q, p_same=0.02, p_reach=0.5):
     return out
 
 
-# samples
 add(3, [[1, 2], [2, 3], [3]], [("000", "001"), ("110", "011"), ("101", "000")])
 add(4, [[1, 2], [3, 4]], [("0000", "1111"), ("1100", "0011"), ("0000", "1000"), ("1111", "0000")])
 add(1, [[1]], [("0", "1"), ("0", "0"), ("1", "0")])
@@ -65,7 +62,7 @@ add(5, [[1, 2, 3], [3, 4], [5], [1, 2, 3]],
     [("00000", "11011"), ("11100", "00111"), ("10000", "01000"), ("00000", "00000")])
 add(8, [[1, 2], [2, 3, 4], [5, 8], [6, 7, 8], [1, 5], [3, 6]],
     [("11001001", "01110111"), ("10001000", "01010100"), ("10111110", "00000000")])
-# hidden: small (the brute force tries every subset of buttons)
+
 add(1, [[1], [1]], [("1", "1"), ("1", "0"), ("0", "1")])
 add(2, [[1, 2]], [(a, b) for a in ("00", "01", "10", "11") for b in ("00", "01", "10", "11")])
 for L, m in ((4, 6), (5, 8), (6, 10), (7, 12), (8, 12)):
@@ -73,24 +70,24 @@ for L, m in ((4, 6), (5, 8), (6, 10), (7, 12), (8, 12)):
     add(L, bt, queries(L, bt, 40, 0.1))
 bt = [[i, i + 1] for i in range(1, 12)] + [[12]]
 add(12, bt, queries(12, bt, 50, 0.05))
-# hidden: medium
+
 bt = [rand_btn(10, 1, 4) for _ in range(30)]
 add(10, bt, queries(10, bt, 1000))
 bt = [rand_btn(14, 2, 2) for _ in range(20)]
 add(14, bt, queries(14, bt, 5000))
-bt = [rand_btn(16, 1, 16)]                                           # a single button
+bt = [rand_btn(16, 1, 16)]
 add(16, bt, queries(16, bt, 3000, 0.05, 0.3))
-# hidden: large
+
 L, M, Q = MAXL, MAXM, MAXQ
 bt = [rand_btn(L, 1, L) for _ in range(M)]
 add(L, bt, queries(L, bt, Q))
-bt = [[i] for i in range(1, L + 1)]                                  # one lamp per button
+bt = [[i] for i in range(1, L + 1)]
 add(L, bt, queries(L, bt, Q))
-bt = [[i, i + 1] for i in range(1, L)]                               # neighbouring pairs: half of all patterns
+bt = [[i, i + 1] for i in range(1, L)]
 add(L, bt, queries(L, bt, Q))
-bt = [[i, i + 1] for i in range(1, L)] + [[L]]                       # long answers (up to L presses)
+bt = [[i, i + 1] for i in range(1, L)] + [[L]]
 add(L, bt, queries(L, bt, Q))
-base = [rand_btn(L, 3, 8) for _ in range(9)]                         # a small span: many -1
+base = [rand_btn(L, 3, 8) for _ in range(9)]
 bt = []
 while len(bt) < M:
     mk = 0
@@ -99,16 +96,16 @@ while len(bt) < M:
     if mk:
         bt.append([t + 1 for t in range(L) if mk >> t & 1])
 add(L, bt, queries(L, bt, Q, 0.02, 0.4))
-bt = [rand_btn(L, 10, L) for _ in range(M)]                          # heavy buttons
+bt = [rand_btn(L, 10, L) for _ in range(M)]
 add(L, bt, queries(L, bt, Q))
-bt = [rand_btn(L, 1, 2) for _ in range(M)]                           # many copies of light buttons
+bt = [rand_btn(L, 1, 2) for _ in range(M)]
 add(L, bt, queries(L, bt, Q))
-bt = [sorted({1 + (i % L), 1 + ((i + 5) % L)}) for i in range(M)]    # 16 distinct buttons, each 12 or 13 times
+bt = [sorted({1 + (i % L), 1 + ((i + 5) % L)}) for i in range(M)]
 add(L, bt, queries(L, bt, Q))
-bt = [rand_btn(L, 1, L) for _ in range(M)]                          # 16 = 8 + 8 lamps: two halves
+bt = [rand_btn(L, 1, L) for _ in range(M)]
 bt = [[x for x in b if x <= 8] or [1] for b in bt[:100]] + [[x for x in b if x > 8] or [L] for b in bt[100:]]
 add(L, bt, queries(L, bt, Q))
-bt = [list(range(1, i + 1)) for i in range(1, L + 1)]                # prefixes
+bt = [list(range(1, i + 1)) for i in range(1, L + 1)]
 add(L, bt, queries(L, bt, Q))
 bt = [rand_btn(L, 2, 5) for _ in range(40)]
 add(L, bt, queries(L, bt, Q, 0.01, 0.8))

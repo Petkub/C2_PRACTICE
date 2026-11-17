@@ -574,37 +574,37 @@
   "samples": 6
  },
  "503": {
-  "title": "ทำนองขึ้นลงสลับกัน",
-  "en": "Leaping Melody",
+  "title": "ไปกลับด้วยน้ำมันเต็มถัง",
+  "en": "Full-Tank Round Trip",
   "tier": 1,
   "dir": "05_Greedy/3",
   "samples": 6
  },
  "504": {
-  "title": "ไปกลับด้วยน้ำมันเต็มถัง",
-  "en": "Full-Tank Round Trip",
-  "tier": 1,
-  "dir": "05_Greedy/4",
-  "samples": 6
- },
- "505": {
   "title": "แต้มพิเศษการกุศล",
   "en": "Charity Bonus Points",
   "tier": 1,
-  "dir": "05_Greedy/5",
+  "dir": "05_Greedy/4",
   "samples": 5
  },
- "506": {
+ "505": {
   "title": "รอตรวจที่คลินิก",
   "en": "Waiting at the Clinic",
+  "tier": 1,
+  "dir": "05_Greedy/5",
+  "samples": 6
+ },
+ "506": {
+  "title": "กระโดดข้ามหิน",
+  "en": "Hopping Stones",
   "tier": 1,
   "dir": "05_Greedy/6",
   "samples": 6
  },
  "507": {
-  "title": "กระโดดข้ามหิน",
-  "en": "Hopping Stones",
-  "tier": 1,
+  "title": "ทำนองขึ้นลงสลับกัน",
+  "en": "Leaping Melody",
+  "tier": 2,
   "dir": "05_Greedy/7",
   "samples": 6
  },
@@ -1680,51 +1680,51 @@
   "samples": 6
  },
  "1301": {
-  "title": "สายชนวนพลุ",
-  "en": "Firework Fuses",
-  "tier": 1,
-  "dir": "13_Shortest_Paths/1",
-  "samples": 5
- },
- "1302": {
   "title": "ทุ่งโคลน",
   "en": "Muddy Field",
   "tier": 1,
-  "dir": "13_Shortest_Paths/2",
+  "dir": "13_Shortest_Paths/1",
   "samples": 6
  },
- "1303": {
+ "1302": {
   "title": "คูปองต้องใช้ให้หมด",
   "en": "No Coupon Left Over",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/2",
+  "samples": 5
+ },
+ "1303": {
+  "title": "สถานีดับเพลิงที่ใกล้ที่สุด",
+  "en": "Nearest Fire Station",
   "tier": 1,
   "dir": "13_Shortest_Paths/3",
   "samples": 5
  },
  "1304": {
-  "title": "สถานีดับเพลิงที่ใกล้ที่สุด",
-  "en": "Nearest Fire Station",
-  "tier": 1,
-  "dir": "13_Shortest_Paths/4",
-  "samples": 5
- },
- "1305": {
   "title": "ค่าผ่านทางติดลบ",
   "en": "Negative Tolls",
   "tier": 1,
-  "dir": "13_Shortest_Paths/5",
+  "dir": "13_Shortest_Paths/4",
   "samples": 6
  },
- "1306": {
+ "1305": {
   "title": "แวะที่ทำการไปรษณีย์",
   "en": "Via the Post Office",
+  "tier": 1,
+  "dir": "13_Shortest_Paths/5",
+  "samples": 5
+ },
+ "1306": {
+  "title": "เมืองที่โดดเดี่ยวที่สุด",
+  "en": "Most Isolated Town",
   "tier": 1,
   "dir": "13_Shortest_Paths/6",
   "samples": 5
  },
  "1307": {
-  "title": "เมืองที่โดดเดี่ยวที่สุด",
-  "en": "Most Isolated Town",
-  "tier": 1,
+  "title": "สายชนวนพลุ",
+  "en": "Firework Fuses",
+  "tier": 2,
   "dir": "13_Shortest_Paths/7",
   "samples": 5
  },
@@ -1750,8 +1750,8 @@
   "samples": 5
  },
  "1311": {
-  "title": "สนามบินเชื่อมสามเมือง",
-  "en": "Airports for Three Cities",
+  "title": "เมืองบังคับทาง",
+  "en": "Forced Exits",
   "tier": 2,
   "dir": "13_Shortest_Paths/11",
   "samples": 5
@@ -2218,23 +2218,23 @@
   "samples": 5
  },
  "1705": {
-  "title": "ช่องบวกแต้มกับช่องตั้งแต้ม",
-  "en": "Add Squares and Reset Squares",
+  "title": "บัตรใบที่ K ในกล่อง",
+  "en": "K-th Card in the Box",
   "tier": 1,
   "dir": "17_Fenwick_and_Segment_Tree/5",
   "samples": 5
  },
  "1706": {
-  "title": "บัตรใบที่ K ในกล่อง",
-  "en": "K-th Card in the Box",
+  "title": "ต้นกล้าในแปลงนา",
+  "en": "Seedlings in the Field",
   "tier": 1,
   "dir": "17_Fenwick_and_Segment_Tree/6",
   "samples": 5
  },
  "1707": {
-  "title": "ต้นกล้าในแปลงนา",
-  "en": "Seedlings in the Field",
-  "tier": 1,
+  "title": "ช่องบวกแต้มกับช่องตั้งแต้ม",
+  "en": "Add Squares and Reset Squares",
+  "tier": 2,
   "dir": "17_Fenwick_and_Segment_Tree/7",
   "samples": 5
  },
@@ -2246,8 +2246,8 @@
   "samples": 5
  },
  "1709": {
-  "title": "กล้องบนราง",
-  "en": "The Camera on the Rail",
+  "title": "ส่งงานพิมพ์ซ้ำ",
+  "en": "Resubmitted Print Jobs",
   "tier": 2,
   "dir": "17_Fenwick_and_Segment_Tree/9",
   "samples": 5

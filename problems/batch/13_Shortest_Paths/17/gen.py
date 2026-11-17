@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(131818)
@@ -32,7 +32,6 @@ def add(n, start, programs, queries, mix=True):
 
 
 def bits(x, n):
-    """machine i (1-based) is bit i - 1"""
     return "".join("1" if x >> i & 1 else "0" for i in range(n))
 
 
@@ -49,8 +48,6 @@ def rnd_programs(n, m, p_need, p_eff, tlo, thi):
 
 
 def counter(n, tlo, thi, perm=None):
-    """program i: machine i running and machines before it stopped -> machine i stops, machines before it run
-    (a binary counter going down by one); machines are renamed by perm"""
     perm = perm or list(range(n))
     res = []
     for i in range(n):
@@ -63,7 +60,6 @@ def counter(n, tlo, thi, perm=None):
 
 
 def shortcuts(n, k, start, t):
-    """expensive programs that jump from the start pattern straight to a random pattern"""
     return [(t, start, rnd_pattern(n)) for _ in range(k)]
 
 
@@ -71,7 +67,6 @@ def queries(n, q, reach=None):
     return [rnd_pattern(n) if reach is None or random.random() < 0.2 else random.choice(reach) for _ in range(q)]
 
 
-# samples
 add(3, "111", [(4, "1.1", "0.."), (1, "0..", ".0."), (2, "00.", "..0"), (5, "..0", "1..")],
     ["000", "011", "110"], False)
 add(2, "10", [(3, "1.", "01"), (7, ".1", ".0")], ["10", "01", "00", "11"], False)
@@ -79,7 +74,7 @@ add(4, "0000", [(2, "...0", "...1"), (3, "...1", "..10"), (6, "..1.", "1..."), (
     ["0001", "1100", "1111"], False)
 add(3, "101", [(MAXT, "1..", "0.."), (MAXT, "..1", "..0"), (1, "0.0", "010")], ["000", "010", "111"], False)
 add(1, "1", [(9, "1", "0"), (4, "0", "1")], ["0", "1"], False)
-# hidden: small (checked against the brute force)
+
 add(5, "11111", counter(5, 1, 3), ["00000", "10101", "11110"])
 for n, m, pn, pe, thi, q in ((3, 4, 0.5, 0.5, 10, 8), (4, 6, 0.3, 0.6, 5, 16), (6, 10, 0.4, 0.4, 100, 30),
                              (8, 20, 0.3, 0.3, MAXT, 50), (10, 30, 0.2, 0.3, 1000, 100)):
@@ -87,7 +82,7 @@ for n, m, pn, pe, thi, q in ((3, 4, 0.5, 0.5, 10, 8), (4, 6, 0.3, 0.6, 5, 16), (
 add(8, "1" * 8, counter(8, 1, 10) + shortcuts(8, 3, "1" * 8, 3000), [bits(x, 8) for x in range(256)])
 add(10, "1" * 10, counter(10, MAXT // 2, MAXT, random.sample(range(10), 10)), queries(10, 200))
 add(12, rnd_pattern(12), rnd_programs(12, 40, 0.15, 0.25, 1, 50), queries(12, 1000))
-# hidden: maximum size
+
 n, Q = MAXN, MAXQ
 add(n, "1" * n, counter(n, MAXT - 1000, MAXT) + rnd_programs(n, 80, 0.5, 0.2, MAXT, MAXT), queries(n, Q))
 add(n, "1" * n, counter(n, 1, MAXT, random.sample(range(n), n)) + shortcuts(n, 80, "1" * n, MAXT)
@@ -96,7 +91,7 @@ add(n, rnd_pattern(n), rnd_programs(n, MAXM, 0.15, 0.2, 1, MAXT), queries(n, Q))
 add(n, rnd_pattern(n), rnd_programs(n, MAXM, 0.1, 0.1, 1, 10), queries(n, Q))
 add(n, "0" * n, rnd_programs(n, MAXM, 0.3, 0.15, 1, 1000), queries(n, Q))
 b = rnd_programs(n, MAXM - n, 0.2, 0.15, 10**6, MAXT)
-for i in range(n):                        # cheap one-machine programs that need a long chain of steps
+for i in range(n):
     need, eff = ["."] * n, ["."] * n
     need[i], eff[i] = "0", "1"
     if i:

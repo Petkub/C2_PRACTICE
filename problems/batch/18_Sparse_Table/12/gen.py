@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(180012)
@@ -21,7 +21,6 @@ def add(a, qs):
 
 
 def shuffled_ap(n, start, d, w):
-    """start, start + d, ... with every window of w consecutive terms shuffled: ranges made of whole windows are YES"""
     a = [start + d * i for i in range(n)]
     for b in range(0, n, w):
         part = a[b:b + w]
@@ -31,7 +30,6 @@ def shuffled_ap(n, start, d, w):
 
 
 def aligned_qs(n, w, q, long_frac=0.8):
-    """ranges made of whole windows (YES), plus some that are one card off (mostly NO)"""
     nb = (n + w - 1) // w
     res = []
     for _ in range(q):
@@ -51,8 +49,6 @@ def aligned_qs(n, w, q, long_frac=0.8):
 
 
 def dup_inside(a, w, frac):
-    """in a share of the windows one card takes the value of another card of the window, neither being the
-    window's smallest or largest: max - min and the gcd stay the same but the cards are no longer distinct"""
     for b in range(0, len(a) - w + 1, w):
         if random.random() >= frac:
             continue
@@ -64,7 +60,6 @@ def dup_inside(a, w, frac):
 
 
 def window_qs(n, w, q):
-    """exactly one whole window"""
     nb = n // w
     return [(b * w + 1, b * w + w) for b in (ri(0, nb - 1) for _ in range(q))]
 
@@ -77,13 +72,12 @@ def rnd_qs(n, q):
     return res
 
 
-# samples
 add([5, 1, 9, 3, 7, 7, 4, 10], [(1, 5), (4, 6), (5, 6), (6, 8), (2, 4), (3, 3)])
 add([0, 1, 1, 3], [(1, 4), (1, 2), (2, 3)])
 add([MAXV], [(1, 1)])
 add([0, MAXV, MAXV // 2], [(1, 3), (1, 2), (2, 3)])
 add([4, 4, 4, 2, 6, 8, 0], [(1, 3), (1, 5), (3, 7), (4, 7), (2, 5)])
-# hidden: small
+
 a = [ri(0, 6) for _ in range(10)]
 add(a, [(l, r) for l in range(1, 11) for r in range(l, 11)])
 add(shuffled_ap(300, 5, 3, 4), aligned_qs(300, 4, 500, 0.3) + rnd_qs(300, 100))
@@ -91,41 +85,41 @@ add(shuffled_ap(1000, 0, 1, 10), aligned_qs(1000, 10, 1000, 0.3))
 a = shuffled_ap(1200, 7, 6, 12)
 for _ in range(15):
     i = ri(0, 1199)
-    a[i] = a[i] + 3                                                       # breaks the gcd
+    a[i] = a[i] + 3
 add(a, aligned_qs(1200, 12, 1500, 0.3))
 a = shuffled_ap(1500, 100, 2, 6)
 for _ in range(15):
     i = ri(1, 1499)
-    a[i] = a[i - 1]                                                       # duplicates
+    a[i] = a[i - 1]
 add(a, aligned_qs(1500, 6, 1500, 0.3))
 add([ri(0, 3) * 5 for _ in range(2000)], rnd_qs(2000, 2000))
-# hidden: maximum size (values kept short where possible so the input stays <= 3 MB)
+
 N = MAXN
-add(shuffled_ap(N, 0, 1, 1), aligned_qs(N, 1, 120_000, 0.5) + rnd_qs(N, 10_000))     # sorted 0 .. N-1
+add(shuffled_ap(N, 0, 1, 1), aligned_qs(N, 1, 120_000, 0.5) + rnd_qs(N, 10_000))
 add(shuffled_ap(N, 3, 4, 100), aligned_qs(N, 100, 120_000))
 add(shuffled_ap(N, 0, 1, N), [(1, N)] * 1000 + aligned_qs(N, N, 1000) + rnd_qs(N, 100_000))
-add(shuffled_ap(N, 10, 4999, 2000), aligned_qs(N, 2000, 80_000))                     # values up to 10^9
+add(shuffled_ap(N, 10, 4999, 2000), aligned_qs(N, 2000, 80_000))
 a = shuffled_ap(N, 1, 2, 50)
 for _ in range(40):
     i = ri(1, N - 1)
-    a[i] = a[i - 1]                                                       # a few duplicates: gcd and range still fit
+    a[i] = a[i - 1]
 add(a, aligned_qs(N, 50, 120_000))
 a = shuffled_ap(N, 0, 6, 64)
 for _ in range(40):
     i = ri(0, N - 1)
-    a[i] += 3 if a[i] + 3 <= MAXV else -3                                 # a few cards off by half a step
+    a[i] += 3 if a[i] + 3 <= MAXV else -3
 add(a, aligned_qs(N, 64, 120_000))
 a = shuffled_ap(N, 5, 3, 500)
-a[N // 2] = a[N // 2 - 1]                                                 # one duplicate in the middle
+a[N // 2] = a[N // 2 - 1]
 add(a, aligned_qs(N, 500, 120_000))
-add([777] * N, rnd_qs(N, 150_000))                                        # all equal: d = 0
+add([777] * N, rnd_qs(N, 150_000))
 add([ri(0, 99_999) for _ in range(N)], rnd_qs(N, 70_000) + [(i, i + ri(1, 2)) for i in range(1, 50_001)])
 a = shuffled_ap(N, 0, 2, 200)
 for i in range(0, N, 200):
     j = i + ri(0, 199)
-    a[j] = a[j] + 1 if a[j] < 2 * N else a[j] - 1                         # every window has one odd card
+    a[j] = a[j] + 1 if a[j] < 2 * N else a[j] - 1
 add(a, aligned_qs(N, 200, 120_000))
-# hidden: duplicates that keep max - min and the gcd (only the distinctness test catches them)
+
 add(dup_inside(shuffled_ap(300, 3, 7, 6), 6, 0.5), window_qs(300, 6, 300) + aligned_qs(300, 6, 300, 0.3))
 add(dup_inside(shuffled_ap(N, 0, 1, 16), 16, 0.5), window_qs(N, 16, 60_000) + aligned_qs(N, 16, 60_000, 0.5))
 add(dup_inside(shuffled_ap(N, 11, 4999, 500), 500, 0.3), window_qs(N, 500, 25_000) + aligned_qs(N, 500, 25_000, 0.5))

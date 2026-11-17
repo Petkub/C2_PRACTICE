@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(19007)
@@ -45,8 +45,6 @@ def short_rng(n, d):
 
 
 def ops_of(n, q, pa, pc, upd, ask, addx, capc):
-    """each operation: an add of addx() on upd() with probability pa, a cap at capc() on upd() with
-    probability pc, otherwise a question on ask()"""
     ops = []
     for _ in range(q):
         r = random.random()
@@ -63,8 +61,6 @@ def ops_of(n, q, pa, pc, upd, ask, addx, capc):
 
 
 def saw(n, q, slack, k):
-    """long adds that lift most rooms above the last cap, then a long cap a bit below the new level,
-    with a few short dips so the rooms differ; questions anywhere"""
     ops, lvl = [], 0
     while len(ops) < q:
         x = ri(1, k)
@@ -87,11 +83,9 @@ def pm(k):
 
 
 def drift(k, up):
-    """adds of size up to k, mostly upwards (up > 0.5): the caps keep pulling the temperatures down"""
     return lambda: ri(1, k) * (1 if random.random() < up else -1)
 
 
-# samples
 add(5, [('A', 1, 5, 10), ('A', 2, 3, 5), ('C', 1, 4, 12), ('M', 1, 5), ('A', 3, 5, 4), ('M', 1, 5),
         ('C', 3, 5, -1), ('M', 3, 5), ('M', 1, 5)])
 add(3, [('C', 1, 3, 5), ('M', 1, 3), ('A', 1, 2, -4), ('C', 2, 3, -2), ('A', 1, 3, 3), ('M', 1, 2), ('M', 1, 3)])
@@ -99,17 +93,17 @@ add(1, [('A', 1, 1, MAXX), ('C', 1, 1, -MAXC), ('M', 1, 1), ('A', 1, 1, -MAXX), 
 add(8, [('A', 1, 8, 6), ('C', 3, 6, 2), ('A', 1, 2, 5), ('M', 1, 8), ('M', 3, 5), ('A', 4, 8, -9), ('C', 1, 8, 0),
         ('M', 4, 8)])
 add(MAXN, [('A', 1, MAXN, MAXX), ('C', 2, MAXN, 7), ('A', 1, MAXN, MAXX), ('M', 2, MAXN), ('M', 1, MAXN)])
-# hidden: small (the brute force checks these)
+
 add(8, [('A', 1, 8, 6), ('C', 3, 6, 2), ('A', 2, 4, 5), ('C', 1, 3, 4), ('M', 1, 8), ('M', 3, 5), ('A', 4, 8, -9),
-        ('M', 4, 8)])                                       # an add right after a cap on the same rooms
+        ('M', 4, 8)])
 for n, q, d in ((1, 12, 1), (5, 40, 2), (12, 100, 5), (60, 500, 20), (500, 3000, 100), (3000, 4000, 700)):
     add(n, ops_of(n, q, 0.35, 0.3, lambda: short_rng(n, d) if random.random() < 0.6 else any_rng(n),
                   lambda: any_rng(n), drift(5, 0.6), pm(12)))
-n = 2000                                                    # big values
+n = 2000
 add(n, ops_of(n, 4000, 0.4, 0.25, lambda: any_rng(n), lambda: any_rng(n), drift(MAXX, 0.7), pm(3 * 10**7)))
-n = 2500                                                    # caps right after adds on overlapping ranges
+n = 2500
 add(n, ops_of(n, 4000, 0.35, 0.35, lambda: short_rng(n, 300), lambda: short_rng(n, 600), drift(20, 0.6), pm(60)))
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
 add(N, ops_of(N, Q, 0.35, 0.3, lambda: any_rng(N), lambda: any_rng(N), drift(1000, 0.6), pm(3 * 10**4)))
 add(N, ops_of(N, Q, 0.35, 0.3, lambda: long_rng(N, 1000), lambda: long_rng(N, 1000), drift(MAXX, 0.6),
@@ -122,7 +116,7 @@ add(N, ops_of(N, Q, 0.3, 0.3, lambda: (1, N), lambda: any_rng(N), drift(10**4, 0
 add(N, ops_of(N, Q, 0.4, 0.3, lambda: short_rng(N, 200_000), lambda: any_rng(N), drift(MAXX, 0.5),
               pm(MAXC)))
 add(N, ops_of(N, Q, 0.45, 0.2, lambda: any_rng(N), lambda: short_rng(N, 50_000), lambda: -ri(1, MAXX),
-              lambda: -ri(0, 10**10)))                 # everything goes down
+              lambda: -ri(0, 10**10)))
 add(N, ops_of(N, Q, 0.3, 0.4, lambda: long_rng(N, 3000), lambda: long_rng(N, 30_000), drift(7, 0.65), pm(40)))
 add(N, saw(N, Q, 1000, 1000))
 add(N, saw(N, Q, 50_000, MAXX))

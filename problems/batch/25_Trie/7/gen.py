@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(250007)
@@ -17,45 +17,44 @@ def rnd(n, lo, hi):
     return [random.randint(lo, hi) for _ in range(n)]
 
 
-# samples
 add(2, [1, 2, 4, 8, 3])
 add(4, [5, 5, 5, 5])
 add(1, [0])
 add(3, [7, 1, 6, 0, 3, 5])
 add(6, [9, 12, 3, 10, 6, 1])
-# hidden: small
+
 add(1, [6, 3])
 add(3, rnd(10, 0, 15))
 add(5, rnd(100, 0, 255))
 add(1000, rnd(1000, 0, MAXV))
 add(37, rnd(3000, 0, MAXV))
 add(400, rnd(3000, 0, 7))
-add(2, [1 << b for b in range(20)] * 50)                       # long runs would give much more
+add(2, [1 << b for b in range(20)] * 50)
 add(1, rnd(3000, 0, MAXV))
 add(7, rnd(3000, 0, MAXV))
-a = rnd(2000, 0, (1 << 19) - 1)                                 # only segments that start at 1 reach bit 19
+a = rnd(2000, 0, (1 << 19) - 1)
 a[0] |= 1 << 19
 add(50, a)
-# hidden: maximum size
+
 N = MAXN
 add(N, rnd(N, 0, MAXV))
 add(N // 2, rnd(N, 0, MAXV))
 add(N // 3, rnd(N, 0, 1023))
-a = [0] * N                                                    # mostly zeros: equal prefix values
+a = [0] * N
 for _ in range(60):
     a[random.randrange(N)] = random.randint(1, MAXV)
 add(N // 2, a)
 add(N - 1, [MAXV] * N)
-a = rnd(N, 0, (1 << 12) - 1)                                    # two far values: only a long segment joins them
+a = rnd(N, 0, (1 << 12) - 1)
 a[1000] = (1 << 19)
 a[N - 1000] = (1 << 19) | ((1 << 12) - 1)
 add(N - 3000, a)
 add(N // 4, [random.choice([1 << 19, 1 << 18, 3]) for _ in range(N)])
 add(150_000, rnd(N, 0, MAXV))
-# the answer stays below 2^20 - 1, so stopping at the all-ones bound does not help (review)
+
 add(N, [random.randint(0, MAXV) & ~1 for _ in range(N)])
 add(N - 1, [random.choice([1 << 19, 1 << 18, 3]) for _ in range(N)])
-# only segments that start at position 1 reach bit 19
+
 for L, hi in [(N, (1 << 19) - 1), (N // 3, (1 << 19) - 1), (200_000, 1023), (N - 1, (1 << 19) - 1)]:
     a = rnd(N, 0, hi)
     a[0] = (1 << 19) | random.randint(0, (1 << 19) - 1)

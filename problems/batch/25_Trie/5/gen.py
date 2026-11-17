@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(250005)
@@ -32,7 +32,6 @@ def distinct(n, make):
 
 
 def concat(words, n, tail=""):
-    """a text of length about n made of random dictionary words, cut to at most n"""
     parts, total = [], 0
     while total < n - len(tail):
         w = random.choice(words)
@@ -43,13 +42,12 @@ def concat(words, n, tail=""):
     return "".join(parts) + tail
 
 
-# samples
 add("sunglasses", ["sun", "sung", "glass", "lass", "es"])
 add("aaaa", ["aa", "a"])
 add("abc", ["ab", "bc"])
 add("icecreamcone", ["cone", "ice", "creamcone", "cream", "icecream"])
 add("abababa", ["ab", "aba", "ba", "bab", "b"])
-# hidden: small
+
 add("a", ["b"])
 ws = distinct(10, lambda: word("ab", 1, 4))
 add(concat(ws, 20), ws)
@@ -59,9 +57,9 @@ add(word("ab", 1000, 1000), [w for w in ["a", "b", "aa", "ab", "ba", "bb", "aab"
 ws = distinct(300, lambda: word("abc", 1, 8))
 add(concat(ws, 3000), ws)
 ws = distinct(50, lambda: word("ab", 1, 6))
-add(concat(ws, 2000, "c"), ws + ["cc"])                                   # the last letter cannot be covered
-# hidden: maximum size. In every one the dictionary has a word of every length 1..500 (extra words that do not
-# fit the text, made of letters that are not in it when possible)
+add(concat(ws, 2000, "c"), ws + ["cc"])
+
+
 AZ = "abcdefghijklmnopqrstuvwxyz"
 
 
@@ -80,14 +78,14 @@ def fill(s, ws):
     return s, ws
 
 
-add(*fill("a" * MAXS, ["a" * L for L in range(MAXW, 0, -1)]))         # every length 1..500 is a word
+add(*fill("a" * MAXS, ["a" * L for L in range(MAXW, 0, -1)]))
 ws = ["a", "b", "c"] + distinct(80_000, lambda: word("abc", 4, 11))
 add(*fill(concat(ws[3:], MAXS), ws))
 ws = distinct(2000, lambda: word("ab", 1, MAXW))
 add(*fill(concat(ws, MAXS), ws))
 ws = ["a", "b", "ab", "ba", "aba", "bab", "abab", "baba"] + ["ab" * L for L in range(3, 250)]
 add(*fill("ab" * (MAXS // 2), ws))
-add(*fill("a" * (MAXS - 1) + "b", ["a" * L for L in range(1, MAXW + 1)]))  # no split, full work
+add(*fill("a" * (MAXS - 1) + "b", ["a" * L for L in range(1, MAXW + 1)]))
 s = word(AZ, MAXS, MAXS)
 ws = []
 seen = set()
@@ -104,7 +102,7 @@ for c in AZ:
 ws = sorted(set(ws))
 random.shuffle(ws)
 add(*fill(s, ws))
-ws = ["a"] + ["a" * L + "b" for L in range(1, MAXW)]                     # long walks that rarely end in a word
+ws = ["a"] + ["a" * L + "b" for L in range(1, MAXW)]
 add(*fill("a" * MAXS, ws))
 ws = ["a"] + ["a" * L + "b" for L in range(1, MAXW)] + ["a" * MAXW]
 add(*fill("a" * (MAXS // 2) + "b" + "a" * (MAXS // 2 - 1), ws))
@@ -116,7 +114,7 @@ ws = distinct(1000, lambda: word("ab", 1, 10)) + ["a" * L for L in range(11, MAX
 ws = sorted(set(ws))
 random.shuffle(ws)
 add(*fill(concat(ws, MAXS), ws))
-# very many words that start like the text at every position but stop matching later
+
 ws = ["a", "aa"] + distinct(80_000, lambda: "a" * random.randint(1, 8) + "b" + word("bcdefghij", 3, 5))
 add(*fill("a" * (MAXS - 20) + ws[-1] + "a" * (20 - len(ws[-1])), ws))
 

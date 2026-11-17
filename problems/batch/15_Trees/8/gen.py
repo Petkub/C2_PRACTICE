@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(150701)
@@ -19,9 +19,8 @@ def shuf(a):
 
 
 def add(n, edges, mix=False):
-    """edges on towns 1..n; mix: random numbering, rotated list of roads, ends of some roads swapped"""
     assert 2 <= n <= MAXN and len(edges) == n - 1
-    if n <= 1000:                               # DSU: n - 1 roads joining everything = a tree
+    if n <= 1000:
         root = list(range(n + 1))
 
         def find(x):
@@ -34,7 +33,7 @@ def add(n, edges, mix=False):
             ru, rv = find(u), find(v)
             assert ru != rv
             root[ru] = rv
-    else:                                       # built trees: every town but 1 hangs on a smaller town
+    else:
         assert all(1 <= u < v <= n for u, v in edges)
         assert sorted(v for _, v in edges) == list(range(2, n + 1))
     if mix:
@@ -43,13 +42,12 @@ def add(n, edges, mix=False):
         shuf(tail)
         lab[1:] = tail
         edges = [(lab[u], lab[v]) if (u + v) % 3 else (lab[v], lab[u]) for u, v in edges]
-        k = ri(0, n - 2)                        # start the list of roads somewhere in the middle
+        k = ri(0, n - 2)
         edges = edges[k:] + edges[:k]
     tests.append(f"{n}\n" + "".join("%d %d\n" % e for e in edges))
 
 
 def from_par(par):
-    """par[i] (0-based, par[i] < i) -> edges on 1..n"""
     return [(par[i] + 1, i + 1) for i in range(1, len(par))]
 
 
@@ -96,7 +94,6 @@ class Builder:
 
 
 def double_broom(a, length, b):
-    """a leaves on town 1, a path of `length` roads from town 1 to town c, b leaves on c"""
     t = Builder()
     t.star(1, a)
     c = t.chain(1, length)
@@ -105,7 +102,6 @@ def double_broom(a, length, b):
 
 
 def spider(legs, length, fork_every=0):
-    """legs of `length` roads from town 1; every fork_every-th leg ends in two towns instead of one"""
     t = Builder()
     for j in range(legs):
         x = t.chain(1, length - 1)
@@ -116,7 +112,6 @@ def spider(legs, length, fork_every=0):
 
 
 def brooms(k, length, leaves):
-    """k chains of `length` roads from town 1, each ending in a star of `leaves` leaves"""
     t = Builder()
     for _ in range(k):
         x = t.chain(1, length)
@@ -125,37 +120,35 @@ def brooms(k, length, leaves):
 
 
 def twin_binary(m):
-    """two heap-shaped trees of m towns each, their roots joined by a road"""
     edges = [((i - 1) // 2 + 1, i + 1) for i in range(1, m)]
     edges += [((i - 1) // 2 + 1 + m, i + 1 + m) for i in range(1, m)]
     edges.append((1, m + 1))
     return 2 * m, edges
 
 
-# samples
 add(8, [(1, 2), (2, 3), (1, 4), (4, 5), (1, 6), (6, 7), (1, 8)])
 add(7, [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (3, 7)])
 add(2, [(1, 2)])
 add(5, [(3, 1), (3, 2), (3, 4), (3, 5)])
 add(9, [(5, 1), (1, 4), (5, 2), (2, 7), (5, 9), (9, 3), (5, 6), (6, 8)])
 add(10, [(1, 2), (2, 3), (3, 4), (4, 5), (2, 6), (6, 7), (7, 8), (2, 9), (9, 10)])
-# hidden: small (the brute does a BFS from every town)
+
 add(3, [(1, 2), (2, 3)], True)
 add(8, from_par(shape(8, "random")), True)
-add(*double_broom(3, 4, 2), True)                    # odd longest distance, several ends on each side
+add(*double_broom(3, 4, 2), True)
 add(100, from_par(shape(100, "random")), True)
 add(511, from_par(shape(511, "binary")), True)
 add(1000, from_par(shape(1000, "random")), True)
 add(*spider(150, 20, 7), True)
 add(5000, from_par(shape(5000, "cater")), True)
 add(*double_broom(4000, 1001, 4998), True)
-add(*twin_binary(1500), True)                        # odd, two halves
+add(*twin_binary(1500), True)
 add(20_000, from_par(shape(20_000, "deep")), True)
-# hidden: maximum size
+
 N = MAXN
 add(N, from_par(shape(N, "star")), True)
 add(N, from_par(shape(N, "path")), True)
-add(*double_broom(99_000, 1999, N - 99_000 - 2000), True)        # odd: 99 000 x 99 000 pairs
+add(*double_broom(99_000, 1999, N - 99_000 - 2000), True)
 add(*spider(99_999, 2), True)
 add(N, from_par(shape(N, "binary")), True)
 add(N, from_par(shape(N, "random")), True)
@@ -164,7 +157,7 @@ add(N, from_par(shape(N, "cater")), True)
 add(*brooms(3, 22, 66_643), True)
 add(*brooms(4, 5, 49_994), True)
 add(*spider(66_666, 3), True)
-add(*double_broom(80_000, 40_000, N - 120_001), True)            # even
+add(*double_broom(80_000, 40_000, N - 120_001), True)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

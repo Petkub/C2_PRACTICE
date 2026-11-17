@@ -1,15 +1,14 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import gc, os, random
 
 random.seed(2409)
-gc.disable()                    # millions of small tuples: no cyclic GC needed, much faster
+gc.disable()
 rnd = random.random
 MAXN, MAXM, MAXQ = 100_000, 100_000, 100_000
 tests = []
 
 
 def shuffled(a):
-    """a random permutation of the list a (faster than random.shuffle for long lists)"""
     rnd = random.random
     keys = [rnd() for _ in a]
     return [a[i] for i in sorted(range(len(a)), key=keys.__getitem__)]
@@ -20,7 +19,6 @@ def ri(lo, hi):
 
 
 def connected(n, edges):
-    """union-find with path halving, written inline (fast enough for 2 * 10^5 edges)"""
     root = list(range(n + 1))
     comps = n
     for u, v in edges:
@@ -46,8 +44,6 @@ def add(n, edges, qs):
 
 
 def relabel(n, edges, qs, one=0):
-    """random junction numbers for the edges and the queries, random road order and ends
-    (one > 0: vertex `one` of the shape gets number 1)"""
     lab = list(range(1, n + 1))
     lab = shuffled(lab)
     if one:
@@ -80,7 +76,6 @@ def tree(n, kind):
 
 
 def bead_chain(n, lo, hi, parallel=False):
-    """a chain of small cycles (or pairs of parallel roads) joined by single roads: a long bridge tree"""
     e, start, prev = [], 1, None
     while start <= n:
         s = min(ri(lo, hi), n - start + 1)
@@ -111,41 +106,39 @@ def rq(n, q):
 
 
 def far(n, q, w=100):
-    """queries between the two ends of the shape (long tree paths)"""
     return [(ri(1, w), ri(n - w + 1, n)) if random.random() < 0.5 else (ri(n - w + 1, n), ri(1, w))
             for _ in range(q)]
 
 
-# samples
 add(6, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (5, 6)], [(1, 6), (2, 3), (4, 1), (6, 6), (5, 4)])
 add(4, [(1, 2), (2, 3), (3, 4)], [(1, 4), (2, 4), (4, 1)])
 add(1, [], [(1, 1)])
 add(4, [(1, 2), (2, 3), (3, 4), (4, 1)], [(1, 3), (2, 4)])
 add(5, [(1, 2), (2, 1), (2, 3), (3, 4), (3, 5)], [(1, 4), (4, 5), (1, 2), (5, 2)])
 add(7, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (6, 4), (6, 7)], [(1, 7), (2, 5), (7, 4), (1, 3)])
-# hidden: small
+
 add(2, [(1, 2)], [(1, 2), (2, 1), (1, 1)])
 add(2, [(1, 2), (2, 1)], [(1, 2)])
 for n, k in ((6, 2), (8, 3), (10, 4), (12, 3)):
     add(*relabel(n, extra(n, tree(n, "random"), k), rq(n, 20)))
 add(*relabel(20, bead_chain(20, 1, 4), rq(20, 30)))
 add(*relabel(150, extra(150, tree(150, "random"), 30), rq(150, 150)))
-add(*relabel(3000, tree(3000, "path") + [(3000, 1)], rq(3000, 3000)))           # one cycle: all 0
+add(*relabel(3000, tree(3000, "path") + [(3000, 1)], rq(3000, 3000)))
 add(*relabel(3000, tree(3000, "binary"), rq(3000, 3000)))
-# hidden: maximum size
+
 N, M, Q = MAXN, MAXM, MAXQ
-add(*relabel(N, tree(N, "path"), far(N, Q)))                                  # every road a bridge, long paths
+add(*relabel(N, tree(N, "path"), far(N, Q)))
 e = bead_chain(70_000, 2, 4)
 add(*relabel(70_000, e, far(70_000, Q)))
-e = bead_chain(N // 2, 2, 2, True)                                            # pairs of parallel roads in a chain
+e = bead_chain(N // 2, 2, 2, True)
 add(*relabel(N // 2, e, far(N // 2, Q)))
-c = 20_000                                                                    # a cycle with a long tail
+c = 20_000
 add(*relabel(N, tree(N, "path") + [(c, 1)], far(N, Q), 22_000))
 add(*relabel(N, tree(N, "broom"), far(N, Q, 5)))
-add(*relabel(95_000, extra(95_000, tree(95_000, "path"), 5000, 2), far(95_000, Q), 5_000))  # a path, small cycles
-e = tree(90_000, "path")                                                       # a path, some roads doubled
+add(*relabel(95_000, extra(95_000, tree(95_000, "path"), 5000, 2), far(95_000, Q), 5_000))
+e = tree(90_000, "path")
 add(*relabel(90_000, e + random.sample(e, 9_999), far(90_000, Q), 5_000))
-h = 70_000                                                                    # a comb: a path with leaves
+h = 70_000
 add(*relabel(N, tree(h, "path") + [(ri(1, h), i) for i in range(h + 1, N + 1)], rq(N, Q), 1))
 add(*relabel(N - 1000, extra(N - 1000, tree(N - 1000, "deep"), 1000, 30), far(N - 1000, Q)))
 add(*relabel(60_000, bead_chain(60_000, 1, 3), far(60_000, Q)))

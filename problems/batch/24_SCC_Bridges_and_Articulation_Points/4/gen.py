@@ -1,15 +1,14 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import gc, os, random
 
 random.seed(2404)
-gc.disable()                    # millions of small tuples: no cyclic GC needed, much faster
+gc.disable()
 rnd = random.random
 MAXN, MAXM, MAXC = 200_000, 200_000, 10**9
 tests = []
 
 
 def shuffled(a):
-    """a random permutation of the list a (faster than random.shuffle for long lists)"""
     rnd = random.random
     keys = [rnd() for _ in a]
     return [a[i] for i in sorted(range(len(a)), key=keys.__getitem__)]
@@ -27,7 +26,6 @@ def add(n, c, edges):
 
 
 def relabel(n, c, edges):
-    """random member numbers (costs move with the members) and a random rule order"""
     lab = list(range(1, n + 1))
     lab = shuffled(lab)
     c2 = [0] * n
@@ -40,8 +38,6 @@ def relabel(n, c, edges):
 
 
 def blocks(n, m, size_fn, back=0.0):
-    """consecutive blocks, each a cycle; rules go forward between blocks (a DAG of blocks, the last block is a sink);
-    with probability back a random rule stays inside its block"""
     e, bl, start = [], [], 1
     while start <= n:
         s = min(size_fn(), n - start + 1)
@@ -78,10 +74,6 @@ def rc(n, lo=1, hi=MAXC):
 
 
 def spine(sp_n, size_fn, sinks, m):
-    """a spine of groups (cycles of size_fn() members, numbered 1..sp_n) where each group needs the next one,
-    and sink groups (sinks = list of cost lists, each one a cycle) needed only from the last 2000 spine members:
-    every closure from the spine walks the rest of the spine. Extra rules go forward along the spine or from the
-    spine to a sink, up to m rules. Returns (n, c, edges) with costs 1..9 on the spine."""
     e, bl, start = [], [], 1
     while start <= sp_n:
         sz = min(size_fn(), sp_n - start + 1)
@@ -106,7 +98,7 @@ def spine(sp_n, size_fn, sinks, m):
         e.append((ri(max(1, sp_n - 2000), sp_n), ri(start, start + sz - 1)))
         start += sz
     n = start - 1
-    e.append((sp_n, sp_n + 1))                      # the last spine group is not a sink
+    e.append((sp_n, sp_n + 1))
     while len(e) < m:
         u = 1 + int(rnd() * sp_n)
         if rnd() < 0.5:
@@ -120,14 +112,13 @@ def spine(sp_n, size_fn, sinks, m):
     return n, c, e
 
 
-# samples
 add(5, [4, 3, 5, 2, 6], [(1, 2), (2, 1), (2, 3), (4, 5)])
 add(4, [3, 3, 1, 5], [(1, 2), (2, 1), (3, 4), (4, 3)])
 add(1, [7], [])
 add(3, [2, 2, 2], [])
 add(3, [4, 4, 4], [(1, 2), (2, 3), (3, 1)])
 add(6, [5, 1, 1, 1, 4, 9], [(2, 3), (3, 4), (4, 2), (4, 5), (1, 6), (6, 1)])
-# hidden: small
+
 add(3, [MAXC] * 3, [(1, 2), (2, 3), (3, 1)])
 add(2, [5, 5], [(1, 2)])
 add(2, [5, 5], [(1, 2), (2, 1)])
@@ -136,29 +127,29 @@ for n, m in ((6, 6), (8, 10), (10, 9), (12, 16), (14, 12)):
 e, bl = blocks(2000, 4000, lambda: ri(1, 4))
 add(*relabel(2000, rc(2000, 1, 50), e))
 add(3000, rc(3000, 1, 3), rand_edges(3000, 2500))
-# hidden: the most expensive group (not max-size by M)
+
 n = 100_000
-add(*relabel(n, [MAXC] * n, [(i, i + 1) for i in range(1, n)] + [(n, 1)]))     # everyone in one group: 10^14
-add(n, [1] * n, [])                                     # nobody needs anybody: n ways
-add(n, rc(n, 1, 2), rand_edges(n, n // 2))              # many sinks, many ties
-# hidden: maximum size (every closure is long)
+add(*relabel(n, [MAXC] * n, [(i, i + 1) for i in range(1, n)] + [(n, 1)]))
+add(n, [1] * n, [])
+add(n, rc(n, 1, 2), rand_edges(n, n // 2))
+
 N = 190_000
-add(*relabel(N, rc(N, 1, 99), [(i, i + 1) for i in range(1, N)]))  # one long chain: only the last member is a sink
+add(*relabel(N, rc(N, 1, 99), [(i, i + 1) for i in range(1, N)]))
 c = rc(N, 1, 9)
 for i in random.sample(range(N), 2000):
     c[i] = MAXC
-add(*relabel(N, c, [(i, i + 1) for i in range(1, N)] + [(N, 1)]))   # everyone in one group
+add(*relabel(N, c, [(i, i + 1) for i in range(1, N)] + [(N, 1)]))
 add(*relabel(*spine(80_000, lambda: ri(1, 3), [[ri(1, 2), ri(1, 2)] for _ in range(22_000)], N)))
-n = 120_000                                              # 120 000 cycle rules, 80 000 rules between / inside blocks
+n = 120_000
 e, bl = blocks(n, 200_000, lambda: ri(50, 500), back=0.3)
-c = [1] * n                                              # the cheapest group is the first block, which is not a sink
+c = [1] * n
 for x in range(bl[-1][0], bl[-1][1] + 1):
     c[x - 1] = MAXC
 add(*relabel(n, c, e))
 add(*relabel(*spine(110_000, lambda: ri(1, 4), [[ri(4 * 10**8, MAXC) for _ in range(ri(3, 6))]
                                                  for _ in range(8_000)], N)))
-add(*relabel(*spine(145_000, lambda: 1, [[MAXC] * 3 for _ in range(10_000)], N)))  # many equal sinks of 3 * 10^9
-# many equal sink pairs hanging below a long chain of cheap members
+add(*relabel(*spine(145_000, lambda: 1, [[MAXC] * 3 for _ in range(10_000)], N)))
+
 h, p = 99_000, 50_000
 e = [(i, i + 1) for i in range(1, h)]
 c = [1] * h
@@ -167,12 +158,12 @@ for j in range(p):
     e += [(a, b), (b, a)]
     c += [5, 5]
     if j < 1000:
-        e.append((ri(h - 1000, h), a))                  # only near the end: every closure walks the chain
+        e.append((ri(h - 1000, h), a))
 e.append((h, h + 1))
 add(*relabel(h + 2 * p, c, e))
-# a chain in number order whose only sink is the last member, the most expensive one: every closure is long
+
 add(200_000, [1 + i % 10 for i in range(199_999)] + [MAXC], [(i, i + 1) for i in range(1, 200_000)])
-e, bl = blocks(150_000, 200_000, lambda: 20_000)        # 8 big groups in a DAG, only the last one is a sink
+e, bl = blocks(150_000, 200_000, lambda: 20_000)
 c = rc(150_000, 1, 9)
 for i in random.sample(range(150_000), 1500):
     c[i] = MAXC

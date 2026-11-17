@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, itertools
 
 random.seed(160101)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def need(a):
-    """minimum capacity of the siding, or -1 (same greedy as the official solution)"""
     st, nxt, best = [], 1, 0
     for x in a:
         while nxt <= x:
@@ -25,7 +24,6 @@ def need(a):
 
 
 def triple(a):
-    """True if three consecutive positions show big, small, middle"""
     return any(a[i + 1] < a[i + 2] < a[i] for i in range(len(a) - 2))
 
 
@@ -39,7 +37,6 @@ def add(trains):
 
 
 def valid(n, p_push=0.5):
-    """a random order that the siding can produce: random pushes and pops"""
     out, st, nxt = [], [], 1
     while len(out) < n:
         if nxt <= n and (not st or random.random() < p_push):
@@ -51,17 +48,15 @@ def valid(n, p_push=0.5):
 
 
 def broken_tail(m, tail):
-    """coaches 1..m in a valid order, then m+1..m+len(tail) in the order given by tail (an impossible pattern)"""
     return valid(m) + [m + x for x in tail]
 
 
-# samples
 add([[3, 2, 5, 4, 1], [3, 1, 2, 4, 5]])
 add([[1, 2, 3, 4], [4, 3, 2, 1]])
 add([[1]])
 add([[2, 1, 4, 3, 6, 5], [3, 4, 2, 6, 5, 1], [1, 5, 3, 4, 2, 6]])
 add([[4, 5, 3, 6, 2, 7, 1], [2, 3, 1]])
-# hidden: small
+
 add([list(p) for k in range(1, 5) for p in itertools.permutations(range(1, k + 1))])
 add([list(p) for p in itertools.permutations(range(1, 7))])
 trains = []
@@ -88,25 +83,24 @@ for _ in range(60):
         a = broken_tail(n - 4, [3, 1, 4, 2]) if random.random() < 0.5 else a[::-1]
     trains.append(a)
 add(trains)
-# hidden: maximum size (each test holds at least one train of >= 150 000 coaches)
+
 N = MAXSUM
-add([list(range(1, N + 1))])                                  # every coach leaves at once: 1
-add([list(range(N, 0, -1))])                                  # all coaches wait: N
+add([list(range(1, N + 1))])
+add([list(range(N, 0, -1))])
 add([valid(N, 0.5)])
-add([valid(N, 0.62)])                                         # deep siding
+add([valid(N, 0.62)])
 B = 1000
-add([[x for s in range(0, N, B) for x in range(s + B, s, -1)]])   # reversed blocks: B
-add([list(range(N // 2, 0, -1)) + list(range(N // 2 + 1, N + 1))])  # half waits, then straight: N / 2
-a = broken_tail(N - 4, [3, 1, 4, 2])                          # impossible, only at the very end
+add([[x for s in range(0, N, B) for x in range(s + B, s, -1)]])
+add([list(range(N // 2, 0, -1)) + list(range(N // 2 + 1, N + 1))])
+a = broken_tail(N - 4, [3, 1, 4, 2])
 assert not triple(a)
 add([a])
-a = broken_tail(N - 6, [4, 2, 5, 1, 6, 3])                    # 4 2 . . . 3: impossible, not three in a row
+a = broken_tail(N - 6, [4, 2, 5, 1, 6, 3])
 assert not triple(a)
 add([a])
 
 
 def stuck_then(m, l, n2):
-    """an impossible train that leaves l + 1 coaches waiting, then an easy one"""
     first = [m] + list(range(m - 1, l, -1)) + [m + 3, m + 1, m + 4, m + 2] + list(range(l, 0, -1))
     return [first, list(range(1, n2 + 1))]
 
@@ -120,7 +114,7 @@ add([big] + small)
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
 
-# expected answers of the samples (checked by hand in the statement notes)
+
 exp = [[3, -1], [1, 4], [1], [2, 3, -1], [4, 2]]
 for k, e in enumerate(exp):
     lines = tests[k].split("\n")

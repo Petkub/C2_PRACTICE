@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(19006)
@@ -28,7 +28,6 @@ def add(n, ops):
 
 
 class Ground:
-    """the current heights: range add, point value (Fenwick tree over the differences)"""
     def __init__(self, n):
         self.n, self.f = n, [0] * (n + 2)
 
@@ -52,8 +51,6 @@ class Ground:
 
 
 def scenario(n, q, pw, pt, wall_w, wall_h, terr, ask_p, delta, cap=10**9):
-    """walls: short ranges raised by wall_h (taken down again later), terrain: ranges from terr() changed by
-    a small amount; questions at ask_p() with level a_p + delta()"""
     g, walls, ops = Ground(n), [], []
     for _ in range(q):
         r = random.random()
@@ -84,8 +81,6 @@ def scenario(n, q, pw, pt, wall_w, wall_h, terr, ask_p, delta, cap=10**9):
 
 
 def tall(n, q, pa, rng, addx, delta):
-    """ground built by many big changes on ranges from rng() (heights far outside int);
-    questions at a random p with level a_p + delta() (kept inside |h| <= 10^12)"""
     g, ops = Ground(n), []
     for _ in range(q):
         if random.random() < pa:
@@ -105,7 +100,7 @@ def tall(n, q, pa, rng, addx, delta):
 def big_delta():
     r = random.random()
     if r < 0.05:
-        return random.choice((-1, 1)) * 2 * MAXH             # clipped to -10^12 or 10^12
+        return random.choice((-1, 1)) * 2 * MAXH
     if r < 0.15:
         return ri(-10, 10)
     return ri(1, 10**ri(4, 10))
@@ -121,21 +116,20 @@ def short_rng(n, d):
     return l, min(n, l + ri(0, d))
 
 
-# samples
 add(8, [('D', 3, 3, 5), ('D', 6, 6, 4), ('D', 1, 8, -1), ('W', 4, 2), ('W', 4, 4), ('W', 3, 4), ('W', 1, 10)])
 add(5, [('W', 3, 1), ('D', 2, 4, -3), ('W', 3, 0), ('D', 3, 3, 5), ('W', 2, 0), ('W', 2, -3)])
 add(1, [('W', 1, 0), ('W', 1, 1), ('D', 1, 1, -MAXX), ('W', 1, -999999)])
 add(10, [('D', 1, 10, 2), ('D', 4, 7, -5), ('D', 6, 6, 4), ('W', 5, 0), ('W', 7, -1), ('D', 1, 3, -6), ('W', 5, 2)])
 add(MAXN, [('D', 500000, 500000, MAXX), ('W', 1, 1), ('W', MAXN, 1000001), ('W', 500000, 7)])
-# hidden: small (the brute force checks these)
+
 for n, q, ww in ((1, 12, 0), (6, 40, 1), (15, 100, 2), (60, 500, 4), (500, 3000, 10), (3000, 4000, 30)):
     add(n, scenario(n, q, 0.25, 0.3, ww, 20, lambda: any_rng(n), lambda: ri(1, n), lambda: ri(-3, 15)))
-n = 2000                                                    # deep valleys: long floods
+n = 2000
 add(n, scenario(n, 4000, 0.1, 0.3, 3, 1000, lambda: any_rng(n), lambda: ri(1, n), lambda: ri(1, 400), cap=8))
-n = 2500                                                    # levels exactly at a wall top and just below
+n = 2500
 add(n, scenario(n, 4000, 0.3, 0.2, 2, 50, lambda: short_rng(n, 30), lambda: ri(1, n),
                 lambda: random.choice((0, 1, 50, 51, 25))))
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
 mid = lambda: ri(N // 2 - 1000, N // 2 + 1000)
 add(N, scenario(N, Q, 0.05, 0.25, 5, MAXX, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(1, 3000), cap=10))
@@ -143,7 +137,7 @@ add(N, scenario(N, Q, 0.1, 0.2, 50, MAXX, lambda: any_rng(N), mid, lambda: ri(1,
 add(N, scenario(N, Q, 0.2, 0.35, 100, 10**5, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(-100, 5 * 10**4)))
 add(N, scenario(N, Q, 0.02, 0.4, 0, MAXX, lambda: (ri(1, 10), ri(N - 10, N)), lambda: ri(1, N),
                 lambda: ri(1, 10**4) if random.random() < 0.9 else random.choice((1, -1)) * ri(10**11, 9 * 10**11),
-                cap=3))                              # almost no walls: whole-road floods, some very high levels
+                cap=3))
 add(N, scenario(N, Q, 0.2, 0.3, 1000, MAXX, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(-5, 50)))
 add(N, scenario(N, Q, 0.4, 0.1, 3, 1000, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(0, 2000)))
 add(N, scenario(N, Q, 0.08, 0.3, 2, MAXX, lambda: any_rng(N), lambda: random.choice((1, N, ri(1, N))),
@@ -151,9 +145,9 @@ add(N, scenario(N, Q, 0.08, 0.3, 2, MAXX, lambda: any_rng(N), lambda: random.cho
 add(N, scenario(N, Q, 0.15, 0.35, 10, 5000, lambda: short_rng(N, 3000), mid, lambda: ri(-2, 3000), cap=10))
 add(N, scenario(N, Q, 0.05, 0.05, 0, MAXX, lambda: any_rng(N), lambda: ri(1, N),
                 lambda: ri(1, 2 * 10**6) if random.random() < 0.8 else ri(-MAXH // 2, MAXH // 2),
-                cap=30))                             # mostly questions
+                cap=30))
 add(N, scenario(N, Q, 0.25, 0.25, 20_000, MAXX, lambda: any_rng(N), lambda: ri(1, N), lambda: ri(-10, 10**6)))
-# heights far outside int
+
 add(N, tall(N, Q, 0.6, lambda: any_rng(N), lambda: ri(MAXX // 2, MAXX), big_delta))
 add(N, tall(N, Q, 0.6, lambda: any_rng(N), lambda: -ri(MAXX // 2, MAXX), big_delta))
 add(N, tall(N, Q, 0.5, lambda: short_rng(N, 300_000), lambda: random.choice((-1, 1, 1)) * MAXX, big_delta))

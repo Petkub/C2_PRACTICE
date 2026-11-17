@@ -1,3 +1,4 @@
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 tests = []
@@ -8,7 +9,6 @@ def ri(lo, hi):
 
 
 def shuffle(a):
-    """Fisher-Yates with random.random (faster than random.shuffle, same on every Python 3 version)"""
     rnd = random.random
     for i in range(len(a) - 1, 0, -1):
         j = int(rnd() * (i + 1))
@@ -16,7 +16,6 @@ def shuffle(a):
 
 
 def shape(n, kind, legs=4):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape (node 1 is the root), before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     leg = max(1, (n - 1) // legs)
@@ -29,17 +28,17 @@ def shape(n, kind, legs=4):
             p = ri(1, i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "deep":                        # depth about n / 2, a few short branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "spider":                      # legs long chains hanging from the root
+        elif kind == "spider":
             p = 1 if (i - 2) % leg == 0 or i - 1 > leg * legs else i - 1
-        elif kind == "lopsided":                    # the root joins a chain of 90% and a chain of 10%
+        elif kind == "lopsided":
             p = 1 if i == 2 or i == 2 + (n - 1) * 9 // 10 else i - 1
-        elif kind == "forkdeep":                    # a chain of n / 4, then two long chains
+        elif kind == "forkdeep":
             q = n // 4
             if i <= q:
                 p = i - 1
@@ -61,7 +60,6 @@ def depths(par):
 
 
 def relabel(par):
-    """random labels with the root keeping label 1; P[label] = label of its parent"""
     n = len(par) - 1
     assert all(1 <= par[i] < i for i in range(2, n + 1))
     lab = list(range(1, n + 1))
@@ -75,7 +73,6 @@ def relabel(par):
 
 
 def check_tree(n, P):
-    """every member reaches member 1 by going to the parent"""
     assert len(P) == n + 1
     kids = [[] for _ in range(n + 1)]
     for i in range(2, n + 1):
@@ -106,13 +103,12 @@ def add(n, P, qs):
 
 
 def pick(pool, k, used):
-    """k distinct members of pool that are not in used (fewer if the pool runs out)"""
-    if k > 500:                             # big group: a random part of the pool (one shuffle, no retries)
+    if k > 500:
         out = [x for x in pool if x not in used]
         m = len(out)
         k = min(k, m)
         rnd = random.random
-        for i in range(k):                  # the first k places of a Fisher-Yates shuffle
+        for i in range(k):
             j = i + int(rnd() * (m - i))
             out[i], out[j] = out[j], out[i]
         out = out[:k]
@@ -131,8 +127,6 @@ def pick(pool, k, used):
 
 
 def make(n, kind, sizes, mode="rand", legs=4, top=10, deep=0.01, ptop=0.5):
-    """sizes: the k of every group. mode rand: members anywhere; far: members among the deepest fraction `deep`
-    of the shape, and with probability ptop one member among the `top` shallowest villages (other than the mouth)"""
     par = shape(n, kind, legs)
     P, lab = relabel(par)
     d = depths(par)
@@ -153,7 +147,7 @@ def make(n, kind, sizes, mode="rand", legs=4, top=10, deep=0.01, ptop=0.5):
                 g += pick(allv, k - len(g), used)
         else:
             g = pick(allv, k, used)
-        if len(g) > 1:                      # the top member (if any) goes to a random place
+        if len(g) > 1:
             j = int(rnd() * len(g))
             g[0], g[j] = g[j], g[0]
         qs.append([lab[x - 1] for x in g])
@@ -161,13 +155,13 @@ def make(n, kind, sizes, mode="rand", legs=4, top=10, deep=0.01, ptop=0.5):
 
 
 random.seed(230302)
-# samples
+
 add(9, [0, 0, 5, 1, 2, 1, 4, 4, 3, 6], [[9, 7, 4], [7, 8], [6], [9, 2]])
 add(5, [0, 0, 4, 5, 1, 2], [[3, 4], [5, 3, 2]])
 add(2, [0, 0, 1], [[1, 2], [2]])
 add(6, [0, 0, 1, 1, 1, 1, 1], [[2, 3, 4, 5, 6], [4], [6, 1], [5, 2]])
 add(8, [0, 0, 7, 2, 2, 8, 4, 1, 1], [[5, 3], [4, 6, 3], [6, 8], [2, 7, 1], [3, 5, 4]])
-# hidden: small and medium (any shape)
+
 add(2, [0, 0, 1], [[2, 1], [1], [2]])
 make(10, "random", [ri(1, 4) for _ in range(30)])
 make(60, "deep", [ri(1, 6) for _ in range(100)], "far", top=3, deep=0.2)
@@ -176,7 +170,7 @@ make(300, "binary", [ri(1, 20) for _ in range(200)])
 make(3000, "star", [ri(1, 5) for _ in range(2000)])
 make(4000, "random", [ri(1, 8) for _ in range(2000)])
 make(5000, "spider", [ri(2, 4) for _ in range(3000)], "far", legs=6, deep=0.05)
-# hidden: maximum size, deep shapes, members far from the meeting village
+
 make(MAXN, "path", [2] * MAXQ, "far", top=50)
 make(MAXN, "spider", [2] * MAXQ, "far", legs=2)
 make(MAXN, "spider", [ri(2, 3) for _ in range(70_000)], "far", legs=7, deep=0.02)

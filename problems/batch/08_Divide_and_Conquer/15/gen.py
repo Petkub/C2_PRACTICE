@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(90902)
@@ -18,7 +18,6 @@ def rnd(n, lo, hi):
 
 
 def walk(n, step):
-    """random walk inside 1..MAXV"""
     a, v = [], MAXV // 2
     for _ in range(n):
         v = min(MAXV, max(1, v + random.randint(-step, step)))
@@ -26,13 +25,12 @@ def walk(n, step):
     return a
 
 
-# samples
 add([1, 3, 2])
 add([2, 5, 5, 1])
 add([7])
 add([1, 2, 3, 4, 5])
 add([6, 2, 9, 4, 4, 1, 8, 3])
-# hidden: small (the brute force checks them)
+
 add([1, MAXV])
 add([MAXV] * 7)
 add(rnd(10, 1, 10))
@@ -41,24 +39,24 @@ add(rnd(1000, 1, MAXV))
 add(walk(5000, 100))
 add(rnd(20000, 1, MAXV))
 add([MAXV if i % 2 else 1 for i in range(25000)])
-# hidden: large
+
 N = MAXN
 add(rnd(N, 1, MAXV))
-add([MAXV if i % 2 else 1 for i in range(N)])                 # largest answer
+add([MAXV if i % 2 else 1 for i in range(N)])
 add(list(range(1, N + 1)))
 add(list(range(MAXV, MAXV - N, -1)))
-add([MAXV] * N)                                               # answer 0
+add([MAXV] * N)
 a = rnd(N, 1, 2)
-a[N // 2] = 3                                                 # one peak in the middle
+a[N // 2] = 3
 add(a)
 a = rnd(N, 2, 10)
-a[N // 3], a[2 * N // 3] = 1, 11                              # one lowest and one highest day
+a[N // 3], a[2 * N // 3] = 1, 11
 add(a)
-add([min(i, N - i) * 5 + 1 for i in range(N)])                # mountain
-add([MAXV - min(i, N - i) * 5 for i in range(N)])             # valley
+add([min(i, N - i) * 5 + 1 for i in range(N)])
+add([MAXV - min(i, N - i) * 5 for i in range(N)])
 add(walk(N, 1000))
-add([(i % 500) * 2000 + 1 for i in range(N)])                 # saw teeth
-add(sorted(rnd(N // 2, 1, MAXV)) + sorted(rnd(N // 2, 1, MAXV), reverse=True))       # up, then down
+add([(i % 500) * 2000 + 1 for i in range(N)])
+add(sorted(rnd(N // 2, 1, MAXV)) + sorted(rnd(N // 2, 1, MAXV), reverse=True))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

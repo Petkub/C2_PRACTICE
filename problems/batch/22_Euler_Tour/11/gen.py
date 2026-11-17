@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(220011)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -22,15 +21,15 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, short side branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
             raise ValueError(kind)
@@ -39,8 +38,6 @@ def shape(n, kind):
 
 
 def tree(n, kind):
-    """parent array p[0..n] (p[1] = 0) of a tree of the given shape with random labels (shape node 1 = branch 1);
-    also lab: lab[i - 1] = label of shape node i (small i = close to the root)"""
     par = shape(n, kind)
     lab = list(range(2, n + 1))
     random.shuffle(lab)
@@ -61,7 +58,7 @@ def add(n, p, ops):
     order = [1]
     for u in order:
         order.extend(ch[u])
-    assert len(order) == n                     # every lamp reaches lamp 1
+    assert len(order) == n
     for op in ops:
         assert 1 <= op[1] <= n
         if op[0] == 1:
@@ -76,14 +73,10 @@ def add(n, p, ops):
 
 
 def pick(n, lab, lo, hi):
-    """a lamp among the shape nodes lo .. hi - 1 (0-based; small = close to lamp 1)"""
     return lab[lo + int(random.random() * (hi - lo))]
 
 
 def rops(n, q, lab, pf, pd, xhi=MAXX, ftop=None, dlow=None, qmid=None):
-    """`1 v x` with probability pf (v among the ftop shape nodes closest to lamp 1 if given),
-    `2 v` with probability pd (v among the dlow deepest shape nodes if given), else `3 v`
-    (v among the shape nodes in qmid = (lo, hi) if given)"""
     res = []
     for _ in range(q):
         u = random.random()
@@ -106,17 +99,16 @@ def big(kind, q, pf, pd, ftop, dlow, qmid, xhi=MAXX, n=MAXN):
     add(n, p, rops(n, q, lab, pf, pd, xhi, ftop, dlow, qmid))
 
 
-# samples
 add(6, [0, 0, 1, 1, 2, 2, 3], [(1, 2, 5), (2, 4), (3, 5), (3, 4), (1, 1, 7), (3, 2)])
 add(4, [0, 0, 1, 2, 3], [(1, 1, 3), (2, 3), (3, 4), (3, 3), (1, 2, 9), (3, 4)])
 add(2, [0, 0, 1], [(3, 2), (1, 2, 4), (2, 1), (3, 2)])
 add(5, [0, 0, 1, 1, 1, 1], [(1, 1, 6), (2, 3), (3, 2), (3, 3), (3, 4)])
 add(5, [0, 0, 3, 1, 3, 4], [(1, 3, MAXX), (2, 5), (3, 2), (3, 5), (1, 4, 1), (3, 5)])
-# hidden: switch-offs that reach a lamp from a lamp below it
+
 add(6, [0, 0, 1, 1, 2, 2, 3], [(1, 2, 5), (2, 4), (3, 5), (3, 2), (1, 1, 7), (3, 4)])
 add(4, [0, 0, 1, 2, 3], [(1, 1, 3), (2, 3), (3, 4), (3, 2), (1, 2, 9), (3, 1)])
 add(5, [0, 0, 3, 1, 3, 4], [(1, 3, MAXX), (2, 5), (3, 2), (3, 4), (3, 3), (1, 4, 1), (3, 5), (3, 1)])
-# hidden: small and medium
+
 for n, kind, q in ((3, "path", 8), (8, "random", 15), (20, "star", 30), (40, "deep", 60), (60, "caterpillar", 90),
                    (100, "binary", 150), (300, "random", 500)):
     p, lab = tree(n, kind)
@@ -124,7 +116,7 @@ for n, kind, q in ((3, "path", 8), (8, "random", 15), (20, "star", 30), (40, "de
 for n, kind in ((4000, "path"), (6000, "broom"), (6000, "chains")):
     p, lab = tree(n, kind)
     add(n, p, rops(n, 6000, lab, 0.3, 0.3, MAXX, 200, 2000, (0, n // 2)))
-# hidden: maximum size (paints of big branches, switch-offs deep down, questions above them)
+
 N = MAXN
 big("path", 100_000, 0.3, 0.3, 5_000, 30_000, (0, 50_000))
 big("path", 100_000, 0.2, 0.5, 1_000, 1_000, (0, 99_000), 9)

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, string
 
 random.seed(150505)
@@ -25,7 +25,6 @@ def rs(n, alpha=LOW):
 
 
 def cmds(n0, q, w, alpha=LOW, p_out=0.05):
-    """q random commands with weights w for R F L A P ?; tracks the length to pick useful k"""
     kinds = random.choices("RFLAP?", weights=w, k=q)
     out, n = [], n0
     for c in kinds:
@@ -47,34 +46,33 @@ def cmds(n0, q, w, alpha=LOW, p_out=0.05):
     return out
 
 
-# samples
 add("abc", ["A d", "R", "? 1", "F", "P z", "? 4"])
 add("ab", ["L", "R", "F", "F", "? 1", "A x", "R"])
 add("q", ["R", "L"])
 add("hello", ["R", "P a", "? 9", "? 6"])
 add("stop", ["R", "F", "L", "? 2", "A k"])
-# hidden: small (brute checks these)
+
 add("z", ["? 1"])
 add("ab", ["F", "F", "F", "L", "R", "? 1", "? 2000000"])
 add(rs(5, "ab"), cmds(5, 40, [3, 2, 2, 2, 2, 3], "abc"))
 add(rs(30), cmds(30, 500, [2, 1, 1, 1, 1, 2]))
-add(rs(3), cmds(3, 2000, [3, 3, 3, 1, 1, 3]))                  # often empty
+add(rs(3), cmds(3, 2000, [3, 3, 3, 1, 1, 3]))
 add(rs(1000), cmds(1000, 20000, [1, 1, 1, 1, 1, 2]))
 add(rs(20000), cmds(20000, 30000, [2, 1, 1, 1, 1, 2]))
-# hidden: large
-add(rs(MAXS), ["R" if i % 2 == 0 else f"? {random.randint(1, MAXS)}" for i in range(360000)])   # reverse every other
-add(rs(MAXS), cmds(MAXS, MAXQ, [3, 0, 0, 3, 3, 1]))                                             # front inserts
-add(rs(MAXS), cmds(MAXS, MAXQ, [2, 4, 1, 0, 0, 1]))                                             # front deletes
+
+add(rs(MAXS), ["R" if i % 2 == 0 else f"? {random.randint(1, MAXS)}" for i in range(360000)])
+add(rs(MAXS), cmds(MAXS, MAXQ, [3, 0, 0, 3, 3, 1]))
+add(rs(MAXS), cmds(MAXS, MAXQ, [2, 4, 1, 0, 0, 1]))
 add(rs(MAXS), cmds(MAXS, 450000, [1, 1, 1, 1, 1, 1]))
 add(rs(MAXS, "ab"), cmds(MAXS, 450000, [4, 1, 1, 1, 1, 2], "ab"))
-add(rs(1), cmds(1, MAXQ, [2, 1, 1, 3, 3, 1]))                                                 # grows from one letter
-add(rs(400000), ["F", "L"] * 200000 + ["R", "? 1", "F", "L", "A q", "R", "? 1", "? 2"] * 12500)  # empties, then tiny
+add(rs(1), cmds(1, MAXQ, [2, 1, 1, 3, 3, 1]))
+add(rs(400000), ["F", "L"] * 200000 + ["R", "? 1", "F", "L", "A q", "R", "? 1", "? 2"] * 12500)
 add(rs(MAXS), ["R"] * 149999 + [f"? {k}" for k in random.sample(range(1, MAXS + 1), 120000)] +
     [f"? {random.randint(MAXS + 1, MAXK)}" for _ in range(40000)])
 add(rs(MAXS), cmds(MAXS, 450000, [5, 1, 1, 1, 1, 3], p_out=0.3))
 add(rs(500000), cmds(500000, MAXQ, [2, 2, 2, 2, 2, 1]))
 add(rs(MAXS), [random.choice(["R", "P " + random.choice(LOW)]) for _ in range(MAXQ)])
-add(rs(MAXS), [random.choice(["R", "F", "L", "F", f"? {random.randint(1, MAXS // 2)}"]) for _ in range(MAXQ)])  # deletes at both ends
+add(rs(MAXS), [random.choice(["R", "F", "L", "F", f"? {random.randint(1, MAXS // 2)}"]) for _ in range(MAXQ)])
 add(rs(MAXS), cmds(MAXS, MAXQ, [1, 2, 2, 2, 2, 1]))
 
 for t in tests:

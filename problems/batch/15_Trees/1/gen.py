@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(100101)
@@ -15,30 +15,29 @@ def ri(lo, hi):
 
 def shuf(a):
     for i in range(len(a) - 1, 0, -1):
-        j = int(_rnd() * (i + 1))                                # = ri(0, i)
+        j = int(_rnd() * (i + 1))
         a[i], a[j] = a[j], a[i]
 
 
 def shape(n, kind):
-    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is the root"""
     par = [-1] * n
     h = max(1, n // 2)
     for i in range(1, n):
         if kind == "random":
-            par[i] = int(_rnd() * i)                            # = ri(0, i - 1)
+            par[i] = int(_rnd() * i)
         elif kind == "path":
             par[i] = i - 1
         elif kind == "star":
             par[i] = 0
-        elif kind == "deep":                    # depth about n / 2, a few short side branches
+        elif kind == "deep":
             par[i] = ri(max(0, i - 3), i - 1)
         elif kind == "binary":
             par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
+        elif kind == "broom":
             par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
+        elif kind == "cater":
             par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "twopaths":                # two long chains below the root
+        elif kind == "twopaths":
             par[i] = 0 if i <= 2 else i - 2
         else:
             raise ValueError(kind)
@@ -46,7 +45,6 @@ def shape(n, kind):
 
 
 def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1; node 0 gets the number root if given"""
     lab = list(range(1, n + 1))
     shuf(lab)
     if root is not None:
@@ -60,7 +58,7 @@ def add(p):
     assert 1 <= n <= MAXN
     assert sum(1 for x in p if x == 0) == 1
     assert all(0 <= x <= n and x != i + 1 for i, x in enumerate(p))
-    # everybody reaches the founder (no cycle): count generations from the founder
+
     ch = [[] for _ in range(n + 1)]
     for i, x in enumerate(p):
         ch[x].append(i + 1)
@@ -81,23 +79,22 @@ def tree(n, kind, root=None):
     return p
 
 
-# samples
 add([3, 3, 0, 1, 1, 2])
 add([2, 3, 4, 5, 0])
 add([0])
 add([0, 1, 1, 1, 1])
 add([6, 0, 2, 6, 3, 2, 5, 4])
-# hidden: small
+
 add([2, 0])
 add([0, 1])
 for n, kind in ((7, "random"), (10, "deep"), (12, "binary"), (15, "random"), (30, "cater"), (100, "deep"),
                 (1000, "random"), (3000, "twopaths")):
     add(tree(n, kind))
-add([i + 2 for i in range(4999)] + [0])                         # a path: the founder is N, every parent number is larger
-# hidden: maximum size
+add([i + 2 for i in range(4999)] + [0])
+
 N = MAXN
-add([i + 2 for i in range(N - 1)] + [0])                        # path N -> N-1 -> ... -> 1
-add([0] + [i for i in range(1, N)])                             # path 1 -> 2 -> ... -> N
+add([i + 2 for i in range(N - 1)] + [0])
+add([0] + [i for i in range(1, N)])
 add(tree(N, "path"))
 add(tree(N, "deep"))
 add(tree(N, "star"))

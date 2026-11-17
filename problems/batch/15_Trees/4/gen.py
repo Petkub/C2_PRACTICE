@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(100404)
@@ -16,30 +16,29 @@ def ri(lo, hi):
 def shuf(a):
     rnd = _rnd
     for i in range(len(a) - 1, 0, -1):
-        j = int(rnd() * (i + 1))                                 # = ri(0, i)
+        j = int(rnd() * (i + 1))
         a[i], a[j] = a[j], a[i]
 
 
 def shape(n, kind):
-    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is the root"""
     par = [-1] * n
     h = max(1, n // 2)
     for i in range(1, n):
         if kind == "random":
-            par[i] = int(_rnd() * i)                            # = ri(0, i - 1)
+            par[i] = int(_rnd() * i)
         elif kind == "path":
             par[i] = i - 1
         elif kind == "star":
             par[i] = 0
-        elif kind == "deep":                    # depth about n / 2, a few short side branches
+        elif kind == "deep":
             par[i] = ri(max(0, i - 3), i - 1)
         elif kind == "binary":
             par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
+        elif kind == "broom":
             par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
+        elif kind == "cater":
             par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "twopaths":                # two long chains below the root
+        elif kind == "twopaths":
             par[i] = 0 if i <= 2 else i - 2
         else:
             raise ValueError(kind)
@@ -47,7 +46,6 @@ def shape(n, kind):
 
 
 def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1; node 0 gets the number root if given"""
     lab = list(range(1, n + 1))
     shuf(lab)
     if root is not None:
@@ -57,14 +55,13 @@ def labels(n, root=None):
 
 
 def depths(t):
-    """t[i] = teacher of i (t[1] = 0); depth of every person, checking that everybody reaches person 1"""
     n = len(t) - 1
     ch = [[] for _ in range(n + 1)]
     for i in range(2, n + 1):
         ch[t[i]].append(i)
     d = [-1] * (n + 1)
     d[1], order = 0, [1]
-    for v in order:                                             # BFS: the list grows while we walk it
+    for v in order:
         dv = d[v] + 1
         for c in ch[v]:
             d[c] = dv
@@ -74,7 +71,6 @@ def depths(t):
 
 
 def add(t, qs, checked=False):
-    """t = [t_2, ..., t_N]; checked = depths() already ran on it"""
     n, q = len(t) + 1, len(qs)
     assert 2 <= n <= MAXN and 1 <= q <= MAXQ
     assert all(1 <= x <= n and x != i + 2 for i, x in enumerate(t))
@@ -87,21 +83,19 @@ def add(t, qs, checked=False):
 
 
 def queries(t, q, mode, d=None):
-    """t = [t_2, ..., t_N]; deep people with k close to their depth (and some -1 answers);
-    d = the depths if tree() already computed them"""
     n = len(t) + 1
     if d is None:
         d = depths([0, 0] + t)
     people = sorted(range(1, n + 1), key=d.__getitem__, reverse=True)
     deep = people[:max(1, n // 10)]
-    L, rnd = len(deep), _rnd                                    # rnd() inlined: x = lo + int(rnd() * (hi - lo + 1))
+    L, rnd = len(deep), _rnd
     qs = []
     for _ in range(q):
         if mode == "deep":
             v = deep[int(rnd() * L)]
             k = d[v] // 2
-            k += int(rnd() * (d[v] + 3 - k))                    # k in [d[v] / 2, d[v] + 2]
-        elif mode == "edge":                                    # exactly the last ancestor, or one too far
+            k += int(rnd() * (d[v] + 3 - k))
+        elif mode == "edge":
             v = deep[int(rnd() * L)]
             k = d[v] + int(rnd() * 2)
         else:
@@ -112,7 +106,6 @@ def queries(t, q, mode, d=None):
 
 
 def tree(n, kind):
-    """returns (t_2..t_N, depth of every person); every node hangs below an earlier one, so it is a tree"""
     par, lab = shape(n, kind), labels(n, 1)
     assert all(0 <= par[i] < i for i in range(1, n)) and sorted(lab) == list(range(1, n + 1)) and lab[0] == 1
     t, d, dep = [0] * (n + 1), [-1] * (n + 1), [0] * n
@@ -124,21 +117,20 @@ def tree(n, kind):
     return t[2:], d
 
 
-# samples
 add([3, 1, 2, 2, 5, 1], [(6, 1), (6, 3), (6, 4), (6, 5), (7, 1)])
 add([3, 4, 1], [(2, 2), (2, 3), (2, 4), (1, 1)])
 add([1], [(2, 1), (2, 2), (1, 2)])
 add([1, 1, 1, 1, 1], [(4, 1), (4, 2), (1, 6), (6, 1)])
 add([5, 1, 6, 1, 3], [(4, 3), (4, 2), (2, 2), (6, 3)])
-# hidden: small
+
 for n, kind, q, mode in ((6, "random", 10, "any"), (10, "path", 15, "any"), (15, "binary", 20, "any"),
                          (40, "deep", 50, "edge"), (300, "cater", 300, "any"), (2000, "twopaths", 2000, "deep"),
                          (5000, "random", 5000, "any")):
     t, d = tree(n, kind)
     add(t, queries(t, q, mode, d), True)
-t = [i - 1 for i in range(2, 5001)]                             # path 1 - 2 - ... - N
+t = [i - 1 for i in range(2, 5001)]
 add(t, queries(t, 5000, "deep"), True)
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
 t = [i - 1 for i in range(2, N + 1)]
 add(t, queries(t, Q, "deep"), True)
@@ -146,7 +138,7 @@ for kind, mode in (("path", "deep"), ("path", "edge"), ("deep", "deep"), ("broom
                    ("twopaths", "deep"), ("cater", "any"), ("random", "any"), ("star", "any")):
     t, d = tree(N, kind)
     add(t, queries(t, Q, mode, d), True)
-t = [i + 1 for i in range(2, N)] + [1]                          # path 1 - N - (N-1) - ... - 2: teachers have larger numbers
+t = [i + 1 for i in range(2, N)] + [1]
 add(t, queries(t, Q, "deep"), True)
 
 for t in tests:

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(30909)
@@ -23,7 +23,7 @@ def windows(a, k):
 
 
 def with_heavy(a, k, t):
-    # S such that at most t windows (and at least one when t >= 1) are heavy
+
     w = sorted(windows(a, k), reverse=True)
     if t >= len(w):
         return max(0, w[-1] - 1)
@@ -34,40 +34,39 @@ def vals(n, lo=0, hi=MAXA):
     return [random.randint(lo, hi) for _ in range(n)]
 
 
-# samples
 add(2, 10, [3, 8, 1, 2, 9, 4, 0])
 add(1, 5, [6, 2, 7, 7, 1])
 add(1, 0, [1, 1, 1])
 add(3, 100, [10, 20, 30, 40])
 add(2, 10**9, [6 * 10**8, 0, 6 * 10**8, 6 * 10**8, 0])
-# hidden: small (brute checks every period)
+
 for n, k in [(8, 3), (12, 4), (20, 1), (25, 5), (40, 7), (60, 2)]:
     a = vals(n, 0, 9)
     add(k, with_heavy(a, k, random.randint(0, 4)), a)
 a = vals(80, 0, 9)
-add(80, sum(a) - 1, a)                                              # the whole span is one heavy window
+add(80, sum(a) - 1, a)
 a = vals(90, 0, 3)
 add(6, with_heavy(a, 6, 30), a)
-# hidden: medium
+
 a = vals(5000)
 add(30, with_heavy(a, 30, 400), a)
 a = [MAXA] * 3000
-add(3, 3 * MAXA - 1, a)                                             # every window heavy
-# hidden: maximum size
+add(3, 3 * MAXA - 1, a)
+
 a = vals(MAXN)
-add(1000, MAXS, a)                                                  # nothing heavy: every period is safe
+add(1000, MAXS, a)
 a = vals(MAXN)
 add(1000, with_heavy(a, 1000, 1), a)
 a = vals(MAXN)
 add(50_000, with_heavy(a, 50_000, 5), a)
 a = vals(MAXN)
-add(MAXN, sum(a) - 1, a)                                            # K = N, the only window is heavy
+add(MAXN, sum(a) - 1, a)
 a = vals(MAXN)
 add(1, with_heavy(a, 1, 3), a)
 a = vals(MAXN)
 add(2, with_heavy(a, 2, 4), a)
 a = [MAXA] * MAXN
-add(100_000, 100_000 * MAXA - 1, a)                                 # every window heavy, K large
+add(100_000, 100_000 * MAXA - 1, a)
 a = [random.choice([0, MAXA]) for _ in range(MAXN)]
 add(3, with_heavy(a, 3, 0), a)
 a = vals(MAXN, MAXA - 1000, MAXA)

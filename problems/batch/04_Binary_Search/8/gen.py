@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(40801)
@@ -11,12 +11,10 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
 def needs(T, parts):
-    """(level, cost) for every quality level at which every type is available, highest level first"""
     order = sorted(parts, key=lambda x: -x[2])
     best = [None] * (T + 1)
     covered = cost = 0
@@ -51,7 +49,6 @@ def add(T, parts, budgets):
 
 
 def rnd_parts(n, T, pmax, wmax, shape="random"):
-    """every type gets at least one part; shape: random, monotone (better = dearer), anti (better = cheaper)"""
     types = list(range(1, T + 1)) + [ri(1, T) for _ in range(n - T)]
     parts = [(c, ri(1, pmax), ri(1, wmax)) for c in types]
     if shape != "random":
@@ -71,7 +68,6 @@ def rnd_parts(n, T, pmax, wmax, shape="random"):
 
 
 def budgets(T, parts, q, miss=0.05):
-    """budgets exactly on a level's cost, one below it, between levels, too small, or very large"""
     costs = [c for _, c in needs(T, parts)]
     lowest, top, k = costs[-1], costs[0], len(costs) - 1
     shifts = (0, 0, -1, 1)
@@ -88,27 +84,26 @@ def budgets(T, parts, q, miss=0.05):
     return res
 
 
-# samples (better parts are never cheaper here, and every total stays small)
 S1 = [(1, 30, 5), (2, 20, 4), (3, 10, 6), (1, 50, 8), (2, 45, 9), (3, 25, 7), (3, 40, 10)]
 add(3, S1, [100, 59, 60, 105, 140])
 add(1, [(1, 5, 3), (1, 9, 7), (1, 1, 1)], [1, 4, 9])
 add(2, [(1, 1000, 1000), (2, 1000, 1000)], [2000, 1999])
 add(2, [(1, 4, 3), (2, 5, 2), (2, 9, 8), (1, 6, 8), (2, 12, 10)], [8, 9, 13, 14, 15, 1000])
 add(3, [(1, 8, 4), (2, 8, 4), (3, 8, 4), (1, 9, 6), (2, 9, 6), (3, 9, 6), (2, 1, 1)], [17, 24, 26, 27])
-# hidden: small (checked by brute force)
+
 add(1, [(1, 1, 1)], [1, 2])
-add(2, [(1, 5, 9), (1, 1, 2), (2, 7, 3), (2, 2, 8)], list(range(1, 15)))   # the better part is cheaper
+add(2, [(1, 5, 9), (1, 1, 2), (2, 7, 3), (2, 2, 8)], list(range(1, 15)))
 p = rnd_parts(40, 5, 50, 30)
 add(5, p, budgets(5, p, 60))
 p = rnd_parts(300, 20, 10**6, 200, "anti")
 add(20, p, budgets(20, p, 300))
-p = rnd_parts(800, 40, MAXP, MAXW)                                   # totals beyond 2^31
+p = rnd_parts(800, 40, MAXP, MAXW)
 add(40, p, budgets(40, p, 400))
-p = rnd_parts(1000, 1000, MAXP, 50)                                  # one part per type
+p = rnd_parts(1000, 1000, MAXP, 50)
 add(1000, p, budgets(1000, p, 200))
 p = rnd_parts(1000, 7, 100, 10)
 add(7, p, budgets(7, p, 500))
-# hidden: maximum size
+
 N, Q = MAXN, 90_000
 for T, pmax, wmax, shape in ((1000, 10**7, 10**6, "random"), (1000, 10**7, 10**6, "anti"),
                              (1, 10**7, 10**6, "random"), (50_000, 10**5, 10**5, "random"),
@@ -117,8 +112,8 @@ for T, pmax, wmax, shape in ((1000, 10**7, 10**6, "random"), (1000, 10**7, 10**6
     p = rnd_parts(N, T, pmax, wmax, shape)
     add(T, p, budgets(T, p, Q))
 p = rnd_parts(N, 1000, 10**7, 10**6)
-add(1000, p, budgets(1000, p, Q, miss=0.5))                           # many budgets below every robot
-p = [(c, 10**7 - w, w) for c, _, w in rnd_parts(N, 500, 1, 10**6)]   # quality and price add up to 10^7
+add(1000, p, budgets(1000, p, Q, miss=0.5))
+p = [(c, 10**7 - w, w) for c, _, w in rnd_parts(N, 500, 1, 10**6)]
 add(500, p, budgets(500, p, Q))
 
 for t in tests:

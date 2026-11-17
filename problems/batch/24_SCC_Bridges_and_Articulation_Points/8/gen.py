@@ -1,15 +1,14 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import gc, os, random
 
 random.seed(2408)
-gc.disable()                    # millions of small tuples: no cyclic GC needed, much faster
+gc.disable()
 rnd = random.random
 MAXN, MAXM = 200_000, 200_000
 tests = []
 
 
 def shuffled(a):
-    """a random permutation of the list a (faster than random.shuffle for long lists)"""
     rnd = random.random
     keys = [rnd() for _ in a]
     return [a[i] for i in sorted(range(len(a)), key=keys.__getitem__)]
@@ -20,7 +19,6 @@ def ri(lo, hi):
 
 
 def connected(n, edges):
-    """union-find with path halving, written inline (fast enough for 2 * 10^5 edges)"""
     root = list(range(n + 1))
     comps = n
     for u, v in edges:
@@ -73,7 +71,6 @@ def tree(n, kind):
 
 
 def cactus(n, lo, hi):
-    """cycles of length lo..hi; each new cycle starts at a random vertex of the previous one"""
     e, start, prev = [], 2, (1, 1)
     while start <= n:
         s = min(ri(lo, hi), n - start + 1)
@@ -99,14 +96,13 @@ def extra(n, e, k, near=0):
     return e
 
 
-# samples
 add(6, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (4, 6)])
 add(4, [(1, 2), (2, 3), (3, 4)])
 add(1, [])
 add(5, [(1, 2), (1, 3), (1, 4), (1, 5)])
 add(4, [(1, 2), (2, 3), (3, 4), (4, 1)])
 add(5, [(1, 2), (2, 1), (2, 3), (3, 4), (4, 5), (5, 3)])
-# hidden: small
+
 add(2, [(1, 2)])
 add(3, [(1, 2), (2, 3), (2, 3)])
 for n, k in ((6, 2), (8, 3), (10, 2), (12, 5)):
@@ -114,11 +110,11 @@ for n, k in ((6, 2), (8, 3), (10, 2), (12, 5)):
 add(9, relabel(9, cactus(9, 1, 3)))
 add(2000, relabel(2000, extra(2000, tree(2000, "random"), 300)))
 add(1500, relabel(1500, cactus(1500, 1, 5)))
-# hidden: maximum size
+
 N = MAXN
-add(N, relabel(N, tree(N, "path")))                                     # deep DFS, about 10^10 pairs
-add(N, relabel(N, tree(N, "star")))                                     # the centre: N-1 choose 2
-add(N, relabel(N, tree(N, "path") + [(N, 1)]))                          # one long cycle: all 0
+add(N, relabel(N, tree(N, "path")))
+add(N, relabel(N, tree(N, "star")))
+add(N, relabel(N, tree(N, "path") + [(N, 1)]))
 add(150_000, relabel(150_000, cactus(150_000, 1, 6)))
 add(150_000, relabel(150_000, cactus(150_000, 3, 3)))
 add(N, relabel(N, tree(N, "binary")))

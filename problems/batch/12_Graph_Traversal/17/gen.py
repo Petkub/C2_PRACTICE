@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(70017)
@@ -8,7 +8,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -36,7 +35,6 @@ def opens(g):
 
 
 def sprinkle(g, letters, count):
-    """put `count` random letters from `letters` on random empty cells"""
     cells = opens(g)
     random.shuffle(cells)
     for (i, j) in cells[:count]:
@@ -53,7 +51,6 @@ def put(g, ch, cell=None):
 
 
 def maze(r, c, braid):
-    """a random maze (passages on even cells), then `braid` of the inner walls knocked down to make loops"""
     g = [["#"] * c for _ in range(r)]
     g[0][0] = "."
     stack = [(0, 0)]
@@ -76,16 +73,15 @@ def maze(r, c, braid):
 
 
 def vault(n, wall_p, copies, door_cnt):
-    """T in the centre behind 6 square walls; the wall at depth k has doors of one letter; keys outside"""
     g = rnd(n, n, wall_p)
     mid = n // 2
-    for i in range(mid - 20, mid + 21):            # inside the vault there are no random walls
+    for i in range(mid - 20, mid + 21):
         for j in range(mid - 20, mid + 21):
             g[i][j] = "."
     order = list(DOORS)
     random.shuffle(order)
     for k in range(6):
-        d = 4 + 3 * k                              # ring at distance d from the centre
+        d = 4 + 3 * k
         ring = []
         for t in range(-d + 1, d):
             ring += [(mid - d, mid + t), (mid + d, mid + t), (mid + t, mid - d), (mid + t, mid + d)]
@@ -107,8 +103,6 @@ def vault(n, wall_p, copies, door_cnt):
 
 
 def keyed_maze(r, c, braid, extra):
-    """maze from the top-left to the bottom-right corner; 6 doors along the way, each key hidden in a side
-    branch that leaves the way before its door; `extra` decoy letters anywhere"""
     g = maze(r, c, braid)
     s, t = (0, 0), (r - 1 - (r - 1) % 2, c - 1 - (c - 1) % 2)
     par = {s: None}
@@ -125,7 +119,7 @@ def keyed_maze(r, c, braid, extra):
         path.append(par[path[-1]])
     path.reverse()
     index = {v: k for k, v in enumerate(path)}
-    attach = dict(index)                          # path index where a cell's branch leaves the way
+    attach = dict(index)
     for v in q:
         if v not in attach:
             attach[v] = attach[par[v]]
@@ -149,7 +143,6 @@ def keyed_maze(r, c, braid, extra):
     return g
 
 
-# samples
 add(["S.a#.",
      ".#.#.",
      "...AT"])
@@ -168,12 +161,12 @@ add(["T.Cc...",
      "S...Ab.",
      "####B#.",
      "a.....#"])
-# hidden: small
+
 add(["ST"])
-add(["S", "A", "T"])                                   # a door without its key
+add(["S", "A", "T"])
 add(["Sa", "AT"])
 add(["SA", "aT"])
-for _ in range(2):                                     # small random grids full of keys and doors
+for _ in range(2):
     g = sprinkle(rnd(5, 6, 0.2), KEYS[:3] + DOORS[:3], 10)
     add(put(put(g, "S"), "T"))
 g = sprinkle(rnd(8, 8, 0.25), KEYS + DOORS, 20)
@@ -182,13 +175,13 @@ g = sprinkle(maze(9, 11, 0.1), KEYS[:4] + DOORS[:4], 14)
 add(put(put(g, "S", (0, 0)), "T", (8, 10)))
 g, out = vault(60, 0.15, 1, 2)
 add(put(g, "S", (0, 0)))
-# hidden: large
+
 R = C = MAXR
-g, out = vault(R, 0.2, 2, 3)                           # all six keys needed, spread around
+g, out = vault(R, 0.2, 2, 3)
 add(put(g, "S", (0, 0)))
 g, out = vault(R - 1, 0.05, 1, 1)
 add(put(g, "S", out[ri(0, len(out) - 1)]))
-g = blank(R, C)                                        # T sealed off: every key set is explored, answer -1
+g = blank(R, C)
 for letter in KEYS:
     put(g, letter)
 put(g, "S", (0, 0))
@@ -196,29 +189,29 @@ put(g, "T", (R // 2, C // 2))
 for (i, j) in ((R // 2 - 1, C // 2), (R // 2 + 1, C // 2), (R // 2, C // 2 - 1), (R // 2, C // 2 + 1)):
     g[i][j] = "#"
 add(g)
-add(keyed_maze(R, C, 0.0, 0))                         # keys hidden in dead ends of a tree-like maze
+add(keyed_maze(R, C, 0.0, 0))
 add(keyed_maze(R - 1, C, 0.03, 40))
 add(keyed_maze(R, C - 1, 0.2, 300))
 g = sprinkle(rnd(R, C, 0.25), KEYS + DOORS, 2000)
 add(put(put(g, "S"), "T"))
-g = sprinkle(rnd(R, C, 0.1), KEYS + DOORS, 9000)       # many keys and doors everywhere
+g = sprinkle(rnd(R, C, 0.1), KEYS + DOORS, 9000)
 add(put(put(g, "S"), "T"))
-g = sprinkle(blank(R, C), DOORS, 20000)                # doors without any key
+g = sprinkle(blank(R, C), DOORS, 20000)
 add(put(put(g, "S", (0, 0)), "T", (R - 1, C - 1)))
-g = blank(R, C)                                        # a long way round, or a door right next to S
+g = blank(R, C)
 for i in range(R - 1):
     g[i][C // 2] = "#"
 g[0][C // 2] = "E"
 g[0][1] = "e"
 add(put(put(g, "S", (0, 0)), "T", (0, C - 1)))
-g = blank(R, C)                                        # the key is behind its own door
+g = blank(R, C)
 for j in range(C):
     g[R // 2][j] = "D"
 for letter in "abcef":
     put(g, letter)
 g[R - 1][C - 1] = "d"
 add(put(put(g, "S", (0, 0)), "T", (R - 2, C - 2)))
-g = blank(R, C)                                        # a chain: each band of rows opens with the key of the band before
+g = blank(R, C)
 band = R // 7
 for k in range(6):
     for j in range(C):

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10015)
@@ -20,8 +20,6 @@ def rnd(n, lo=1, hi=MAXV):
 
 
 def trap(n, k):
-    """k groups; group g holds a falling run of values around 10*g: many longest subsequences,
-    the usual rebuild (the last tail found) rarely gives the smallest"""
     out = []
     per = n // k
     for g in range(k):
@@ -34,13 +32,12 @@ def noisy_up(n, step, noise):
     return [max(1, min(MAXV, 1 + i * step + ri(-noise, noise))) for i in range(n)]
 
 
-# samples
 add([5, 1, 6, 2, 7, 3])
 add([4, 9, 2, 9, 5, 7])
 add([10, 9, 8])
 add([3, 3, 3, 4, 4])
 add([8, 2, 9, 4, 6, 1, 7, 3, 5, 10])
-# hidden: small (brute.cpp tries every subsequence when n <= 18)
+
 add([1])
 add([2, 1])
 add(rnd(10, 1, 5))
@@ -49,7 +46,7 @@ add(rnd(18, 1, 30))
 add(trap(18, 3))
 add(rnd(300, 1, 50))
 add(trap(3000, 30))
-# hidden: maximum size
+
 N = MAXN
 add(rnd(N))
 add(rnd(N, 1, 1000))

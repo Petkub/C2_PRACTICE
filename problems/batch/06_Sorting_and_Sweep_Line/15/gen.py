@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(60116)
@@ -26,8 +26,6 @@ def rnd(n, d, vmax=MAXV):
 
 
 def farey_block(x, y, c_start, k):
-    """k riders with distances c and speeds e (c = d - p) such that x * e - y * c = 1: their times c / e rise
-    towards x / y, and two neighbours differ by only 1 / (e * e') (too little for a double to see)"""
     c = c_start
     while (1 + y * c) % x:
         c += 1
@@ -41,7 +39,6 @@ def farey_block(x, y, c_start, k):
 
 
 def staircase(n, levels, d=MAXD):
-    """blocks of Farey riders, farther blocks with larger times, so that every rider sets a new record"""
     per = n // len(levels)
     riders, base = [], d // 10
     for j, (x, y) in enumerate(levels):
@@ -53,37 +50,36 @@ def staircase(n, levels, d=MAXD):
     return riders
 
 
-# samples
 add(10, [(0, 2), (4, 1), (6, 4)], False)
 add(12, [(0, 3), (4, 2), (9, 2), (5, 5)], False)
 add(1000000000, [(0, 3)], False)
 add(1000000000, [(0, 1000000000), (999999999, 1)], False)
 add(100, [(10, 6), (40, 4), (70, 9), (20, 25), (55, 10)], False)
-# hidden: small and medium
+
 add(1, [(0, MAXV)])
-add(100, [(90, 1), (50, 10), (0, 20)])                          # held up by a rider who is held up himself
+add(100, [(90, 1), (50, 10), (0, 20)])
 add(30, rnd(8, 30, 6))
 add(50, rnd(20, 50, 10))
 m = MAXD - 50
-add(MAXD, [(MAXD - (m + k - 1), m + k) for k in range(1, 51)])  # times (m+k-1)/(m+k): neighbours differ by ~1e-18
+add(MAXD, [(MAXD - (m + k - 1), m + k) for k in range(1, 51)])
 add(10**6, rnd(1000, 10**6, 1000))
 add(MAXD, staircase(3000, [(1, 3), (1, 2), (2, 3), (1, 1), (3, 2), (2, 1)]))
 add(MAXD, rnd(5000, MAXD))
-# hidden: maximum size
+
 N = MAXN
 add(MAXD, rnd(N, MAXD))
-add(MAXD, rnd(N, MAXD, 1000))                                    # slow riders: long chains of hold-ups
+add(MAXD, rnd(N, MAXD, 1000))
 step = MAXD // (N + 1)
-add(MAXD, [(MAXD - (k + 1) * step, 1 + k * 6000) for k in range(N)])   # the farther, the faster: all caught
-add(MAXD, [(k, MAXV - 3 * (N - k)) for k in range(N)])           # the farther, the slower: nobody is caught
+add(MAXD, [(MAXD - (k + 1) * step, 1 + k * 6000) for k in range(N)])
+add(MAXD, [(k, MAXV - 3 * (N - k)) for k in range(N)])
 m = MAXD - N
 add(MAXD, [(MAXD - (m + k - 1), m + k) for k in range(1, N + 1)])
 add(MAXD, staircase(N, [(1, 3), (1, 2), (2, 3), (1, 1), (3, 2), (2, 1)]))
 add(MAXD, staircase(N, [(1, 2), (3, 5), (1, 1), (4, 3), (5, 3)]))
-add(N + 5, rnd(N, N + 5, MAXV))                                  # short track, fast riders
-add(MAXD, [(p, MAXV) for p in random.sample(range(MAXD), N)])    # same speed: nobody is caught
+add(N + 5, rnd(N, N + 5, MAXV))
+add(MAXD, [(p, MAXV) for p in random.sample(range(MAXD), N)])
 s = [(MAXD - 1, 1)] + [(p, ri(10**8, MAXV)) for p in random.sample(range(MAXD - 1), N - 1)]
-add(MAXD, s)                                                     # a very slow rider at the front holds up everybody
+add(MAXD, s)
 add(MAXD, staircase(N, [(1, 4), (2, 5), (3, 4), (5, 4), (7, 4)]), False)
 
 for t in tests:

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(220101)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -22,15 +21,15 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, short side branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
             raise ValueError(kind)
@@ -39,8 +38,6 @@ def shape(n, kind):
 
 
 def tree(n, kind):
-    """parent array p[0..n] (p[1] = 0) of a tree of the given shape with random labels (shape node 1 = person 1);
-    also lab: lab[i - 1] = label of shape node i (small i = close to the root)"""
     par = shape(n, kind)
     lab = list(range(2, n + 1))
     random.shuffle(lab)
@@ -62,7 +59,7 @@ def add(n, p, s, cmds):
     order = [1]
     for u in order:
         order.extend(ch[u])
-    assert len(order) == n                     # every person reaches person 1
+    assert len(order) == n
     assert all(1 <= v <= n for v in cmds)
     t = (f"{n} {q}\n" + " ".join(map(str, p[2:])) + "\n" + " ".join(map(str, s)) + "\n"
          + " ".join(map(str, cmds)) + "\n")
@@ -71,7 +68,6 @@ def add(n, p, s, cmds):
 
 
 def rcmds(n, q, lab, top=None):
-    """random commands; with top = k they pick among the k people closest to the root (big teams)"""
     if top:
         return [lab[int(random.random() * top)] for _ in range(q)]
     return [ri(1, n) for _ in range(q)]
@@ -82,20 +78,19 @@ def case(n, kind, q, shi, top=None):
     add(n, p, [ri(0, shi) for _ in range(n)], rcmds(n, q, lab, top))
 
 
-# samples
 add(6, [0, 0, 1, 1, 2, 2, 3], [5, 4, 3, 2, 6, 2], [1, 1, 3, 2, 6, 1])
 add(4, [0, 0, 1, 2, 3], [6, 2, 8, 2], [2, 2, 2, 2, 1])
 add(2, [0, 0, 1], [MAXS, MAXS], [2, 2, 1, 1])
 add(5, [0, 0, 3, 1, 3, 2], [3, 1, 9, 4, 1], [3, 3, 3, 3, 3])
 add(5, [0, 0, 1, 1, 1, 1], [0, 7, 0, 7, 7], [1, 4, 1, 1, 4, 1])
-# hidden: small and medium (many equal scores)
+
 for n, kind, q, shi in ((3, "path", 4, 1), (10, "random", 15, 2), (30, "deep", 40, 3), (50, "star", 60, 2),
                         (80, "caterpillar", 100, 5), (200, "binary", 300, 10)):
     case(n, kind, q, shi)
 case(5000, "random", 6000, 20)
 case(5000, "broom", 6000, 3, top=100)
 case(5000, "chains", 6000, MAXS, top=300)
-# hidden: maximum size, every command on a big team
+
 case(MAXN, "path", MAXQ, 50, top=1000)
 case(MAXN, "path", MAXQ, MAXS, top=50)
 case(MAXN, "deep", MAXQ, 5, top=1000)

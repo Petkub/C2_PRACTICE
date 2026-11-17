@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(11007)
@@ -17,14 +17,12 @@ def add(R, C, K, rocks):
 
 
 def from_grid(K, grid):
-    """samples are drawn as pictures: '#' = rock"""
     R, C = len(grid), len(grid[0])
     assert all(len(row) == C and set(row) <= set(".#") for row in grid)
     add(R, C, K, [(r + 1, c + 1) for r in range(R) for c in range(C) if grid[r][c] == "#"])
 
 
 def rand_p(R, C, K, p):
-    """each cell is a rock with probability p (start and end kept free), listed in random order"""
     rocks = [(r, c) for r in range(1, R + 1) for c in range(1, C + 1)
              if random.random() < p and (r, c) != (1, 1) and (r, c) != (R, C)]
     random.shuffle(rocks)
@@ -32,19 +30,17 @@ def rand_p(R, C, K, p):
 
 
 def rand_m(R, C, K, M):
-    """exactly M rocks at distinct random cells"""
     cells = random.sample(range(1, R * C - 1), M)
     add(R, C, K, [(x // C + 1, x % C + 1) for x in cells])
 
 
-# samples
 from_grid(2, ["....", ".#..", "....", "...."])
 from_grid(1, ["...", "...", "..."])
 from_grid(3, ["....", ".#..", "...."])
 from_grid(2, [".....", ".....", "..#..", ".....", "....."])
 from_grid(5, [".#.", "#.#", ".#."])
 from_grid(3, ["." * 6] * 5)
-# hidden: small
+
 add(1, 1, 1, [])
 add(1, 7, 4, [])
 rand_p(50, 60, 8, 0.2)
@@ -52,16 +48,16 @@ rand_p(8, 9, 3, 0.2)
 rand_p(10, 10, 10, 0.1)
 rand_p(12, 7, 2, 0.3)
 add(4, 10, 4, [(1, c) for c in range(2, 11)] + [(r, c) for r in (2, 3) for c in range(1, 11)]
-    + [(4, c) for c in range(1, 10)])             # no path at all
-add(300, 300, 1, [])                              # one path: the diagonal
+    + [(4, c) for c in range(1, 10)])
+add(300, 300, 1, [])
 add(300, 299, 2, [])
 add(300, 300, 3, [(r + 1, c + 1) for r in range(300) for c in range(300)
-                  if abs((r - c) - 3) <= 1 and 5 < r < 295])     # rocks along a diagonal band
-# hidden: medium
+                  if abs((r - c) - 3) <= 1 and 5 < r < 295])
+
 rand_p(80, 90, 20, 0.15)
 rand_p(400, 400, 150, 0.35)
 rand_p(500, 450, 60, 0.6)
-# hidden: maximum size
+
 M = MAXS
 add(M, M, M, [])
 add(M, M, M // 2, [])
@@ -71,9 +67,9 @@ rand_m(M, M, 1500, 100000)
 rand_m(M, M, M, MAXM)
 rand_m(M - 1, M, M - 1, MAXM)
 rand_m(M, M, 1800, 50000)
-add(M, M, 2500, [(r, c) for r in range(1301, 1701) for c in range(1201, 1701)])   # a solid block of rocks
+add(M, M, 2500, [(r, c) for r in range(1301, 1701) for c in range(1201, 1701)])
 add(M, M, 1700, [(r, c) for r in range(2, M, 2) for c in range((50 - r % 50) % 50 or 50, M + 1, 50)])
-# dotted anti-diagonals: rocks where r is even and r + c is a multiple of 50
+
 rand_m(M, M, 1000, MAXM)
 
 for t in tests:

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(30620)
@@ -12,7 +12,6 @@ def add(g):
     tests.append(f"{n} {m}\n" + "\n".join("".join(map(str, r)) for r in g) + "\n")
 
 def from_diff(n, m, D):
-    """picture whose 2D XOR difference is D ((n+1) x (m+1))"""
     g = [[0] * m for _ in range(n)]
     for i in range(n):
         run, up = 0, g[i - 1] if i else [0] * m
@@ -24,7 +23,6 @@ def from_diff(n, m, D):
     return g
 
 def stamps(n, m, k, places):
-    """picture made by k x k stamps at the given top-left cells"""
     D = [[0] * (m + 1) for _ in range(n + 1)]
     for a, b in places:
         assert 0 <= a <= n - k and 0 <= b <= m - k
@@ -32,7 +30,6 @@ def stamps(n, m, k, places):
     return from_diff(n, m, D)
 
 def random_blocks(n, m, sizes, cnt):
-    """XOR of cnt blocks, each of a random size from sizes, at random places"""
     D = [[0] * (m + 1) for _ in range(n + 1)]
     for _ in range(cnt):
         k = random.choice(sizes)
@@ -51,7 +48,6 @@ def segs(length, L, starts):
     return f
 
 def pairs1d(length, L, s, cnt):
-    """XOR of pairs [p, p + L) ^ [p + s, p + s + L): both L and s stamps need the same count"""
     starts = []
     for p in random.sample(range(0, min(s, length - L - s + 1)), cnt):
         starts += [p, p + s]
@@ -60,27 +56,27 @@ def pairs1d(length, L, s, cnt):
 def stretch(bits, t):
     return [int(c) for c in bits for _ in range(t)]
 
-# samples
+
 add(stamps(4, 5, 2, [(0, 0), (1, 1), (2, 2)]))
 add([[1, 0], [0, 1]])
 add([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
 add(stamps(5, 6, 3, [(0, 0), (1, 2), (2, 1)]))
 add([[1] * 6, [1] * 6])
-# hidden: small
+
 add([[0]])
 add([[1]])
-add(product(stretch("1100101", 1), stretch("1100101", 1)))          # the biggest working size is not the best
+add(product(stretch("1100101", 1), stretch("1100101", 1)))
 f8 = [1, 1, 0, 0, 0, 0, 1, 1]
-add(product(f8, f8))                                                # two sizes tie
+add(product(f8, f8))
 add([[random.randint(0, 1) for _ in range(8)] for _ in range(6)])
 add(stamps(12, 15, 4, [(random.randint(0, 8), random.randint(0, 11)) for _ in range(10)]))
 add(product(stretch("1100101", 10), stretch("1010011", 10)))
 add(random_blocks(60, 80, [24], 300))
 add(product(pairs1d(120, 60, 20, 15), pairs1d(100, 60, 20, 8)))
 add([[random.randint(0, 1) for _ in range(200)] for _ in range(200)])
-add([segs(MAXNM, 7, random.sample(range(MAXNM - 6), 100))])          # one row: only k = 1
-add(stamps(30, 40, 30, [(0, 3), (0, 7)]))                           # the biggest size works
-# hidden: maximum size
+add([segs(MAXNM, 7, random.sample(range(MAXNM - 6), 100))])
+add(stamps(30, 40, 30, [(0, 3), (0, 7)]))
+
 N = MAXNM
 add(random_blocks(N, N, [360], 40000))
 add(random_blocks(N, N, [336], 40000))
@@ -94,10 +90,10 @@ add(random_blocks(N, 490, [360], 40000))
 add(random_blocks(490, N, [336], 40000))
 add(product(pairs1d(N, 252, 84, 80), pairs1d(N, 252, 84, 60)))
 add(random_blocks(N, N, [360], 32000))
-# hidden: maximum size, every size (or almost every size) is checked to the last rows
-add([[0] * N for _ in range(N)])                                    # all white: every k works
+
+add([[0] * N for _ in range(N)])
 corner = [[0] * N for _ in range(N)]
-corner[N - 1][N - 1] = 1                                            # only k = 1, found at the very last cell
+corner[N - 1][N - 1] = 1
 add(corner)
 patch = [[0] * N for _ in range(N)]
 for i in range(N - 3, N):

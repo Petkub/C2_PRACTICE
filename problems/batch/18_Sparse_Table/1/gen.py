@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(180001)
@@ -35,7 +35,6 @@ def queries(n, q, long_frac):
 
 
 def blocks(n, base_choices, mult_hi):
-    """runs of planks sharing a block factor, so many ranges have a gcd > 1"""
     a = []
     while len(a) < n:
         g = random.choice(base_choices)
@@ -44,29 +43,28 @@ def blocks(n, base_choices, mult_hi):
     return a[:n]
 
 
-# samples
 add([12, 18, 30, 7, 14], [(1, 3), (3, 4), (2, 2)])
 add([MAXV] * 3, [(1, 3), (2, 3)])
 add([1], [(1, 1)])
 add([8, 4, 12, 16, 6, 9], [(1, 4), (1, 6), (5, 6), (4, 4), (2, 3)])
 add([35, 49, 14, 21, 70, 28, 63], [(1, 7), (3, 6), (5, 5), (1, 2), (4, 7)])
-# hidden: small
+
 add([ri(1, 30) for _ in range(10)], queries(10, 40, 0.2))
 add([6 * ri(1, 20) for _ in range(50)], queries(50, 100, 0.3))
 add(blocks(300, [2, 3, 4, 6, 10, 12], 50), queries(300, 500, 0.3))
-add([2**ri(0, 29) for _ in range(1000)], queries(1000, 2000, 0.3))            # powers of two
+add([2**ri(0, 29) for _ in range(1000)], queries(1000, 2000, 0.3))
 add(blocks(5000, [999_983, 2 * 3 * 5 * 7, 2**20], 900), queries(5000, 5000, 0.4))
-add([ri(1, MAXV) for _ in range(2000)], queries(2000, 3000, 0.2))              # gcd mostly 1
-# hidden: maximum size (values kept short so the input stays <= 3 MB)
+add([ri(1, MAXV) for _ in range(2000)], queries(2000, 3000, 0.2))
+
 N = MAXN
-add([2 * 3 * 5 * 7 * ri(1, 4000) for _ in range(N)], queries(N, 120_000, 0.9))   # gcd never 1
-add([MAXV] * N, queries(N, 60_000, 0.9))                                          # all equal, maximal
+add([2 * 3 * 5 * 7 * ri(1, 4000) for _ in range(N)], queries(N, 120_000, 0.9))
+add([MAXV] * N, queries(N, 60_000, 0.9))
 add([720_720] * (N - 1) + [360_360], queries(N, 130_000, 0.8))
 add(blocks(N, [2, 6, 30, 210, 64], 9000), queries(N, 120_000, 0.7))
 add([2**ri(10, 19) for _ in range(N)], queries(N, 140_000, 0.9))
 add([ri(1, 999_999) for _ in range(N)], queries(N, 120_000, 0.5))
 a = [12 * ri(1, 80_000) for _ in range(N)]
-a[N // 2] = 11                                                                     # one plank breaks the middle
+a[N // 2] = 11
 add(a, queries(N, 120_000, 0.9))
 add([5 * ri(1, 199_999) for _ in range(N)], [(1, N)] * 1000 + queries(N, 110_000, 0.95))
 

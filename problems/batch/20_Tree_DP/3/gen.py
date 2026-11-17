@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(200003)
@@ -19,7 +19,6 @@ def shuf(a):
 
 
 def shape(n, kind):
-    """par[i] (1 <= i < n) is a node in 0..i-1; node 0 is the root"""
     par = [-1] * n
     h = max(1, n // 2)
     s = max(1, int(n ** 0.5))
@@ -30,19 +29,19 @@ def shape(n, kind):
             par[i] = i - 1
         elif kind == "star":
             par[i] = 0
-        elif kind == "deep":                    # long and thin, short side branches
+        elif kind == "deep":
             par[i] = ri(max(0, i - 3), i - 1)
         elif kind == "binary":
             par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
+        elif kind == "broom":
             par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging on it
+        elif kind == "cater":
             par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "spider":                  # about sqrt(n) legs of length about sqrt(n) at the root
+        elif kind == "spider":
             par[i] = 0 if (i - 1) % s == 0 else i - 1
-        elif kind == "twopaths":                # two long chains below the root
+        elif kind == "twopaths":
             par[i] = 0 if i <= 2 else i - 2
-        elif kind == "midstar":                 # a path whose middle node has many leaves
+        elif kind == "midstar":
             par[i] = i - 1 if i < h else h // 2
         else:
             raise ValueError(kind)
@@ -50,7 +49,6 @@ def shape(n, kind):
 
 
 def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1 (node 0 gets root if given)"""
     lab = list(range(1, n + 1))
     shuf(lab)
     if root is not None:
@@ -60,7 +58,6 @@ def labels(n, root=None):
 
 
 def edge_list(par, lab):
-    """edges (lab[u], lab[v]) of the tree in random order and orientation"""
     r = _rnd
     es = [(lab[par[i]], lab[i]) if r() < 0.5 else (lab[i], lab[par[i]]) for i in range(1, len(par))]
     shuf(es)
@@ -68,7 +65,6 @@ def edge_list(par, lab):
 
 
 def shape_ok(par, lab):
-    """par[i] < i for every node and lab is a numbering 1..n: the edges form a tree"""
     n = len(par)
     return (par[0] == -1 and all(0 <= par[i] < i for i in range(1, n))
             and len(set(lab)) == n and min(lab) == 1 and max(lab) == n)
@@ -95,17 +91,14 @@ def is_tree(n, es):
 
 
 def add(p, d, checked=False):
-    """p = [p_2, ..., p_N], d = [d_1, ..., d_N]"""
     n = len(d)
     assert 1 <= n <= MAXN and len(p) == n - 1
     assert 1 <= min(d) and max(d) <= n
-    assert checked or is_tree(n, [(i + 2, p[i]) for i in range(n - 1)])       # connected, so every chain reaches 1
+    assert checked or is_tree(n, [(i + 2, p[i]) for i in range(n - 1)])
     tests.append(f"{n}\n" + " ".join(map(str, p)) + "\n" + " ".join(map(str, d)) + "\n")
 
 
 def build(n, kind, dval, top=0):
-    """dval(i, depth, n) gives d of the i-th created node; node 0 is employee 1;
-    top > 0: a chain of top employees (d between n / 2 and n) on top, the shape of n - top nodes below it"""
     m = n - top
     sub = shape(m, kind)
     par = [i - 1 for i in range(top)] + [top - 1 if j == 0 else top + sub[j] for j in range(m)]
@@ -137,13 +130,12 @@ def mixed(i, dep, n):
     return ri(1, min(2, n)) if r < 0.6 else ri(1, min(20, n)) if r < 0.9 else ri(1, n)
 
 
-# samples
 add([1, 2, 3, 1, 5], [2, 2, 1, 1, 1, 1])
 add([1, 2], [1, 1, 1])
 add([1, 1, 1, 1], [1, 4, 2, 3, 5])
 add([1, 2, 3, 4, 5, 6], [3, 1, 1, 2, 1, 1, 1])
 add([1, 1, 2, 2, 3, 5, 5], [1, 2, 1, 1, 2, 1, 1, 1])
-# hidden: small
+
 add([], [1])
 build(9, "random", small_d)
 build(12, "deep", mixed)
@@ -152,10 +144,10 @@ build(300, "binary", small_d)
 build(3000, "cater", mixed)
 build(20000, "random", small_d)
 build(20000, "path", lambda i, dep, n: n if i % 7 == 3 else 1)
-# hidden: maximum size
+
 N = MAXN
-T = 80_000                                                  # a long chain of bosses above the shape
-build(N, "path", lambda i, dep, n: n)                      # only the last employee loses, and it is far away
+T = 80_000
+build(N, "path", lambda i, dep, n: n)
 build(N, "path", lambda i, dep, n: n if i % 7 == 3 else 1, T)
 build(N, "path", lambda i, dep, n: 2, T)
 build(N, "deep", big_d, T)

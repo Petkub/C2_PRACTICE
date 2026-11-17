@@ -1,114 +1,139 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(13001)
-MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
+random.seed(8005)
+MAXR = MAXC = 1000
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def connected(n, fuses):
-    parent = list(range(n + 1))
-
-    def find(x):
-        while parent[x] != x:
-            parent[x] = parent[parent[x]]
-            x = parent[x]
-        return x
-    for u, v, _ in fuses:
-        parent[find(u)] = find(v)
-    return len({find(x) for x in range(1, n + 1)}) == 1
+def add(rows):
+    r, c = len(rows), len(rows[0])
+    assert 1 <= r <= MAXR and 1 <= c <= MAXC
+    assert all(len(x) == c and all(ch in "0123456789#" for ch in x) for x in rows)
+    assert rows[0][0] != "#" and rows[-1][-1] != "#"
+    tests.append(f"{r} {c}\n" + "".join(x + "\n" for x in rows))
 
 
-def add(n, fuses):
-    m = len(fuses)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(1 <= u <= n and 1 <= v <= n and 1 <= w <= MAXW for u, v, w in fuses)
-    assert connected(n, fuses)
-    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in fuses))
+def digit(lo, hi):
+    return chr(48 + ri(lo, hi))
 
 
-def shuffled(n, fuses):
-    """random numbers for points 2..n (point 1 stays), random order and direction of the fuses"""
-    p = list(range(2, n + 1))
-    random.shuffle(p)
-    p = [0, 1] + p
-    res = [(p[u], p[v], w) if random.random() < 0.5 else (p[v], p[u], w) for u, v, w in fuses]
-    random.shuffle(res)
-    add(n, res)
+def rnd(r, c, lo, hi, wall=0.0):
+    pop = [chr(48 + d) for d in range(lo, hi + 1)] + ["#"]
+    wt = [(1 - wall) / (hi - lo + 1)] * (hi - lo + 1) + [wall]
+    g = ["".join(random.choices(pop, wt, k=c)) for _ in range(r)]
+    g[0] = digit(lo, hi) + g[0][1:]
+    g[-1] = g[-1][:-1] + digit(lo, hi)
+    return g
 
 
-def rnd_tree(n, wl, wh):
-    return [(i, ri(max(1, i - ri(1, 50) if random.random() < 0.5 else 1), i - 1), ri(wl, wh)) for i in range(2, n + 1)]
-
-
-def extra(n, k, wl, wh, loops=True):
-    res = []
-    while len(res) < k:
-        u, v = ri(1, n), ri(1, n)
-        if u == v and not loops:
+def maze(r, c, lo, hi, wallch="#", wlo=0, whi=9):
+    h, w = r // 2 + 1, c // 2 + 1
+    seen = bytearray(h * w)
+    passage = bytearray(r * c)
+    seen[0] = passage[0] = 1
+    stack = [0]
+    rand = random.random
+    while stack:
+        x = stack[-1]
+        i, j = divmod(x, w)
+        nb = []
+        if i + 1 < h and not seen[x + w]:
+            nb.append(x + w)
+        if i > 0 and not seen[x - w]:
+            nb.append(x - w)
+        if j + 1 < w and not seen[x + 1]:
+            nb.append(x + 1)
+        if j > 0 and not seen[x - 1]:
+            nb.append(x - 1)
+        if not nb:
+            stack.pop()
             continue
-        res.append((u, v, ri(wl, wh)))
-    return res
+        y = nb[int(rand() * len(nb))]
+        a, b = divmod(y, w)
+        seen[y] = 1
+        passage[2 * a * c + 2 * b] = 1
+        passage[(i + a) * c + (j + b)] = 1
+        stack.append(y)
+    pd = random.choices([chr(48 + d) for d in range(lo, hi + 1)], k=r * c)
+    wd = ["#"] * (r * c) if wallch == "#" else random.choices([chr(48 + d) for d in range(wlo, whi + 1)], k=r * c)
+    cells = [pd[k] if passage[k] else wd[k] for k in range(r * c)]
+    return ["".join(cells[i * c:(i + 1) * c]) for i in range(r)]
 
 
-# samples
-add(4, [(1, 2, 4), (2, 3, 3), (1, 3, 6), (3, 4, 2)])
-add(3, [(1, 2, 2), (1, 3, 3), (2, 3, 4)])
-add(1, [(1, 1, 7)])
-add(3, [(2, 3, 4), (1, 3, 1), (2, 1, 1)])
-add(5, [(1, 2, 3), (2, 3, 5), (4, 2, 1), (3, 5, 2), (5, 4, 9)])
-# hidden: small
-add(2, [(1, 2, 1)])
-add(2, [(2, 1, 10), (1, 2, 3), (2, 2, 1)])                     # parallel fuses and a loop
-add(3, [(1, 2, 5), (2, 3, 5), (3, 3, 1), (1, 1, 11)])          # the loop at the start burns last
-for n, m, wh in [(5, 8, 10), (8, 14, 20), (10, 20, 7), (30, 60, 100), (60, 90, 1000), (200, 400, 10**9)]:
-    f = rnd_tree(n, 1, wh) + extra(n, m - (n - 1), 1, wh)
-    shuffled(n, f)
-n = 3000
-f = rnd_tree(n, 1, 10**6) + extra(n, 3000, 1, 10**6)
-shuffled(n, f)
-n = 2000                                                        # parallel fuses: a long twin of a tree fuse
-t = rnd_tree(n, 1, 1000)
-f = t + [(u, v, w + ri(1000, 5000)) for u, v, w in random.sample(t, 1000)]
-shuffled(n, f)
-n = 5000                                                        # random graph, some fuses have a long twin
-f = rnd_tree(n, 1, 10**4) + extra(n, 2000, 1, 10**4, loops=False)
-f += [(u, v, w * ri(2, 50)) for u, v, w in random.sample(f, 3000)]
-shuffled(n, f)
+def serpentine(r, c, lo, hi):
+    g = []
+    for i in range(r):
+        if i % 2 == 0:
+            g.append("".join(random.choices([chr(48 + d) for d in range(lo, hi + 1)], k=c)))
+        else:
+            gap = c - 1 if i % 4 == 1 else 0
+            g.append("".join(digit(lo, hi) if j == gap else "#" for j in range(c)))
+    return g
 
-# hidden: maximum size
-N, M = MAXN, MAXM
-f = rnd_tree(N, 1, MAXW) + extra(N, M - (N - 1), 1, MAXW)      # random, long fuses
-shuffled(N, f)
-f = [(i, i + 1, ri(MAXW // 2, MAXW)) for i in range(1, N)] + [(N, N, MAXW)]   # a line ending in a long loop
-shuffled(N, f)
-f = [(i, i % N + 1, ri(1, MAXW)) for i in range(1, N + 1)]                  # a ring: flames meet somewhere
-shuffled(N, f)
-f = [(1, i, ri(1, MAXW)) for i in range(2, N)] + [(i, i, ri(1, MAXW)) for i in range(2, 4)]   # a star with loops
-shuffled(N - 1, f[:MAXM])
-f = rnd_tree(N, 1, 1000) + extra(N, M - (N - 1), 1, 1000)      # short fuses: many halves
-shuffled(N, f)
-f = rnd_tree(N, 1, 10)
-f += [(u, v, w + ri(1, 10**6)) for u, v, w in random.sample(f, M - (N - 1))]  # long parallel twins
-shuffled(N, f)
-f = rnd_tree(N - 5_000, 1, MAXW // 1000) + extra(N - 5_000, 2_500, 1, MAXW // 1000, loops=False)
-f += [(u, v, w * ri(2, 1000)) for u, v, w in random.sample(f, M - len(f))]   # long twins of random fuses
-shuffled(N - 5_000, f)
-side = 316                                                      # a comb of rows with a few rungs
-idx = lambda r, c: r * side + c + 1
-f = [(idx(r, c), idx(r, c + 1), ri(1, MAXW)) for r in range(side) for c in range(side - 1)]
-f += [(idx(r, 0), idx(r + 1, 0), ri(1, MAXW)) for r in range(side - 1)]
-while len(f) < M:
-    r, c = ri(0, side - 2), ri(1, side - 1)
-    f.append((idx(r, c), idx(r + 1, c), ri(1, MAXW)))
-shuffled(side * side, f)
-f = [(i, i + 1, MAXW) for i in range(1, N)] + [(1, N, MAXW)]   # a ring of equal maximal fuses
-shuffled(N, f)
+
+def diagonal(r, c, lo, hi):
+    assert (r + c - 2) % 4 in (0, 1)
+    digits = [chr(48 + d) for d in range(lo, hi + 1)]
+    g = []
+    for i in range(r):
+        row = random.choices(digits, k=c)
+        for j in range(c):
+            if (i + j) % 4 >= 2:
+                row[j] = "#"
+        g.append(row)
+    for s in range(2, r + c - 1):
+        if s % 4 < 2:
+            continue
+        t = s // 4
+        i = max(0, s - (c - 1)) if t % 2 == 0 else min(r - 1, s)
+        g[i][s - i] = random.choice(digits)
+    return ["".join(x) for x in g]
+
+
+def transpose(g):
+    return ["".join(g[i][j] for i in range(len(g))) for j in range(len(g[0]))]
+
+
+add(["19111", "19191", "11191"])
+add(["5#1", "3#4"])
+add(["1111", "###1", "1111", "1###", "1111"])
+add(["7"])
+add(["000", "000"])
+add(["2#315", "41190", "3#2#6", "12843"])
+
+add(["9" * 20])
+add(["3"] * 25)
+add(rnd(5, 5, 0, 9, 0.3))
+add(rnd(10, 12, 1, 9, 0.25))
+add(maze(15, 21, 1, 9))
+add(serpentine(17, 9, 0, 9))
+add(maze(41, 41, 0, 9, "0", 5, 9))
+add(diagonal(30, 28, 1, 9))
+add(rnd(60, 60, 1, 9, 0.35))
+
+R = C = MAXR
+add(rnd(R, C, 1, 9))
+add(rnd(R, C, 0, 9, 0.35))
+add(rnd(R, C, 1, 9, 0.2))
+add(maze(999, 999, 1, 9))
+add(maze(999, 999, 9, 9))
+add(maze(999, 999, 0, 1, "9", 9, 9))
+add(serpentine(999, C, 1, 9))
+add(transpose(serpentine(999, C, 0, 9)))
+g = maze(999, 999, 1, 9)
+g[-1] = g[-1][:-2] + "#" + g[-1][-1]
+g[-2] = g[-2][:-1] + "#"
+add(g)
+add(["5" * C] * R)
+add(diagonal(R, 999, 1, 9))
+add(transpose(diagonal(R, 999, 0, 9)))
+add(diagonal(998, 1000, 9, 9))
+add(maze(999, 999, 0, 9, "0", 3, 9))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

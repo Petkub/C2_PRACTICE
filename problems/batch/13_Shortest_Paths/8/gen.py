@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(81010)
@@ -43,7 +43,6 @@ def perm(n):
 
 
 def staircase(n, m, cmax):
-    """cities on a line; a flight over d cities costs more than d short flights, so more flights is cheaper"""
     p = perm(n)
     e = [(p[i], p[i + 1], ri(cmax // 2, cmax)) for i in range(n - 1)]
     while len(e) < m:
@@ -54,17 +53,15 @@ def staircase(n, m, cmax):
 
 
 def chain_q(n, q):
-    """queries near the number of flights the cheapest route needs"""
     return [(ri(1, n), max(1, min(n, ri(1, n) if random.random() < 0.3 else ri(n - 80, n)))) for _ in range(q)]
 
 
-# samples
 add(4, [(1, 2, 1), (2, 3, 1), (3, 4, 1), (1, 4, 10), (1, 3, 5)], [(4, 1), (4, 2), (4, 3)], False)
 add(3, [(1, 2, 4), (3, 1, 2)], [(1, 1), (2, 2), (3, 3)], False)
 add(4, [(1, 2, 2), (2, 3, 7), (1, 3, 20), (3, 4, 1), (2, 4, 30)], [(4, 2), (4, 3)], False)
 add(3, [(1, 2, MAXC), (2, 3, MAXC), (1, 2, 1)], [(3, 2), (2, 1)], False)
 add(3, [(1, 2, 5), (2, 1, 1), (2, 3, 1)], [(1, 3), (3, 3)], False)
-# hidden: small
+
 add(2, [(2, 1, 1)], [(1, 1), (2, 2)])
 for n, m, chi, q in ((5, 10, 10, 20), (6, 15, 5, 30), (8, 20, 100, 40), (8, 30, 3, 40), (10, 40, MAXC, 50)):
     add(n, rnd_edges(n, m, 1, chi), rnd_q(n, q))
@@ -72,29 +69,29 @@ add(12, staircase(12, 30, 10), rnd_q(12, 60))
 add(30, staircase(30, 100, 1000), rnd_q(30, 300))
 add(60, rnd_edges(60, 300, 1, 50), rnd_q(60, 500))
 add(100, staircase(100, 600, 10**6), chain_q(100, 1000))
-# hidden: maximum size
+
 N, M, Q = MAXN, MAXM, MAXQ
 add(N, staircase(N, M, 10**6), chain_q(N, Q))
 add(N, staircase(N, M, MAXC // 60), chain_q(N, Q))
 p = perm(N)
-e = [(p[i], p[i + 1], MAXC) for i in range(N - 1)]               # one route, up to 499 * 10^9
+e = [(p[i], p[i + 1], MAXC) for i in range(N - 1)]
 while len(e) < M:
     i, j = sorted(random.sample(range(N), 2))
-    e.append((p[j], p[i], ri(1, MAXC)))                          # flights back along the route
+    e.append((p[j], p[i], ri(1, MAXC)))
 add(N, e, chain_q(N, Q))
-add(N, staircase(N, M, 1000), chain_q(N, Q), False)              # flights listed along the route
+add(N, staircase(N, M, 1000), chain_q(N, Q), False)
 add(N, rnd_edges(N, M, 1, MAXC), rnd_q(N, Q))
 add(N, rnd_edges(N, M, 1, 10), rnd_q(N, Q, 10))
 add(N, staircase(N, M, 10**4), [(t, k) for t, k in chain_q(N, Q)])
 p = perm(N)
-e = [(p[i], p[i + 1], ri(1, 10)) for i in range(N // 2)]         # half of the cities unreachable
+e = [(p[i], p[i + 1], ri(1, 10)) for i in range(N // 2)]
 while len(e) < M:
     i, j = ri(0, N - 1), ri(0, N // 2)
     if i != j:
         e.append((p[i], p[j], ri(1, MAXC)))
 add(N, e, chain_q(N, Q))
 e = []
-for i in range(2, N + 1):                                        # every city: direct expensive flight, cheaper via hubs
+for i in range(2, N + 1):
     e.append((1, i, ri(10**8, MAXC)))
 e += staircase(N, M - len(e), 10**5)
 add(N, e, rnd_q(N, Q))

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10111)
@@ -18,7 +18,6 @@ def rnd(n, w=(1, 1, 1)):
 
 
 def perm_blocks(m):
-    """m blocks of 3 letters, each block a permutation of ABC"""
     out = []
     for _ in range(m):
         b = list("ABC")
@@ -27,14 +26,13 @@ def perm_blocks(m):
     return "".join(out)
 
 
-# samples
 add("ABCCAB")
 add("AABBAB")
 add("A")
 add("ABCABC")
 add("CBAACB")
 add("AAABBBCCC")
-# hidden (small)
+
 add("C")
 add("BCA")
 add("ABABCCBACC")
@@ -44,10 +42,10 @@ add(rnd(300))
 add(rnd(2000, (5, 4, 4)))
 add(perm_blocks(1000) + rnd(1000))
 add("A" * 1000 + "B" * 1000 + "C" * 1000)
-add(rnd(3000, (1, 1, 0)))                              # no C at all
-# large
+add(rnd(3000, (1, 1, 0)))
+
 N = MAXN
-add(("ABC" * N)[:N])                                    # the largest answer
+add(("ABC" * N)[:N])
 add(perm_blocks(N // 3) + "AB")
 add(rnd(N))
 add(rnd(N, (10, 9, 9)))

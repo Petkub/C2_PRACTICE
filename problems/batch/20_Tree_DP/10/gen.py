@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(200008)
@@ -47,7 +47,6 @@ def add(w, es, checked=False):
 
 
 class Tree:
-    """nodes 0..n-1 built in order, par[i] < i for i >= 1 (so the edges always form a tree)"""
 
     def __init__(self, w0):
         self.par, self.w = [-1], [w0]
@@ -75,7 +74,6 @@ class Tree:
         add(w, es, checked=True)
 
 
-# weights
 def unit():
     return 1
 
@@ -85,7 +83,6 @@ def small():
 
 
 def logw():
-    """spread over all orders of magnitude: heavy and light stations next to each other"""
     return min(MAXW, int(10 ** (9 * _rnd())))
 
 
@@ -98,8 +95,6 @@ def high():
 
 
 def gadget(t, p, k, base=30, scale=MAXW):
-    """below p: a station of level k whose children are the roots of levels 1..k-1 (2^(k-1) stations);
-    the level-j station weighs scale / base^(j-1): heavy low levels force the level-k root to day k"""
     v = t.node(p, max(1, scale // base ** (k - 1)))
     for j in range(1, k):
         gadget(t, v, j, base, scale)
@@ -107,7 +102,6 @@ def gadget(t, p, k, base=30, scale=MAXW):
 
 
 def grow(t, m, kind, wf, at=None):
-    """m new stations hung below the existing tree in the given shape"""
     start = t.size()
     for i in range(m):
         cur = t.size()
@@ -127,20 +121,17 @@ def grow(t, m, kind, wf, at=None):
 
 
 def plant(t, cnt, k, lo=0, base=30):
-    """cnt level-k gadgets hung on random existing stations with index >= lo"""
     for _ in range(cnt):
         gadget(t, ri(lo, t.size() - 1), k, base, scale=ri(MAXW // 2, MAXW))
 
 
 def fill(t, n, wf, at):
-    """pad with leaves at station `at` up to n stations"""
     assert 0 <= at < t.size()
     m = n - t.size()
     t.par += [at] * m
     t.w += [wf() for _ in range(m)]
 
 
-# samples (the best plan of every sample uses days 1 and 2 only)
 add([5, 2, 3, 4, 1], [(1, 2), (1, 3), (1, 4), (4, 5)])
 add([10, 1, 1, 1], [(2, 1), (1, 3), (4, 1)])
 add([7], [])
@@ -148,11 +139,11 @@ add([3, 9, 2, 8, 1, 6], [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6)])
 add([5, 2, 6, 5, 1, 6, 2, 5], [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (6, 7), (6, 8)])
 add([1, 1, 1, 1, 1, 1], [(1, 2), (2, 3), (2, 4), (4, 5), (4, 6)])
 
-# hidden: small
+
 add([MAXW, MAXW], [(1, 2)])
 add([100, 1, 1, 100], [(1, 2), (2, 3), (3, 4)])
 t = Tree(1)
-gadget(t, 0, 3)                     # a light station next to days 1, 2, 3
+gadget(t, 0, 3)
 t.node(0, 10 ** 9)
 t.emit()
 t = Tree(5)
@@ -175,69 +166,69 @@ plant(t, 60, 5)
 grow(t, 2000, "leaves", logw, at=7)
 t.emit()
 
-# hidden: maximum size (every one has a station with a very high degree)
+
 N = MAXN
 
-t = Tree(logw())                    # a star
+t = Tree(logw())
 fill(t, N, logw, 0)
 t.emit()
 
-t = Tree(1)                         # a light hub next to many forced days 1, 2, 3
+t = Tree(1)
 while t.size() + 7 <= N:
     for k in (1, 2, 3):
         gadget(t, 0, k)
 fill(t, N, top, 0)
 t.emit()
 
-t = Tree(logw())                    # random part with gadgets, then a hub with many leaves
+t = Tree(logw())
 grow(t, 40000, "random", logw)
 plant(t, 1500, 4)
 hub = ri(0, t.size() - 1)
 fill(t, N, logw, hub)
 t.emit()
 
-t = Tree(logw())                    # a long path with mixed weights, ending in a hub
+t = Tree(logw())
 grow(t, 49999, "path", logw)
 fill(t, N, logw, t.size() - 1)
 t.emit()
 
-t = Tree(1)                         # every station weighs 1
+t = Tree(1)
 grow(t, 45000, "random", unit)
 fill(t, N, unit, ri(0, 1000))
 t.emit()
 
-t = Tree(MAXW)                      # every weight at the maximum: the largest answers
+t = Tree(MAXW)
 grow(t, 30000, "random", top)
 fill(t, N, top, 5)
 t.emit()
 
-t = Tree(logw())                    # a binary tree with deep gadgets, plus a hub
+t = Tree(logw())
 grow(t, 30000, "binary", logw)
 plant(t, 600, 5)
 fill(t, N, logw, ri(0, 100))
 t.emit()
 
-t = Tree(logw())                    # a caterpillar plus a hub
+t = Tree(logw())
 grow(t, 20000, "path", logw)
 for _ in range(20000):
     t.node(ri(0, 19999), logw())
 fill(t, N, logw, 10000)
 t.emit()
 
-t = Tree(1)                         # a light hub next to forced days 1, 2, 3, 4
+t = Tree(1)
 while t.size() + 15 <= N:
     for k in (1, 2, 3, 4):
         gadget(t, 0, k, base=40)
 fill(t, N, top, 0)
 t.emit()
 
-t = Tree(high())                    # two heavy hubs joined by a road, each with many light leaves
+t = Tree(high())
 h2 = t.node(0, high())
 for i in range(N - 2):
     t.node(0 if i % 2 else h2, small())
 t.emit()
 
-t = Tree(logw())                    # a long thin tree with gadgets, plus a hub
+t = Tree(logw())
 grow(t, 40000, "deep", logw)
 plant(t, 1000, 4)
 fill(t, N, logw, ri(0, 40000))

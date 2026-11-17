@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(120303)
@@ -7,7 +7,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -18,7 +17,6 @@ def add(qs):
 
 
 def is_prime(n):
-    """Miller-Rabin, exact for n < 3 * 10^9 with these bases"""
     if n < 2:
         return False
     for p in (2, 3, 5, 7):
@@ -70,7 +68,6 @@ def q_point():
 
 
 def q_near():
-    """both ends on or next to palindromic primes"""
     i, j = sorted((ri(0, len(palprime) - 1), ri(0, len(palprime) - 1)))
     l = palprime[i] + random.choice((0, 1))
     r = palprime[j] - random.choice((0, 1))
@@ -87,13 +84,12 @@ def mix(q, kinds):
     return [random.choice(kinds)() for _ in range(q)]
 
 
-# samples
 add([(1, 20), (100, 160)])
 add([(1, 1), (11, 11), (200, 300)])
 add([(12345, 678901), (999000000, 1000000000)])
 add([(2, 2), (3, 5), (12, 100), (99999, 1000000)])
 add([(10301, 10301), (10302, 10500), (98689, 98689)])
-# hidden: small and medium (the brute force checks these)
+
 add([(1, 1)])
 add([(MAXR, MAXR), (999999999, MAXR), (999727999, MAXR), (999727998, 999727999)])
 add([(10 ** 7, 10 ** 8 - 1), (10 ** 5, 10 ** 6 - 1), (1000, 10 ** 4 - 1), (10, 99), (10 ** 8, MAXR)])
@@ -102,7 +98,7 @@ add(mix(2000, (q_uniform, q_log, q_point, q_near, q_full)))
 add(mix(12000, (q_uniform, q_log)))
 add(mix(12000, (q_point, q_near)))
 add(mix(12000, (q_full,)))
-# hidden: large
+
 add(mix(MAXQ, (q_full,)))
 add([(1, MAXR)] * MAXQ)
 add(mix(MAXQ, (q_uniform,)))

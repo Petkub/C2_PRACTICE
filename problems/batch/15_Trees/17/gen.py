@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(100117)
@@ -11,12 +11,11 @@ def ri(lo, hi):
 
 
 def add(K, a, par):
-    """a[1..n] values, par[2..n] bosses (index 0 and 1 unused)"""
     n = len(a) - 1
     assert 2 <= n <= MAXN and 1 <= K <= min(n, MAXK)
     assert all(-MAXA <= x <= MAXA for x in a[1:])
     assert len(par) == n + 1 and all(1 <= par[i] <= n and par[i] != i for i in range(2, n + 1))
-    depth_known = [False] * (n + 1)              # every chain of bosses reaches person 1
+    depth_known = [False] * (n + 1)
     depth_known[1] = True
     for i in range(2, n + 1):
         path = []
@@ -31,7 +30,6 @@ def add(K, a, par):
 
 
 def shape(n, kind, k=0):
-    """par[i] < i in creation order; node 1 is the root"""
     par = [0, 0]
     for i in range(2, n + 1):
         if kind == "random":
@@ -46,10 +44,10 @@ def shape(n, kind, k=0):
             p = i // 2
         elif kind == "broom":
             p = i - 1 if i <= n // 2 else n // 2
-        elif kind == "blocks":                   # the root has many children, each heads a block of k people
+        elif kind == "blocks":
             j = (i - 2) % k
             p = 1 if j == 0 else i - ri(1, min(j, 3))
-        elif kind == "cater":                    # a spine with legs of length 1
+        elif kind == "cater":
             p = i - 1 if i <= n // 3 else ri(1, n // 3)
         else:
             raise ValueError(kind)
@@ -58,7 +56,6 @@ def shape(n, kind, k=0):
 
 
 def build(n, K, kind, val, k=0):
-    """val(i, depth) gives the value of the i-th created person; labels 2..n are shuffled"""
     par = shape(n, kind, k)
     depth = [0] * (n + 1)
     for i in range(2, n + 1):
@@ -78,17 +75,15 @@ def uni(lo, hi):
 
 
 def bait(i, d):
-    """negative people that guard very good ones further down"""
     return -ri(MAXA // 2, MAXA) if d % 3 == 1 else ri(0, MAXA)
 
 
-# samples
 add(4, [0, 5, -2, 3, 10, 1, -4], [0, 0, 1, 1, 2, 2, 3])
 add(3, [0, -1, 4, -6, 7], [0, 0, 1, 2, 3])
 add(1, [0, -1000000000, 1000000000], [0, 0, 1])
 add(5, [0, 2, 2, 2, 2, 2], [0, 0, 3, 1, 1, 4])
 add(6, [0, 0, -5, 8, -1, 9, 6, -3], [0, 0, 1, 1, 3, 2, 4, 2])
-# hidden: small
+
 add(2, [0, 3, -7], [0, 0, 1])
 build(8, 8, "random", uni(-10, 10))
 build(12, 12, "deep", bait)
@@ -98,22 +93,22 @@ build(1000, 300, "random", bait)
 build(3000, 1000, "blocks", uni(-MAXA, MAXA), 50)
 build(5000, 700, "deep", uni(-1000, 2000))
 build(8000, 1000, "star", uni(-MAXA, MAXA))
-# hidden: maximum size
+
 N, K = MAXN, MAXK
-build(N, K, "path", uni(-MAXA, MAXA))                       # deep chain
-build(N, K, "path", uni(MAXA, MAXA))                        # the largest answers
+build(N, K, "path", uni(-MAXA, MAXA))
+build(N, K, "path", uni(MAXA, MAXA))
 build(N, K, "star", uni(-MAXA, MAXA))
 build(N, K, "random", uni(-MAXA, MAXA))
 build(N, K, "random", bait)
-build(N, K, "blocks", uni(-MAXA, MAXA), 1000)               # worst case for the merging work
+build(N, K, "blocks", uni(-MAXA, MAXA), 1000)
 build(N, K, "blocks", bait, 600)
-build(N, K, "blocks", uni(-MAXA, -1), 1500)                 # every value negative
+build(N, K, "blocks", uni(-MAXA, -1), 1500)
 build(N, K, "deep", bait)
 build(N, K, "binary", uni(-MAXA, MAXA))
 build(N, K, "broom", uni(-MAXA, MAXA))
 build(N, K, "cater", bait)
 build(N, 1, "random", uni(-MAXA, MAXA))
-build(N, K, "blocks", uni(-MAXA, MAXA), 2)                  # many tiny branches below the root
+build(N, K, "blocks", uni(-MAXA, MAXA), 2)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

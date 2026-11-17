@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(7004)
@@ -35,7 +35,6 @@ def put(g, cells, ch):
 
 
 def snake(r, c):
-    """corridors one cell wide joined at alternating ends"""
     g = []
     for i in range(r):
         if i % 2 == 0:
@@ -47,17 +46,16 @@ def snake(r, c):
     return g
 
 
-# samples
 add(["H...#", ".##..", "....H"])
 add(["H.#.", "..#.", "##.."])
 add(["H"])
 add(["H#.", "##."])
 add(["..#...", "H.#..H", "..##..", "......"])
 add(["H.#....", "..#.##.", "###.#H.", "...#..."])
-# hidden: small
+
 add(["H."])
-add(["HHH", "HHH"])                                         # no ordinary cell
-add(["H#H", "#.#", "H#H"])                                  # the only ordinary cell is enclosed
+add(["HHH", "HHH"])
+add(["H#H", "#.#", "H#H"])
 add(["." * 9 + "H"])
 add(put(snake(7, 6), [(6, 5)], "H"))
 add(grid(6, 8, 0.3, 0.05))
@@ -67,22 +65,22 @@ add(grid(30, 30, 0.35, 0.003))
 add(put(snake(101, 99), [(0, 0)], "H"))
 add(grid(200, 300, 0.25, 0.001))
 add(grid(400, 500, 0.0, 0.00005))
-# hidden: large
+
 R = C = 1000
-add(put(["." * C] * R, [(0, 0)], "H"))                      # one hospital in a corner, largest distance
-add(["H" * C] + ["." * C] * (R - 1))                        # the whole top row
-add(["." * (C - 1) + "H"] * R)                              # the whole right column
-add(put(["." * C] * R, [(i, i) for i in range(R)], "H"))    # the diagonal
-add(put(snake(R, C), [(R - 1, 0 if (R - 2) % 4 == 1 else C - 1)], "H"))   # the end of a long snake
+add(put(["." * C] * R, [(0, 0)], "H"))
+add(["H" * C] + ["." * C] * (R - 1))
+add(["." * (C - 1) + "H"] * R)
+add(put(["." * C] * R, [(i, i) for i in range(R)], "H"))
+add(put(snake(R, C), [(R - 1, 0 if (R - 2) % 4 == 1 else C - 1)], "H"))
 add(put(snake(R, C), [(0, 0), (R - 1, C - 1)], "H"))
 add(grid(R, C, 0.3, 0.01))
-add(grid(R, C, 0.45, 0.0005))                               # many cells cannot reach a hospital
+add(grid(R, C, 0.45, 0.0005))
 add(grid(R, C, 0.1, 0.3))
-g = ["." * C] * R                                           # a walled square without hospital in the middle
+g = ["." * C] * R
 g = put(g, [(i, j) for i in range(250, 751) for j in (250, 750)] +
         [(i, j) for i in (250, 750) for j in range(250, 751)], "#")
 add(put(g, [(0, C - 1), (R - 1, 0)], "H"))
-add(put(["#" * C] * R, [(i, j) for i in range(R) for j in range(C) if (i + j) % 2 == 0], "H"))  # no ordinary cell
+add(put(["#" * C] * R, [(i, j) for i in range(R) for j in range(C) if (i + j) % 2 == 0], "H"))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

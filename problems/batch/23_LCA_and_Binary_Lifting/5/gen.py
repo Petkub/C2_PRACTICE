@@ -1,3 +1,4 @@
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 tests = []
@@ -20,7 +21,6 @@ def add(W, w, qs):
 
 
 def make(n, q, W, wlo, whi, qmode="long"):
-    """weights in [wlo, whi] (<= W); qmode long: wide ranges, mix: any ranges"""
     rnd = random.random
     span = whi - wlo + 1
     w = [wlo + int(rnd() * span) for _ in range(n)]
@@ -37,20 +37,19 @@ def make(n, q, W, wlo, whi, qmode="long"):
     add(W, w, qs)
 
 
-# samples
 add(10, [4, 3, 5, 2, 6, 1, 7, 3], [(1, 8), (3, 5), (6, 6), (2, 7)])
 add(5, [3, 3, 3], [(1, 3)])
 add(1, [1], [(1, 1)])
 add(10**9, [10**9, 10**9, 1, 10**9 - 1, 5], [(1, 5), (2, 4), (3, 5), (1, 1)])
 add(7, [2, 5, 2, 2, 3, 4, 1, 6, 7], [(1, 9), (2, 6), (4, 8), (5, 5), (3, 7)])
-# hidden: small and medium
+
 add(3, [1, 2, 3, 1, 1, 1, 2], [(l, r) for l in range(1, 8) for r in range(l, 8)])
 make(10, 50, 10, 1, 10, "mix")
 make(50, 200, 100, 30, 70, "mix")
 make(200, 300, 1000, 1, 1000, "mix")
 make(2000, 2000, 10**9, 4 * 10**8, 10**9)
 make(3000, 3000, 20, 1, 3, "mix")
-# hidden: maximum size (most trucks carry one or two crates; sums beyond int)
+
 make(MAXN, 80_000, 10**9, 5 * 10**8, 10**9)
 make(MAXN, 80_000, 10**9, 10**9, 10**9)
 make(MAXN, MAXQ, 2 * 10**6, 6 * 10**5, 10**6)

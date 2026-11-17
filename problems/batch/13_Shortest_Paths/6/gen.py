@@ -1,96 +1,155 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(8006)
-MAXN, MAXM, MAXQ, MAXW = 100_000, 100_000, 100_000, 10**6
+random.seed(8007)
+MAXN, MAXM, MAXW, MAXQ, MAXX = 400, 80_000, 10**9, 1000, 10**12
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, roads, qs):
-    m, q = len(roads), len(qs)
+def add(n, roads, xs):
+    m, q = len(roads), len(xs)
     assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= q <= MAXQ
-    assert all(1 <= a <= n and 1 <= b <= n and 1 <= w <= MAXW for a, b, w in roads)
-    assert all(1 <= k <= n for k in qs)
-    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in roads)
-                 + f"{q}\n" + " ".join(map(str, qs)) + "\n")
+    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in roads)
+    assert all(0 <= x <= MAXX for x in xs)
+    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads)
+                 + f"{q}\n" + " ".join(map(str, xs)) + "\n")
 
 
 def relabel(n, roads):
-    """random numbers for towns 2..n-1 (1 and n stay), random order of roads"""
-    p = list(range(2, n))
+    p = list(range(1, n + 1))
     random.shuffle(p)
-    p = [0, 1] + p + [n]
-    res = [(p[a], p[b], w) for a, b, w in roads]
+    p = [0] + p
+    res = [(p[u], p[v], w) if random.random() < 0.5 else (p[v], p[u], w) for u, v, w in roads]
     random.shuffle(res)
     return res
 
 
 def rnd_roads(n, m, wmax=MAXW, wmin=1):
-    return [(ri(1, n), ri(1, n), ri(wmin, wmax)) for _ in range(m)]
+    res = []
+    while len(res) < m:
+        u, v = ri(1, n), ri(1, n)
+        if u != v:
+            res.append((u, v, ri(wmin, wmax)))
+    return res
 
 
-def rnd_qs(n, q):
-    return [ri(1, n) for _ in range(q)]
+def dists(n, roads, src):
+    inf = float("inf")
+    adj = [dict() for _ in range(n + 1)]
+    for u, v, w in roads:
+        if w < adj[u].get(v, inf):
+            adj[u][v] = adj[v][u] = w
+    d = [inf] * (n + 1)
+    done = [False] * (n + 1)
+    d[src] = 0
+    for _ in range(n):
+        u, best = -1, inf
+        for v in range(1, n + 1):
+            if not done[v] and d[v] < best:
+                u, best = v, d[v]
+        if u < 0:
+            break
+        done[u] = True
+        for v, w in adj[u].items():
+            if best + w < d[v]:
+                d[v] = best + w
+    return [x for x in d[1:] if x != inf and x > 0]
 
 
-def two_chains(n, m, fw, bw, extra_w):
-    """a chain 1 -> 2 -> ... -> n and a chain back n -> ... -> 1 with other weights, plus random roads"""
-    r = [(i, i + 1, ri(1, fw)) for i in range(1, n)] + [(i + 1, i, ri(1, bw)) for i in range(1, n)]
-    return r + rnd_roads(n, m - len(r), extra_w, extra_w // 2)
+def thresholds(n, roads, q, sources=4):
+    pool = []
+    for _ in range(sources):
+        pool += dists(n, roads, ri(1, n))
+    if not pool:
+        pool = [1]
+    res = [0, MAXX]
+    while len(res) < q:
+        t = random.random()
+        if t < 0.4:
+            res.append(random.choice(pool))
+        elif t < 0.7:
+            res.append(max(0, random.choice(pool) - 1))
+        else:
+            res.append(ri(0, max(pool)))
+    random.shuffle(res)
+    return res[:q]
 
 
-# samples
-add(5, [(1, 2, 2), (2, 5, 3), (1, 3, 4), (3, 5, 1), (5, 4, 1), (4, 2, 1)], [2, 3, 4, 1, 5])
-add(4, [(1, 2, 5), (2, 4, 5), (3, 2, 1), (2, 2, 7)], [3, 2, 4])
-add(4, [(1, 2, 1), (2, 3, 4), (3, 2, 4), (2, 4, 1), (1, 4, 3)], [3, 2, 1])
-add(4, [(1, 2, MAXW), (2, 4, MAXW), (2, 3, MAXW), (3, 2, MAXW)], [3, 2])
-add(1, [], [1])
-# hidden: small
-add(2, [(2, 1, 5)], [1, 2])
-add(2, [(1, 2, 5), (1, 2, 3), (2, 1, 1)], [1, 2])
-add(8, rnd_roads(8, 16, 10), list(range(1, 9)))
-add(30, relabel(30, two_chains(30, 70, 5, 50, 100)), list(range(1, 31)))
-add(100, rnd_roads(100, 300, 1000), rnd_qs(100, 100))
-add(300, relabel(300, two_chains(300, 700, 10, 1000, 10**4)), rnd_qs(300, 300))
-add(2000, rnd_roads(2000, 5000, MAXW), rnd_qs(2000, 500))
-# hidden: large
+def chain(n, w):
+    return [(i, i + 1, w if w else ri(1, MAXW)) for i in range(1, n)]
+
+
+add(4, [(1, 2, 7), (2, 3, 2), (3, 4, 2), (2, 4, 3)], [2, 9, 0])
+add(5, [(3, 4, 2), (4, 5, 2), (5, 3, 2), (1, 2, 7)], [2, 1])
+add(6, [(1, 2, 4), (2, 3, 4), (3, 4, 4), (4, 5, 4), (5, 6, 4), (1, 6, 1)], [4, 5, 8, 12])
+add(3, [(2, 3, MAXW), (1, 3, MAXW), (2, 3, 1)], [1, MAXW])
+add(1, [], [0, 5])
+
+add(3, [(2, 3, MAXW), (1, 3, MAXW), (2, 3, 1)], [1, MAXW, 2 * MAXW, MAXX])
+add(2, [], [0, 1, MAXX])
+add(2, [(1, 2, 5), (2, 1, 3)], [2, 3, 4])
+r = rnd_roads(8, 12, 20)
+add(8, r, thresholds(8, r, 20))
+r = relabel(20, chain(20, 3))
+add(20, r, thresholds(20, r, 30))
+r = rnd_roads(40, 100, 1000)
+add(40, r, thresholds(40, r, 50))
+r = relabel(60, chain(60, 0) + rnd_roads(60, 40, MAXW, MAXW // 2))
+add(60, r, thresholds(60, r, 100))
+r = rnd_roads(100, 150, 10)
+add(100, r, thresholds(100, r, 200))
+
 N, M, Q = MAXN, MAXM, MAXQ
-add(N, rnd_roads(N, M), rnd_qs(N, Q))                              # many towns unreachable
-n = M // 2 - 1000
-add(n, relabel(n, two_chains(n, M, 100, MAXW, MAXW)), rnd_qs(n, Q))
-add(n, relabel(n, two_chains(n, M, MAXW, 1, MAXW)), list(range(1, n + 1)) + rnd_qs(n, Q - n))
-add(N, [(i, i + 1, MAXW) for i in range(1, N)] + [(N, 1, MAXW)], list(range(N, 0, -1)))  # one big cycle
-r = [(i, i + 1, ri(1, 10)) for i in range(1, N)]                   # one-way chain: going back is impossible
-add(N, relabel(N, r + [(b, a, w) for a, b, w in rnd_roads(N, M - N + 1, 10) if a < b]), rnd_qs(N, Q))
-h = N // 2                                                         # 1 -> left half -> right half -> N
-r = [(ri(1, h), ri(1, h), ri(1, 1000)) for _ in range(M // 2)]
-r += [(ri(h + 1, N), ri(h + 1, N), ri(1, 1000)) for _ in range(M // 2 - 10)]
-r += [(ri(1, h), ri(h + 1, N), ri(1, MAXW)) for _ in range(10)]
-add(N, relabel(N, r), rnd_qs(N, Q))
-k = 30_000                                                         # a hub that is improved many times
-r = [(1, i, i) for i in range(2, k + 2)] + [(i, N, 3 * k + 10 - 2 * i) for i in range(2, k + 2)]
-r += [(N, x, ri(1, 5)) for x in range(k + 2, N)][:M - len(r) - 1000]
-r += [(x, 1, ri(1, MAXW)) for x in range(k + 2, k + 1002)]
-add(N, r, rnd_qs(N, Q))
-side = 250                                                         # one-way grid: right and down are cheap
+r = rnd_roads(N, M)
+add(N, r, thresholds(N, r, Q))
+r = rnd_roads(N, M, 5)
+add(N, r, thresholds(N, r, Q))
+r = relabel(N, [(i, i + 1, ri(1, 1000)) for i in range(1, N)] + rnd_roads(N, M - N + 1, MAXW, 10**8))
+
+add(N, r, thresholds(N, r, Q))
+r = chain(N, MAXW)
+r = relabel(N, r + [(i, i + 1, MAXW) for i in (ri(1, N - 1) for _ in range(M - N + 1))])
+add(N, r, thresholds(N, r, Q))
+r = chain(N, 0)
+r += [(i, i + 1, ri(1, MAXW)) for i in (ri(1, N - 1) for _ in range(M - N + 1))]
+add(N, r, thresholds(N, r, Q))
+r = [(u, v, ri(1, MAXW)) for u in range(1, N + 1) for v in range(u + 1, N + 1)]
+random.shuffle(r)
+r = r[:M]
+add(N, r, thresholds(N, r, Q))
 r = []
-for i in range(side):
-    for j in range(N // side):
-        v = i * (N // side) + j + 1
-        if j + 1 < N // side:
+start = 1
+for size in (1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 169):
+    grp = list(range(start, start + size))
+    if size > 1:
+        r += [(grp[i], grp[i + 1], ri(1, 1000)) for i in range(size - 1)]
+        r += [(random.choice(grp), random.choice(grp), ri(1, 1000)) for _ in range(size * 3)]
+    start += size
+r = [(u, v, w) for u, v, w in r if u != v]
+add(N, relabel(N, r), thresholds(N, r, Q, 10))
+r = relabel(N, [(1, i, ri(1, 10**6)) for i in range(2, N + 1)])
+add(N, r, thresholds(N, r, Q))
+r = relabel(N, chain(N, 1) + rnd_roads(N, M - N + 1, MAXW, 10**8))
+add(N, r, thresholds(N, r, Q))
+r = rnd_roads(N, 1200, 10**6)
+add(N, r, thresholds(N, r, Q))
+r = [(i, ri(max(1, i - 3), i - 1), ri(1, 100)) for i in range(2, N + 1)]
+r = relabel(N, r + rnd_roads(N, M - N + 1, MAXW, 10**7))
+add(N, r, thresholds(N, r, Q))
+r = []
+for i in range(5):
+    for j in range(80):
+        v = i * 80 + j + 1
+        if j < 79:
             r.append((v, v + 1, ri(1, 10)))
-        if i + 1 < side:
-            r.append((v + N // side, v, ri(1, MAXW)))
-add(N, r[:M], rnd_qs(N, Q))
-add(n, relabel(n, two_chains(n, M, 3, 3, 6)), rnd_qs(n, Q))       # many equal distances
-n = M // 2
-add(n, relabel(n, [(i, i + 1, MAXW) for i in range(1, n)] + [(i + 1, i, MAXW) for i in range(1, n)]),
-    [1, n] * (Q // 2))
+        if i < 4:
+            r.append((v, v + 80, ri(1, 10)))
+r = relabel(N, r + rnd_roads(N, M - len(r), MAXW, 10**4))
+add(N, r, thresholds(N, r, Q))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

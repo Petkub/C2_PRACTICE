@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(100505)
@@ -16,30 +16,29 @@ def ri(lo, hi):
 def shuf(a):
     rnd = _rnd
     for i in range(len(a) - 1, 0, -1):
-        j = int(rnd() * (i + 1))                                 # = ri(0, i)
+        j = int(rnd() * (i + 1))
         a[i], a[j] = a[j], a[i]
 
 
 def shape(n, kind):
-    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is the root"""
     par = [-1] * n
     h = max(1, n // 2)
     for i in range(1, n):
         if kind == "random":
-            par[i] = int(_rnd() * i)                            # = ri(0, i - 1)
+            par[i] = int(_rnd() * i)
         elif kind == "path":
             par[i] = i - 1
         elif kind == "star":
             par[i] = 0
-        elif kind == "deep":                    # depth about n / 2, a few short side branches
+        elif kind == "deep":
             par[i] = ri(max(0, i - 3), i - 1)
         elif kind == "binary":
             par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
+        elif kind == "broom":
             par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
+        elif kind == "cater":
             par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "twopaths":                # two long chains below the root
+        elif kind == "twopaths":
             par[i] = 0 if i <= 2 else i - 2
         else:
             raise ValueError(kind)
@@ -47,7 +46,6 @@ def shape(n, kind):
 
 
 def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1; node 0 gets the number root if given"""
     lab = list(range(1, n + 1))
     shuf(lab)
     if root is not None:
@@ -57,13 +55,12 @@ def labels(n, root=None):
 
 
 def add(f, b, is_tree=False):
-    """b = [b_2, ..., b_N]; is_tree: check_shape() already showed that everybody reaches the president"""
     n = len(f)
     assert 2 <= n <= MAXN and len(b) == n - 1
     assert all(1 <= x <= MAXF for x in f)
     assert all(1 <= x <= n and x != i + 2 for i, x in enumerate(b))
     if not is_tree:
-        ch = [[] for _ in range(n + 1)]                         # everybody reaches the president
+        ch = [[] for _ in range(n + 1)]
         for i, x in enumerate(b):
             ch[x].append(i + 2)
         seen, st = 0, [1]
@@ -75,7 +72,6 @@ def add(f, b, is_tree=False):
 
 
 def check_shape(par, lab):
-    """every node hangs below an earlier node and node 0 (the root) is person 1: a tree rooted at person 1"""
     n = len(par)
     assert all(0 <= par[i] < i for i in range(1, n)) and sorted(lab) == list(range(1, n + 1)) and lab[0] == 1
 
@@ -90,7 +86,6 @@ def tree(n, kind, ffun):
 
 
 def tied(n, kind):
-    """a boss is worth exactly the total of his direct staff, so many invitations tie"""
     par, lab = shape(n, kind), labels(n, 1)
     check_shape(par, lab)
     f = [0] * n
@@ -109,13 +104,12 @@ def tied(n, kind):
     add(ff, b[2:], True)
 
 
-# samples
 add([5, 4, 3, 2, 1, 6], [4, 1, 1, 4, 3])
 add([5, 2, 3], [1, 1])
 add([1, 1], [1])
 add([2, 1, 3, 1, 2, 2, 1, 3], [5, 1, 6, 1, 1, 6, 4])
 add([MAXF] * 5, [1, 2, 3, 4])
-# hidden: small (every set is tried)
+
 add([1, 2], [1])
 add([1, 2, 1], [1, 2])
 add([1, 1, 2, 1, 3, 1], [1, 2, 3, 4, 5])
@@ -125,7 +119,7 @@ for n, kind in ((7, "random"), (10, "path"), (12, "binary"), (15, "star"), (16, 
 for n, kind in ((14, "random"), (17, "binary"), (20, "broom")):
     tied(n, kind)
 tree(19, "random", lambda: ri(1, MAXF))
-# hidden: maximum size
+
 N = MAXN
 tree(N, "path", lambda: MAXF)
 tree(N, "random", lambda: ri(1, MAXF))

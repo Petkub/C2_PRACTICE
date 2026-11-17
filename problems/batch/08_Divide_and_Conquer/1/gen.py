@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(80110)
@@ -20,18 +20,16 @@ def rng(lo, hi):
 
 
 def logb():
-    """a base spread over all sizes"""
     return min(MAXB, max(2, int(10 ** random.uniform(0.3, 6))))
 
 
-# samples
 add([(10, 1, 25), (10, 95, 105)])
 add([(2, 1, MAXQ), (16, 47, 49)])
 add([(3, 1, 100), (1000, 999, 1001), (7, 49, 49)])
 add([(10, 1, MAXQ), (36, 1000, MAXQ)])
 add([(MAXB, 5, 5), (500_000, 1, 400_000), (40_000, 1, MAXQ)])
 
-# hidden: small (the brute force adds every term)
+
 add([(2, 1, 1)])
 add([(random.randint(2, 12),) + rng(1, 3000) for _ in range(1000)])
 edge = []
@@ -51,7 +49,7 @@ for b in range(2, 21):
 add(pw)
 add([(logb(), x, x) for x in (random.randint(1, MAXQ) for _ in range(1000))])
 add([(b, b * k, b * k + 2) for b, k in ((random.randint(46_342, MAXB), random.randint(1, 10 ** 6)) for _ in range(1000))])
-# hidden: largest (every test has many ranges of length about 10^12)
+
 add([(random.randint(2, MAXB), random.randint(1, 10 ** 6), random.randint(MAXQ - 10 ** 6, MAXQ)) for _ in range(MAXT)])
 add([(random.randint(2, 10), 1, MAXQ) for _ in range(MAXT)])
 add([(MAXB, 1, MAXQ)] * MAXT)

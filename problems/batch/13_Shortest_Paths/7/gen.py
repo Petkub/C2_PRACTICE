@@ -1,159 +1,111 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(8007)
-MAXN, MAXM, MAXW, MAXQ, MAXX = 400, 80_000, 10**9, 1000, 10**12
+random.seed(13001)
+MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, roads, xs):
-    m, q = len(roads), len(xs)
-    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= q <= MAXQ
-    assert all(1 <= u <= n and 1 <= v <= n and u != v and 1 <= w <= MAXW for u, v, w in roads)
-    assert all(0 <= x <= MAXX for x in xs)
-    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in roads)
-                 + f"{q}\n" + " ".join(map(str, xs)) + "\n")
+def connected(n, fuses):
+    parent = list(range(n + 1))
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    for u, v, _ in fuses:
+        parent[find(u)] = find(v)
+    return len({find(x) for x in range(1, n + 1)}) == 1
 
 
-def relabel(n, roads):
-    p = list(range(1, n + 1))
+def add(n, fuses):
+    m = len(fuses)
+    assert 1 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= u <= n and 1 <= v <= n and 1 <= w <= MAXW for u, v, w in fuses)
+    assert connected(n, fuses)
+    tests.append(f"{n} {m}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in fuses))
+
+
+def shuffled(n, fuses):
+    p = list(range(2, n + 1))
     random.shuffle(p)
-    p = [0] + p
-    res = [(p[u], p[v], w) if random.random() < 0.5 else (p[v], p[u], w) for u, v, w in roads]
+    p = [0, 1] + p
+    res = [(p[u], p[v], w) if random.random() < 0.5 else (p[v], p[u], w) for u, v, w in fuses]
     random.shuffle(res)
-    return res
+    add(n, res)
 
 
-def rnd_roads(n, m, wmax=MAXW, wmin=1):
+def rnd_tree(n, wl, wh):
+    return [(i, ri(max(1, i - ri(1, 50) if random.random() < 0.5 else 1), i - 1), ri(wl, wh)) for i in range(2, n + 1)]
+
+
+def extra(n, k, wl, wh, loops=True):
     res = []
-    while len(res) < m:
+    while len(res) < k:
         u, v = ri(1, n), ri(1, n)
-        if u != v:
-            res.append((u, v, ri(wmin, wmax)))
+        if u == v and not loops:
+            continue
+        res.append((u, v, ri(wl, wh)))
     return res
 
 
-def dists(n, roads, src):
-    """O(n^2) Dijkstra on the matrix of shortest roads"""
-    inf = float("inf")
-    adj = [dict() for _ in range(n + 1)]
-    for u, v, w in roads:
-        if w < adj[u].get(v, inf):
-            adj[u][v] = adj[v][u] = w
-    d = [inf] * (n + 1)
-    done = [False] * (n + 1)
-    d[src] = 0
-    for _ in range(n):
-        u, best = -1, inf
-        for v in range(1, n + 1):
-            if not done[v] and d[v] < best:
-                u, best = v, d[v]
-        if u < 0:
-            break
-        done[u] = True
-        for v, w in adj[u].items():
-            if best + w < d[v]:
-                d[v] = best + w
-    return [x for x in d[1:] if x != inf and x > 0]
+add(4, [(1, 2, 4), (2, 3, 3), (1, 3, 6), (3, 4, 2)])
+add(3, [(1, 2, 2), (1, 3, 3), (2, 3, 4)])
+add(1, [(1, 1, 7)])
+add(3, [(2, 3, 4), (1, 3, 1), (2, 1, 1)])
+add(5, [(1, 2, 3), (2, 3, 5), (4, 2, 1), (3, 5, 2), (5, 4, 9)])
+
+add(2, [(1, 2, 1)])
+add(2, [(2, 1, 10), (1, 2, 3), (2, 2, 1)])
+add(3, [(1, 2, 5), (2, 3, 5), (3, 3, 1), (1, 1, 11)])
+for n, m, wh in [(5, 8, 10), (8, 14, 20), (10, 20, 7), (30, 60, 100), (60, 90, 1000), (200, 400, 10**9)]:
+    f = rnd_tree(n, 1, wh) + extra(n, m - (n - 1), 1, wh)
+    shuffled(n, f)
+n = 3000
+f = rnd_tree(n, 1, 10**6) + extra(n, 3000, 1, 10**6)
+shuffled(n, f)
+n = 2000
+t = rnd_tree(n, 1, 1000)
+f = t + [(u, v, w + ri(1000, 5000)) for u, v, w in random.sample(t, 1000)]
+shuffled(n, f)
+n = 5000
+f = rnd_tree(n, 1, 10**4) + extra(n, 2000, 1, 10**4, loops=False)
+f += [(u, v, w * ri(2, 50)) for u, v, w in random.sample(f, 3000)]
+shuffled(n, f)
 
 
-def thresholds(n, roads, q, sources=4):
-    """exact distances (and one less) from a few towns, plus random values"""
-    pool = []
-    for _ in range(sources):
-        pool += dists(n, roads, ri(1, n))
-    if not pool:
-        pool = [1]
-    res = [0, MAXX]
-    while len(res) < q:
-        t = random.random()
-        if t < 0.4:
-            res.append(random.choice(pool))
-        elif t < 0.7:
-            res.append(max(0, random.choice(pool) - 1))
-        else:
-            res.append(ri(0, max(pool)))
-    random.shuffle(res)
-    return res[:q]
-
-
-def chain(n, w):
-    return [(i, i + 1, w if w else ri(1, MAXW)) for i in range(1, n)]
-
-
-# samples
-add(4, [(1, 2, 7), (2, 3, 2), (3, 4, 2), (2, 4, 3)], [2, 9, 0])
-add(5, [(3, 4, 2), (4, 5, 2), (5, 3, 2), (1, 2, 7)], [2, 1])
-add(6, [(1, 2, 4), (2, 3, 4), (3, 4, 4), (4, 5, 4), (5, 6, 4), (1, 6, 1)], [4, 5, 8, 12])
-add(3, [(2, 3, MAXW), (1, 3, MAXW), (2, 3, 1)], [1, MAXW])
-add(1, [], [0, 5])
-# hidden: small
-add(3, [(2, 3, MAXW), (1, 3, MAXW), (2, 3, 1)], [1, MAXW, 2 * MAXW, MAXX])
-add(2, [], [0, 1, MAXX])
-add(2, [(1, 2, 5), (2, 1, 3)], [2, 3, 4])
-r = rnd_roads(8, 12, 20)
-add(8, r, thresholds(8, r, 20))
-r = relabel(20, chain(20, 3))
-add(20, r, thresholds(20, r, 30))
-r = rnd_roads(40, 100, 1000)
-add(40, r, thresholds(40, r, 50))
-r = relabel(60, chain(60, 0) + rnd_roads(60, 40, MAXW, MAXW // 2))
-add(60, r, thresholds(60, r, 100))
-r = rnd_roads(100, 150, 10)
-add(100, r, thresholds(100, r, 200))
-# hidden: large
-N, M, Q = MAXN, MAXM, MAXQ
-r = rnd_roads(N, M)
-add(N, r, thresholds(N, r, Q))
-r = rnd_roads(N, M, 5)                                     # many equal distances and counts
-add(N, r, thresholds(N, r, Q))
-r = relabel(N, [(i, i + 1, ri(1, 1000)) for i in range(1, N)] + rnd_roads(N, M - N + 1, MAXW, 10**8))
-# (above: shortest ways along a long chain)
-add(N, r, thresholds(N, r, Q))
-r = chain(N, MAXW)                                         # the largest distances (many parallel roads)
-r = relabel(N, r + [(i, i + 1, MAXW) for i in (ri(1, N - 1) for _ in range(M - N + 1))])
-add(N, r, thresholds(N, r, Q))
-r = chain(N, 0)                                            # a chain: the ends are often the most isolated
-r += [(i, i + 1, ri(1, MAXW)) for i in (ri(1, N - 1) for _ in range(M - N + 1))]
-add(N, r, thresholds(N, r, Q))
-r = [(u, v, ri(1, MAXW)) for u in range(1, N + 1) for v in range(u + 1, N + 1)]
-random.shuffle(r)
-r = r[:M]
-add(N, r, thresholds(N, r, Q))
-r = []                                                     # groups of different sizes, not connected
-start = 1
-for size in (1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 169):
-    grp = list(range(start, start + size))
-    if size > 1:
-        r += [(grp[i], grp[i + 1], ri(1, 1000)) for i in range(size - 1)]
-        r += [(random.choice(grp), random.choice(grp), ri(1, 1000)) for _ in range(size * 3)]
-    start += size
-r = [(u, v, w) for u, v, w in r if u != v]
-add(N, relabel(N, r), thresholds(N, r, Q, 10))
-r = relabel(N, [(1, i, ri(1, 10**6)) for i in range(2, N + 1)])  # a star
-add(N, r, thresholds(N, r, Q))
-r = relabel(N, chain(N, 1) + rnd_roads(N, M - N + 1, MAXW, 10**8))
-add(N, r, thresholds(N, r, Q))
-r = rnd_roads(N, 1200, 10**6)                              # sparse
-add(N, r, thresholds(N, r, Q))
-r = [(i, ri(max(1, i - 3), i - 1), ri(1, 100)) for i in range(2, N + 1)]   # a thin tree of short roads
-r = relabel(N, r + rnd_roads(N, M - N + 1, MAXW, 10**7))
-add(N, r, thresholds(N, r, Q))
-r = []                                                     # a 5 x 80 grid of short roads, long roads elsewhere
-for i in range(5):
-    for j in range(80):
-        v = i * 80 + j + 1
-        if j < 79:
-            r.append((v, v + 1, ri(1, 10)))
-        if i < 4:
-            r.append((v, v + 80, ri(1, 10)))
-r = relabel(N, r + rnd_roads(N, M - len(r), MAXW, 10**4))
-add(N, r, thresholds(N, r, Q))
+N, M = MAXN, MAXM
+f = rnd_tree(N, 1, MAXW) + extra(N, M - (N - 1), 1, MAXW)
+shuffled(N, f)
+f = [(i, i + 1, ri(MAXW // 2, MAXW)) for i in range(1, N)] + [(N, N, MAXW)]
+shuffled(N, f)
+f = [(i, i % N + 1, ri(1, MAXW)) for i in range(1, N + 1)]
+shuffled(N, f)
+f = [(1, i, ri(1, MAXW)) for i in range(2, N)] + [(i, i, ri(1, MAXW)) for i in range(2, 4)]
+shuffled(N - 1, f[:MAXM])
+f = rnd_tree(N, 1, 1000) + extra(N, M - (N - 1), 1, 1000)
+shuffled(N, f)
+f = rnd_tree(N, 1, 10)
+f += [(u, v, w + ri(1, 10**6)) for u, v, w in random.sample(f, M - (N - 1))]
+shuffled(N, f)
+f = rnd_tree(N - 5_000, 1, MAXW // 1000) + extra(N - 5_000, 2_500, 1, MAXW // 1000, loops=False)
+f += [(u, v, w * ri(2, 1000)) for u, v, w in random.sample(f, M - len(f))]
+shuffled(N - 5_000, f)
+side = 316
+idx = lambda r, c: r * side + c + 1
+f = [(idx(r, c), idx(r, c + 1), ri(1, MAXW)) for r in range(side) for c in range(side - 1)]
+f += [(idx(r, 0), idx(r + 1, 0), ri(1, MAXW)) for r in range(side - 1)]
+while len(f) < M:
+    r, c = ri(0, side - 2), ri(1, side - 1)
+    f.append((idx(r, c), idx(r + 1, c), ri(1, MAXW)))
+shuffled(side * side, f)
+f = [(i, i + 1, MAXW) for i in range(1, N)] + [(1, N, MAXW)]
+shuffled(N, f)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(19008)
@@ -24,7 +24,6 @@ def coin(n, p):
 
 
 def blocks(n, mean_on, mean_off, long_every=0, long_len=0):
-    """alternating runs with random lengths around the means; every long_every-th lit run is long_len long"""
     out, on, k = [], random.random() < 0.5, 0
     total = 0
     while total < n:
@@ -61,31 +60,30 @@ def ops_of(n, q, pt, upd, ask):
     return ops
 
 
-# samples
 add("1101110010", [('L', 1, 10), ('T', 3, 5), ('L', 1, 10), ('L', 2, 6), ('T', 4, 8), ('L', 1, 10), ('L', 6, 6)])
 add("00000", [('L', 1, 5), ('T', 1, 5), ('L', 2, 4), ('T', 3, 3), ('L', 1, 5)])
 add("1", [('L', 1, 1), ('T', 1, 1), ('L', 1, 1)])
 add("011011100111", [('T', 1, 12), ('L', 1, 12), ('T', 5, 9), ('L', 3, 10), ('L', 1, 12), ('T', 2, 2), ('L', 1, 4)])
 add("1" * 8 + "0" * 8 + "1" * 8 + "0" * 8, [('T', 9, 16), ('L', 1, 32), ('T', 5, 27), ('L', 1, 32), ('L', 17, 24)])
-# hidden: small (the brute force checks these)
+
 for n, q, d in ((1, 10, 1), (5, 40, 2), (12, 100, 5), (60, 500, 20), (500, 3000, 100), (3000, 4000, 700)):
     s = coin(n, 0.5) if n < 500 else blocks(n, 6, 3)
     add(s, ops_of(n, q, 0.45, lambda: short_rng(n, d) if random.random() < 0.6 else any_rng(n), lambda: any_rng(n)))
 n = 3000
-add("0" * n, ops_of(n, 4000, 0.5, lambda: short_rng(n, 40), lambda: any_rng(n)))      # all off at first
-add("1" * 2000, ops_of(2000, 4000, 0.3, lambda: short_rng(2000, 3), lambda: any_rng(2000)))   # all on, few holes
-# hidden: maximum size
+add("0" * n, ops_of(n, 4000, 0.5, lambda: short_rng(n, 40), lambda: any_rng(n)))
+add("1" * 2000, ops_of(2000, 4000, 0.3, lambda: short_rng(2000, 3), lambda: any_rng(2000)))
+
 N, Q = MAXN, MAXQ
 add(coin(N, 0.5), ops_of(N, Q, 0.5, lambda: any_rng(N), lambda: long_rng(N, 1000)))
 add(blocks(N, 3, 2), ops_of(N, Q, 0.5, lambda: long_rng(N, 1000), lambda: long_rng(N, 1000)))
 add(blocks(N, 4, 2, 997, 3000), ops_of(N, Q, 0.4, lambda: any_rng(N), lambda: any_rng(N)))
 add(blocks(N, 2, 4), ops_of(N, Q, 0.5, lambda: short_rng(N, 2000), lambda: long_rng(N, 50)))
-add(coin(N, 0.8), ops_of(N, Q, 0.5, lambda: (1, N), lambda: long_rng(N, 10)))       # the whole string at once
+add(coin(N, 0.8), ops_of(N, Q, 0.5, lambda: (1, N), lambda: long_rng(N, 10)))
 add(blocks(N, 5, 1, 50, 200), ops_of(N, Q, 0.3, lambda: short_rng(N, 30), lambda: any_rng(N)))
 add(coin(N, 0.6), ops_of(N, Q, 0.6, lambda: long_rng(N, N // 2),
                          lambda: short_rng(N, 3) if random.random() < 0.5 else long_rng(N, 1000)))
 add(blocks(N, 3, 3), ops_of(N, Q, 0.5, lambda: any_rng(N), lambda: short_rng(N, 100_000)))
-add(coin(N, 0.95), ops_of(N, Q, 0.5, lambda: short_rng(N, 1), lambda: long_rng(N, 100)))   # long lit runs, single toggles
+add(coin(N, 0.95), ops_of(N, Q, 0.5, lambda: short_rng(N, 1), lambda: long_rng(N, 100)))
 add(blocks(N, 8, 2, 101, 5000), ops_of(N, Q, 0.45, lambda: long_rng(N, 150_000), lambda: any_rng(N)))
 
 for t in tests:

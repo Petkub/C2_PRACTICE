@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(110010)
@@ -36,7 +36,6 @@ def rng_any(n):
 
 
 def mix(n, q, set_frac, xlo, xhi, long_frac=0.9, zero_frac=0.0, short_set=0.0):
-    """short_set = chance that a replanting covers at most 5 plots (many pieces of equal values)"""
     ops = []
     for _ in range(q):
         l, r = rng_long(n) if random.random() < long_frac else rng_any(n)
@@ -52,51 +51,50 @@ def mix(n, q, set_frac, xlo, xhi, long_frac=0.9, zero_frac=0.0, short_set=0.0):
     return ops
 
 
-# samples
 add(6, [(1, 2, 5, 3), (2, 1, 6), (1, 4, 6, 5), (2, 3, 4), (2, 1, 6)])
 add(5, [(1, 1, 5, 7), (1, 2, 3, 0), (2, 1, 5), (2, 2, 3)])
 add(1, [(2, 1, 1)])
 add(10, [(1, 1, 10, 4), (1, 3, 8, 2), (1, 5, 5, 9), (2, 1, 10), (2, 5, 9)])
 add(7, [(1, 1, 7, 1000), (2, 2, 6), (1, 3, 3, 0), (1, 6, 7, 1), (2, 1, 7), (2, 7, 7)])
-# hidden: small
+
 add(1, [(1, 1, 1, MAXX), (2, 1, 1), (1, 1, 1, 0), (2, 1, 1)])
 add(10, mix(10, 50, 0.5, 0, 9, 0.3, 0.2))
 add(100, mix(100, 300, 0.5, 0, 100, 0.3, 0.2))
 add(1000, mix(1000, 3000, 0.4, 0, MAXX, 0.4, 0.2))
 add(10000, mix(10000, 10000, 0.5, 0, MAXX, 0.5, 0.1))
-ops = [(1, i, i, i) for i in range(1, 2001)]               # many separate pieces, then long sums
+ops = [(1, i, i, i) for i in range(1, 2001)]
 ops += [(2, ri(1, 10), ri(1990, 2000)) for _ in range(3000)]
 add(2000, ops)
 ops = [(1, 1, 5000, 7)]
-for _ in range(4000):                                       # zeros over non-zeros
+for _ in range(4000):
     l, r = rng_any(5000)
     ops.append((1, l, r, 0) if random.random() < 0.3 else (1, l, r, ri(1, 9)) if random.random() < 0.3 else (2, l, r))
 add(5000, ops)
-# hidden: maximum size
+
 N = MAXN
 add(N, mix(N, 120_000, 0.5, 0, 9999, 0.9, 0.1))
 add(N, mix(N, 120_000, 0.4, 0, 9999, 0.9, 0.0, 1.0))
 add(N, mix(N, 100_000, 0.5, 0, MAXX, 0.9, 0.05))
-add(N, [(1, 1, N, MAXX)] + [(2, ri(1, 99), ri(N - 99, N)) for _ in range(140_000)] + [(2, 1, N)])   # 10^15
+add(N, [(1, 1, N, MAXX)] + [(2, ri(1, 99), ri(N - 99, N)) for _ in range(140_000)] + [(2, 1, N)])
 ops = []
-for j in range(60_000):                                     # 60000 separate pieces, then whole-row sums
+for j in range(60_000):
     p = ri(1, N - 5)
     ops.append((1, p, p + ri(0, 5), ri(1, 9999)))
 ops += [(2, ri(1, 50), ri(N - 50, N)) for _ in range(70_000)]
 add(N, ops)
 ops = []
-for j in range(130_000):                                    # alternating set / sum on nearly the whole row
+for j in range(130_000):
     l, r = rng_long(N)
     ops.append((1, l, r, ri(0, 99)) if j % 2 == 0 else (2, l, r))
 add(N, ops)
 ops = []
-for j in range(120_000):                                    # every other plot is cleared again and again
+for j in range(120_000):
     l, r = rng_long(N)
     ops.append((1, l, r, 0) if j % 3 == 0 else (1, ri(1, N), ri(N - 9, N), ri(1, 999)) if j % 3 == 1 else (2, l, r))
 add(N, ops)
 add(N, mix(N, 120_000, 0.6, 0, 9999, 0.5, 0.3, 0.995))
 ops = []
-for j in range(110_000):                                    # nested ranges shrinking to the middle
+for j in range(110_000):
     k = j % 400_000
     ops.append((1, 1 + k, N - k, ri(0, 9999)) if j % 2 == 0 else (2, ri(1, 1000), ri(N - 1000, N)))
 add(N, ops)

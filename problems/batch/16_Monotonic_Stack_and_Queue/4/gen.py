@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(160103)
@@ -25,7 +25,6 @@ def solve(x, h):
 
 
 def next_only(x, h):
-    """the wrong answer that follows only the chain of the next domino (for the sample check)"""
     import bisect
     n = len(x)
     r = [0] * n
@@ -55,23 +54,21 @@ def positions(n, lo, hi, start=1):
 
 
 def skips(n, start=1):
-    """groups: a tall domino, short ones it jumps over, then a far-reaching one"""
     x, h, p = [], [], start
     while len(x) < n:
         k = min(ri(2, 6), n - len(x))
         for j in range(k):
             x.append(p)
             if j == 0:
-                h.append(ri(3 * k, 4 * k))          # hits the whole group directly
+                h.append(ri(3 * k, 4 * k))
             elif j < k - 1:
-                h.append(1)                         # too short to reach the next one
+                h.append(1)
             else:
-                h.append(ri(30, 60))                # the far-reaching one at the end
+                h.append(ri(30, 60))
             p += 3
     return x, h
 
 
-# samples
 add([1, 3, 4, 7, 9, 12], [2, 4, 3, 3, 2, 1])
 add([1, 4, 6], [3, 1, 5])
 add([500], [1000000000])
@@ -81,9 +78,9 @@ for k in range(5):
     lines = tests[k].split("\n")
     x, h = list(map(int, lines[1].split())), list(map(int, lines[2].split()))
     assert solve(x, h) == next_only(x, h)
-# hidden: small
+
 add([1, 2], [1, 1])
-add([1, 3, 4, 5], [5, 1, 1, 10])                                   # 1 hits 2, 3 directly; 3 reaches far
+add([1, 3, 4, 5], [5, 1, 1, 10])
 x = positions(12, 1, 4)
 add(x, [ri(1, 6) for _ in x])
 x = positions(200, 1, 10)
@@ -98,13 +95,11 @@ x = positions(10000, 1, 10**5)
 add(x, [ri(1, 10**5) for _ in x])
 x, h = skips(20000)
 add(x, h)
-# hidden: maximum size (long chains everywhere, so walking from every domino is slow)
+
 N = MAXN
 
 
 def chained(n, p_short, ahead, gmin, gmax, breaks=()):
-    """normal dominoes reach `ahead` dominoes further; isolated short ones (between normal ones) reach nothing;
-    at the indices in breaks nothing reaches across"""
     x = positions(n, gmin, gmax)
     short = [False] * n
     run = 0
@@ -121,7 +116,7 @@ def chained(n, p_short, ahead, gmin, gmax, breaks=()):
         else:
             j = min(n - 1, i + ahead)
             h.append(max(1, x[j] - x[i] + ri(0, gmin - 1)))
-    for b in breaks:                                   # no domino left of b reaches b
+    for b in breaks:
         for i in range(max(0, b - ahead - 1), b):
             h[i] = max(1, min(h[i], x[b] - x[i] - 1))
     return x, h
@@ -132,16 +127,16 @@ def work(x, h):
 
 
 big = []
-big.append((list(range(1, N + 1)), [1] * N))                               # everything to the right falls
-big.append((list(range(MAXV - N, MAXV)), [MAXV - 1] * (N - 1) + [MAXV]))   # largest values
+big.append((list(range(1, N + 1)), [1] * N))
+big.append((list(range(MAXV - N, MAXV)), [MAXV - 1] * (N - 1) + [MAXV]))
 big.append(skips(N))
 big.append(chained(N, 0.3, 2, 1, 10))
-big.append(chained(N, 0.45, 2, 3, 3))                                      # short one after almost every tall one
+big.append(chained(N, 0.45, 2, 3, 3))
 big.append(chained(N, 0.3, 2, 2, 20, breaks=(N // 2,)))
 big.append(chained(N, 0.5, 6, 1, 50))
-big.append(chained(N, 0.2, 3, 1000, 6000))                                 # large positions
+big.append(chained(N, 0.2, 3, 1000, 6000))
 x, h = chained(N, 0.35, 2, 1, 30)
-h[0] = x[-1]                                                               # the first one reaches everything
+h[0] = x[-1]
 big.append((x, h))
 x, h = chained(N, 0.4, 4, 1, 9, breaks=(N // 5,))
 big.append((x, h))

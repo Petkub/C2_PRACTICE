@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(20115)
@@ -19,7 +19,6 @@ def shuffled(n):
 
 
 def blocks(n, size, rev_inside=False):
-    """values in increasing blocks, the blocks in random order"""
     bl = [list(range(i, min(n, i + size - 1) + 1)) for i in range(1, n + 1, size)]
     random.shuffle(bl)
     out = []
@@ -36,13 +35,12 @@ def nearly_sorted(n, swaps, rev=False):
     return p[::-1] if rev else p
 
 
-# samples
 add([3, 1, 2, 6, 4, 5])
 add([8, 3, 4, 7, 2, 6, 1, 5])
 add([2, 1, 4, 3])
 add([1, 2, 3, 4, 5, 9, 7, 8, 6, 10, 11, 12])
 add([16, 1, 8, 2, 9, 12, 3, 15, 10, 4, 6, 14, 5, 11, 13, 7])
-# hidden: small
+
 add([1])
 add([2, 1])
 add(list(range(1, 10)))
@@ -51,8 +49,8 @@ add(shuffled(60))
 add(shuffled(200))
 add(nearly_sorted(300, 20))
 add(blocks(250, 7, True))
-# hidden: large
-add(list(range(1, MAXN + 1)))                    # every triple of values counts
+
+add(list(range(1, MAXN + 1)))
 add(list(range(MAXN, 0, -1)))
 add(shuffled(MAXN))
 add(shuffled(MAXN))

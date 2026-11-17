@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(50202)
@@ -24,27 +24,25 @@ def put(g, i, j, ch):
     g[i] = g[i][:j] + ch + g[i][j + 1:]
 
 
-# samples
 add(["3#21", "5196", "2#8#", "1403"])
 add(["12#", "3#4", "#56"])
 add(["7"])
 add(["#5", "55"])
 add(["9", "0", "9"])
 add(["1#99", "1#99", "1111"])
-# hidden: small (the brute force checks these)
+
 add(["5", "#", "5"])
 add(["123456789"])
 g = rnd(6, 7, 0.2); put(g, 0, 0, "3"); put(g, 5, 6, "4"); add(g)
 g = rnd(9, 9, 0.25); put(g, 0, 0, "1"); put(g, 8, 8, "1"); add(g)
 g = rnd(11, 12, 0.15); put(g, 0, 0, "0"); put(g, 10, 11, "9"); add(g)
-add(["0" * 6 + "#" + "9" * 5] * 11 + ["0" * 6 + "#" + "9" * 5])   # unreachable
+add(["0" * 6 + "#" + "9" * 5] * 11 + ["0" * 6 + "#" + "9" * 5])
 add(["1" * 12] * 12)
-g = ["0" * 5 + "#" + "9" * 6 for _ in range(11)] + ["0" * 12]  # the 9s cannot be reached
+g = ["0" * 5 + "#" + "9" * 6 for _ in range(11)] + ["0" * 12]
 add(g)
 
 
 def wall(r, c, col, gap):
-    """column col is blocked except in row gap; the part right of it is full of 9s"""
     g = []
     for i in range(r):
         left = "".join(random.choice("01") for _ in range(col))
@@ -54,22 +52,21 @@ def wall(r, c, col, gap):
     return g
 
 
-# hidden: large
 add(rnd(MAXR, MAXC, 0.0))
 add(["9" * MAXC] * MAXR)
 g = rnd(MAXR, MAXC, 0.2); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)
 g = rnd(MAXR, MAXC, 0.25); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)
-g = rnd(MAXR, MAXC, 0.4); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)   # most likely -1
-add(wall(MAXR, MAXC, 500, MAXR - 1))       # pass along the last row only
-g = wall(MAXR, MAXC, 500, MAXR - 1); put(g, MAXR - 1, 500, "#"); add(g)   # no way at all
-g = wall(MAXR, MAXC, 300, 0); add(g)       # the gap is on the first row
+g = rnd(MAXR, MAXC, 0.4); put(g, 0, 0, "5"); put(g, MAXR - 1, MAXC - 1, "5"); add(g)
+add(wall(MAXR, MAXC, 500, MAXR - 1))
+g = wall(MAXR, MAXC, 500, MAXR - 1); put(g, MAXR - 1, 500, "#"); add(g)
+g = wall(MAXR, MAXC, 300, 0); add(g)
 g = rnd(MAXR, MAXC, 0.05); put(g, MAXR - 1, MAXC - 1, "#"); add(g)
 g = rnd(MAXR, MAXC, 0.05); put(g, 0, 0, "#"); add(g)
-g = []                                     # a narrow open band along the diagonal
+g = []
 for i in range(MAXR):
     g.append("".join(random.choice("123456789") if abs(i - j) <= 2 else "#" for j in range(MAXC)))
 add(g)
-g = []                                     # wide band, everything outside is blocked
+g = []
 for i in range(MAXR):
     g.append("".join(random.choice("0123456789") if abs(i - j) <= 40 else "#" for j in range(MAXC)))
 add(g)

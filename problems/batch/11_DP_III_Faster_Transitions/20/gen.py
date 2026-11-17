@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(11020)
@@ -18,12 +18,10 @@ def add(K, L, c):
 
 
 def planted(n, p, palette):
-    """each pot planted with probability p, colour from the palette"""
     return [random.choice(palette) if random.random() < p else 0 for _ in range(n)]
 
 
 def few(n, k, palette):
-    """k planted pots at random places"""
     c = [0] * n
     for i in random.sample(range(n), k):
         c[i] = random.choice(palette)
@@ -31,7 +29,6 @@ def few(n, k, palette):
 
 
 def blocks(n, L, palette, gap):
-    """runs of one planted colour (length up to L) separated by `gap` free pots"""
     c, i = [0] * n, 0
     while i < n:
         ln, col = ri(1, L), random.choice(palette)
@@ -42,7 +39,6 @@ def blocks(n, L, palette, gap):
 
 
 def reveal(n, K, L, p, ncol):
-    """a random valid colouring (colours 1..ncol, runs <= L); each pot stays planted with probability p"""
     c, prev = [], 0
     while len(c) < n:
         col = random.choice([x for x in range(1, ncol + 1) if x != prev])
@@ -51,29 +47,28 @@ def reveal(n, K, L, p, ncol):
     return [x if random.random() < p else 0 for x in c[:n]]
 
 
-# samples
 add(3, 2, [1, 0, 0, 1])
 add(2, 1, [1, 0, 2])
 add(2, 2, [0, 0, 0, 0, 0])
 add(1000000000, 1, [0, 0, 0])
 add(5, 2, [3, 3, 3, 0])
 add(4, 3, [0, 2, 0, 0, 2, 2, 0, 1])
-# hidden: small (the brute checks these)
+
 add(2, 1, [0])
 add(7, 1, [7])
-add(3, 5, [0] * 5)                                    # no limit: 3^5
+add(3, 5, [0] * 5)
 add(2, 3, planted(12, 0.3, [1, 2]))
 add(4, 2, reveal(14, 4, 2, 0.5, 4))
 add(10**9, 3, planted(15, 0.2, [5, 10**9]))
 add(3, 2, [1, 1, 0, 2, 2, 0, 3, 3, 0, 1, 1])
-# hidden: medium
+
 add(10**9, 40, planted(2000, 0.05, [1, 2, 3]))
 add(3, 700, blocks(2000, 700, [1, 2, 3], 300))
-add(5, 1, reveal(20_000, 5, 1, 0.3, 5))              # neighbours differ
+add(5, 1, reveal(20_000, 5, 1, 0.3, 5))
 add(4, 3, reveal(20_000, 4, 3, 0.6, 4))
-# hidden: maximum size (L large: looping over every run length is too slow)
+
 N = MAXN
-add(10**9, N, [0] * N)                                 # no limit: K^N
+add(10**9, N, [0] * N)
 add(2, 100_000, [0] * N)
 add(10**9, 150_000, few(N, 4, [7, 8, 9]))
 add(3, 80_000, blocks(N, 80_000, [1, 2, 3], 60_000))
@@ -84,7 +79,7 @@ add(4, 100_000, reveal(N, 4, 100_000, 0.0001, 4))
 add(10**9, 70_000, blocks(N, 70_000, [1, 2], 40_000))
 add(2, N, few(N, 5, [1, 2]))
 add(10**9, 100_000, [1] * 100_000 + [0] * (N - 100_000))
-add(10**9, 99_999, [1] * 100_000 + [0] * (N - 100_000))   # planted run too long: 0
+add(10**9, 99_999, [1] * 100_000 + [0] * (N - 100_000))
 add(3, 60_000, [(i // 50_000) % 3 + 1 if i % 40_000 == 0 else 0 for i in range(N)])
 
 for t in tests:

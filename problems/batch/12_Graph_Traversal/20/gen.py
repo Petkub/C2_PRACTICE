@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(70020)
@@ -8,12 +8,10 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
 def add(rows, guards):
-    """rows: the grid; guards: lists of 0-based cells (i, j)"""
     if isinstance(rows[0], list):
         rows = ["".join(x) for x in rows]
     r, c, k = len(rows), len(rows[0]), len(guards)
@@ -23,8 +21,8 @@ def add(rows, guards):
     assert text.count("S") == 1 and text.count("T") == 1
     s = divmod(text.index("S"), c)
     for rt in guards:
-        assert 1 <= len(rt) <= 4 and rt[0] != s    # nobody stands on S at minute 0
-        a, b = rt[-1]                              # the cell one minute before (cyclically)
+        assert 1 <= len(rt) <= 4 and rt[0] != s
+        a, b = rt[-1]
         for (i, j) in rt:
             assert 0 <= i < r and 0 <= j < c and rows[i][j] != "#" and abs(a - i) + abs(b - j) <= 1
             a, b = i, j
@@ -50,7 +48,6 @@ def nbrs(g, i, j):
 
 
 def make_route(g, a, p):
-    """a patrol of period p starting near cell a: waits, back-and-forth walks or a 2x2 loop"""
     nb = nbrs(g, *a)
     if p == 1 or not nb:
         rt = [a] * p
@@ -64,7 +61,7 @@ def make_route(g, a, p):
             nb2 = [x for x in nbrs(g, *b) if x != a]
             di, dj = b[0] - a[0], b[1] - a[1]
             side = random.choice((1, -1))
-            c1 = (b[0] + dj * side, b[1] + di * side)     # the 2x2 square on one side of a-b
+            c1 = (b[0] + dj * side, b[1] + di * side)
             c2 = (a[0] + dj * side, a[1] + di * side)
             if random.random() < 0.4 and is_open(g, *c1) and is_open(g, *c2):
                 rt = [a, b, c1, c2]
@@ -77,7 +74,6 @@ def make_route(g, a, p):
 
 
 def guards_random(g, k, periods, s, keep_free=()):
-    """k random patrols on open cells (never on S at minute 0, never touching the cells in keep_free)"""
     opens = [(i, j) for i in range(len(g)) for j in range(len(g[0])) if g[i][j] != "#"]
     free = set(keep_free)
     res = []
@@ -90,7 +86,6 @@ def guards_random(g, k, periods, s, keep_free=()):
     return res
 
 
-# samples
 add(["S.#..",
      ".....",
      "..#.T"], [[(1, 1), (1, 2), (1, 3), (1, 2)]])
@@ -106,9 +101,7 @@ add(["....",
      "S..T"], [[(1, 2), (1, 2), (1, 1)], [(0, 1), (0, 2), (0, 3), (0, 2)]])
 
 
-
 def maze(r, c, braid):
-    """a random maze (passages on even cells), then `braid` of the inner walls knocked down to make loops"""
     g = [["#"] * c for _ in range(r)]
     g[0][0] = "."
     stack = [(0, 0)]
@@ -137,7 +130,6 @@ def setup(g, s, t, k, periods, keep_free=()):
 
 
 def serpentine(r, c):
-    """corridors on the even rows joined at alternating ends: one long path from (0, 0)"""
     g = [["."] * c for _ in range(r)]
     for k, i in enumerate(range(1, r, 2)):
         g[i] = ["#"] * c
@@ -146,7 +138,6 @@ def serpentine(r, c):
 
 
 def guards_spaced(g, k, periods, s, t):
-    """patrols that never come within 2 cells (in both directions) of another patrol, S or T"""
     opens = [(i, j) for i in range(len(g)) for j in range(len(g[0])) if g[i][j] != "#"]
     near = set()
     for (i, j) in (s, t):
@@ -165,7 +156,6 @@ def guards_spaced(g, k, periods, s, t):
 
 
 def dense_small(seed):
-    """a small grid crowded with guards (these seeds need waiting and the full 12-minute cycle)"""
     random.seed(seed)
     r, c = ri(3, 8), ri(3, 8)
     g = rnd(r, c, random.choice((0.0, 0.15, 0.3)))
@@ -174,15 +164,13 @@ def dense_small(seed):
 
 
 def crowded(seed, n, p, periods):
-    """MAXK guards on an n x n grid, close to the density where the way gets cut"""
     random.seed(seed)
     g = rnd(n, n, p)
     add(*setup(g, (0, 0), (n - 1, n - 1), MAXK, periods))
 
 
-# hidden: small
 add(["ST"], [])
-add(["S", "T"], [[(1, 0)]])                                 # a guard stands on T for ever
+add(["S", "T"], [[(1, 0)]])
 add(["S.", ".T"], [[(0, 1), (1, 1)], [(1, 0), (1, 0), (0, 0)]])
 for (r, c, k, p) in ((4, 5, 4, 0.1), (5, 5, 6, 0.2), (6, 6, 10, 0.15), (7, 7, 14, 0.2)):
     g = rnd(r, c, p)
@@ -194,25 +182,25 @@ for seed in (1007, 1144, 1417):
 random.seed(70021)
 g = rnd(40, 40, 0.2)
 add(*setup(g, (0, 0), (39, 39), 300, (2, 3, 4)))
-# hidden: large
+
 R = C = MAXR
 g = blank(R, C)
 add(*setup(g, (0, 0), (R - 1, C - 1), MAXK, (1, 2, 3, 4)))
-for seed in (1, 2):                                         # long mazes
+for seed in (1, 2):
     random.seed(seed)
     g = maze(R - 1, C - 1, 0.0)
     add(*setup(g, (0, 0), (R - 2, C - 2), 150 + 100 * seed, (3, 4)))
 random.seed(70022)
-g = serpentine(R - 1, C)                                    # one path of about 125 000 cells
+g = serpentine(R - 1, C)
 add(*setup(g, (0, 0), (R - 2, 0), 300, (3, 4)))
 g = serpentine(R - 1, C)
 g[0][0], g[R - 2][0] = "S", "T"
 add(g, guards_spaced(g, 3000, (2, 3, 4), (0, 0), (R - 2, 0)))
-g = serpentine(R - 1, C)                                    # the same, but the cell next to T is always watched
+g = serpentine(R - 1, C)
 g[0][0], g[R - 2][0] = "S", "T"
 gs = guards_spaced(g, 2000, (2, 3, 4), (0, 0), (R - 2, 0))
 add(g, gs + [[(R - 2, 1)]])
-g = blank(R, C)                                             # T is watched on every side: no way in
+g = blank(R, C)
 t = (R // 2, C // 2)
 ring = [(t[0] + a, t[1] + b) for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1))]
 g, gs = setup(g, (0, 0), t, 20000, (2, 3, 4), ring + [t])

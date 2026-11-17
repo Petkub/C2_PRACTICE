@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, string
 
 random.seed(150303)
@@ -30,19 +30,18 @@ def rop(n, kr=MAXK, minlen=1):
 
 
 def wide(n, k):
-    # a range covering most of the string
+
     l = random.randint(1, max(1, n // 20))
     r = random.randint(n - n // 20, n)
     return (l, r, k)
 
 
-# samples
 add("Hello,World9", [(1, 5, 1), (7, 12, -2)])
 add("zZ9a", [(1, 4, 1), (1, 3, 27)])
 add("a-b_c", [(1, 5, -1000000000)])
 add("Code2026!", [(1, 9, 5), (3, 6, -30), (5, 5, 1000000000), (1, 1, -1)])
 add("x", [(1, 1, 7), (1, 1, -7)])
-# hidden: small (brute checks these)
+
 add("~", [(1, 1, MAXK)])
 add("0", [(1, 1, -1)] * 3)
 add(rs(30), [rop(30, 60) for _ in range(30)])
@@ -51,9 +50,9 @@ add(rs(200, "az09AZ"), [rop(200, 100) for _ in range(300)])
 add(rs(2000), [rop(2000) for _ in range(2000)])
 add(rs(5000, ALNUM + "#"), [wide(5000, random.choice([MAXK, -MAXK])) for _ in range(5000)])
 add(rs(3000, "z9Z"), [(1, 3000, 26 * random.randint(1, 38 * 10 ** 6)) for _ in range(3000)])
-# hidden: large
+
 n, m = MAXN, MAXM
-add(rs(n, ALNUM), [(1, n, MAXK)] * m)                                       # totals 10^14
+add(rs(n, ALNUM), [(1, n, MAXK)] * m)
 add(rs(n, ALNUM), [(1, n, -MAXK)] * m)
 add(rs(n), [wide(n, random.randint(-MAXK, MAXK)) for _ in range(m)])
 add(rs(n, "z9Z!"), [wide(n, 26 * random.randint(-38 * 10 ** 6, 38 * 10 ** 6)) for _ in range(m)])
@@ -62,7 +61,7 @@ add(rs(n, "mM5"), [wide(n, random.choice([MAXK, -MAXK, MAXK - 1, 1 - MAXK])) for
 add(rs(n, ALNUM), [rop(n) for _ in range(m)])
 add(rs(n), [rop(n, MAXK, n // 2) for _ in range(m)])
 add(rs(n, ALNUM), [(l, l + random.randint(0, 9), random.randint(-MAXK, MAXK))
-                   for l in (random.randint(1, n - 10) for _ in range(m))])        # short ranges
+                   for l in (random.randint(1, n - 10) for _ in range(m))])
 add(rs(n, "z"), [(1, n, 1)] * (m // 2) + [(1, n, -1)] * (m // 2 - 1) + [(n // 2, n, 1)])
 add(rs(n, string.ascii_lowercase), [(random.randint(1, 100), random.randint(n - 100, n), random.randint(-MAXK, MAXK))
                                     for _ in range(m)])

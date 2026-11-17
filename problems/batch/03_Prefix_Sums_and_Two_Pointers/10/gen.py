@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10113)
@@ -8,7 +8,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -31,13 +30,12 @@ def rnd_ops(n, m, maxlen=None):
     return out
 
 
-# samples
 add(6, [(2, 4), (3, 6)])
 add(5, [(1, 5), (5, 5), (1, 1)])
 add(1, [(1, 1)])
 add(4, [(1, 3), (1, 3), (2, 4)])
 add(7, [(3, 3), (1, 7), (6, 7)])
-# hidden (small)
+
 add(3, [(3, 3)])
 add(10, [(1, 10)] * 3)
 add(50, rnd_ops(50, 40))
@@ -45,12 +43,12 @@ add(500, rnd_ops(500, 300, 20))
 add(2000, rnd_ops(2000, 2000))
 add(5000, [(1, 5000)] * 1000 + rnd_ops(5000, 1000))
 add(3000, [(i, 3000) for i in range(1, 3001)])
-# large
+
 N, M = MAXN, MAXM
-add(N, [(1, N)] * M)                                  # every column as high as possible
+add(N, [(1, N)] * M)
 add(N, rnd_ops(N, M))
 add(N, rnd_ops(N, M, 10))
-add(N, [(ri(1, N),) * 2 for _ in range(M)])           # single columns only
+add(N, [(ri(1, N),) * 2 for _ in range(M)])
 add(N, [(1, ri(N // 2, N)) for _ in range(M)])
 add(N, [(ri(1, N // 2), N) for _ in range(M)])
 add(N, [(i % N + 1, N) for i in range(M)])

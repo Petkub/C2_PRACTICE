@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(13018)
@@ -29,9 +29,6 @@ def add(n, ops):
 
 
 def ops_of(n, q, close, lift, ask, pc, po, recent=0, cap=None):
-    """each operation: a closure close() with probability pc, lifting an active closure with probability po
-    (one of the `recent` newest active ones if recent > 0, else any), otherwise a question ask();
-    at most `cap` closures are active at once"""
     ops, active, made = [], [], 0
     for _ in range(q):
         r = random.random()
@@ -73,29 +70,28 @@ def mixed_rng(n, d):
     return lambda: f() if random.random() < 0.7 else g()
 
 
-# samples
 add(10, [('C', 2, 5), ('C', 4, 8), ('?', 1, 10), ('O', 1), ('?', 1, 10), ('?', 3, 9)])
 add(5, [('C', 1, 5), ('C', 1, 5), ('O', 2), ('?', 2, 4), ('O', 1), ('?', 2, 4)])
 add(1, [('?', 1, 1), ('C', 1, 1), ('?', 1, 1), ('O', 1), ('?', 1, 1)])
 add(8, [('C', 1, 8), ('C', 3, 4), ('O', 1), ('?', 1, 8), ('C', 2, 7), ('?', 1, 8)])
 add(MAXN, [('C', 1, MAXN), ('?', 1, MAXN), ('O', 1), ('?', MAXN // 2, MAXN)])
-# hidden: small (the brute force checks these)
+
 for n, q, pc, po, d in ((1, 8, 0.4, 0.3, 1), (6, 30, 0.35, 0.25, 3), (12, 60, 0.35, 0.25, 6),
                         (40, 300, 0.3, 0.25, 15), (200, 2000, 0.35, 0.3, 60), (2000, 3000, 0.4, 0.3, 300)):
     add(n, ops_of(n, q, mixed_rng(n, d), None, any_rng(n), pc, po, recent=random.choice((0, 3))))
-n = 3000                                                    # stacked copies of the same few closures
+n = 3000
 spots = [(ri(1, 1000), ri(1500, 3000)) for _ in range(4)] + [(1, n)]
 add(n, ops_of(n, 3000, lambda: random.choice(spots), None, any_rng(n), 0.4, 0.35))
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
 add(N, ops_of(N, Q, long_rng(N, 1000), None, long_rng(N, 1000), 0.3, 0.25, recent=5))
-add(N, ops_of(N, Q, any_rng(N), None, long_rng(N, 100), 0.5, 0.0, cap=N))   # nothing is lifted
-add(N, ops_of(N, Q, short_rng(N, 20), None, long_rng(N, 10), 0.55, 0.05))   # many short closures, open cells left
+add(N, ops_of(N, Q, any_rng(N), None, long_rng(N, 100), 0.5, 0.0, cap=N))
+add(N, ops_of(N, Q, short_rng(N, 20), None, long_rng(N, 10), 0.55, 0.05))
 add(N, ops_of(N, Q, short_rng(N, 3000), None, any_rng(N), 0.4, 0.2, cap=60_000))
-add(N, ops_of(N, Q, long_rng(N, N // 3), None, long_rng(N, 10), 0.45, 0.2, recent=2))   # the middle mostly closed
-add(N, ops_of(N, Q, lambda: (1, N), None, any_rng(N), 0.3, 0.3))            # the whole road, many layers
+add(N, ops_of(N, Q, long_rng(N, N // 3), None, long_rng(N, 10), 0.45, 0.2, recent=2))
+add(N, ops_of(N, Q, lambda: (1, N), None, any_rng(N), 0.3, 0.3))
 add(N, ops_of(N, Q, mixed_rng(N, 10**5), None, long_rng(N, 5000), 0.45, 0.35, recent=50))
-tiles = [(i * 1000 + 1, i * 1000 + 1000) for i in range(N // 1000)]          # a tiling: all closed or one tile open
+tiles = [(i * 1000 + 1, i * 1000 + 1000) for i in range(N // 1000)]
 add(N, ops_of(N, Q, lambda: random.choice(tiles), None, long_rng(N, 3), 0.5, 0.45, cap=900))
 add(N, ops_of(N, Q, lambda: (ri(1, 50), N - ri(0, 49)), None, lambda: (ri(1, 100), N - ri(0, 99)), 0.4, 0.15))
 add(N, ops_of(N, Q, any_rng(N), None, short_rng(N, 1000), 0.4, 0.3, recent=3))

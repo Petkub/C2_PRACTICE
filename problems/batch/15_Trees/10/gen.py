@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(150131)
@@ -12,7 +12,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the people 2..n of a family of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     for i in range(2, n + 1):
@@ -22,17 +21,17 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, many short side branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a chain of n / 2 people, the others hang from it
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long chain ending in many children
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains from person 1
+        elif kind == "twopaths":
             p = 1 if i <= 3 else i - 2
-        elif kind == "forks":                       # a long chain, every 50th person starts a branch of 40
+        elif kind == "forks":
             p = i - 1 if i % 50 else max(1, i - 41)
         else:
             raise ValueError(kind)
@@ -58,7 +57,7 @@ def add(n, a, p):
     for i in range(2, n + 1):
         assert 1 <= p[i] <= n and p[i] != i
         kids[p[i]].append(i)
-    seen, k = [1], 0                      # everybody descends from person 1
+    seen, k = [1], 0
     while k < len(seen):
         seen.extend(kids[seen[k]])
         k += 1
@@ -72,11 +71,11 @@ def numbers(n, mode, lab=None, par=None):
         return [0] + [1] * n
     if mode == "small":
         return [0] + [ri(1, 12) for _ in range(n)]
-    if mode == "smooth":                  # many divisors each
+    if mode == "smooth":
         return [0] + [SMOOTH[int(random.random() * len(SMOOTH))] for _ in range(n)]
     if mode == "random":
         return [0] + [ri(1, MAXA) for _ in range(n)]
-    if mode == "grow":                    # going down, each number is a multiple of the one above (until too big)
+    if mode == "grow":
         val = [0] * (n + 1)
         val[1] = ri(1, 3)
         for i in range(2, n + 1):
@@ -95,13 +94,12 @@ def case(n, kind, mode):
     add(n, numbers(n, mode, lab, par), p)
 
 
-# samples
 add(7, [0, 2, 4, 3, 4, 8, 9, 6], [0, 0, 1, 1, 2, 2, 3, 6])
 add(4, [0, 1, 1, 1, 1], [0, 0, 1, 2, 3])
 add(2, [0, 3, 5], [0, 0, 1])
 add(4, [0, 1, 2, 3, 5], [0, 0, 1, 1, 1])
 add(9, [0, 30, 18, 30, 3, 12, 5, 10, 9, 6], [0, 0, 9, 4, 5, 1, 9, 9, 3, 8])
-# hidden: small and medium (the brute force checks these)
+
 case(3, "path", "small")
 case(10, "random", "small")
 case(30, "binary", "smooth")
@@ -110,9 +108,9 @@ case(200, "caterpillar", "grow")
 case(1000, "random", "smooth")
 case(3000, "deep", "small")
 case(5000, "broom", "random")
-# hidden: maximum size (deep families)
+
 N = MAXN
-case(N, "path", "ones")                   # every pair: N (N - 1) / 2
+case(N, "path", "ones")
 case(N, "path", "grow")
 case(N, "deep", "small")
 case(N, "deep", "smooth")

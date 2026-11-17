@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(20207)
@@ -9,7 +9,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -23,12 +22,10 @@ def add(a, ks):
 
 
 def spread(n, hi):
-    """n distinct sorted numbers in [1, hi]"""
     return sorted(random.sample(range(1, hi + 1), n))
 
 
 def edge_ks(a, q):
-    """k equal to the count of unsold numbers before some a_i, or one more"""
     res = []
     for _ in range(q):
         i = ri(0, len(a) - 1)
@@ -37,14 +34,13 @@ def edge_ks(a, q):
     return res
 
 
-# samples
 add([2, 3, 7], [1, 2, 3, 4, 5])
 add([1, 2, 3], [1, MAXK])
 add([5], [4, 5, 1])
 add([MAXA], [MAXK, MAXK - 1])
 add([4, 6, 10, 11, 12], [3, 4, 5, 7, 6, 1])
 add([1, 3, 5, 7, 9], [1, 2, 3, 4, 5, 6])
-# hidden: small
+
 add([1], [1])
 add(list(range(1, 51)), list(range(1, 11)))
 a = spread(30, 100)
@@ -55,10 +51,10 @@ a = spread(3000, MAXA)
 add(a, edge_ks(a, 2000) + [ri(1, MAXK) for _ in range(1000)])
 a = list(range(MAXA - 1999, MAXA + 1))
 add(a, [ri(MAXA - 2100, MAXK) for _ in range(2000)])
-# hidden: maximum size
+
 N = MAXN
 N2 = 150_000
-a = list(range(1, N + 1))                              # every answer is after the last sold ticket
+a = list(range(1, N + 1))
 add(a, [ri(1, MAXK) for _ in range(N)])
 a = list(range(2, 2 * N + 1, 2))
 add(a, [ri(N - 1000, MAXK) for _ in range(N)])
@@ -66,7 +62,7 @@ a = spread(N, 10**6)
 add(a, edge_ks(a, N))
 a = spread(N, 10**6)
 add(a, [ri(700_000, MAXK) for _ in range(N)])
-a = list(range(MAXA - N2 + 1, MAXA + 1))              # a block at the very top
+a = list(range(MAXA - N2 + 1, MAXA + 1))
 add(a, [ri(MAXA - N2 - 1000, MAXK) for _ in range(N2)])
 a = list(range(1, N // 2 + 1)) + sorted(random.sample(range(N, 2 * 10**6), N // 2))
 add(a, [ri(1, MAXK) for _ in range(N)])

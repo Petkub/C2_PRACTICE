@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, re
 
 random.seed(150601)
@@ -19,14 +19,13 @@ POOL = [" ".join(word() for _ in range(ri(1, 2))) for _ in range(10000)]
 
 
 class Doc:
-    """the document as arrays nxt/prv with sentinel 0; every command is checked against the rules before it runs"""
 
     def __init__(self, n):
         self.n = n
         self.nxt = [(i + 1) % (n + 1) for i in range(n + 1)]
         self.prv = [(i + n) % (n + 1) for i in range(n + 1)]
         self.alive = list(range(1, n + 1))
-        self.where = list(range(-1, n))      # index of each id in alive
+        self.where = list(range(-1, n))
         self.cmds = []
 
     def is_alive(self, v):
@@ -45,7 +44,6 @@ class Doc:
         self.cmds.append(f"DEL {x}")
 
     def block(self, x, y):
-        """ids from x down to y (asserts that y is reached)"""
         out = [x]
         v = x
         while v != y:
@@ -91,7 +89,6 @@ def hand(texts, cmds):
 
 
 def rand_test(n, m, pdel=0.1, pz0=0.1, small=4, pbig=0.0, texts=None, final_empty=False):
-    """random commands, valid by construction: y is reached by walking down from x, z is outside the block"""
     if texts is None:
         texts = random.choices(POOL, k=n)
     d = Doc(n)
@@ -131,13 +128,12 @@ def rand_test(n, m, pdel=0.1, pz0=0.1, small=4, pbig=0.0, texts=None, final_empt
     emit(texts, d)
 
 
-# samples
 hand(["the cat sat", "on a mat", "it was warm", "the end"], ["MOVE 2 3 4", "DEL 1", "MOVE 3 3 0"])
 hand(["hello world", "bye"], ["MOVE 1 1 2", "DEL 1", "DEL 2"])
 hand(["one", "two", "three"], ["MOVE 2 3 1", "MOVE 1 2 3"])
 hand(["a b c", "dd ee", "f"], ["DEL 2", "MOVE 3 3 0", "MOVE 3 1 0"])
 hand(["x"], ["MOVE 1 1 0"])
-# hidden: small
+
 hand(["z"], ["DEL 1"])
 rand_test(8, 10, pdel=0.15)
 rand_test(50, 60, pdel=0.05, small=10)
@@ -146,7 +142,7 @@ rand_test(1000, 1500, pdel=0.02, pbig=0.2)
 rand_test(2000, 2000, pdel=0.3, final_empty=True)
 rand_test(3000, 3000, pdel=0.0, pz0=0.5, small=2)
 rand_test(5000, 5000, pdel=0.01, pz0=0.3, small=25)
-# hidden: large
+
 long_texts = [f"{v >> 7:02b} {v & 127:07b}".replace("0", "p").replace("1", "q")
               for v in (random.getrandbits(9) for _ in range(MAXN))]
 rand_test(MAXN, MAXM, pdel=0.05, pz0=0.1, small=4)

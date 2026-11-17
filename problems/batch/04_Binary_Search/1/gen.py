@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(20201)
@@ -8,7 +8,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -33,7 +32,6 @@ def rnd_ts(q, hi):
 
 
 def edge_ts(shows, q, hi):
-    """queries placed on interval ends and one minute outside them"""
     res = []
     for _ in range(q):
         l, r = shows[ri(0, len(shows) - 1)]
@@ -41,39 +39,38 @@ def edge_ts(shows, q, hi):
     return res
 
 
-# samples
 add([(1, 5), (3, 8), (6, 6), (10, 12)], [0, 3, 6, 9, 12])
 add([(2, 4), (4, 4), (4, 7)], [4, 3, 5, 8])
 add([(0, 0)], [0, 1])
 add([(0, MAXV), (5, 5), (0, MAXV)], [MAXV, 5])
 add([(3, 9), (1, 2), (7, 7), (2, 5), (8, 10)], [2, 7, 8, 11, 6, 5])
 add([(1, 10), (2, 9), (3, 8), (4, 7)], [1, 4, 8, 10])
-# hidden: small
+
 add([(7, 7)], [6, 7, 8])
 add(rnd_shows(10, 20, 5), list(range(0, 22)))
 s = rnd_shows(200, 1000, 100)
 add(s, edge_ts(s, 300, 1000))
 s = rnd_shows(2000, MAXV, MAXV)
 add(s, edge_ts(s, 1000, MAXV) + rnd_ts(1000, MAXV))
-s = [(ri(0, 50),) * 2 for _ in range(3000)]           # every show lasts one minute
+s = [(ri(0, 50),) * 2 for _ in range(3000)]
 add(s, list(range(0, 52)) * 40)
 add([(0, MAXV)] * 1500 + [(MAXV, MAXV)] * 1500, [0, MAXV, MAXV - 1, 1] * 500)
-# hidden: maximum size (values up to 10^5 keep the files near 3.5 MB)
+
 N, H = MAXN, 100_000
 add(rnd_shows(N, H, H), rnd_ts(N, H))
 add(rnd_shows(N, H, 1000), rnd_ts(N, H))
-add([(0, H)] * N, rnd_ts(N, H))                        # every show covers every query
-s = [(ri(0, 100), ri(H - 100, H)) for _ in range(N)]   # early starts, late ends: early breaks do not help
+add([(0, H)] * N, rnd_ts(N, H))
+s = [(ri(0, 100), ri(H - 100, H)) for _ in range(N)]
 add(s, [ri(H - 2000, H) for _ in range(N)])
 s = [(ri(0, H), ) * 2 for _ in range(N)]
-add(s, edge_ts(s, N, H))                               # single-minute shows, queries on and beside them
+add(s, edge_ts(s, N, H))
 s = rnd_shows(N, H, 300)
 add(s, edge_ts(s, N, H))
 s = [(0, ri(0, H)) for _ in range(N)]
 add(s, [ri(0, H) for _ in range(N)])
 s = [(ri(0, H), H) for _ in range(N)]
 add(s, [ri(0, H) for _ in range(N)])
-# full range values, smaller N and Q
+
 N2 = 100_000
 s = rnd_shows(N2, MAXV, MAXV // 2)
 add(s, edge_ts(s, N2 // 2, MAXV) + rnd_ts(N2 // 2, MAXV))

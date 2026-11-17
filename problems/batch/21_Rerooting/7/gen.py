@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 tests = []
@@ -9,7 +9,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -20,31 +19,31 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, a few short branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains meeting at node 1
+        elif kind == "twopaths":
             p = 1 if i <= 3 else i - 2
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
-        elif kind == "spider":                      # about sqrt(n) legs of equal length from node 1
+        elif kind == "spider":
             p = 1 if i <= b + 1 else i - b
-        elif kind == "bushy":                       # star of stars: about sqrt(n) hubs, each with many leaves
+        elif kind == "bushy":
             p = 1 if i <= b + 1 else ri(2, b + 1)
-        elif kind == "longspider":                  # 2000 legs of length about n / 2000 from node 1
+        elif kind == "longspider":
             p = 1 if i <= 2001 else i - 2000
-        elif kind == "fatcaterpillar":              # a spine of 100 nodes, every other node a leg of the spine
+        elif kind == "fatcaterpillar":
             p = i - 1 if i <= 100 else ri(1, 100)
-        elif kind == "hubpath":                     # a path of 40 hubs, each with about n / 40 leaves
+        elif kind == "hubpath":
             p = i - 1 if i <= 40 else ri(1, 40)
-        elif kind == "hubrand":                     # random tree in which node 1 gets about half of the nodes
+        elif kind == "hubrand":
             p = 1 if random.random() < 0.5 else ri(1, i - 1)
-        elif kind == "doublestar":                  # nodes 1 and 2 joined, each with half of the leaves
+        elif kind == "doublestar":
             p = 1 if i == 2 or i % 2 else 2
         else:
             raise ValueError(kind)
@@ -53,7 +52,6 @@ def shape(n, kind):
 
 
 def shuffle(a):
-    """Fisher-Yates driven by random.random() only (fast, and the same on every Python 3 version)"""
     rnd = random.random
     for i in range(len(a) - 1, 0, -1):
         j = int(rnd() * (i + 1))
@@ -61,9 +59,8 @@ def shuffle(a):
 
 
 def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends"""
     n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
+    assert all(1 <= par[i] < i for i in range(2, n + 1))
     lab = list(range(1, n + 1))
     shuffle(lab)
     if root_first:
@@ -76,7 +73,6 @@ def relabel(par, root_first=False):
 
 
 def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
     assert len(edges) == n - 1
     root = list(range(n + 1))
 
@@ -117,13 +113,12 @@ def make(n, kind, k, root_first=False):
     add(n, k, edges, True)
 
 
-# samples
 add(6, 2, [(1, 2), (2, 3), (3, 4), (2, 5), (5, 6)])
 add(5, 1, [(1, 2), (2, 3), (3, 4), (4, 5)])
 add(1, 5, [])
 add(3, 0, [(1, 2), (1, 3)])
 add(7, 50, [(1, 2), (1, 3), (3, 4), (4, 5), (4, 6), (6, 7)])
-# hidden: small and medium (thin trees, where every ball is small, stay below the maximum size)
+
 add(2, 1, [(1, 2)])
 make(10, "random", 2)
 make(30, "deep", 7)
@@ -133,10 +128,10 @@ make(1000, "bushy", 2)
 make(3000, "path", 50, True)
 make(8000, "chains", 10)
 make(60000, "deep", MAXK)
-# hidden: maximum size (bushy shapes: the balls hold a large part of the tree)
+
 N = MAXN
 make(N, "random", MAXK)
-make(N, "bushy", 4)              # every ball holds the whole tree (leaf, hub, centre, hub, leaf)
+make(N, "bushy", 4)
 make(N, "broom", 30)
 make(N, "fatcaterpillar", MAXK)
 make(N, "random", 20)

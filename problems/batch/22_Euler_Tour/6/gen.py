@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(220006)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -22,15 +21,15 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, short side branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
             raise ValueError(kind)
@@ -39,8 +38,6 @@ def shape(n, kind):
 
 
 def tree(n, kind):
-    """parent array p[0..n] (p[1] = 0) of a tree of the given shape with random labels (shape node 1 = shop 1);
-    lab[i - 1] = label of shape node i (small i = close to the root); size[i - 1] = subtree size of shape node i"""
     par = shape(n, kind)
     lab = list(range(2, n + 1))
     random.shuffle(lab)
@@ -64,7 +61,7 @@ def add(n, s, p, ops):
     order = [1]
     for u in order:
         order.extend(ch[u])
-    assert len(order) == n                     # every shop reaches shop 1
+    assert len(order) == n
     ts = [op[0] for op in ops]
     vs = [op[1] for op in ops]
     ks = [op[2] for op in ops if len(op) == 3]
@@ -77,9 +74,6 @@ def add(n, s, p, ops):
 
 
 def rops(n, q, lab, size, dens, p1=0.2, top=None, pool=None, late=0.5):
-    """random operations. Queries pick among the `top` nodes closest to the root (all nodes if None) and ask for a
-    k near the expected number of open shops of the subtree (deep in the order; sometimes beyond it: -1).
-    Toggles pick from a pool of `pool` nodes so that the density of open shops stays about `dens`."""
     pl = [ri(1, n) for _ in range(pool)] if pool else None
     res = []
     for _ in range(q):
@@ -105,13 +99,12 @@ def big(kind, dens, q, p1, top, pool, late=0.5, n=MAXN):
     add(n, opens(n, dens), p, rops(n, q, lab, size, dens, p1, top, pool, late))
 
 
-# samples
 add(7, "1011011", [0, 0, 3, 1, 5, 1, 3, 6], [(2, 1, 4), (2, 3, 2), (1, 3), (2, 3, 2)])
 add(4, "0101", [0, 0, 1, 2, 3], [(2, 1, 2), (2, 2, 3), (1, 1), (2, 1, 1)])
 add(2, "00", [0, 0, 1], [(2, 1, 1), (1, 2), (2, 1, 1)])
 add(5, "11111", [0, 0, 1, 1, 1, 1], [(2, 1, 5), (1, 1), (2, 1, 1)])
 add(6, "011111", [0, 0, 6, 1, 1, 3, 1], [(2, 1, 3), (2, 6, 2), (2, 1, 6)])
-# hidden: small and medium
+
 for n, kind, q in ((3, "path", 6), (10, "random", 20), (30, "deep", 40), (40, "star", 60), (80, "caterpillar", 100),
                    (300, "binary", 300)):
     p, lab, size = tree(n, kind)
@@ -119,7 +112,7 @@ for n, kind, q in ((3, "path", 6), (10, "random", 20), (30, "deep", 40), (40, "s
 for n, kind, dens in ((5000, "path", 0.05), (8000, "broom", 0.3), (8000, "chains", 0.5)):
     p, lab, size = tree(n, kind)
     add(n, opens(n, dens), p, rops(n, 8000, lab, size, dens, 0.2, 100, 500))
-# hidden: maximum size (queries near the root, the k-th open shop far inside the order)
+
 big("path", 0.02, MAXQ, 0.2, 1_000, 2_000)
 big("path", 0.5, MAXQ, 0.1, 5_000, 2_000, late=0.8)
 big("deep", 0.1, MAXQ, 0.2, 2_000, 2_000)
@@ -128,7 +121,7 @@ big("broom", 0.2, MAXQ, 0.2, 500, 3_000)
 big("star", 0.01, MAXQ, 0.4, 1, 1_000, late=0.9)
 big("chains", 0.1, MAXQ, 0.2, 300, 2_000)
 big("random", 0.5, MAXQ, 0.3, 5, 2_000, late=0.9)
-big("path", 0.01, MAXQ, 0.05, 10_000, 1_000, late=1.3)          # k beyond the open shops: mostly -1
+big("path", 0.01, MAXQ, 0.05, 10_000, 1_000, late=1.3)
 big("deep", 0.9, MAXQ, 0.2, 3_000, 5_000, late=0.9)
 
 for t in tests:

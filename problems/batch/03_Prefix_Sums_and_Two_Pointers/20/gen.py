@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(11905)
@@ -25,14 +25,13 @@ def const(r, c, x):
     return [[x] * c for _ in range(r)]
 
 
-# samples
 add(3, [[1, 2, 0], [-1, 1, 2]])
 add(5, [[1, 1], [1, 1]])
 add(0, const(2, 3, 0))
 add(-2, [[3, -2, 1], [-4, 2, -3], [1, -1, 0]])
 add(7, [[7]])
 add(4, [[2, -1, 3, 0, -2, 4, 1, -3]])
-# hidden (small)
+
 add(-7, [[7]])
 add(0, rnd(1, 1))
 add(0, rnd(5, 5, -1, 1))
@@ -44,21 +43,21 @@ add(-5, rnd(15, 40, -4, 2))
 add(40, const(10, 10, 10))
 add(MAXT, const(12, 12, 10))
 add(-4, rnd(300, 30, -3, 3))
-# large (the 4-loop brute force needs about 2*10^10 steps on a full 30 x 10000 field)
+
 W, H = MAXSIDE, MAXSHORT
-add(0, const(H, W, 0))                            # every rectangle
-add(10 * 36, const(W, H, 10))                     # area 36, many rows
-add(-MAXT, const(H, W, -10))                      # area 100000 only
+add(0, const(H, W, 0))
+add(10 * 36, const(W, H, 10))
+add(-MAXT, const(H, W, -10))
 add(0, rnd(H, W, -1, 1))
 add(7, rnd(H, W))
-add(0, rnd(W, H, -1, 1))                          # many rows, few columns
+add(0, rnd(W, H, -1, 1))
 add(-3, rnd(W, H, -3, 3))
 add(3, rnd(H, W, -2, 2))
 add(-12, rnd(28, W - 1, -2, 1))
 add(1, rnd(W, 29, -1, 2))
 g = [[(1 if (i + j) % 2 == 0 else -1) for j in range(H)] for i in range(W)]
-add(0, g)                                         # checkerboard
-add(MAXT - 1, const(H, W, 10))                    # unreachable
+add(0, g)
+add(MAXT - 1, const(H, W, 10))
 add(10, rnd(H, W, 0, 1))
 add(-1, rnd(W, H))
 add(2, [[random.choice([1, -1, 1, 0]) for _ in range(W)]])

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, string
 
 random.seed(150202)
@@ -24,7 +24,7 @@ def shuffled(s):
 
 
 def planted(n, p, copies, alpha, qprob=0.2):
-    # random text with shuffled copies of p (some letters turned into '?') at random places
+
     t = list(rnd(n, alpha))
     m = len(p)
     for _ in range(copies):
@@ -34,13 +34,12 @@ def planted(n, p, copies, alpha, qprob=0.2):
     return "".join(t)
 
 
-# samples
 add("xbacbabc?d", "abc")
 add("cc?a?cc", "cab")
 add("hello", "world")
 add("aaaa", "aa")
 add("ab?ba?c", "abc")
-# hidden: small (brute checks these)
+
 add("a", "a")
 add("?", "z")
 add("b", "a")
@@ -51,27 +50,27 @@ p = rnd(100, "abcdefgh")
 add(planted(10000, p, 60, "abcdefgh?"), p)
 add(rnd(20000, "?" * 30 + "xy"), rnd(10000, "xy"))
 add(rnd(40000, "ab?", [45, 45, 10]), "a" * 450 + "b" * 550)
-# hidden: large
+
 m = MAXN // 2
-add("?" * MAXN, rnd(m, LOW))                                                    # every window
+add("?" * MAXN, rnd(m, LOW))
 p = "a" * (m // 2) + "b" * (m - m // 2)
-add(rnd(MAXN, "ab"), p)                                                         # near the border
+add(rnd(MAXN, "ab"), p)
 p = rnd(400000, LOW[:10])
-add("b" * (MAXN - len(p)) + shuffled(p), p)                                     # only the last window
+add("b" * (MAXN - len(p)) + shuffled(p), p)
 p = rnd(300000, LOW[:6])
 add(planted(MAXN, p, 6, LOW[:6] + "?", 0.1), p)
-add("".join("b" if i % (m // 2) == 0 else random.choice("a?") for i in range(MAXN)), "a" * m)  # never
+add("".join("b" if i % (m // 2) == 0 else random.choice("a?") for i in range(MAXN)), "a" * m)
 p = rnd(MAXN, LOW[:3])
-add(shuffled(p[:-1] + "d"), p)                                                  # one window, one letter over
-add(shuffled(p[:-5] + "?????"), p)                                              # one window, a hit
+add(shuffled(p[:-1] + "d"), p)
+add(shuffled(p[:-5] + "?????"), p)
 pa = int(0.6 * 0.45 * MAXN)
 add(rnd(MAXN, "ab?", [45, 45, 10]), "a" * pa + "b" * (600000 - pa))
 add(rnd(MAXN, "abc?", [30, 30, 30, 10]), "a" * 135000 + "b" * 135000 + "c" * 180000)
 add(rnd(MAXN, LOW + "?"), rnd(1, LOW))
 add(planted(MAXN, shuffled(LOW), 5000, LOW, 0.0), shuffled(LOW))
 t = rnd(MAXN, LOW + "?")
-add(t, t[300000:300000 + m].replace("?", "a"))                                      # a window of t itself
-add(rnd(MAXN, "ab?", [40, 40, 20]), "a" * 100000 + "b" * 100000)                   # shorter P, many hits
+add(t, t[300000:300000 + m].replace("?", "a"))
+add(rnd(MAXN, "ab?", [40, 40, 20]), "a" * 100000 + "b" * 100000)
 add(rnd(MAXN, "abcd?", [24, 24, 24, 24, 4]), "".join(sorted(rnd(150000, "abcd"))))
 
 for t in tests:

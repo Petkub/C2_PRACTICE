@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(19003)
@@ -42,7 +42,6 @@ def short_rng(n, d):
 
 
 def ops_of(n, q, pa, upd, ask, val):
-    """each operation is an add on upd() with value val() with probability pa, else a question on ask()"""
     ops = []
     for _ in range(q):
         if random.random() < pa:
@@ -58,32 +57,31 @@ def anyx():
     return ri(-MAXX, MAXX)
 
 
-# samples
 add(5, [('A', 1, 3, 4), ('A', 2, 5, -2), ('Q', 1, 5), ('Q', 4, 5), ('A', 4, 4, 10), ('Q', 3, 5)])
 add(3, [('Q', 1, 3), ('A', 1, 3, -5), ('Q', 2, 2), ('A', 2, 3, 7), ('Q', 1, 3)])
 add(1, [('A', 1, 1, -1000000), ('Q', 1, 1), ('A', 1, 1, 999999), ('Q', 1, 1)])
 add(8, [('A', 2, 7, 3), ('A', 1, 4, -6), ('A', 6, 8, 2), ('Q', 1, 8), ('Q', 5, 6), ('A', 1, 8, 1), ('Q', 1, 3)])
 add(MAXN, [('A', 1, MAXN, MAXX), ('A', 1, MAXN, MAXX), ('A', 2, MAXN, -1), ('Q', 1, MAXN), ('Q', 1, 1)])
-# hidden: small (the brute force checks these)
+
 for n, q, pa, d in ((1, 10, 0.5, 1), (4, 30, 0.5, 2), (10, 80, 0.55, 5), (60, 400, 0.5, 20),
                     (500, 3000, 0.5, 100), (3000, 4000, 0.5, 600)):
     small = lambda: ri(-9, 9) if random.random() < 0.5 else anyx()
     add(n, ops_of(n, q, pa, lambda: short_rng(n, d) if random.random() < 0.5 else any_rng(n),
                   lambda: any_rng(n), small))
-n = 2000                                                    # all adds negative: every maximum is negative
+n = 2000
 add(n, ops_of(n, 3000, 0.5, lambda: any_rng(n), lambda: any_rng(n), lambda: -ri(1, MAXX)))
-n = 1500                                                    # adds cancel out: many zero sums
+n = 1500
 add(n, [op for k in range(1500) for op in
         (('A', k % 50 + 1, n - k % 50, 7), ('A', k % 50 + 1, n - k % 50, -7), ('Q',) + any_rng(n))][:4000])
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
 add(N, ops_of(N, Q, 0.5, lambda: long_rng(N, 100), lambda: long_rng(N, 100), anyx))
-add(N, ops_of(N, Q, 0.6, lambda: long_rng(N, 10), lambda: long_rng(N, 1000), lambda: MAXX))   # largest values
-add(N, ops_of(N, Q, 0.6, lambda: long_rng(N, 10), lambda: any_rng(N), lambda: -MAXX))         # most negative
+add(N, ops_of(N, Q, 0.6, lambda: long_rng(N, 10), lambda: long_rng(N, 1000), lambda: MAXX))
+add(N, ops_of(N, Q, 0.6, lambda: long_rng(N, 10), lambda: any_rng(N), lambda: -MAXX))
 add(N, ops_of(N, Q, 0.5, lambda: any_rng(N), lambda: any_rng(N), anyx))
 add(N, ops_of(N, Q, 0.5, lambda: short_rng(N, 1000), lambda: long_rng(N, 50), anyx))
-add(N, ops_of(N, Q, 0.5, lambda: (1, N), lambda: (1, N), lambda: ri(-MAXX // 3, MAXX)))       # scores drift up
-add(N, ops_of(N, Q, 0.4, lambda: long_rng(N, N // 2), lambda: short_rng(N, 3), anyx))           # point-like queries
+add(N, ops_of(N, Q, 0.5, lambda: (1, N), lambda: (1, N), lambda: ri(-MAXX // 3, MAXX)))
+add(N, ops_of(N, Q, 0.4, lambda: long_rng(N, N // 2), lambda: short_rng(N, 3), anyx))
 add(N, ops_of(N, Q, 0.5, lambda: long_rng(N, 3000), lambda: long_rng(N, 3000),
               lambda: ri(MAXX - 10, MAXX) * random.choice((1, 1, 1, -1))))
 add(N, ops_of(N, Q, 0.7, lambda: any_rng(N), lambda: long_rng(N, 5), lambda: ri(-MAXX, MAXX // 2)))

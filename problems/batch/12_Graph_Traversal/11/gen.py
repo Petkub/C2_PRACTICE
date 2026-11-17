@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(7014)
@@ -8,7 +8,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -28,7 +27,6 @@ def rword(lo, hi, alpha):
 
 
 def edit(x, alpha):
-    """one random change / deletion / insertion that keeps the length in 1..MAXL"""
     while True:
         k = ri(0, 2)
         if k == 0:
@@ -45,7 +43,6 @@ def edit(x, alpha):
 
 
 def walk(start, steps, alpha, used):
-    """a random walk of edits through new words; returns the words in order"""
     path = [start]
     used.add(start)
     x = start
@@ -73,18 +70,17 @@ def random_dict(n, lo, hi, alpha, used=None):
     return res
 
 
-# samples
 add(["dab", "dad", "dead", "deed", "feed", "fee"], "dab", "fee", False)
 add(["abc", "fed", "abd"], "abc", "fed", False)
 add(["added"], "added", "added", False)
 add(["a", "fade", "ad", "faded", "fad"], "faded", "a", False)
 add(["ab", "ba", "a", "b", "aba"], "ab", "ba", False)
 add(["face", "fade", "fad", "bad", "bead", "bed", "ace"], "face", "bed", False)
-# hidden: small and medium
+
 add(["a", "b"], "a", "b")
 add(["a", "ab", "abc", "abcd", "abcde"], "abcde", "a")
-add(["abcd", "abdc"], "abcd", "abdc")                        # a swap is not one edit
-add(["f", "ff", "fff", "ffff", "ffffffff"], "f", "ffffffff")  # cannot jump four letters
+add(["abcd", "abdc"], "abcd", "abdc")
+add(["f", "ff", "fff", "ffff", "ffffffff"], "f", "ffffffff")
 used = set()
 p = walk("faded", 30, ALL, used)
 add(p + random_dict(200, 1, 8, ALL, used), p[0], p[-1])
@@ -102,10 +98,10 @@ p = walk("deadbeef", 3000, ALL[:6], used)
 add(p + random_dict(2000, 1, 8, ALL[:6], used), p[0], p[-1])
 used = set()
 w = random_dict(5000, 1, 8, ALL, used)
-add(w, w[0], w[1])                                            # almost surely not connected
-# hidden: large
+add(w, w[0], w[1])
+
 N = MAXN
-used = set()                                                  # every word over {a, b, c} of length 1..8 (except a few)
+used = set()
 allw = []
 for L in range(1, MAXL + 1):
     cur = [""]
@@ -115,16 +111,16 @@ for L in range(1, MAXL + 1):
 random.shuffle(allw)
 add(allw[:9800], "abcabcab" if "abcabcab" in allw[:9800] else allw[0], "c" if "c" in allw[:9800] else allw[1])
 used = set()
-w = random_dict(N, 1, 8, "abcd", used)                        # a dense dictionary
+w = random_dict(N, 1, 8, "abcd", used)
 add(w, w[0], w[1])
 used = set()
 w = random_dict(N, 4, 8, "abcde", used)
 add(w, w[0], w[2])
 used = set()
-p = walk("decaf", 15000, ALL, used)                          # one long random walk plus noise
+p = walk("decaf", 15000, ALL, used)
 add(p + random_dict(N - len(p), 1, 8, ALL, used), p[0], p[-1])
 used = set()
-p = walk("aaaa", 15000, "abc", used)                          # a walk over {a, b, c} until it gets stuck
+p = walk("aaaa", 15000, "abc", used)
 add(p + random_dict(N - len(p), 1, 8, ALL, used), p[0], p[-1])
 used = set()
 p = walk("beaded", 300, ALL, used)
@@ -133,9 +129,9 @@ add(p + w, p[0], p[-1])
 used = set()
 p = walk("ceded", 300, ALL, used)
 w = random_dict(N - len(p), 1, 8, ALL, used)
-add(p + w, p[0], w[0])                                        # no ladder at all
+add(p + w, p[0], w[0])
 words = []
-for L in range(1, MAXL + 1):                                  # all words over {a, b} plus random ones
+for L in range(1, MAXL + 1):
     cur = [""]
     for _ in range(L):
         cur = [x + ch for x in cur for ch in "ab"]
@@ -144,19 +140,19 @@ used = set(words)
 words += random_dict(N - len(words), 1, 8, ALL, used)
 add(words, "a", "bbbbbbbb")
 used = set()
-w = random_dict(N - 1, 7, 8, "abcde", used)                  # the target is far from everything
+w = random_dict(N - 1, 7, 8, "abcde", used)
 add(w + ["fffffff"], w[0], "fffffff")
 used = set()
-w = random_dict(N - 1, 5, 8, "abcde", used)                  # dense enough to be one big component
+w = random_dict(N - 1, 5, 8, "abcde", used)
 add(w + ["ff"], w[0], "ff")
 used = set()
 p = walk("fedcbafe", 5000, ALL, used)
 add(p + random_dict(N - len(p), 6, 8, ALL, used), p[0], p[len(p) // 2])
 used = set()
-p = walk("abcdabcd", 15000, "abcd", used)                     # a long walk through a dense dictionary
+p = walk("abcdabcd", 15000, "abcd", used)
 add(p + random_dict(N - len(p), 1, 8, "abcd", used), p[0], p[-1])
 used = set()
-w = random_dict(N - 1, 3, 8, "abcd", used)                    # everything reachable is visited
+w = random_dict(N - 1, 3, 8, "abcd", used)
 add(w + ["fff"], w[-1], "fff")
 
 for t in tests:

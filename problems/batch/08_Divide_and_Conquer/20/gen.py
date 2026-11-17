@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(131905)
@@ -19,7 +19,6 @@ def shuffled(n):
 
 
 def local(n, w):
-    """sorted, then every window of w consecutive positions shuffled (values stay close to their place)"""
     p = list(range(1, n + 1))
     for s in range(0, n, w):
         part = p[s:s + w]
@@ -29,7 +28,6 @@ def local(n, w):
 
 
 def jitter(n, d, times):
-    """sorted, then many swaps of positions at distance <= d"""
     p = list(range(1, n + 1))
     for _ in range(times):
         i = random.randrange(n)
@@ -39,7 +37,6 @@ def jitter(n, d, times):
 
 
 def blocks(n, lo, hi, rev_prob, shuffle_blocks):
-    """runs of consecutive values (each run ascending or descending), runs in random or sorted order"""
     runs, s = [], 1
     while s <= n:
         L = min(n - s + 1, random.randint(lo, hi))
@@ -54,7 +51,6 @@ def blocks(n, lo, hi, rev_prob, shuffle_blocks):
 
 
 def fractal(vals, depth):
-    """split the values into 2..4 consecutive groups, arrange them in a random order, recurse"""
     if len(vals) <= 2 or depth == 0:
         v = vals[:]
         if random.random() < 0.5:
@@ -70,13 +66,12 @@ def fractal(vals, depth):
     return out
 
 
-# samples
 add([3, 1, 2, 5, 4])
 add([2, 4, 1, 3])
 add([1])
 add([1, 2, 3, 4, 5, 6])
 add([4, 7, 5, 6, 1, 3, 2, 8])
-# hidden: small (the brute force tries every segment)
+
 add([1, 2])
 add([2, 1])
 add(shuffled(10))
@@ -87,11 +82,11 @@ add(blocks(2000, 1, 20, 0.5, True))
 add(fractal(list(range(1, 5001)), 30))
 add(jitter(20000, 3, 5000))
 add(list(range(30000, 0, -1)))
-# hidden: large
+
 N = MAXN
-add(list(range(1, N + 1)))                     # every segment counts
+add(list(range(1, N + 1)))
 add(list(range(N, 0, -1)))
-add([i + 1 if i % 2 == 1 else i - 1 for i in range(1, N + 1)])     # 2 1 4 3 6 5 ...
+add([i + 1 if i % 2 == 1 else i - 1 for i in range(1, N + 1)])
 add(local(N, 3))
 add(local(N, 50))
 add(jitter(N, 2, N // 3))
@@ -101,7 +96,7 @@ add(blocks(N, 50, 500, 0.5, True))
 add(fractal(list(range(1, N + 1)), 40))
 add(fractal(list(range(1, N + 1)), 6))
 add(shuffled(N))
-add([x for i in range(N // 2) for x in (i + 1, N - i)])             # 1 N 2 N-1 ...
+add([x for i in range(N // 2) for x in (i + 1, N - i)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

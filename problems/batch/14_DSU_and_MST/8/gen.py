@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(140808)
@@ -32,7 +32,6 @@ def flip(u, v, t, c):
 
 
 def cost(t, tmax, cmax, corr):
-    """corr: a faster link costs more (with some noise), so the earliest links are the expensive ones"""
     if not corr:
         return ri(1, cmax)
     base = cmax - (cmax - 1) * t // tmax
@@ -40,9 +39,6 @@ def cost(t, tmax, cmax, corr):
 
 
 def build(n, m, tmax=MAXT, cmax=MAXC, late=1, corr=False, shape="random", tlate=None, cfix=None):
-    """a connected graph: a spanning tree of the first n - late vertices plus random extra links among them;
-    each of the last `late` vertices gets a few links, all slow (time >= tlate), so the finishing time is high
-    and almost every distinct time is below it"""
     p = list(range(1, n + 1))
     shuffle(p)
     core, outs = p[:n - late], p[n - late:]
@@ -75,40 +71,38 @@ def build(n, m, tmax=MAXT, cmax=MAXC, late=1, corr=False, shape="random", tlate=
 
 
 def split(n, m, tmax=MAXT, cmax=MAXC):
-    """two halves with no link between them: -1"""
     h = n // 2
     a = build(h, m // 2, tmax, cmax, late=0)[1]
     b = build(n - h, m - m // 2, tmax, cmax, late=0)[1]
     return n, a + [(u + h, v + h, t, c) for u, v, t, c in b]
 
 
-# samples
 add(4, [(1, 2, 2, 4), (2, 3, 5, 3), (1, 3, 5, 6), (3, 4, 1, 2), (1, 4, 7, 1)], mix=False)
 add(4, [(1, 2, 3, 5), (2, 1, 1, 9), (3, 4, 2, 2)], mix=False)
 add(5, [(1, 2, 4, 3), (2, 3, 4, 1), (3, 4, 4, 4), (4, 5, 4, 2), (5, 1, 4, 5), (2, 4, 4, 2)], mix=False)
 add(2, [(1, 2, 5, 1), (2, 1, 3, 100), (1, 2, 3, 50)], mix=False)
 add(6, [(1, 2, 3, 7), (2, 3, 6, 2), (3, 4, 2, 1), (4, 5, 6, 4), (5, 6, 1, 3), (6, 1, 8, 1), (2, 5, 6, 6),
         (1, 4, 9, 2)], mix=False)
-# hidden: small (checked against brute.cpp)
+
 add(2, [(2, 1, 1000000, 1000000000)])
-add(3, [(1, 2, 2, 10), (2, 3, 2, 10), (1, 3, 1, 30)])                    # the fast link is the expensive one
+add(3, [(1, 2, 2, 10), (2, 3, 2, 10), (1, 3, 1, 30)])
 add(*build(6, 10, 5, 10))
 add(*build(7, 14, 4, 20, corr=True))
 add(*build(8, 16, 6, 6, late=2))
 add(*split(8, 12, 5, 9))
 add(*build(300, 1000, 50, 100, corr=True))
 add(*build(2000, 6000, late=3, corr=True))
-add(*build(1500, 5000, 1, 1000))                                        # every link takes the same time
-# hidden: maximum size
+add(*build(1500, 5000, 1, 1000))
+
 N, M = MAXN, MAXM
 add(*build(N, M))
 add(*build(N // 2, M, corr=True))
-add(*build(N, M, cfix=MAXC))                                            # every link costs 10^9
+add(*build(N, M, cfix=MAXC))
 add(*build(N // 2, M, corr=True, shape="path"))
-add(*split(N // 2, M))                                                  # never connected: -1
-add(*build(N, M, tlate=MAXT, corr=True))                                # finishing time is exactly 10^6
+add(*split(N // 2, M))
+add(*build(N, M, tlate=MAXT, corr=True))
 add(*build(N // 2, M, shape="star", corr=True, late=2))
-add(*build(N // 2, M, cmax=10))                                         # many equal costs
+add(*build(N // 2, M, cmax=10))
 add(*build(N, M, corr=True, late=5))
 add(*build(N // 2, M, corr=True, cfix=None, tlate=MAXT - 10))
 add(*build(N, M, shape="path", cfix=MAXC - 1))

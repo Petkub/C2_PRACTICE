@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, sys
 
 random.seed(13005)
@@ -10,7 +10,6 @@ tests = []
 
 
 def check(n, code):
-    """the code is one complete square of side 2^n with splits only on squares of side >= 2"""
     pos = 0
 
     def walk(s):
@@ -72,7 +71,6 @@ def rnd_colour(pb=0.5):
 
 
 def random_tree(n, length, pb=0.5):
-    """split random leaves (depth < n) until the code has about `length` characters"""
     root = Node(0, rnd_colour(pb)())
     leaves = [root] if n > 0 else []
     size = 1
@@ -90,7 +88,6 @@ def random_tree(n, length, pb=0.5):
 
 
 def comb(n, length):
-    """three big random subtrees at every level, the path goes on in the last quadrant (SE) down to a cell"""
     root = Node(0, "W")
     v = root
     path = []
@@ -99,7 +96,7 @@ def comb(n, length):
         kids = split(v, rnd_colour())
         v = kids[3]
     budget = length - 5 * n - 10
-    # put the extra splits in the NW/NE/SW children of the first levels
+
     spots = [p.kids[j] for p in path[:3] for j in range(3)]
     share = budget // len(spots)
     for s in spots:
@@ -120,7 +117,6 @@ def fix_depth(v):
 
 
 def chain(n, corner_seq):
-    """a single path of splits down to one cell; corner_seq(d) chooses the quadrant to go on in"""
     root = Node(0, "B")
     v = root
     for d in range(n):
@@ -135,7 +131,6 @@ def rq(n, q):
 
 
 def far_q(n, q):
-    """cells in the bottom-right part (the last quadrant at many levels)"""
     m = 1 << n
     out = []
     for _ in range(q):
@@ -145,13 +140,12 @@ def far_q(n, q):
     return out
 
 
-# samples
 add(2, "(BW(WBBW)B)", [(1, 1), (1, 3), (3, 2), (4, 2)])
 add(1, "(WBBB)", [(1, 1), (2, 1)])
 add(0, "W", [(1, 1)])
 add(30, "(B(WWWB)WW)", [(536870912, 536870913), (536870912, 1073741824)])
 add(3, "((BBBW)WW(WBWB))", [(2, 2), (7, 5)])
-# hidden: small (the brute force paints the whole map)
+
 add(0, "B", [(1, 1), (1, 1)])
 add(1, "B", rq(1, 4))
 add(2, "((BBBB)(WWWW)BW)", rq(2, 16))
@@ -161,7 +155,7 @@ add(8, text(random_tree(8, 20000)), rq(8, 5000))
 add(10, text(random_tree(10, 100000, 0.7)), rq(10, 5000))
 add(10, text(chain(10, lambda d: 3)), rq(10, 3000))
 add(10, text(comb(10, 50000)), far_q(10, 5000))
-# hidden: large
+
 add(MAXN, text(random_tree(MAXN, MAXL)), rq(MAXN, MAXQ))
 add(MAXN, text(random_tree(MAXN, MAXL, 0.95)), far_q(MAXN, MAXQ))
 add(MAXN, text(comb(MAXN, MAXL)), far_q(MAXN, MAXQ))

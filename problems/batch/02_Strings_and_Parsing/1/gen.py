@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(734519)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 class Tree:
-    """rooms 0..n-1, room 0 is the first room (if n > 0); left / right = -1 for an empty part"""
 
     def __init__(self):
         self.val, self.left, self.right = [], [], []
@@ -40,7 +39,6 @@ class Tree:
         return "".join(out)
 
     def totals(self):
-        """route totals (one per end room) and the totals at rooms with exactly one empty part"""
         ends, half = [], []
         if not self.val:
             return ends, half
@@ -59,12 +57,10 @@ class Tree:
 
 
 def build(shape, budget, vals):
-    """a tree whose text has length <= budget; vals() gives a room score.
-    Putting a room with score v into an empty part replaces "()" by "(v()())": the text grows by len(str(v)) + 4."""
     t = Tree()
     used = 2
-    free = []                       # (room, side) parts that may still be empty
-    last = -1                       # the newest room
+    free = []
+    last = -1
 
     def put(p, side, v):
         nonlocal used, last
@@ -93,9 +89,9 @@ def build(shape, budget, vals):
             break
         if shape == "random":
             p, side = pop_free()
-        elif shape in ("chain", "comb", "ladder"):  # always below the newest room, on a random side
+        elif shape in ("chain", "comb", "ladder"):
             p, side = last, ri(0, 1)
-        elif shape == "deep":                   # mostly below the newest room, sometimes anywhere
+        elif shape == "deep":
             if random.random() < 0.998:
                 p, side = last, ri(0, 1)
             else:
@@ -103,13 +99,13 @@ def build(shape, budget, vals):
         else:
             raise ValueError(shape)
         put(p, side, v)
-        if shape == "comb":                     # the other part of p gets an end room
+        if shape == "comb":
             v2 = vals()
             if used + len(str(v2)) + 4 > budget:
                 break
             put(p, 1 - side, v2)
             last = (t.left, t.right)[side][p]
-        elif shape == "ladder":                 # the other part of p gets a short chain of one-way rooms, then an end room
+        elif shape == "ladder":
             c = (t.left, t.right)[side][p]
             q, ok = p, True
             for _ in range(ri(1, 3)):
@@ -128,7 +124,6 @@ def build(shape, budget, vals):
 
 
 def bump(t, k, v):
-    """the first k rooms made (the first room and the rooms just below it) get score v"""
     used = getattr(t, "used", None)
     for i in range(min(k, len(t.val))):
         if used is not None:
@@ -154,7 +149,6 @@ def complete(depth, vals):
 
 
 def queries(t, q, mix=(0.5, 0.2, 0.3)):
-    """q targets: route totals, totals at rooms with one empty part, values near them, and random values"""
     ends, half = t.totals()
     pool = ends + half
     n1 = int(q * mix[0]) if ends else 0
@@ -180,13 +174,12 @@ def add(t, q, mix=(0.5, 0.2, 0.3)):
     add_text(s, queries(t, q, mix))
 
 
-# samples
 add_text("(5(-2()())(3(4()())()))", [3, 12, 7])
 add_text("(1(2(3()())(3()()))(-4()(9()())))", [6, 3])
 add_text("()", [0, 5])
 add_text("(7()())", [7, -7])
 add_text("(-3(-3(-3()())())(10()(-16()())))", [-9, 0, 1])
-# hidden: small
+
 small = lambda: ri(-5, 5)
 add(build("random", 60, small), 20)
 add(build("chain", 80, small), 15)
@@ -196,9 +189,9 @@ add(complete(6, lambda: ri(0, 3)), 40)
 add(build("random", 3000, lambda: ri(-MAXV, MAXV)), 200)
 add(build("chain", 20000, lambda: ri(MAXV - 100, MAXV)), 300, (0.4, 0.4, 0.2))
 add(build("comb", 50000, lambda: ri(-1, 1)), 1000)
-# hidden: maximum size (every one has at least 50 000 routes)
+
 Q = MAXQ
-B = MAXS - 100                  # room for the bumped scores
+B = MAXS - 100
 add(build("random", MAXS, lambda: ri(-9, 9)), Q)
 add(bump(build("random", B, lambda: ri(-99, 99)), 4, MAXV), Q, (0.4, 0.4, 0.2))
 add(build("comb", MAXS, lambda: ri(0, 9)), Q)
@@ -211,7 +204,7 @@ add(complete(17, lambda: ri(0, 2)), Q)
 add(bump(complete(17, lambda: ri(-9, 9)), 3, -MAXV), Q)
 add(build("ladder", MAXS, lambda: ri(-9, 9)), Q, (0.3, 0.5, 0.2))
 add(bump(build("random", B, lambda: ri(-9, 9)), 6, -MAXV), Q, (0.4, 0.4, 0.2))
-# hidden: a deep chain of one-way rooms with the largest scores
+
 add(build("chain", 300_000, lambda: MAXV), 1000, (0.3, 0.5, 0.2))
 
 for t in tests:

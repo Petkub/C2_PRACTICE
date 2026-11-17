@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(30114)
@@ -25,7 +25,6 @@ def shuffled(s):
 
 
 def dominant(n, k, big, others, extra=0):
-    """letter big as often as k * (others + 1) allows (plus extra), the rest from the letters others"""
     nb = n * k // (k + 1)
     while nb > k * (n - nb + 1):
         nb -= 1
@@ -35,14 +34,13 @@ def dominant(n, k, big, others, extra=0):
     return shuffled(big * nb + rnd(n - nb, others))
 
 
-# samples
 add(2, "aaabbc")
 add(1, "aabbb")
 add(2, "aaaaab")
 add(6, "banana")
 add(2, "aaaaaaabbb")
 add(2, "bbbbbbaac")
-# hidden: small (every choice is tried)
+
 add(1, "z")
 add(3, "bbbabbb")
 add(1, "cbcacbc")
@@ -51,16 +49,16 @@ for n, letters, k in ((8, "ab", 1), (10, "abc", 2), (12, "abcd", 1), (12, "ab", 
 add(1, dominant(300, 1, "b", "ac"))
 add(2, dominant(400, 2, "c", "ab"))
 add(3, dominant(2000, 3, "a", "b"))
-# hidden: large
+
 N = MAXN
 add(1, rnd(N, ABC))
-add(1, dominant(N, 1, "z", ABC[:25]))                    # z exactly at the limit
-add(1, dominant(N, 1, "m", ABC, extra=1))                # one too many: -1
+add(1, dominant(N, 1, "z", ABC[:25]))
+add(1, dominant(N, 1, "m", ABC, extra=1))
 add(2, dominant(N, 2, "a", "bc"))
 add(3, dominant(N - 1, 3, "q", "pr"))
 add(1, "ab" * (N // 2))
-add(N, rnd(N, ABC))                                      # no limit at all
-add(N - 1, "a" * N)                                      # one letter, not allowed
+add(N, rnd(N, ABC))
+add(N - 1, "a" * N)
 add(N, "y" * N)
 add(5, rnd(N, "abc", [20, 2, 1]))
 add(1, shuffled("a" * (N // 2 - 1000) + rnd(N // 2 + 1000, ABC[1:])))

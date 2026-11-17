@@ -1,3 +1,4 @@
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 tests = []
@@ -8,7 +9,6 @@ def ri(lo, hi):
 
 
 def shuffle(a):
-    """Fisher-Yates with random.random (faster than random.shuffle, same on every Python 3 version)"""
     rnd = random.random
     for i in range(len(a) - 1, 0, -1):
         j = int(rnd() * (i + 1))
@@ -16,7 +16,6 @@ def shuffle(a):
 
 
 def shape(n, kind, legs=4):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape (node 1 is the root), before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     leg = max(1, (n - 1) // legs)
@@ -29,17 +28,17 @@ def shape(n, kind, legs=4):
             p = ri(1, i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "deep":                        # depth about n / 2, a few short branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "spider":                      # legs long chains hanging from the root
+        elif kind == "spider":
             p = 1 if (i - 2) % leg == 0 or i - 1 > leg * legs else i - 1
-        elif kind == "lopsided":                    # the root joins a chain of 90% and a chain of 10%
+        elif kind == "lopsided":
             p = 1 if i == 2 or i == 2 + (n - 1) * 9 // 10 else i - 1
-        elif kind == "forkdeep":                    # a chain of n / 4, then two long chains
+        elif kind == "forkdeep":
             q = n // 4
             if i <= q:
                 p = i - 1
@@ -61,17 +60,16 @@ def depths(par):
 
 
 def colours(par, mode, k=2, keep=0.8):
-    """col[i] = company of the road i - par[i] (shape labels)"""
     n = len(par) - 1
     col = [0] * (n + 1)
     pal = list(range(1, k + 1)) if mode in ("few", "runs") else []
-    if mode == "pal":                               # k big company numbers
+    if mode == "pal":
         pal = [ri(1, 10 ** 9) for _ in range(k)]
     d = depths(par) if mode == "alt" else None
     for i in range(2, n + 1):
         if mode == "few":
             col[i] = pal[ri(0, k - 1)]
-        elif mode in ("runs", "pal"):               # a company tends to serve a long stretch of roads
+        elif mode in ("runs", "pal"):
             if par[i] != 1 and random.random() < keep:
                 col[i] = col[par[i]]
             else:
@@ -80,7 +78,7 @@ def colours(par, mode, k=2, keep=0.8):
             col[i] = ri(1, 10 ** 9)
         elif mode == "same":
             col[i] = k
-        elif mode == "alt":                         # companies alternate road by road
+        elif mode == "alt":
             col[i] = 1 + d[i] % 2
         else:
             raise ValueError(mode)
@@ -118,11 +116,9 @@ def add(n, edges, qs):
 
 
 def make(n, kind, q, cmode, k=2, keep=0.8, qmode="rand", legs=4, top=10, deep=0.05, ptop=0.3, same=0.01):
-    """qmode rand: both ends anywhere; far: one end among the deepest fraction `deep` of the shape, the other
-    with probability ptop among the `top` shallowest towns, else also among the deepest ones"""
     par = shape(n, kind, legs)
     col = colours(par, cmode, k, keep)
-    lab = list(range(1, n + 1))                     # random labels, the root keeps label 1
+    lab = list(range(1, n + 1))
     shuffle(lab)
     j = lab.index(1)
     lab[0], lab[j] = lab[j], lab[0]
@@ -134,7 +130,7 @@ def make(n, kind, q, cmode, k=2, keep=0.8, qmode="rand", legs=4, top=10, deep=0.
         edges.append((a, b, col[i]))
     shuffle(edges)
     d = depths(par)
-    byd = sorted(range(1, n + 1), key=d.__getitem__)      # stable: ties by label
+    byd = sorted(range(1, n + 1), key=d.__getitem__)
     bottom = byd[-max(2, int(n * deep)):]
     tops = byd[:max(1, top)]
     rnd = random.random
@@ -154,13 +150,13 @@ def make(n, kind, q, cmode, k=2, keep=0.8, qmode="rand", legs=4, top=10, deep=0.
 
 
 random.seed(230202)
-# samples
+
 add(6, [(1, 2, 1), (4, 2, 1), (5, 2, 3), (1, 3, 2), (6, 3, 3)], [(4, 6), (5, 6), (6, 1)])
 add(5, [(4, 2, 5), (2, 1, 8), (1, 3, 8), (3, 5, 5)], [(4, 5), (2, 3), (5, 5)])
 add(2, [(2, 1, 7)], [(1, 2), (2, 2)])
 add(4, [(1, 2, 1), (3, 1, 2), (1, 4, 1)], [(2, 4), (2, 3), (4, 1)])
 add(6, [(5, 1, 10 ** 9), (5, 2, 10 ** 9), (2, 6, 3), (3, 5, 10 ** 9), (1, 4, 3)], [(6, 3), (6, 4), (2, 3)])
-# hidden: small and medium (any shape)
+
 add(3, [(2, 3, 4), (1, 3, 9)], [(u, v) for u in range(1, 4) for v in range(1, 4)])
 make(10, "random", 30, "few", k=2)
 make(60, "deep", 100, "runs", k=3, keep=0.6, qmode="far", top=3, deep=0.2)
@@ -169,7 +165,7 @@ make(300, "binary", 300, "runs", k=2, keep=0.5)
 make(3000, "star", 3000, "few", k=3)
 make(4000, "random", 3000, "runs", k=4, keep=0.7)
 make(5000, "spider", 3000, "pal", k=3, keep=0.8, qmode="far", legs=6, deep=0.1)
-# hidden: maximum size, deep shapes, ends far apart
+
 make(MAXN, "path", MAXQ, "few", k=2, qmode="far", top=50, ptop=0.5)
 make(MAXN, "path", MAXQ, "runs", k=3, keep=0.9)
 make(MAXN, "spider", MAXQ, "few", k=2, qmode="far", legs=2, deep=0.02, ptop=0.4)

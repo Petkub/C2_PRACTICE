@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(220005)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -22,17 +21,17 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, short side branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "longchains":                  # 20 chains of length n / 20 glued at random
+        elif kind == "longchains":
             p = i - 1 if (i - 1) % max(2, n // 20) else ri(1, i - 1)
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
             raise ValueError(kind)
@@ -41,8 +40,6 @@ def shape(n, kind):
 
 
 def tree(n, kind):
-    """parent array p[0..n] (p[1] = 0) of a tree of the given shape with random labels (shape node 1 = branch 1);
-    also lab: lab[i - 1] = label of shape node i (small i = close to the root)"""
     par = shape(n, kind)
     lab = list(range(2, n + 1))
     random.shuffle(lab)
@@ -62,7 +59,7 @@ def add(n, a, p, ops):
     order = [1]
     for u in order:
         order.extend(ch[u])
-    assert len(order) == n                     # everybody reaches the president
+    assert len(order) == n
     for op in ops:
         assert 1 <= op[1] <= n
         if op[0] == 1:
@@ -77,8 +74,6 @@ def add(n, a, p, ops):
 
 
 def rops(n, q, lab, p1=0.5, xlo=1, xhi=MAXX, top=None, low=None):
-    """random operations; with low = s commissions start among the s deepest people (long chains),
-    with top = s questions pick among the s people closest to the root (big teams)"""
     res = []
     for _ in range(q):
         if random.random() < p1:
@@ -98,13 +93,12 @@ def big(kind, q, p1, ahi, xhi, top, low, n=MAXN, xlo=1):
     add(n, a, p, rops(n, q, lab, p1, xlo, xhi, top, low))
 
 
-# samples
 add(5, [1, 2, 3, 4, 5], [0, 0, 1, 1, 2, 2], [(1, 4, 10), (2, 2), (1, 3, 1), (2, 1)])
 add(4, [0, 0, 0, 0], [0, 0, 1, 2, 3], [(1, 4, 5), (2, 3), (1, 2, 1), (2, 1)])
 add(2, [MAXA, MAXA], [0, 0, 1], [(1, 2, MAXX), (2, 1), (2, 2)])
 add(6, [3, 0, 2, 0, 1, 5], [0, 0, 1, 1, 1, 1, 1], [(1, 1, 4), (1, 6, 2), (2, 1), (2, 6), (2, 2)])
 add(6, [2, 7, 1, 8, 2, 8], [0, 0, 5, 1, 3, 1, 4], [(1, 2, 3), (2, 3), (1, 6, 1), (2, 5), (2, 1)])
-# hidden: small and medium
+
 for n, kind, q in ((3, "path", 6), (10, "random", 15), (30, "deep", 40), (50, "star", 60), (80, "caterpillar", 100),
                    (200, "binary", 300)):
     p, lab = tree(n, kind)
@@ -112,15 +106,15 @@ for n, kind, q in ((3, "path", 6), (10, "random", 15), (30, "deep", 40), (50, "s
 for n, kind in ((5000, "path"), (8000, "broom"), (8000, "chains")):
     p, lab = tree(n, kind)
     add(n, [ri(0, MAXA) for _ in range(n)], p, rops(n, 8000, lab, 0.5, 1, MAXX, top=50, low=200))
-# hidden: maximum size (commissions deep down, questions on big teams)
+
 big("path", 100_000, 0.5, 9999, MAXX, 2_000, 2_000)
-big("path", 60_000, 0.7, MAXA, MAXX, 100, 100, n=90_000, xlo=MAXX)   # the largest totals (about 4 * 10^15)
+big("path", 60_000, 0.7, MAXA, MAXX, 100, 100, n=90_000, xlo=MAXX)
 big("deep", 100_000, 0.5, 9999, MAXX, 1_000, 1_000)
 big("deep", 100_000, 0.8, 9999, 9999, 100, 20_000)
 big("caterpillar", 100_000, 0.5, 9999, MAXX, 1_000, 5_000)
 big("broom", 100_000, 0.5, 9999, MAXX, 500, 20_000)
 big("longchains", 100_000, 0.6, 9999, MAXX, 200, 5_000)
-big("path", 100_000, 0.4, 9999, MAXX, 1_000, 1_000)         # many questions on huge teams
+big("path", 100_000, 0.4, 9999, MAXX, 1_000, 1_000)
 big("star", 100_000, 0.1, 9999, 9999, 1, None, n=20_000)
 big("path", 100_000, 0.3, 9999, MAXX, 50_000, 50_000)
 big("caterpillar", 100_000, 0.6, MAXA, MAXX, 100, 2_000, xlo=MAXX // 2)

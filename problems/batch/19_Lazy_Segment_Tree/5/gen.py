@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(19005)
@@ -45,8 +45,6 @@ def short_rng(n, d):
 
 
 def ops_of(n, q, ps, pb, upd, ask, setx, addx, supd=None):
-    """each operation: a set on supd() (default upd()) to setx() with probability ps, an add of addx() on upd()
-    with probability pb, otherwise a question on ask()"""
     supd = supd or upd
     ops = []
     for _ in range(q):
@@ -71,8 +69,6 @@ def sety():
 
 
 def nested(n, q, width, far=False):
-    """bursts on one spot: set, add, set, add ... on ranges that overlap only partly, then questions
-    (far: the second question of each burst covers almost the whole row)"""
     ops = []
     while len(ops) < q:
         c = ri(1, n)
@@ -92,26 +88,25 @@ def nested(n, q, width, far=False):
     return ops[:q]
 
 
-# samples
 add(5, [('B', 1, 5, 3), ('S', 2, 4, 10), ('T', 1, 5), ('B', 3, 5, 2), ('T', 3, 4), ('S', 1, 5, 0), ('B', 2, 2, 7),
         ('T', 1, 5)])
 add(4, [('S', 1, 4, 5), ('B', 1, 2, 1), ('S', 2, 3, 2), ('T', 1, 4), ('B', 1, 4, 4), ('T', 2, 3)])
 add(1, [('T', 1, 1), ('B', 1, 1, MAXX), ('S', 1, 1, 0), ('T', 1, 1), ('B', 1, 1, 999999), ('T', 1, 1)])
 add(7, [('B', 2, 6, 4), ('S', 4, 7, 1), ('B', 1, 5, 2), ('T', 1, 7), ('S', 3, 3, 9), ('B', 3, 4, 1), ('T', 3, 5)])
 add(MAXN, [('S', 1, MAXN, MAXX), ('B', 1, MAXN, MAXX), ('B', 2, MAXN, MAXX), ('T', 1, MAXN), ('T', 1, 1)])
-# hidden: small (the brute force checks these)
+
 for n, q, d in ((1, 12, 1), (5, 40, 2), (12, 100, 5), (60, 500, 20), (500, 3000, 100), (3000, 4000, 700)):
     add(n, ops_of(n, q, 0.3, 0.35, lambda: short_rng(n, d) if random.random() < 0.6 else any_rng(n),
                   lambda: any_rng(n), lambda: random.choice((0, 1, 2, 5, MAXX)),
                   lambda: ri(1, 3) if random.random() < 0.6 else anyx()))
 add(400, nested(400, 4000, 30))
 add(3000, nested(3000, 4000, 200))
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
 add(N, ops_of(N, Q, 0.3, 0.3, lambda: any_rng(N), lambda: any_rng(N), sety, anyx,
-              lambda: short_rng(N, 1000)))     # sets on short ranges: long runs of adds
+              lambda: short_rng(N, 1000)))
 add(N, ops_of(N, Q, 0.1, 0.6, lambda: long_rng(N, 1000), lambda: long_rng(N, 1000), sety, lambda: MAXX,
-              lambda: short_rng(N, 1000)))     # largest totals
+              lambda: short_rng(N, 1000)))
 add(N, ops_of(N, Q, 0.35, 0.35, lambda: long_rng(N, N // 3), lambda: short_rng(N, 1000), sety, anyx))
 add(N, nested(N, Q, 150_000))
 add(N, nested(N, Q, 300, far=True))
@@ -122,9 +117,9 @@ add(N, ops_of(N, Q, 0.3, 0.4, lambda: any_rng(N), lambda: short_rng(N, 20), sety
 add(N, ops_of(N, Q, 0.05, 0.7, lambda: any_rng(N), lambda: any_rng(N), sety, lambda: MAXX,
               lambda: short_rng(N, 100)))
 add(N, ops_of(N, Q, 0.2, 0.5, lambda: (1, N), lambda: short_rng(N, 20), sety, anyx,
-              lambda: short_rng(N, 0)))       # one-member sets, adds to everyone
+              lambda: short_rng(N, 0)))
 add(N, ops_of(N, Q, 0.0002, 0.7, lambda: long_rng(N, 10), lambda: any_rng(N), lambda: MAXX, lambda: MAXX,
-              lambda: (1, N)))                # rare sets of everyone, then thousands of adds on top
+              lambda: (1, N)))
 add(N, ops_of(N, Q, 0.3, 0.4, lambda: long_rng(N, N // 3), lambda: long_rng(N, 100), sety, anyx,
               lambda: short_rng(N, 10)))
 

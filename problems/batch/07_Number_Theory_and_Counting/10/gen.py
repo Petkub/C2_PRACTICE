@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(141301)
@@ -34,13 +34,12 @@ def mixed(q, period_hint=None):
     return ns
 
 
-# samples
 add(10, 1, 1, [1, 2, 3, 7, 10, 61])
 add(7, 3, 0, [1, 9, 16, 17, 18, MAXN])
 add(2, 0, 0, [5, MAXN])
 add(MAXM, MAXM - 1, MAXM - 1, [3, 4, 123_456_789_012, MAXN])
 add(13, 5, 8, [1, 2, 3, 4, 5, 6, 7])
-# hidden: small values of n, or small m (checked by the brute force)
+
 add(2, 1, 0, list(range(1, 21)) + [MAXN, MAXN - 1, MAXN - 2])
 add(ri(2, 50), 0, 1, [ri(1, 1000) for _ in range(2000)])
 add(97, 13, 61, [ri(1, MAXN) for _ in range(5000)])
@@ -48,7 +47,7 @@ add(1000, 0, 500, [ri(1, MAXN) for _ in range(5000)])
 add(781_250, 1, 2, [ri(1, MAXN) for _ in range(300)] + [1, 2, 4_687_500, 4_687_501, 4_687_502, 9_375_001])
 add(999_953, 0, 1, [ri(1, MAXN) for _ in range(300)] + [1_999_908, 1_999_909, 1_999_910])
 add(999_999, ri(0, 999_998), ri(0, 999_998), [ri(1, MAXN) for _ in range(300)])
-# hidden: large
+
 add(781_250, 123, 4567, mixed(MAXQ, 4_687_500))
 add(781_250, ri(0, 781_249), ri(0, 781_249), [ri(1, MAXN) for _ in range(MAXQ)])
 add(781_250, 0, 390_625, mixed(MAXQ))

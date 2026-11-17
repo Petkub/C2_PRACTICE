@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(140303)
@@ -18,14 +18,12 @@ def add(n, roads):
 
 
 def labels(n):
-    """a random numbering of towns 1..n that keeps town 1 first"""
     p = list(range(2, n + 1))
     random.shuffle(p)
     return [1] + p
 
 
 def tree(p, shape, wlo, whi):
-    """roads joining the towns of p into a tree; p[0] is the first town of the tree"""
     res = []
     for i in range(1, len(p)):
         if shape == "path":
@@ -59,20 +57,19 @@ def mixed(roads):
     return roads
 
 
-# samples
 add(5, [(1, 2, 4), (1, 3, 2), (3, 4, 5), (2, 5, 1), (4, 5, 3)])
 add(6, [(1, 3, 5), (1, 2, 5), (2, 4, 7), (3, 4, 9), (5, 6, 1)])
 add(1, [])
 add(4, [(1, 2, 3), (1, 2, 1), (2, 3, 2), (1, 3, 2), (3, 4, 10), (2, 4, 10)])
 add(5, [(2, 3, 1), (1, 4, 7), (4, 5, 2)])
 
-# hidden: small
+
 add(2, [])
 add(2, [(2, 1, 1000000000), (1, 2, 1000000000)])
 for n, m, whi in ((5, 7, 5), (6, 9, 3), (7, 10, 10), (8, 14, 2), (8, 12, 100)):
     p = labels(n)
     add(n, mixed(tree(p, "rand", 1, whi) + extra(n, m - n + 1, 1, whi)))
-add(10, extra(10, 8, 1, 4))                                         # probably not connected
+add(10, extra(10, 8, 1, 4))
 p = labels(300)
 add(300, mixed(tree(p[:200], "rand", 1, 50) + tree(p[200:], "rand", 1, 50) + extra(300, 0, 1, 1)))
 p = labels(2000)
@@ -80,14 +77,14 @@ add(2000, mixed(tree(p, "deep", 1, MAXW) + extra(2000, 3000, 1, MAXW)))
 p = labels(3000)
 add(3000, mixed(tree(p, "rand", 1, 3) + extra(3000, 6000, 1, 3)))
 
-# hidden: maximum size (town 1 reaches almost every town)
+
 N = MAXN
 p = labels(N)
 add(N, mixed(tree(p, "rand", 1, MAXW) + extra(N, 25_000, 1, MAXW)))
 p = labels(N)
-add(N, mixed(tree(p, "rand", 1, 5) + extra(N, MAXM - N + 1, 1, 5)))          # many ties
+add(N, mixed(tree(p, "rand", 1, 5) + extra(N, MAXM - N + 1, 1, 5)))
 p = labels(N)
-add(N, mixed(tree(p, "rand", 7, 7) + extra(N, MAXM - N + 1, 7, 7)))          # every road costs the same
+add(N, mixed(tree(p, "rand", 7, 7) + extra(N, MAXM - N + 1, 7, 7)))
 p = labels(N)
 add(N, mixed(tree(p, "path", 1, MAXW) + extra(N, 20_000, 1, MAXW)))
 p = labels(N)
@@ -97,10 +94,10 @@ add(N, mixed(tree(p, "deep", 1, 1000) + extra(N, 60_000, 1, 1000)))
 p = labels(N)
 add(N, mixed(tree(p, "cater", 1, 100) + extra(N, MAXM - N + 1, 1, 100)))
 p = labels(N)
-tail = p[95_000:]                                                  # 5 000 towns town 1 never reaches
+tail = p[95_000:]
 add(N, mixed(tree(p[:95_000], "rand", 1, MAXW) + tree(tail, "rand", 1, MAXW) + extra(95_000, 20_000, 1, MAXW)))
 p = labels(N)
-road = [(p[i], p[i + 1], 1000 - (i % 1000)) for i in range(N - 1)]  # the cheap road always leads far away
+road = [(p[i], p[i + 1], 1000 - (i % 1000)) for i in range(N - 1)]
 add(N, mixed(road + [(1, p[ri(1, N - 1)], ri(1, 1000)) for _ in range(20_000)]))
 
 for t in tests:

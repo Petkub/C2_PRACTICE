@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(40112)
@@ -26,21 +26,19 @@ def rnd(n, lo, hi, maxlen):
 
 
 def windows(n, step, length, jitter=0):
-    """bookings that slide to the right: no booking contains another (unless jitter breaks it)"""
     res = [(1 + i * step + ri(0, jitter), 0) for i in range(n)]
     res = [(l, min(MAXT, l + length + ri(0, jitter))) for (l, _) in res]
     random.shuffle(res)
     return res
 
 
-# samples
 add([(1, 6), (2, 4), (3, 8), (5, 6)])
 add([(2, 5), (2, 5), (1, 3)])
 add([(7, 7)])
 add([(1, 5), (1, 3), (3, 5), (2, 9)])
 add([(1, 2), (2, 3), (3, 4)])
 add([(5, 5), (4, 6), (5, 5), (6, 6), (6, 9)])
-# hidden: small
+
 add([(1, 1), (1, 1)])
 add([(1, 10), (1, 9), (2, 10), (1, 10), (3, 3)])
 add(rnd(8, 1, 10, 5))
@@ -49,26 +47,26 @@ add(rnd(200, 1, 100, 30))
 add(rnd(2000, 1, MAXT, MAXT // 10))
 add(windows(3000, 100, 5000, 120))
 add(rnd(5000, 1, 50, 50))
-# hidden: maximum size
+
 N = MAXN
 add(rnd(N, 1, MAXT, MAXT))
-add(windows(N, 6000, 10**8))                                    # nothing is nested
-add(windows(N, 6000, 10**8, 6100))                              # a few nested pairs
+add(windows(N, 6000, 10**8))
+add(windows(N, 6000, 10**8, 6100))
 w = windows(N - 3, 6000, 10**8)
-add(w + [(1, MAXT), (5 * 10**8, 5 * 10**8 + 10**8), (3 * 10**8, 3 * 10**8)])   # one outer, one copy, one point
-add([(5 * 10**8, 5 * 10**8 + 7)] * N)                           # all identical
-s = [(i + 1, MAXT - i) for i in range(N)]                       # a chain of nested bookings
+add(w + [(1, MAXT), (5 * 10**8, 5 * 10**8 + 10**8), (3 * 10**8, 3 * 10**8)])
+add([(5 * 10**8, 5 * 10**8 + 7)] * N)
+s = [(i + 1, MAXT - i) for i in range(N)]
 random.shuffle(s)
 add(s)
-add(rnd(N, 1, 1000, 100))                                       # many identical ones
-s = [(ri(1, 50), ri(10**8, MAXT)) for _ in range(N)]            # many equal starts
+add(rnd(N, 1, 1000, 100))
+s = [(ri(1, 50), ri(10**8, MAXT)) for _ in range(N)]
 add(s)
-s = [(ri(1, 10**8), MAXT - ri(0, 50)) for _ in range(N)]        # many equal ends
+s = [(ri(1, 10**8), MAXT - ri(0, 50)) for _ in range(N)]
 add(s)
 add(rnd(N, 1, MAXT, 10**4))
-x = windows(N // 2, 12000, 10**8)                               # sliding windows plus their exact copies
+x = windows(N // 2, 12000, 10**8)
 add(x + x[:N // 2])
-add([(l, l) for l in (ri(1, MAXT) for _ in range(N))])          # single days only
+add([(l, l) for l in (ri(1, MAXT) for _ in range(N))])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

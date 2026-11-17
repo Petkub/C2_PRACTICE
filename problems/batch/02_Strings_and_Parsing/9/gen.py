@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(15013)
@@ -9,7 +9,7 @@ tests = []
 ALLOWED = bytes(range(32, 127)) + b"\n"
 
 
-def ri(lo, hi):  # faster than random.randint, still deterministic
+def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -41,10 +41,9 @@ def rand_name(lo=1, hi=6):
 
 
 def trace(n, threads, names, p_enter=0.5, step=(0, 3), start=0):
-    """random valid trace of n events; threads = list of ids; names = list of function names"""
     ev = []
     stacks = {h: [] for h in threads}
-    open_threads = []          # threads with an open call (with repetition-free list + positions)
+    open_threads = []
     pos = {}
     opened = 0
     t = start
@@ -78,7 +77,6 @@ def thread_ids(k, hi=MAXH):
     return random.sample(range(1, hi + 1), k)
 
 
-# samples
 add(parse("""
 1 1 ENTER main
 2 2 ENTER main
@@ -115,7 +113,7 @@ add(parse("""
 6 9 EXIT b
 8 9 EXIT a
 """))
-# hidden: small (brute force checks them)
+
 add(parse("""
 7 4 ENTER a
 7 4 EXIT a
@@ -132,7 +130,7 @@ add(trace(5000, thread_ids(100), names, step=(0, 10 ** 5)))
 
 
 def wide(k, names, hi=MAXH):
-    # k threads all enter at the start and leave near the end: k calls are open at the same time
+
     hs = thread_ids(k, hi)
     ev = []
     t = 0
@@ -164,7 +162,6 @@ def deep(depth, h, names, step=(0, 3)):
     return ev
 
 
-# hidden: large
 add(wide(MAXN // 2, ["run"], 10 ** 6))
 add(wide(MAXN // 2, ["a", "b", "c", "d", "e"], 10 ** 6))
 add(deep(MAXN // 2, 77, ["f"], (0, 10 ** 4)))

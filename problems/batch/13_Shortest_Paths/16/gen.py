@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(131515)
@@ -33,7 +33,7 @@ def add(n, t, p, cities, roads, mix=True):
         assert 1 <= u <= n and 1 <= v <= n and u != v
         adj[u].append(v)
         adj[v].append(u)
-    # every answer is at most the load needed along a BFS tree towards t: check that bound
+
     ub = [None] * (n + 1)
     ub[t] = p
     queue = [t]
@@ -68,7 +68,6 @@ def rnd_connected(n, m):
 
 
 def relabel(n, roads, t):
-    """random city numbers, the old city 1 becomes t"""
     p = list(range(1, n + 1))
     shuffle(p)
     i = p.index(t)
@@ -87,7 +86,6 @@ def chain(n, m, span=3):
 
 
 def ladder(n, m):
-    """two long parallel lines 1..h and h+1..2h joined at both ends and by some rungs"""
     h = n // 2
     e = [(v, v + 1) for v in range(1, h)] + [(h + v, h + v + 1) for v in range(1, h)]
     e += [(1, h + 1), (h, 2 * h)]
@@ -97,13 +95,12 @@ def ladder(n, m):
     return e
 
 
-# samples
 add(4, 4, 30, [(1, 1), (2, 10), (1, 5), (1, 2)], [(1, 2), (2, 4), (1, 3), (3, 4)], False)
 add(4, 4, 1000, [(1, 1), (2, 10), (1, 5), (1, 2)], [(1, 2), (2, 4), (1, 3), (3, 4)], False)
 add(3, 1, 50, [(2, 100), (2, 100), (1, 7)], [(1, 2), (2, 3)], False)
 add(4, 2, 12, [(1, 4), (1, 3), (2, 50), (1, 1)], [(1, 2), (3, 4)], False)
 add(2, 2, 1, [(1, 3), (2, 2)], [(1, 2)], False)
-# hidden: small (checked against the brute force)
+
 add(1, 1, MAXP, [(2, 2)], [])
 add(3, 2, 7, [(1, MAXA), (2, MAXA), (2, 2)], [(1, 2)])
 for n, m, p, fl, sh in ((6, 8, 20, 5, 10), (8, 10, 100, 20, 30), (10, 15, 1000, 50, 40), (15, 20, 50, 3, 5),
@@ -111,7 +108,7 @@ for n, m, p, fl, sh in ((6, 8, 20, 5, 10), (8, 10, 100, 20, 30), (10, 15, 1000, 
     t = ri(1, n)
     add(n, t, p, cities(n, 1, fl, 2, sh), relabel(n, rnd_connected(n, m), t))
 add(50, 1, 500, cities(50, 1, 30, 2, 60), relabel(50, ladder(50, 60), 1))
-# hidden: maximum size
+
 N, M = MAXN, MAXM
 t = ri(1, N)
 add(N, t, MAXP, cities(N, 1, MAXA, 10, MAXA), relabel(N, rnd_connected(N, M), t))
@@ -125,10 +122,10 @@ add(N, 1, MAXP, [(1, ri(10**6, MAXA)) for _ in range(N // 2)] + [(2, ri(10**6, 1
     relabel(N, ladder(N, M), 1))
 t = ri(1, N)
 add(N, t, ri(1, 100), cities(N, 1, 5, 2, 40, 0.5), relabel(N, rnd_connected(N, M), t))
-# a part of the country cannot reach the target
+
 e = rnd_connected(N - 2000, M - 3000) + [(u + N - 2000, v + N - 2000) for u, v in rnd_connected(2000, 3000)]
 add(N, 1, MAXP, cities(N, 1, MAXA, 10**3, MAXA), relabel(N, e, 1))
-e = [(1, v) for v in range(2, N + 1)] + [(v, v + 1) for v in range(2, M - N + 3)]   # a star around the target
+e = [(1, v) for v in range(2, N + 1)] + [(v, v + 1) for v in range(2, M - N + 3)]
 add(N, 1, MAXP, cities(N, 1, MAXA, 2, MAXA), e)
 t = ri(1, N)
 add(N, t, MAXP, cities(N, MAXA, MAXA, MAXA, MAXA), relabel(N, chain(N, M, 6), t))

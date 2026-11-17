@@ -1,15 +1,14 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import gc, os, random
 
 random.seed(2403)
-gc.disable()                    # millions of small tuples: no cyclic GC needed, much faster
+gc.disable()
 rnd = random.random
 MAXN, MAXM = 200_000, 200_000
 tests = []
 
 
 def shuffled(a):
-    """a random permutation of the list a (faster than random.shuffle for long lists)"""
     rnd = random.random
     keys = [rnd() for _ in a]
     return [a[i] for i in sorted(range(len(a)), key=keys.__getitem__)]
@@ -26,7 +25,6 @@ def add(n, edges):
 
 
 def relabel(n, edges, fix=()):
-    """random junction numbers (the shape's vertices in fix keep their numbers), random road order and ends"""
     lab = list(range(1, n + 1))
     lab = shuffled(lab)
     for x in fix:
@@ -58,7 +56,6 @@ def tree(n, kind):
 
 
 def cactus(n, lo, hi):
-    """cycles of length lo..hi; each new cycle starts at a vertex of the previous one (that vertex is a key junction)"""
     e, start, prev = [], 2, (1, 1)
     while start <= n:
         s = min(ri(lo, hi), n - start + 1)
@@ -85,7 +82,6 @@ def extra(n, e, k):
 
 
 def drop(e, k):
-    """remove k random roads (the city usually falls apart into several parts)"""
     e = list(e)
     for _ in range(k):
         j = int(rnd() * len(e))
@@ -94,14 +90,13 @@ def drop(e, k):
     return e
 
 
-# samples
 add(7, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 6), (6, 4), (6, 7)])
 add(6, [(1, 2), (1, 3), (1, 4), (5, 6)])
 add(1, [])
 add(5, [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)])
 add(4, [(1, 2), (2, 3), (3, 2), (3, 4)])
 add(8, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 3), (6, 7), (7, 8), (8, 6)])
-# hidden: small
+
 add(2, [(1, 2)])
 add(3, [(2, 1), (2, 3)])
 add(3, [(1, 2), (1, 3)])
@@ -110,20 +105,20 @@ for n, m in ((6, 6), (8, 8), (10, 11), (12, 13)):
 add(2000, relabel(2000, extra(2000, tree(2000, "random"), 300)))
 add(1500, relabel(1500, cactus(1500, 1, 5)))
 add(3000, relabel(3000, drop(tree(3000, "random"), 3), fix=(1,)))
-# hidden: maximum size
+
 N = MAXN
-add(N, relabel(N, path(N), fix=(1,)))                                  # junction 1 at an end: not key
-add(N, relabel(N, drop(path(N), 1)))                                   # two paths
-add(N, relabel(N, path(N) + [(N, 1)]))                                 # one long cycle: none
+add(N, relabel(N, path(N), fix=(1,)))
+add(N, relabel(N, drop(path(N), 1)))
+add(N, relabel(N, path(N) + [(N, 1)]))
 add(150_000, relabel(150_000, cactus(75_000, 2, 6) + [(a + 75_000, b + 75_000) for a, b in cactus(75_000, 2, 6)]))
-add(N, relabel(N, tree(N, "star"), fix=(1,)))                          # the centre is junction 1 (root rule)
-add(N, relabel(N, tree(N, "star"), fix=(2,)))                          # junction 1 is a leaf
+add(N, relabel(N, tree(N, "star"), fix=(1,)))
+add(N, relabel(N, tree(N, "star"), fix=(2,)))
 h = N // 2
-add(N, relabel(N, tree(h, "binary") + [(a + h, b + h) for a, b in tree(h, "binary")], fix=(1,)))  # two
+add(N, relabel(N, tree(h, "binary") + [(a + h, b + h) for a, b in tree(h, "binary")], fix=(1,)))
 add(N - 1000, relabel(N - 1000, drop(extra(N - 1000, tree(N - 1000, "deep"), 1000), 300)))
 add(N // 2, relabel(N // 2, drop(extra(N // 4, tree(N // 4, "random"), N // 4), 1000)
                                 + [(a + N // 4, b + N // 4) for a, b in extra(N // 4, tree(N // 4, "random"), N // 4)]))
-add(N, relabel(N, extra(N, [], MAXM)))                                 # random, many separate groups
+add(N, relabel(N, extra(N, [], MAXM)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

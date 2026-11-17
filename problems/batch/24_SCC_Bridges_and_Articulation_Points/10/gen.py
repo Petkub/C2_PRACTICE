@@ -1,15 +1,14 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import gc, os, random
 
 random.seed(2410)
-gc.disable()                    # millions of small tuples: no cyclic GC needed, much faster
+gc.disable()
 rnd = random.random
 MAXN, MAXM = 200_000, 200_000
 tests = []
 
 
 def shuffled(a):
-    """a random permutation of the list a (faster than random.shuffle for long lists)"""
     rnd = random.random
     keys = [rnd() for _ in a]
     return [a[i] for i in sorted(range(len(a)), key=keys.__getitem__)]
@@ -20,7 +19,6 @@ def ri(lo, hi):
 
 
 def connected(n, edges):
-    """union-find with path halving, written inline (fast enough for 2 * 10^5 edges)"""
     root = list(range(n + 1))
     comps = n
     for u, v in edges:
@@ -73,9 +71,6 @@ def tree(n, kind):
 
 
 def blow_up(tree_edges, k, lo, hi, fixed=None):
-    """replace every node of a tree on k nodes by a cycle of lo..hi junctions (or a single junction / a pair of
-    parallel roads); tree edges become single roads between random junctions of the two cycles;
-    fixed = {tree node: size} fixes some sizes"""
     e, rng, start = [], [], 1
     for j in range(1, k + 1):
         s = ri(lo, hi)
@@ -103,33 +98,32 @@ def extra(n, e, k, near=0):
     return e
 
 
-# samples
 add(5, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5)])
 add(4, [(1, 2), (1, 3), (1, 4)])
 add(3, [(1, 2), (2, 3), (3, 1)])
 add(2, [(1, 2)])
 add(2, [(1, 2), (2, 1)])
 add(7, [(1, 2), (1, 3), (1, 4), (4, 5), (4, 6), (4, 7)])
-# hidden: small (exhaustive check in brute)
+
 add(1, [])
 add(5, [(1, 2), (2, 3), (3, 4), (4, 5)])
 add(5, [(1, 2), (1, 3), (1, 4), (1, 5)])
 add(5, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (5, 3)])
 add(5, [(1, 2), (2, 1), (2, 3), (3, 4), (4, 3), (4, 5)])
 add(4, [(1, 2), (2, 3), (3, 4), (4, 2)])
-# hidden: medium
+
 n, e = blow_up(tree(300, "random"), 300, 1, 4)
 add(n, relabel(n, e))
 add(1500, relabel(1500, extra(1500, tree(1500, "random"), 600)))
-# hidden: maximum size
+
 N = MAXN
-add(N, relabel(N, tree(N, "path")))                                       # every road a bridge: 1
-add(N, relabel(N, tree(N, "star")))                                       # N - 1 leaves
-add(N, relabel(N, tree(N, "path") + [(N, 1)]))                            # one cycle: 0
-h, c = 50_001, 100_000                                                    # doubled roads, then a long cycle: 0
+add(N, relabel(N, tree(N, "path")))
+add(N, relabel(N, tree(N, "star")))
+add(N, relabel(N, tree(N, "path") + [(N, 1)]))
+h, c = 50_001, 100_000
 add(h + c - 1, relabel(h + c - 1, tree(h, "path") + tree(h, "path") + [(i, i + 1) for i in range(h, h + c - 1)]
                        + [(h + c - 1, h - 1)]))
-n, e = blow_up(tree(57_000, "random"), 57_000, 2, 3)                      # leaves are cycles, not junctions
+n, e = blow_up(tree(57_000, "random"), 57_000, 2, 3)
 add(n, relabel(n, e))
 n, e = blow_up(tree(50_000, "star"), 50_000, 3, 3)
 add(n, relabel(n, e))
@@ -138,7 +132,7 @@ n, e = blow_up(tree(73_500, "binary"), 73_500, 1, 3)
 add(n, relabel(n, e))
 add(197_000, relabel(197_000, extra(197_000, tree(197_000, "deep"), 3000, 20)))
 add(N // 2, relabel(N // 2, extra(N // 2, tree(N // 2, "random"), N // 2)))
-n, e = blow_up(tree(74_000, "path"), 74_000, 1, 3, {1: 3, 74_000: 3})                      # a long chain of cycles and junctions
+n, e = blow_up(tree(74_000, "path"), 74_000, 1, 3, {1: 3, 74_000: 3})
 add(n, relabel(n, e))
 
 for t in tests:

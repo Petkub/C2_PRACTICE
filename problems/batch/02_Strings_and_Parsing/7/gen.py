@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(150701)
@@ -14,7 +14,6 @@ def add(s):
 
 
 def balanced(n, deep=0.5):
-    """a random balanced string of even length n (deep = chance to open instead of close while possible)"""
     out, st = [], []
     rnd = random.random
     for i in range(n):
@@ -30,7 +29,6 @@ def balanced(n, deep=0.5):
 
 
 def noisy(n, p):
-    """balanced pieces with a random bracket every so often"""
     parts, size = [], 0
     while size < n:
         if random.random() < p:
@@ -41,20 +39,19 @@ def noisy(n, p):
     return "".join(parts)[:n]
 
 
-# samples
 add("(())[]")
 add("([)]<>{}")
 add(")(")
 add("{<>}()<{}>(")
 add("()()()()")
-# hidden: small
+
 add("(")
 add("([]){}[(])<>")
 add("".join(random.choice("()[]{}<>") for _ in range(200)))
 add(noisy(1000, 0.05))
 add(balanced(3000, 0.6))
 add("(" * 1000 + ")" * 1000)
-# hidden: large
+
 add("()" * (MAXN // 2))
 add("<>" * (MAXN // 2 - 1) + "<")
 add("(" * (MAXN // 2) + ")" * (MAXN // 2))
@@ -64,12 +61,11 @@ add(balanced(MAXN, 0.7))
 add("".join(balanced(2 * random.randint(1, 3), 0.5) for _ in range(MAXN // 4))[:MAXN - 1] + "]")
 add(noisy(MAXN, 0.0005))
 add("".join(random.choice("()[]{}<>") for _ in range(MAXN)))
-add("([" * (MAXN // 4) + ")]" * (MAXN // 4))   # the kinds never match, though the depth always does
+add("([" * (MAXN // 4) + ")]" * (MAXN // 4))
 add("(" * MAXN)
 
 
 def corrupt(s, k):
-    """replace k random closing brackets inside s by a closing bracket of another kind"""
     s = list(s)
     closers = [i for i, c in enumerate(s) if c in CLOSE]
     for i in random.sample(closers, k):
@@ -77,7 +73,6 @@ def corrupt(s, k):
     return "".join(s)
 
 
-# a wrong closing bracket deep inside: the brackets opened before it can never be matched any more
 add("((])" + "<[(>)]" + "{()}")
 add(corrupt(balanced(2000, 0.6), 5))
 add(corrupt(balanced(MAXN, 0.5), 20))

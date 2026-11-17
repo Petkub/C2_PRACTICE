@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10019)
@@ -20,8 +20,6 @@ def rnd(n, lo=1, hi=MAXV):
 
 
 def chain(n, k, width):
-    """k levels; level t holds a small falling group of values near t*width; some levels get one value only,
-    so those indices are on every longest subsequence"""
     out = []
     per = max(1, n // k)
     for t in range(k):
@@ -34,13 +32,12 @@ def chain(n, k, width):
     return out[:n]
 
 
-# samples
 add([2, 5, 3, 7, 4, 8])
 add([1, 3, 2, 4])
 add([5, 4, 3])
 add([4, 4, 5])
 add([3, 1, 4, 1, 5, 9, 2, 6, 5, 3])
-# hidden: small (brute.cpp lists every longest subsequence when n <= 18)
+
 add([7])
 add([1, 2])
 add(rnd(10, 1, 4))
@@ -49,13 +46,13 @@ add(chain(18, 6, 10))
 add(rnd(18, 1, 100))
 add(rnd(400, 1, 300))
 add(chain(3000, 60, 1000))
-# hidden: maximum size
+
 N = MAXN
 add(rnd(N))
 add(rnd(N, 1, 1000))
 add(chain(N, 400, 10**6))
 add(chain(N, 3000, 10**5))
-add(list(range(1, N + 1)))                      # every index is on the only longest subsequence
+add(list(range(1, N + 1)))
 add(list(range(N, 0, -1)))
 add([MAXV] * N)
 add([i // 2 + 1 for i in range(N)])

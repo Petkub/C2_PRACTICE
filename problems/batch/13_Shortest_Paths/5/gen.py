@@ -1,103 +1,92 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(8004)
-MAXN, MAXM, MAXC = 3000, 6000, 10**9
+random.seed(8006)
+MAXN, MAXM, MAXQ, MAXW = 100_000, 100_000, 100_000, 10**6
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(n, roads):
-    m = len(roads)
-    assert 1 <= n <= MAXN and 0 <= m <= MAXM
-    assert all(1 <= a <= n and 1 <= b <= n and -MAXC <= c <= MAXC for a, b, c in roads)
-    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {c}\n" for a, b, c in roads))
+def add(n, roads, qs):
+    m, q = len(roads), len(qs)
+    assert 1 <= n <= MAXN and 0 <= m <= MAXM and 1 <= q <= MAXQ
+    assert all(1 <= a <= n and 1 <= b <= n and 1 <= w <= MAXW for a, b, w in roads)
+    assert all(1 <= k <= n for k in qs)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b} {w}\n" for a, b, w in roads)
+                 + f"{q}\n" + " ".join(map(str, qs)) + "\n")
 
 
-def relabel(n, roads, keep_order=False):
-    """random numbers for towns 2..n (town 1 stays), random order of roads"""
-    p = list(range(2, n + 1))
+def relabel(n, roads):
+    p = list(range(2, n))
     random.shuffle(p)
-    p = [0, 1] + p
-    res = [(p[a], p[b], c) for a, b, c in roads]
-    if not keep_order:
-        random.shuffle(res)
+    p = [0, 1] + p + [n]
+    res = [(p[a], p[b], w) for a, b, w in roads]
+    random.shuffle(res)
     return res
 
 
-def potential_roads(n, m, lo, hi, spread, h=None):
-    """roads with cost = base + h[b] - h[a] where base in [lo, hi] >= 0: no negative cycle, many negative roads"""
-    if h is None:
-        h = [0] + [ri(-spread, spread) for _ in range(n)]
-    res = []
-    while len(res) < m:
-        a, b = ri(1, n), ri(1, n)
-        c = ri(lo, hi) + h[b] - h[a]
-        if -MAXC <= c <= MAXC:
-            res.append((a, b, c))
-    return res
+def rnd_roads(n, m, wmax=MAXW, wmin=1):
+    return [(ri(1, n), ri(1, n), ri(wmin, wmax)) for _ in range(m)]
 
 
-def dag_roads(n, m, lo, hi):
-    """roads only from a smaller to a larger index (no cycle at all), any signs"""
-    res = [(i, i + 1, ri(lo, hi)) for i in range(1, n)]
-    while len(res) < m:
-        a, b = ri(1, n), ri(1, n)
-        if a < b:
-            res.append((a, b, ri(lo, hi)))
-    return res
+def rnd_qs(n, q):
+    return [ri(1, n) for _ in range(q)]
 
 
-# samples
-add(5, [(1, 2, 4), (1, 3, 2), (3, 2, -3), (2, 4, 5), (5, 4, -10)])
-add(4, [(1, 2, 1), (2, 3, -4), (3, 2, 2), (3, 4, 1)])
-add(4, [(1, 2, 3), (3, 4, -5), (4, 3, 1), (2, 1, -1)])
-add(3, [(1, 2, -2), (2, 3, 5), (3, 1, -3)])
-add(3, [(1, 2, 7), (2, 2, -1), (2, 3, 1)])
-add(2, [(1, 1, 0), (1, 2, -MAXC), (1, 2, MAXC)])
-# hidden: small
-add(1, [])
-add(1, [(1, 1, -1)])
-add(8, relabel(8, potential_roads(8, 15, 0, 5, 10)))
-add(8, [(i, i + 1, -1) for i in range(1, 8)] + [(8, 1, 7)])         # the whole cycle sums to 0
-add(8, [(i, i + 1, -1) for i in range(1, 8)] + [(8, 1, 6)])         # the whole cycle sums to -1
-add(30, relabel(30, potential_roads(30, 80, 0, 100, 1000)))
-add(30, relabel(30, potential_roads(30, 80, 0, 100, 1000) + [(15, 16, -100), (16, 15, 99)]))
-add(60, [(i, i + 1, ri(-5, 5)) for i in range(1, 30)] + [(40, 41, -3), (41, 40, 2), (40, 50, 1)])
-add(100, relabel(100, dag_roads(100, 300, -MAXC, MAXC)))
-add(200, relabel(200, potential_roads(200, 600, 0, 50, 10**6)))
-add(300, relabel(300, [(i, i + 1, -MAXC) for i in range(1, 300)]))
-# hidden: large
-N, M = MAXN, MAXM
-add(N, [(i, i + 1, ri(-MAXC, MAXC)) for i in range(N - 1, 0, -1)] + dag_roads(N, M - N + 1, -MAXC, MAXC)[N - 1:])
-add(N, [(i, i + 1, -MAXC) for i in range(N - 1, 0, -1)])            # the most negative distances
-add(N, [(i, i + 1, MAXC) for i in range(N - 1, 0, -1)])
-r = [(i, i + 1, -1) for i in range(N - 1, 0, -1)] + [(N, 1, N - 1)]    # one long cycle of total 0
-add(N, r + potential_roads(N, M - N, 0, 10, 0, [0] + [-(i - 1) for i in range(1, N + 1)]))
-r = [(i, i + 1, -1) for i in range(N - 1, 0, -1)] + [(N, N - 1, 0)]    # a cycle at the far end of a long chain
-add(N, r + [(a, b, c) for a, b, c in dag_roads(N, M - N, 0, MAXC) if b < N - 1])
-add(N, relabel(N, potential_roads(N, M, 0, 10**6, 10**8)))
-r = potential_roads(N, M - 2, 0, 3, 10**8)                           # plus one negative 2-cycle
-x, y = ri(2, N), ri(2, N)
-add(N, relabel(N, r + [(x, y, 5), (y, x, -6)]))
-h = N // 2                                                          # a negative cycle nobody can reach,
-r = relabel(h, potential_roads(h, M // 2, 0, 1000, 10**6))          # with negative roads into the reachable half
-r += [(a + h, b + h, c) for a, b, c in potential_roads(N - h, M // 2 - 22, 0, 1000, 10**6)]
-r += [(N - 1, N, -5), (N, N - 1, 4)] + [(ri(h + 1, N), ri(1, h), -MAXC) for _ in range(20)]
-add(N, r)
-r = [(i, i + 1, -MAXC) for i in range(h + 1, N)] + [(N, h + 1, -MAXC)]  # unreachable, very negative cycle
-r += [(ri(h + 1, N), ri(1, h), ri(-MAXC, 0)) for _ in range(100)]
-add(N, relabel(h, potential_roads(h, M - len(r), 0, 10, 1000)) + r)
-r = dag_roads(N, M - 2, -MAXC, MAXC)                                # a DAG plus one short negative cycle
-add(N, relabel(N, r + [(N - 5, N - 4, MAXC - 1), (N - 4, N - 5, -MAXC)]))
-r = dag_roads(N, M - 1, -10, MAXC)                                  # a DAG plus a negative self-loop
-add(N, relabel(N, r + [(N, N, -1)]))
-add(N, relabel(N, [(i, i + 1, -MAXC) for i in range(1, N)] + [(N, 1, MAXC)] * 2
-                  + potential_roads(N, M - N - 1, MAXC // 2, MAXC, 0)))   # one long very negative cycle
+def two_chains(n, m, fw, bw, extra_w):
+    r = [(i, i + 1, ri(1, fw)) for i in range(1, n)] + [(i + 1, i, ri(1, bw)) for i in range(1, n)]
+    return r + rnd_roads(n, m - len(r), extra_w, extra_w // 2)
+
+
+add(5, [(1, 2, 2), (2, 5, 3), (1, 3, 4), (3, 5, 1), (5, 4, 1), (4, 2, 1)], [2, 3, 4, 1, 5])
+add(4, [(1, 2, 5), (2, 4, 5), (3, 2, 1), (2, 2, 7)], [3, 2, 4])
+add(4, [(1, 2, 1), (2, 3, 4), (3, 2, 4), (2, 4, 1), (1, 4, 3)], [3, 2, 1])
+add(4, [(1, 2, MAXW), (2, 4, MAXW), (2, 3, MAXW), (3, 2, MAXW)], [3, 2])
+add(1, [], [1])
+
+add(2, [(2, 1, 5)], [1, 2])
+add(2, [(1, 2, 5), (1, 2, 3), (2, 1, 1)], [1, 2])
+add(8, rnd_roads(8, 16, 10), list(range(1, 9)))
+add(30, relabel(30, two_chains(30, 70, 5, 50, 100)), list(range(1, 31)))
+add(100, rnd_roads(100, 300, 1000), rnd_qs(100, 100))
+add(300, relabel(300, two_chains(300, 700, 10, 1000, 10**4)), rnd_qs(300, 300))
+add(2000, rnd_roads(2000, 5000, MAXW), rnd_qs(2000, 500))
+
+N, M, Q = MAXN, MAXM, MAXQ
+add(N, rnd_roads(N, M), rnd_qs(N, Q))
+n = M // 2 - 1000
+add(n, relabel(n, two_chains(n, M, 100, MAXW, MAXW)), rnd_qs(n, Q))
+add(n, relabel(n, two_chains(n, M, MAXW, 1, MAXW)), list(range(1, n + 1)) + rnd_qs(n, Q - n))
+add(N, [(i, i + 1, MAXW) for i in range(1, N)] + [(N, 1, MAXW)], list(range(N, 0, -1)))
+r = [(i, i + 1, ri(1, 10)) for i in range(1, N)]
+add(N, relabel(N, r + [(b, a, w) for a, b, w in rnd_roads(N, M - N + 1, 10) if a < b]), rnd_qs(N, Q))
+h = N // 2
+r = [(ri(1, h), ri(1, h), ri(1, 1000)) for _ in range(M // 2)]
+r += [(ri(h + 1, N), ri(h + 1, N), ri(1, 1000)) for _ in range(M // 2 - 10)]
+r += [(ri(1, h), ri(h + 1, N), ri(1, MAXW)) for _ in range(10)]
+add(N, relabel(N, r), rnd_qs(N, Q))
+k = 30_000
+r = [(1, i, i) for i in range(2, k + 2)] + [(i, N, 3 * k + 10 - 2 * i) for i in range(2, k + 2)]
+r += [(N, x, ri(1, 5)) for x in range(k + 2, N)][:M - len(r) - 1000]
+r += [(x, 1, ri(1, MAXW)) for x in range(k + 2, k + 1002)]
+add(N, r, rnd_qs(N, Q))
+side = 250
+r = []
+for i in range(side):
+    for j in range(N // side):
+        v = i * (N // side) + j + 1
+        if j + 1 < N // side:
+            r.append((v, v + 1, ri(1, 10)))
+        if i + 1 < side:
+            r.append((v + N // side, v, ri(1, MAXW)))
+add(N, r[:M], rnd_qs(N, Q))
+add(n, relabel(n, two_chains(n, M, 3, 3, 6)), rnd_qs(n, Q))
+n = M // 2
+add(n, relabel(n, [(i, i + 1, MAXW) for i in range(1, n)] + [(i + 1, i, MAXW) for i in range(1, n)]),
+    [1, n] * (Q // 2))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

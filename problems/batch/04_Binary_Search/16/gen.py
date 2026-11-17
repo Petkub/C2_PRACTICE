@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, bisect
 
 random.seed(20216)
@@ -20,7 +20,6 @@ def add(x, bs):
 
 
 class Dist:
-    """total distance D(P) for a fixed list of positions (used to aim queries at the interesting values)"""
     def __init__(self, x):
         self.s = sorted(x)
         self.pre = [0]
@@ -37,7 +36,6 @@ class Dist:
 
 
 def aimed(x, q, spread):
-    """queries around the minimum, at house positions (exactly and +-1) and up to MAXB"""
     D = Dist(x)
     lo = D.dmin()
     bs = []
@@ -59,13 +57,12 @@ def rnd(n, lo, hi):
     return [ri(lo, hi) for _ in range(n)]
 
 
-# samples
 add([1, 4, 6], [4, 5, 7])
 add([3, 8], [5, 6, 7])
 add([0], [0, MAXB])
 add([5, 5, 5, 5], [0, 3, 4, 9])
 add([7, 2, 9, 2, 12, 5], [20, 21, 30, 19, 26, 100])
-# hidden: small
+
 add([0, MAXX], [MAXX - 1, MAXX, MAXX + 1, MAXX + 2, MAXX + 3])
 for n, xm in ((5, 20), (12, 100), (40, 1000)):
     x = rnd(n, 0, xm)
@@ -76,27 +73,27 @@ x = rnd(1999, 0, 1000)
 add(x, aimed(x, 2000, 10**8))
 x = [ri(0, 1) * MAXX for _ in range(3000)]
 add(x, aimed(x, 2000, 10**10))
-# hidden: large
+
 N = MAXN
 x = rnd(N, 0, MAXX)
 add(x, aimed(x, 100_000, MAXB))
 x = rnd(N // 2, 0, MAXX)
 add(x, aimed(x, 180_000, MAXB))
-x = rnd(N - 1, 0, MAXX)                               # odd count: a single best point
+x = rnd(N - 1, 0, MAXX)
 add(x, aimed(x, 100_000, 10**10))
 add([MAXX] * N, [MAXB] + aimed([MAXX] * N, 100_000, MAXB))
-x = [0] * (N // 2) + [MAXX] * (N // 2)                # a long flat bottom
+x = [0] * (N // 2) + [MAXX] * (N // 2)
 random.shuffle(x)
 add(x, aimed(x, 100_000, MAXB))
-x = [ri(0, 1000) if ri(0, 2) else ri(990_000, MAXX) for _ in range(N)]   # two unequal clusters
+x = [ri(0, 1000) if ri(0, 2) else ri(990_000, MAXX) for _ in range(N)]
 add(x, aimed(x, 100_000, MAXB))
-add([ri(0, MAXX)], rnd(MAXQ, 0, MAXB))                # one friend
+add([ri(0, MAXX)], rnd(MAXQ, 0, MAXB))
 add([0, MAXX], rnd(MAXQ, 0, MAXB))
-x = [ri(0, 20) * 50_000 for _ in range(N)]           # few, widely spaced positions, each repeated
+x = [ri(0, 20) * 50_000 for _ in range(N)]
 add(x, aimed(x, 100_000, MAXB))
-x = [ri(0, 30) for _ in range(N)]                     # everyone close together: huge answers
+x = [ri(0, 30) for _ in range(N)]
 add(x, aimed(x, 100_000, MAXB))
-x = [i * 5 for i in range(N)]                         # evenly spread, every query aimed at a house
+x = [i * 5 for i in range(N)]
 D = Dist(x)
 bs = [min(MAXB, D(x[ri(0, N - 1)]) + ri(-1, 1)) for _ in range(100_000)]
 add(x, bs)

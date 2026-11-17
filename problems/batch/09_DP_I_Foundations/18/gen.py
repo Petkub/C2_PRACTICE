@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(90018)
@@ -26,14 +26,13 @@ def rc(n, lo=1, hi=MAXC):
     return [ri(lo, hi) for _ in range(n)]
 
 
-# samples
 add("abab", "ab", [1, 5, 5, 1])
 add("banana", "ana", [4, 2, 3, 1, 3, 5])
 add("hello", "oh", [1, 1, 1, 1, 1])
 add("success", "s", [2, 7, 1, 1, 3, 5, 4])
 add("abc", "abcd", [5, 5, 5])
 add("abacabadab", "aab", [3, 1, 4, 1, 5, 9, 2, 6, 5, 3])
-# hidden: small (brute.cpp tries every subset)
+
 add("a", "a", [7])
 add("z", "y", [1000000000])
 add(rs(16, "ab"), "ab", rc(16, 1, 20))
@@ -43,12 +42,11 @@ add(rs(17, "a"), "aaaa", rc(17, 1, 100))
 add(rs(18, "xyz"), "zyx", rc(18, 1, 5))
 add("ab" * 9, "abab", rc(18, 1, 9))
 add(rs(18, "pq"), "ppqqp", [1] * 18)
-# hidden: maximum size
+
 N = MAXN
 
 
 def blocks(n, letters, k):
-    """k long blocks, each of one letter: removing one letter everywhere is rarely best"""
     out, left = [], n
     for t in range(k):
         size = left // (k - t)
@@ -60,7 +58,7 @@ def blocks(n, letters, k):
 add(rs(N, "ab"), "ab", rc(N))
 add(blocks(N, "ab", 40), "ab", rc(N, 1, 1000))
 add(blocks(N, "abc", 60), "abcabc", rc(N))
-add(rs(N, "a"), "a", [MAXC] * N)                       # everything must go: 2 * 10^14
+add(rs(N, "a"), "a", [MAXC] * N)
 add(rs(N, "ab"), "aabbaabbab" * 10, rc(N))
 pat = rs(100, "abcd")
 add(pat * (N // 100), pat, rc(N))

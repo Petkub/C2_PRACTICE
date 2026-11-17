@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(2112)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shuffle(a):
-    """Fisher-Yates driven by random.random() only (fast, and the same on every Python 3 version)"""
     rnd = random.random
     for i in range(len(a) - 1, 0, -1):
         j = int(rnd() * (i + 1))
@@ -19,7 +18,6 @@ def shuffle(a):
 
 
 def check(n, roads):
-    """n roads, no loop, no repeated pair, connected (so exactly one cycle)"""
     assert len(roads) == n
     pairs = set()
     adj = [[] for _ in range(n + 1)]
@@ -43,7 +41,6 @@ def check(n, roads):
 
 
 def add(n, roads, from_build=False):
-    """from_build: the cycle 1..L (L >= 3) plus par[i] < i for the other nodes already guarantees the rules"""
     assert 3 <= n <= MAXN and len(roads) == n
     if not from_build:
         check(n, roads)
@@ -51,21 +48,20 @@ def add(n, roads, from_build=False):
 
 
 def build(n, L, kind):
-    """a cycle 1..L, then nodes L+1..n hang from earlier nodes; random labels and order"""
     assert 3 <= L <= n
     par = [0] * (n + 1)
     for i in range(L + 1, n + 1):
         if kind == "random":
             par[i] = ri(1, i - 1)
-        elif kind == "tail":                 # one long path from cycle node 1
+        elif kind == "tail":
             par[i] = 1 if i == L + 1 else i - 1
-        elif kind == "legs":                 # every cycle node gets a path, round robin
+        elif kind == "legs":
             par[i] = i - L
-        elif kind == "star":                 # all extra nodes on cycle node 1
+        elif kind == "star":
             par[i] = 1
         elif kind == "deep":
             par[i] = ri(max(1, i - 3), i - 1)
-        elif kind == "half":                 # long tails on two opposite cycle nodes
+        elif kind == "half":
             par[i] = (1 if i == L + 1 else (L // 2 + 1 if i == L + 2 else i - 2))
         else:
             raise ValueError(kind)
@@ -78,13 +74,12 @@ def build(n, L, kind):
     add(n, roads, n > 1000)
 
 
-# samples
 add(6, [(1, 2), (2, 3), (3, 4), (4, 1), (4, 5), (5, 6)])
 add(5, [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)])
 add(3, [(1, 2), (3, 2), (1, 3)])
 add(7, [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5), (2, 6), (7, 1)])
 add(8, [(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 1), (2, 7), (7, 8)])
-# hidden: small and medium
+
 build(4, 4, "random")
 build(10, 4, "random")
 build(30, 6, "legs")
@@ -94,11 +89,11 @@ build(301, 150, "half")
 build(2000, 40, "deep")
 build(5000, 2500, "legs")
 build(8000, 3, "tail")
-# hidden: maximum size
+
 N = MAXN
-build(N, N, "random")                 # one big cycle (even length)
-build(N - 1, N - 1, "random")         # odd length
-build(N, 3, "tail")                   # the largest sums
+build(N, N, "random")
+build(N - 1, N - 1, "random")
+build(N, 3, "tail")
 build(N, N // 2, "half")
 build(N, 85_000, "legs")
 build(N, 1000, "random")

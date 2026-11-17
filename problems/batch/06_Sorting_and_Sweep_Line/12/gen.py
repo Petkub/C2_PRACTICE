@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(60111)
@@ -26,7 +26,6 @@ def rnd(n, t=MAXT, maxlen=MAXT):
 
 
 def islands(n, t=MAXT):
-    """long shifts, each with many short shifts inside that leave gaps (the long guard is alone in the gaps)"""
     s, k = [], max(1, n // 50)
     width = t // k
     for b in range(k):
@@ -43,7 +42,6 @@ def islands(n, t=MAXT):
 
 
 def chain(n, t=MAXT):
-    """each shift starts in the minute (or the minute after) the previous one ends"""
     s, x, step = [], 1, t // (n + 1)
     for _ in range(n):
         d = ri(step // 2, step)
@@ -54,7 +52,6 @@ def chain(n, t=MAXT):
 
 
 def dolls(n, t=MAXT):
-    """shifts nested inside each other with random margins"""
     s, lo, hi = [], 1, t
     for _ in range(n):
         s.append((lo, hi))
@@ -66,15 +63,14 @@ def dolls(n, t=MAXT):
     return s
 
 
-# samples
 add([(1, 6), (4, 9), (9, 15)])
 add([(3, 3), (1, 2), (6, 10), (10, 10)])
 add([(1, 1000000000)])
 add([(5, 7), (7, 9), (9, 11)])
 add([(1, 1000000000), (2, 1000000000)])
 add([(28, 40), (10, 20), (45, 50), (15, 30), (41, 45)])
-# hidden: small and medium
-add([(1, 10), (3, 4), (7, 7)])                                   # a gap on each side of a short shift
+
+add([(1, 10), (3, 4), (7, 7)])
 add([(5, 5), (5, 5), (5, 5)])
 add(rnd(8, 30, 10))
 add(rnd(12, 40, 15))
@@ -82,26 +78,26 @@ add(islands(150, 10**4))
 add(rnd(800, 10**5, 2000))
 add(dolls(1000))
 add(rnd(5000, MAXT, 10**6))
-# hidden: maximum size
+
 N = MAXN
-add(rnd(N))                                                      # long shifts: almost nobody is alone
-add(rnd(N, MAXT, 5000))                                          # short shifts: many guards are alone
+add(rnd(N))
+add(rnd(N, MAXT, 5000))
 add(rnd(N, MAXT, 20000))
 add(islands(N))
 add(islands(N, 10**7))
 add(chain(N))
 add(dolls(N))
-add([(ri(1, 1000), MAXT - ri(0, 1000)) for _ in range(N - 1)] + [(1, MAXT)])  # everybody covers almost all
-s = [(1, MAXT)] + [(2 * i + 1, 2 * i + 1) for i in range(1, N)]  # one long shift and single-minute ones
+add([(ri(1, 1000), MAXT - ri(0, 1000)) for _ in range(N - 1)] + [(1, MAXT)])
+s = [(1, MAXT)] + [(2 * i + 1, 2 * i + 1) for i in range(1, N)]
 random.shuffle(s)
 add(s)
 s = []
-for i in range(N // 2):                                          # pairs that share exactly one minute
+for i in range(N // 2):
     a = 1 + i * 5000
     s += [(a, a + 2500), (a + 2500, a + 4999)]
 random.shuffle(s)
 add(s)
-add([(l, l + ri(0, 3)) for l in sorted(random.sample(range(1, MAXT), N))])  # sorted short shifts
+add([(l, l + ri(0, 3)) for l in sorted(random.sample(range(1, MAXT), N))])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

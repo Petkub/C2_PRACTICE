@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(100118)
@@ -11,13 +11,12 @@ def ri(lo, hi):
 
 
 def add(a, par, qs):
-    """a[1..n] ranks, par[2..n] bosses (index 0 and 1 unused), qs = [(v, x)]"""
     n, q = len(a) - 1, len(qs)
     assert 1 <= n <= MAXN and 1 <= q <= MAXQ and len(par) == n + 1
     assert all(1 <= x <= MAXA for x in a[1:])
     assert all(1 <= par[i] <= n and par[i] != i for i in range(2, n + 1))
     assert all(1 <= v <= n and 1 <= x <= MAXA for v, x in qs)
-    done = [False] * (n + 1)                     # every chain of bosses reaches person 1
+    done = [False] * (n + 1)
     done[1] = True
     for i in range(2, n + 1):
         path, x = [], i
@@ -34,7 +33,6 @@ def add(a, par, qs):
 
 
 def shape(n, kind):
-    """par[i] < i in creation order; node 1 is the root"""
     par = [0, 0]
     for i in range(2, n + 1):
         if kind == "random":
@@ -47,7 +45,7 @@ def shape(n, kind):
             p = ri(max(1, i - 4), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "broom":                    # a long handle, then many leaves at its end
+        elif kind == "broom":
             p = i - 1 if i <= n // 2 else n // 2
         elif kind == "cater":
             p = i - 1 if i <= n // 2 else ri(1, n // 2)
@@ -58,7 +56,6 @@ def shape(n, kind):
 
 
 def build(n, kind, val, q, qgen):
-    """val(i, depth, n) ranks the i-th created person; qgen(info) gives one query on created indices"""
     par = shape(n, kind)
     depth = [0] * (n + 1)
     for i in range(2, n + 1):
@@ -75,7 +72,7 @@ def build(n, kind, val, q, qgen):
     pp = par + [0]
     pp[0] = 0
     a2 = [pp[pp[i]] for i in range(n + 1)]
-    a4 = [a2[a2[i]] or 1 for i in range(n + 1)]   # the 4th boss above (person 1 if fewer)
+    a4 = [a2[a2[i]] or 1 for i in range(n + 1)]
     info = (n, par, rank, deep, a4)
     qs = []
     for _ in range(q):
@@ -84,7 +81,7 @@ def build(n, kind, val, q, qgen):
     add(a, p, qs)
 
 
-def up_rank(i, d, n):                            # ranks grow towards the top, with ties
+def up_rank(i, d, n):
     return max(1, min(MAXA, MAXA - d * MAXA // (n + 1) - ri(0, 3)))
 
 
@@ -92,16 +89,15 @@ def rnd_rank(i, d, n):
     return ri(1, MAXA)
 
 
-def small_rank(i, d, n):                         # many equal ranks
+def small_rank(i, d, n):
     return ri(1, 5)
 
 
-def comb_rank(i, d, n):                          # ranks fall going down the handle, the leaves beat them all
+def comb_rank(i, d, n):
     return MAXA if d >= n // 2 else MAXA - 1 - d
 
 
 def cater_comb(lo):
-    """the spine's ranks fall going down, the legs beat (almost) the whole spine above them"""
     def f(i, d, n):
         return MAXA - 1 - d if i <= n // 2 else MAXA - ri(0, lo)
     return f
@@ -114,7 +110,6 @@ def q_any(info):
 
 
 def q_chain(info):
-    """x near the ranks above v, so the answer is often far up the chain"""
     n, par, rank, deep, a4 = info
     v = deep[int(random.random() * len(deep))]
     u = v
@@ -122,9 +117,9 @@ def q_chain(info):
         u = a4[u]
     r = random.random()
     if r < 0.1:
-        return v, MAXA                           # often nobody reaches the top rank
+        return v, MAXA
     if r < 0.2:
-        return v, max(1, rank[v] - ri(0, 2))     # v decides itself
+        return v, max(1, rank[v] - ri(0, 2))
     w = 1 if r < 0.35 else (par[u] or 1 if r < 0.55 else u)
     return v, max(1, min(MAXA, rank[w] + ri(-1, 1)))
 
@@ -133,13 +128,12 @@ def q_mix(info):
     return q_any(info) if random.random() < 0.3 else q_chain(info)
 
 
-# samples
 add([0, 9, 4, 7, 2, 4, 1, 8], [0, 0, 1, 2, 2, 4, 5, 3], [(6, 3), (6, 5), (6, 10), (7, 9), (3, 7)])
 add([0, 5, 5, 3, 6], [0, 0, 1, 2, 3], [(4, 6), (3, 5), (3, 6), (2, 5)])
 add([0, 1], [0, 0], [(1, 1), (1, 2)])
 add([0, 10, 3, 6, 6, 1, 2], [0, 0, 1, 1, 3, 4, 4], [(5, 2), (6, 7), (5, 11)])
 add([0, 1000000, 1], [0, 0, 1], [(2, 1000000)])
-# hidden: small
+
 build(2, "path", rnd_rank, 6, q_any)
 build(10, "random", small_rank, 50, q_mix)
 build(30, "path", up_rank, 100, q_mix)
@@ -148,17 +142,17 @@ build(1000, "cater", up_rank, 1000, q_mix)
 build(2000, "broom", comb_rank, 2000, q_mix)
 build(3000, "random", rnd_rank, 3000, q_mix)
 build(5000, "deep", up_rank, 5000, q_chain)
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
-build(N, "path", up_rank, Q, q_chain)            # one long chain of holders
+build(N, "path", up_rank, Q, q_chain)
 build(N, "path", small_rank, Q, q_mix)
-build(N, "broom", comb_rank, Q, q_mix)           # finding the next holder by hopping is slow here
+build(N, "broom", comb_rank, Q, q_mix)
 build(N, "deep", up_rank, Q, q_chain)
 build(N, "cater", up_rank, Q, q_chain)
 build(N, "random", rnd_rank, Q, q_mix)
-build(N, "cater", cater_comb(2), Q, q_mix)        # hopping to the next holder walks the spine again
+build(N, "cater", cater_comb(2), Q, q_mix)
 build(N, "cater", cater_comb(30), Q, q_chain)
-build(N, "deep", lambda i, d, n: MAXA - d // 7, Q, q_chain)   # long runs of equal ranks
+build(N, "deep", lambda i, d, n: MAXA - d // 7, Q, q_chain)
 build(N, "broom", lambda i, d, n: comb_rank(i, d, n) if d < n // 2 else ri(1, MAXA), Q, q_mix)
 
 for t in tests:

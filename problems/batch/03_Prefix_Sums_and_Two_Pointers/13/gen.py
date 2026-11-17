@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10112)
@@ -19,32 +19,30 @@ def rnd(n, lo, hi):
 
 
 def tiny():
-    """small enough for the BFS in brute.cpp"""
     n = random.randint(2, 5)
     h = rnd(n, 0, 3)
     t = rnd(n, 0, 3)
     return h, t
 
 
-# samples
 add([1, 1, 1, 1], [2, 3, 3, 2])
 add([2, 2, 2], [3, 1, 3])
 add([4, 7, 1], [4, 7, 1])
 add([0], [MAXV])
 add([5, 0, 5, 0, 5], [0, 5, 0, 5, 0])
 add([3, 1, 4, 1, 5, 9], [2, 7, 1, 8, 2, 8])
-# hidden (tiny, checked by BFS)
+
 add([3], [0])
 add([0, 3, 0, 3, 0, 3], [3, 0, 3, 0, 3, 0])
 add([1, 2, 3, 2, 1], [3, 2, 1, 2, 3])
 for _ in range(6):
     add(*tiny())
-# small
+
 add(rnd(300, 0, 5), rnd(300, 0, 5))
 add(rnd(2000, 0, 20), rnd(2000, 0, 20))
-# large
+
 N = MAXN
-add([0, MAXV] * (N // 2), [MAXV, 0] * (N // 2))             # the largest answer
+add([0, MAXV] * (N // 2), [MAXV, 0] * (N // 2))
 add([0] * N, [MAXV] * N)
 add(rnd(N, 0, MAXV), rnd(N, 0, MAXV))
 add(rnd(N, 0, 10), rnd(N, 0, 10))
@@ -54,7 +52,7 @@ add([0] * N, [MAXV if i % 2 == 0 else 0 for i in range(N)])
 add([0] * N, sorted(rnd(N, 0, MAXV)))
 h = rnd(5000, 0, MAXV)
 add(h, [x + random.choice([-1, 0, 1]) if 0 < x < MAXV else x for x in h])
-add([0] * N, [min(i, N - 1 - i) * 10_000 for i in range(N)])       # one big mountain
+add([0] * N, [min(i, N - 1 - i) * 10_000 for i in range(N)])
 add(rnd(N, MAXV - 5, MAXV), rnd(N, 0, 5))
 add([random.choice([0, MAXV]) for _ in range(N)], [random.choice([0, MAXV]) for _ in range(N)])
 add(rnd(N - 1, 0, 30), rnd(N - 1, 0, 30))

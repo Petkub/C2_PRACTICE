@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(90016)
@@ -23,8 +23,6 @@ def rnd(r, c, lo=-1000, hi=1000):
 
 
 def zigzag(r, c):
-    """good cells at both ends of every row, mildly bad cells in between: the best walk crosses every row,
-    turning around each time; a right/down walk can collect only one full row"""
     g = []
     for i in range(r):
         k = max(1, c // 10)
@@ -36,7 +34,6 @@ def zigzag(r, c):
 
 
 def bands(r, c):
-    """random values, but every row has a long positive stretch somewhere"""
     g = rnd(r, c, -1000, 300)
     for row in g:
         a = ri(0, c - 1); b = ri(a, min(c - 1, a + c // 3))
@@ -44,13 +41,12 @@ def bands(r, c):
     return g
 
 
-# samples (5)
 add([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 add([[-5, 9, -1, 9], [9, -1, 9, -5], [-9, -9, -9, -9]])
 add([[3, -4, 2, -1, 5]])
 add([[2], [-3], [4], [-1]])
 add([[0, -1, 7, -2, 3], [6, 2, -5, 4, -6], [-1, -9, 8, 1, 2]])
-# hidden: small (brute.cpp checks these)
+
 add([[-2, 6, -1], [4, -8, 3], [5, 1, -7], [-3, 2, 2]])
 add([[7]])
 add([[-1000]])
@@ -63,7 +59,7 @@ add(rnd(40, 1))
 add(bands(60, 60))
 add(rnd(1, 30000))
 add(rnd(30000, 1))
-# hidden: maximum size (wide grids first: an O(R C^2) row scan is far too slow there)
+
 add(rnd(5, 100000))
 add(zigzag(4, 125000))
 add(bands(2, 250000))

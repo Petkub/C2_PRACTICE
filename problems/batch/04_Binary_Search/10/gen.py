@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 from bisect import bisect_right
 
@@ -12,7 +12,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -23,7 +22,7 @@ class Tariff:
         self.C = [0]
         for j in range(1, len(steps)):
             self.C.append(self.C[-1] + (self.u[j] - self.u[j - 1]) * self.p[j - 1])
-        # the largest total use whose bill is at most 10^18
+
         j = bisect_right(self.C, MAXA) - 1
         self.maxT = self.u[j] - 1 + (MAXA - self.C[j]) // self.p[j]
         if j + 1 < len(steps):
@@ -40,11 +39,10 @@ class Tariff:
         return self.f(x + y), self.f(y) - self.f(x)
 
     def pick(self, kind, tmax=None):
-        """a pair (x, y) of the given kind"""
         top = self.maxT if tmax is None else min(self.maxT, tmax)
-        if kind == "big":                     # total use near the largest allowed
+        if kind == "big":
             T = ri(max(2, top - top // 10), top)
-        elif kind == "edge":                  # x and y at step boundaries
+        elif kind == "edge":
             j, k = ri(0, len(self.u) - 1), ri(0, len(self.u) - 1)
             x, y = self.u[j] - 1 + ri(0, 1), self.u[k] - 1 + ri(0, 1)
             x, y = max(1, min(x, y)), max(1, max(x, y))
@@ -55,9 +53,9 @@ class Tariff:
             T = ri(2, top)
         r = ri(0, 9)
         if r == 0:
-            x = T // 2                        # equal or almost equal use
+            x = T // 2
         elif r == 1:
-            x = ri(1, min(3, T // 2))         # tiny x
+            x = ri(1, min(3, T // 2))
         else:
             x = ri(1, T // 2)
         return x, T - x
@@ -99,13 +97,12 @@ def mix(steps, q, kinds=("any", "edge", "big"), tmax=None):
     return [tar.pick(kinds[ri(0, len(kinds) - 1)], tmax) for _ in range(q)]
 
 
-# samples
 add([(1, 2), (5, 3), (11, 5)], [(3, 6), (4, 10), (7, 7), (2, 20)], sample=True)
 add([(1, 7)], [(2, 5), (1, 1), (3, 30)], sample=True)
 add([(1, 10), (3, 1)], [(1, 4), (2, 3), (5, 5)], sample=True)
 add([(1, 1000000), (1000, 1)], [(999, 1000), (5, 999999), (1, 1)], sample=True)
 add([(1, 3), (16, 4), (26, 5), (36, 6), (101, 7)], [(10, 40), (50, 50), (15, 135), (1, 2)], sample=True)
-# hidden: small (checked by brute force)
+
 add([(1, 1)], [(1, 1), (1, 2), (3, 4), (500, 500), (1, 9999)])
 add([(1, 5), (2, 1), (3, 5), (4, 1)], [(1, 1), (1, 2), (2, 2), (1, 3), (2, 3), (3, 3), (1, 4), (2, 7), (5, 9)])
 s = rnd_steps(6, 30, 1, 10)
@@ -116,14 +113,14 @@ s = rnd_steps(200, 5000, 1, 1000, "down")
 add(s, mix(s, 100, tmax=30000))
 s = rnd_steps(1000, 30000, 1, 100)
 add(s, mix(s, 50, ("any", "edge"), tmax=60000))
-# hidden: large values, smaller sizes
+
 s = rnd_steps(3, MAXU, MAXP - 10, MAXP)
 add(s, mix(s, 3000))
-s = [(1, MAXP)]                                          # one price for everything
+s = [(1, MAXP)]
 add(s, mix(s, 3000) + [(1, (MAXA // MAXP) - 1), (MAXA // MAXP // 2, MAXA // MAXP // 2)])
 s = rnd_steps(2000, MAXU, 1, MAXP)
 add(s, mix(s, 3000))
-# hidden: maximum size
+
 s = rnd_steps(MAXK, MAXU, 1, MAXP, "up")
 add(s, mix(s, MAXQ))
 s = rnd_steps(MAXK, MAXU, 1, MAXP, "up")
@@ -134,12 +131,12 @@ s = rnd_steps(MAXK, MAXU, 1, MAXP, "down")
 add(s, mix(s, MAXQ, ("big", "edge")))
 s = rnd_steps(MAXK, MAXU, MAXP // 2, MAXP)
 add(s, mix(s, MAXQ, ("edge",)))
-s = rnd_steps(MAXK, 10**8, 1, 100, "up")                 # steps end early, large bills come from the last step
+s = rnd_steps(MAXK, 10**8, 1, 100, "up")
 s[-1] = (s[-1][0], MAXP)
 add(s, mix(s, MAXQ))
-s = [(1 + j * 20_000_000, MAXP - j) for j in range(MAXK)]  # equal-width steps, slowly falling prices
+s = [(1 + j * 20_000_000, MAXP - j) for j in range(MAXK)]
 add(s, mix(s, MAXQ))
-s = rnd_steps(MAXK, MAXU, 1, 3)                          # cheap units: totals up to 10^12 only
+s = rnd_steps(MAXK, MAXU, 1, 3)
 add(s, mix(s, MAXQ))
 s = rnd_steps(MAXK, MAXU, 1, MAXP)
 add(s, mix(s, MAXQ, ("big", "edge")))

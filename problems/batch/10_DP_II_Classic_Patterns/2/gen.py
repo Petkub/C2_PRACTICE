@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10002)
@@ -19,15 +19,14 @@ def add(A, p, q):
 
 
 def table(m, kind, hi):
-    """prices of 1..m bags for one village"""
     if kind == "rand":
         return [random.randint(0, hi) for _ in range(m)]
-    if kind == "up":                       # price grows with the number of bags
+    if kind == "up":
         return sorted(random.randint(0, hi) for _ in range(m))
-    if kind == "bulk":                     # a big package may be cheaper than a small one
+    if kind == "bulk":
         base = sorted(random.randint(hi // 2, hi) for _ in range(m))
         return [base[j] if random.random() < 0.6 else random.randint(0, hi // 3) for j in range(m)]
-    if kind == "linear":                   # the same price per bag: many cheapest splits
+    if kind == "linear":
         c = random.randint(1, 3)
         return [c * (j + 1) for j in range(m)]
     if kind == "same":
@@ -44,13 +43,12 @@ def case(n, m_lo, m_hi, kind, hi, A=None):
     add(A, p, q)
 
 
-# samples
 add(4, [[15, 28], [10, 30, 35], [20, 45]], [[10, 20], [12, 20, 40], [5, 30]])
 add(3, [[20, 30], [40, 50], [20, 50]], [[10, 60], [20, 50], [20, 40]])
 add(0, [[7, 8, 9], [1, 1]], [[4, 6, 10], [3, 3]])
 add(2, [[5, 9, 12, 20]], [[6, 7, 30, 31]])
 add(5, [[40, 15, 50], [20, 35, 30], [25, 10, 45]], [[30, 30, 60], [10, 50, 20], [5, 40, 35]])
-# hidden: small (brute.cpp tries every split)
+
 add(1, [[0]], [[0]])
 add(0, [[5, 6]], [[7, 1000000000]])
 case(4, 1, 3, "rand", 3)
@@ -60,11 +58,11 @@ case(6, 2, 4, "bulk", MAXC)
 case(5, 1, 4, "same", MAXC)
 case(6, 1, 4, "up", 50, A=1)
 case(6, 1, 3, "rand", 2)
-# hidden: medium and lopsided
+
 case(300, 20, 20, "rand", MAXC, A=5)
 case(300, 1, 20, "up", MAXC, A=0)
 case(100, 1, 20, "rand", 3)
-# hidden: maximum size
+
 N = MAXN
 case(N, 20, 20, "rand", MAXC)
 case(N, 20, 20, "rand", 3)

@@ -1,93 +1,82 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(5001)
-MAXN, MAXV = 200_000, 10**9
+random.seed(3002)
+MAXN, MAXD, MAXC = 200_000, 10**9, 10**9
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(D, a):
-    n = len(a)
-    assert 1 <= n <= MAXN and 1 <= D <= MAXV
-    assert all(1 <= x <= MAXV for x in a)
-    tests.append(f"{n} {D}\n" + " ".join(map(str, a)) + "\n")
+def add(D, C, p):
+    n = len(p)
+    assert 1 <= n <= MAXN
+    assert 2 <= D <= MAXD and 1 <= C <= MAXC
+    assert all(0 < x < D for x in p) and all(p[i] < p[i + 1] for i in range(n - 1))
+    tests.append(f"{n} {D} {C}\n" + " ".join(map(str, p)) + "\n")
 
 
-def clamp(x):
-    return max(1, min(MAXV, x))
+def need(D, p):
+    return max(max(b - a for a, b in zip([0] + p, p)), 2 * (D - p[-1]))
 
 
-def walk(n, D, lo_step, hi_step, start=None):
-    """random walk with steps of size in [lo_step, hi_step] times D / 4, any sign"""
-    x = start if start is not None else ri(MAXV // 4, 3 * MAXV // 4)
-    a = []
-    for _ in range(n):
-        a.append(x)
-        s = ri(lo_step * D // 4, hi_step * D // 4)
-        x = clamp(x + (s if random.random() < 0.5 else -s))
-    return a
+def stations(n, D):
+    if n * 3 > D:
+        return sorted(random.sample(range(1, D), n))
+    s = set()
+    while len(s) < n:
+        s.add(ri(1, D - 1))
+    return sorted(s)
 
 
-def sawtooth(n, D):
-    """notes that go up and down, each change just below or just above D, with a slow drift"""
-    a, x, up = [], ri(MAXV // 3, 2 * MAXV // 3), True
-    for _ in range(n):
-        a.append(x)
-        s = D + ri(-D // 3, D // 3)
-        x = clamp(x + s if up else x - s)
-        if random.random() < 0.8:
-            up = not up
-    return a
+add(10, 8, [3, 6, 8])
+add(10, 5, [4, 7])
+add(5, 10, [2])
+add(6, 6, [3])
+add(30, 9, [4, 9, 12, 17, 20, 26])
+add(100, 30, [40, 60])
 
-
-def trap_start(D, base, up=True):
-    """x, x + D - 1, x + D + 1, x + 1 (or its mirror): the best melody uses the 1st, 3rd and 4th notes"""
-    if up:
-        return [base, base + D - 1, base + D + 1, base + 1]
-    return [base, base - D + 1, base - D - 1, base - 1]
-
-
-# samples
-add(3, [2, 6, 5, 1, 7, 3, 4, 9])
-add(4, [10, 8, 3, 5, 9, 2, 6])
-add(10, [3, 8, 12, 5, 9])
-add(1, [2, 2, 5, 5, 5, 3, 3, 6, 1])
-add(2, [9, 8, 6, 5, 3, 2])
-add(5, [20, 14, 17, 9, 15, 23, 21, 12, 18, 30])
-# hidden: small
-add(7, [42])
-add(1, [5, 5])
-add(5, [1, 5, 7, 2])                                   # the start decides the direction late
-add(5, [9, 5, 3, 8])
-add(MAXV - 1, [1, MAXV, 1, MAXV, 2, MAXV])
-for n, V, D in [(10, 12, 3), (15, 9, 2), (20, 50, 7), (60, 1000, 120), (2000, 10**9, 2 * 10**8)]:
-    add(D, [ri(1, V) for _ in range(n)])
-add(40, trap_start(40, 500, False) + [ri(300, 700) for _ in range(30)])
-D = 1000
-add(D, trap_start(D, 5000) + sawtooth(3000, D))
-add(D, trap_start(D, 9000, False) + sawtooth(3000, D))
-# hidden: maximum size
-N = MAXN
-add(10**8, [ri(1, MAXV) for _ in range(N)])
-add(10**8, trap_start(10**8, 5 * 10**8, False) + [ri(1, MAXV) for _ in range(N - 4)])
-add(1, [ri(1, 3) for _ in range(N)])                   # many equal neighbours
-add(123_456, [777_777_777] * N)                       # one note only
-add(5, [1 + 5 * i for i in range(N)])                  # rising all the way
-add(MAXV // 2, [1 if i % 2 == 0 else MAXV for i in range(N)])   # every note fits
+add(2, 1, [1])
+add(2, 2, [1])
+add(2, 4, [1])
+add(7, 4, [1, 3, 5])
+add(7, 3, [1, 3, 5])
+add(12, 5, [2, 5, 9])
+for D, n in [(20, 5), (30, 8), (40, 12), (60, 20), (100, 30), (1000, 300), (50, 6), (80, 15)]:
+    p = stations(n, D)
+    add(D, need(D, p) + ri(0, 2 * need(D, p)), p)
 D = 10**6
-add(D, sawtooth(N, D))
-add(D, trap_start(D, 4 * 10**8) + sawtooth(N - 4, D))
-D = 5000
-add(D, trap_start(D, 6 * 10**8) + walk(N - 4, D, 1, 8))
-D = 3 * 10**8
-add(D, trap_start(D, 7 * 10**8, False) + walk(N - 4, D, 2, 6))
-D = 37
-add(D, walk(N, D, 0, 7))
+add(D, 4000, stations(3000, D))
+add(MAXD, 10**8, stations(5000, MAXD))
+p = stations(3000, 10**5)
+add(10**5, need(10**5, p), p)
+
+N = MAXN
+add(MAXD, 4 * 10**8, stations(N, MAXD))
+add(MAXD, 2 * 10**8 + 7, stations(N, MAXD))
+add(MAXD, 3 * 10**7, stations(N, MAXD))
+add(MAXD, 2 * 10**4, stations(N, MAXD))
+p = [4900 * (i + 1) for i in range(N)]
+D = p[-1] + 2450
+add(D, 4900, p)
+add(D, 9800, p)
+add(MAXD, MAXC, stations(N, MAXD))
+add(MAXD - 1, MAXC, stations(N, MAXD - 1))
+p = stations(N, MAXD // 2)
+add(MAXD, 6 * 10**8, p)
+p = stations(N - 1, MAXD // 2) + [MAXD - 3 * 10**8]
+add(MAXD, 6 * 10**8, p)
+p = []
+for c in range(20):
+    base = 25_000_000 + c * 48_000_000
+    p += [base + 1000 * k + ri(0, 999) for k in range(N // 20)]
+gap = need(MAXD, p)
+add(MAXD, gap, p)
+add(MAXD, gap - 1, p)
+p = list(range(1, N + 1))
+add(N + 1, 7, p)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

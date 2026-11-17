@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(13003)
@@ -18,7 +18,6 @@ def rnd(n, q):
 
 
 def special(n, q):
-    """creases near powers of two and near the ends, plus random ones"""
     top = (1 << n) - 1
     ks = []
     while len(ks) < q:
@@ -41,13 +40,12 @@ def special(n, q):
     return ks
 
 
-# samples
 add(2, [1, 2, 3])
 add(3, [7, 4, 6])
 add(1, [1])
 add(60, [1 << 59, (1 << 60) - 1, 3])
 add(10, [100, 512, 999, 1023])
-# hidden: small (the brute force folds a real strip)
+
 add(1, [1, 1])
 add(2, [3, 2, 1])
 add(3, list(range(1, 8)))
@@ -57,7 +55,7 @@ add(12, rnd(12, 3000))
 add(16, special(16, 5000))
 add(18, special(18, 20000))
 add(18, rnd(18, 20000))
-# hidden: large
+
 add(MAXN, rnd(MAXN, MAXQ))
 add(MAXN, special(MAXN, MAXQ))
 add(MAXN, special(MAXN, MAXQ))

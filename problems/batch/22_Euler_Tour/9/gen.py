@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(220009)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -22,17 +21,17 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, short side branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "longchains":                  # 20 chains of length n / 20 glued at random
+        elif kind == "longchains":
             p = i - 1 if (i - 1) % max(2, n // 20) else ri(1, i - 1)
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
             raise ValueError(kind)
@@ -41,8 +40,6 @@ def shape(n, kind):
 
 
 def tree(n, kind):
-    """parent array p[0..n] (p[1] = 0) of a tree of the given shape with random labels (shape node 1 = town 1);
-    lab[i - 1] = label of shape node i (small i = close to the root)"""
     par = shape(n, kind)
     lab = list(range(2, n + 1))
     random.shuffle(lab)
@@ -64,7 +61,7 @@ def add(n, a, p, qs):
     order = [1]
     for u in order:
         order.extend(ch[u])
-    assert len(order) == n                     # every town reaches town 1
+    assert len(order) == n
     vs, xs = zip(*qs)
     assert 1 <= min(vs) and max(vs) <= n and 1 <= min(xs) and max(xs) <= MAXV
     t = (f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + " ".join(map(str, p[2:])) + "\n"
@@ -74,8 +71,6 @@ def add(n, a, p, qs):
 
 
 def rqs(n, q, a, lab, deep=None, vhi=MAXV):
-    """questions from the `deep` deepest towns (any town if None); x is mostly a toll that occurs (ties),
-    sometimes a random value, below every toll or above every toll"""
     res = []
     amin = min(a)
     for _ in range(q):
@@ -99,13 +94,12 @@ def big(kind, q, vhi, deep, n=MAXN, few=None):
     add(n, a, p, rqs(n, q, a, lab, deep, vhi))
 
 
-# samples
 add(7, [5, 3, 8, 6, 2, 4, 7], [0, 0, 1, 1, 2, 2, 3, 5], [(7, 5), (6, 4), (4, 10), (1, 4)])
 add(4, [2, 2, 9, 1], [0, 0, 1, 2, 3], [(4, 2), (3, 1), (4, 9)])
 add(2, [MAXV, MAXV], [0, 0, 1], [(2, MAXV), (1, MAXV)])
 add(5, [1, 2, 3, 4, 5], [0, 0, 1, 1, 1, 1], [(5, 5), (3, 2), (1, 1)])
 add(6, [4, 4, 4, 4, 4, 3], [0, 0, 6, 1, 2, 3, 1], [(4, 4), (5, 3), (5, 4)])
-# hidden: small and medium
+
 add(2, [MAXV, MAXV], [0, 0, 1], [(2, MAXV), (2, MAXV - 1), (1, 1)])
 add(6, [4, 4, 4, 4, 4, 4], [0, 0, 6, 1, 2, 3, 1], [(4, 4), (5, 3), (5, 4), (6, 5)])
 for n, kind, q in ((3, "path", 6), (10, "random", 20), (30, "deep", 40), (40, "star", 60), (80, "caterpillar", 100),
@@ -117,12 +111,12 @@ for n, kind in ((5000, "path"), (8000, "broom"), (8000, "deep")):
     p, lab = tree(n, kind)
     a = [ri(1, MAXV) for _ in range(n)]
     add(n, a, p, rqs(n, 8000, a, lab, 1000))
-# hidden: a shallow tree (short ways home)
+
 big("random", 50_000, 10**6, None, n=20_000)
-# hidden: maximum size (questions from the deepest towns)
+
 big("path", MAXQ, 10**6, 5_000)
 big("path", 60_000, MAXV, 1_000)
-big("path", MAXQ, 10**6, 20_000, few=10)                  # only 10 different tolls: many ties
+big("path", MAXQ, 10**6, 20_000, few=10)
 big("deep", MAXQ, 10**6, 10_000)
 big("caterpillar", MAXQ, 10**6, 30_000)
 big("broom", MAXQ, 10**6, 40_000)

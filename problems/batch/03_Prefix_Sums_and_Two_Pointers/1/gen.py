@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(30101)
@@ -17,7 +17,7 @@ def add(a, b, qs):
 
 
 def rng(n, mode):
-    if mode == "long":                   # nearly the whole range
+    if mode == "long":
         lo = random.randint(1, max(1, n // 20))
         hi = random.randint(n - n // 20, n)
         return lo, max(lo, hi)
@@ -42,21 +42,20 @@ def vals(k, lo=-MAXA, hi=MAXA):
     return [random.randint(lo, hi) for _ in range(k)]
 
 
-# samples
 add([1, 2, 3], [1, -1, 2, 0], [(1, 1, 2, 3), (2, 3, 3, 4), (1, 1, 3, 4)])
 add([-2, 5], [3, 4, -1], [(2, 2, 2, 3), (1, 1, 2, 1), (1, 2, 1, 2)])
 add([7], [-6], [(1, 1, 1, 1)])
 add([MAXA] * 4, [-MAXA] * 5, [(1, 1, 4, 5), (2, 3, 3, 3)])
 add([3, -3, 1, 0, 2], [2, 2, -5], [(1, 1, 2, 3), (3, 1, 5, 3), (4, 2, 4, 3), (1, 3, 5, 3)])
-# hidden: small and medium
+
 add([0, 0], [5, -5], [(1, 1, 2, 2), (1, 2, 1, 2)])
 add(vals(10, -9, 9), vals(12, -9, 9), queries(10, 12, 40, "any"))
 add(vals(50), vals(40), queries(50, 40, 200, "mix"))
 add(vals(300), vals(1), queries(300, 1, 300, "any"))
 add(vals(1), vals(300), queries(1, 300, 300, "any"))
-add([MAXA] * 400, [MAXA] * 400, queries(400, 400, 500, "long"))       # 32-bit product overflow
+add([MAXA] * 400, [MAXA] * 400, queries(400, 400, 500, "long"))
 add(vals(2000, -MAXA, -MAXA + 50), vals(1500, MAXA - 50, MAXA), queries(2000, 1500, 2000, "mix"))
-# hidden: maximum size
+
 add(vals(MAXN), vals(MAXN), queries(MAXN, MAXN, MAXQ, "long"))
 add([MAXA] * MAXN, [MAXA] * MAXN, queries(MAXN, MAXN, MAXQ, "long"))
 add([-MAXA] * MAXN, [MAXA] * MAXN, queries(MAXN, MAXN, MAXQ, "long"))

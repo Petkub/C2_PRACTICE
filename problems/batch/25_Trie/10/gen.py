@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(250010)
@@ -8,7 +8,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """like randint, but from random.random() only (fast, and the same on every Python 3 version)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -19,7 +18,6 @@ def rnd(n, lo=0, hi=MAXV):
 
 
 def add(a, qs):
-    """qs: list of (l, r, codes)"""
     n, q = len(a), len(qs)
     assert 1 <= n <= MAXN and 1 <= q <= MAXQ
     assert all(0 <= x <= MAXV for x in a)
@@ -33,7 +31,6 @@ def add(a, qs):
 
 
 def counts(q, k):
-    """q numbers >= 1 with sum k"""
     c = [1] * q
     for _ in range(k - q):
         c[int(random.random() * q)] += 1
@@ -41,12 +38,10 @@ def counts(q, k):
 
 
 def questions(ranges, k, xlo=0, xhi=MAXV):
-    """attach codes to the ranges, k codes in all"""
     return [(l, r, rnd(c, xlo, xhi)) for (l, r), c in zip(ranges, counts(len(ranges), k))]
 
 
 def rlong(n, q):
-    """long ranges: l in the first tenth, r in the last tenth"""
     out = []
     for _ in range(q):
         l = ri(1, max(1, n // 10))
@@ -55,7 +50,6 @@ def rlong(n, q):
 
 
 def rwide(n, q):
-    """ranges of at least a quarter of the row at random places"""
     out = []
     for _ in range(q):
         ln = ri(n // 4, n)
@@ -72,13 +66,12 @@ def rany(n, q):
     return out
 
 
-# samples
 add([1, 6, 3, 7, 2], [(1, 5, [4, 0]), (2, 4, [1]), (5, 5, [7, 2])])
 add([0], [(1, 1, [0, MAXV])])
 add([5, 5, 9, 5], [(1, 2, [12]), (2, 4, [12, 5]), (4, 4, [5])])
 add([8, 1, 15, 2, 4, 11], [(1, 6, [7, 9]), (2, 5, [7]), (4, 6, [9]), (3, 3, [3])])
 add([3, 12, 10, 6, 1, 0, 13], [(2, 7, [5, 2]), (1, 3, [1]), (5, 6, [14, 0, 1])])
-# hidden: small and medium
+
 add(rnd(10, 0, 15), questions(rany(10, 8), 20, 0, 15))
 add(rnd(100, 0, 255), questions(rany(100, 100), 300, 0, 255))
 add(rnd(1000), questions(rany(1000, 300), 1000))
@@ -86,45 +79,45 @@ add(rnd(3000, 0, 7), questions(rany(3000, 1000), 2000, 0, 7))
 add(rnd(5000), questions(rlong(5000, 1000), 3000))
 n = 20_000
 ranges = []
-for _ in range(5000):                            # short ranges at random places
+for _ in range(5000):
     l = ri(1, n - 50)
     ranges.append((l, l + ri(0, 50)))
 add(rnd(n), questions(ranges, 20_000))
 ranges = []
-for _ in range(5000):                            # left ends far right: old indices must not be used
+for _ in range(5000):
     r = ri(19_000, n)
     ranges.append((ri(r - 2000, r), r))
 add([MAXV ^ ri(0, 1) for _ in range(17_000)] + rnd(3000, 0, 1023), questions(ranges, 20_000))
 n = 50_000
-add([MAXV] * n, questions([(1, n)] * 100 + rany(n, 1900), 10_000))         # all codes of the boxes equal
-add(rnd(n), questions([(1, n)] * 2000, 20_000))                             # the whole row every time
-# hidden: maximum size (every range is long)
+add([MAXV] * n, questions([(1, n)] * 100 + rany(n, 1900), 10_000))
+add(rnd(n), questions([(1, n)] * 2000, 20_000))
+
 N, Q, K = MAXN, MAXQ, MAXK
 add(rnd(N), questions(rlong(N, Q), K))
 add(rnd(N), questions(rwide(N, Q), K))
-a = rnd(N, 0, (1 << 18) - 1)                     # the far values sit outside most ranges
+a = rnd(N, 0, (1 << 18) - 1)
 for i in range(0, N, 5000):
     a[i] = ri(1 << 19, MAXV)
 add(a, questions(rlong(N, Q), K, 0, (1 << 18) - 1))
 add(sorted(rnd(N)), questions(rwide(N, Q), K))
 ranges = []
-for _ in range(Q):                               # ranges of about half the row at random places
+for _ in range(Q):
     l = ri(1, N // 2)
     ranges.append((l, l + ri(N // 3, N // 2 - 1)))
 add(sorted(rnd(N), reverse=True), questions(ranges, K))
 ranges = []
-for _ in range(Q):                               # left ends in the right half: the strong old values must not be used
+for _ in range(Q):
     l = ri(N // 2 + 1, N // 2 + 20_000)
     ranges.append((l, ri(max(l, N - 20_000), N)))
 add([MAXV ^ ri(0, 1) for _ in range(N // 2)] + rnd(N // 2, 0, (1 << 19) - 1), questions(ranges, K))
 a = [ri(0, 1023) if random.random() < 0.5 else ri(1 << 19, MAXV) for _ in range(N)]
-add(a, questions(rwide(N, Q), K))                # two groups of values
-add(rnd(N), questions(rwide(N, 300), K))         # few ranges, about a thousand codes each
+add(a, questions(rwide(N, Q), K))
+add(rnd(N), questions(rwide(N, 300), K))
 a = [(ri(0, 3) << 16) | random.getrandbits(16) for _ in range(N)]
-add(a, questions(rwide(N, Q), K))                # values that share their top bits
+add(a, questions(rwide(N, Q), K))
 a = rnd(N)
 qs = []
-for (l, r), c in zip(rwide(N, Q), counts(Q, K)):  # codes that pair best with a box just inside or just outside
+for (l, r), c in zip(rwide(N, Q), counts(Q, K)):
     ends = [p for p in (l - 1, l, r, r + 1) if 1 <= p <= N]
     qs.append((l, r, [MAXV ^ a[ends[int(random.random() * len(ends))] - 1] for _ in range(c)]))
 add(a, qs)

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(100116)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """parent of point i (2..n) is par[i] < i, in creation order"""
     par = [0, 0]
     for i in range(2, n + 1):
         if kind == "random":
@@ -20,13 +19,13 @@ def shape(n, kind):
             p = i - 1
         elif kind == "star":
             p = 1
-        elif kind == "deep":                       # long random branches
+        elif kind == "deep":
             p = ri(max(1, i - 4), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "cater":                      # spine 1..n/2, the rest are legs
+        elif kind == "cater":
             p = i - 1 if i <= n // 2 else ri(1, n // 2)
-        elif kind == "spider":                     # a few long legs from point 1
+        elif kind == "spider":
             p = 1 if i <= 4 else i - 3
         else:
             raise ValueError(kind)
@@ -55,7 +54,6 @@ def add(n, edges, qs):
 
 
 def build(n, kind, wgen, q, qgen):
-    """qgen(lab, n) returns one query (labels already shuffled)"""
     par = shape(n, kind)
     lab = list(range(1, n + 1))
     random.shuffle(lab)
@@ -75,7 +73,6 @@ def anyq(lab, n):
 
 
 def tail(frac):
-    """three points created late (deep in path-like shapes)"""
     def g(lab, n):
         lo = max(1, int(n * (1 - frac)))
         return (lab[ri(lo, n)], lab[ri(lo, n)], lab[ri(lo, n)])
@@ -96,14 +93,13 @@ def mixq(lab, n):
     return anyq(lab, n)
 
 
-# samples
 add(7, [(1, 2, 2), (2, 3, 1), (2, 4, 5), (1, 5, 3), (5, 6, 4), (5, 7, 2)],
     [(3, 4, 6), (6, 7, 1), (3, 3, 4)])
 add(4, [(1, 2, 10), (2, 3, 20), (3, 4, 30)], [(1, 4, 2), (4, 4, 4), (1, 3, 4)])
 add(1, [], [(1, 1, 1)])
 add(4, [(4, 1, 7), (4, 2, 1), (4, 3, 8)], [(1, 2, 3), (2, 2, 1)])
 add(3, [(1, 2, 1000000), (2, 3, 1000000)], [(1, 3, 3), (3, 1, 1)])
-# hidden: small
+
 add(2, [(1, 2, 3)], [(1, 1, 2), (2, 2, 1), (1, 2, 2), (2, 1, 1), (1, 1, 1), (2, 2, 2)])
 build(10, "random", lambda: ri(1, 10), 50, mixq)
 build(40, "path", lambda: ri(1, 100), 100, mixq)
@@ -111,9 +107,9 @@ build(300, "random", lambda: ri(1, MAXW), 300, mixq)
 build(1000, "cater", lambda: ri(1, MAXW), 1000, mixq)
 build(2000, "spider", lambda: ri(1, 20), 1000, mixq)
 build(3000, "binary", lambda: ri(1, MAXW), 2000, mixq)
-# hidden: maximum size
+
 N, Q = MAXN, MAXQ
-build(N, "path", lambda: MAXW, Q, anyq)                 # the largest totals
+build(N, "path", lambda: MAXW, Q, anyq)
 build(N, "path", lambda: ri(1, MAXW), Q, mixq)
 build(N, "random", lambda: ri(1, MAXW), Q, anyq)
 build(N, "random", lambda: ri(1, MAXW), Q, repeat)

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(41800)
@@ -8,12 +8,10 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
 def add(L, ops):
-    """ops: list of 0 (IN) or k >= 1 (OUT k); checks every guarantee of the statement"""
     q = len(ops)
     assert 1 <= L <= MAXL and 1 <= q <= MAXQ
     arrived, present = 0, set()
@@ -32,11 +30,10 @@ def add(L, ops):
 
 
 class Room:
-    """builds a valid sequence of operations: who is present is all the generator needs to know"""
 
     def __init__(self, L):
         self.L, self.ops, self.arrived = L, [], 0
-        self.present, self.pos = [], {}          # people present (any order) and their index in that list
+        self.present, self.pos = [], {}
 
     def come(self, times=1):
         for _ in range(times):
@@ -48,7 +45,6 @@ class Room:
             self.ops.append(0)
 
     def leave(self, i=None):
-        """the person at index i of the present list leaves (random if None)"""
         if not self.present:
             return
         if i is None:
@@ -60,7 +56,6 @@ class Room:
         self.ops.append(p)
 
     def leave_ordered(self, k):
-        """the person who arrived k-th (must be present)"""
         self.leave(self.pos[k])
 
 
@@ -74,47 +69,46 @@ def mixed(L, q, p_in):
     return r.ops
 
 
-# samples
 add(10, [0, 0, 0, 0, 3, 0])
 add(6, [0, 0, 0, 1, 0])
 add(1, [0, 1, 0])
 add(2, [0, 0, 1, 0])
 add(8, [0, 0, 0, 0])
-# hidden: small
+
 add(3, [0, 0, 0, 2, 0, 1, 3, 0])
 add(5, mixed(5, 40, 0.55))
 add(16, mixed(16, 200, 0.6))
 add(17, mixed(17, 300, 0.5))
 add(100, mixed(100, 1000, 0.7))
 add(1000, mixed(1000, 2000, 0.6))
-add(2000, [0] * 2000)                          # the row becomes completely full
+add(2000, [0] * 2000)
 r = Room(3000)
 r.come(1500)
-for k in range(1, 1501):                       # everybody leaves in arrival order, then the row refills
+for k in range(1, 1501):
     r.leave_ordered(k)
 r.come(1000)
 add(3000, r.ops)
-# large
+
 Q = MAXQ
-add(MAXL, [0] * Q)                             # only arrivals: the number of people only grows
-add(Q, [0] * Q)                                # L = Q: every seat gets taken
+add(MAXL, [0] * Q)
+add(Q, [0] * Q)
 add(2 * Q - 1, [0] * Q)
 r = Room(MAXL)
 r.come(Q // 2)
-while len(r.ops) < Q:                          # crowded room, people keep swapping
+while len(r.ops) < Q:
     r.leave()
     r.come()
 add(MAXL, r.ops)
 r = Room(2**29 + 1)
 r.come(Q // 2)
-while len(r.ops) + 1 < Q:                      # early arrivals (they sit far apart) leave, big gaps reopen
+while len(r.ops) + 1 < Q:
     r.leave(ri(0, 9))
     r.come()
 add(2**29 + 1, r.ops)
 add(MAXL, mixed(MAXL, Q, 0.7))
 add(123_456_789, mixed(123_456_789, Q, 0.55))
 r = Room(MAXL)
-for _ in range(100):                           # fill, then everybody leaves: the empty row again and again
+for _ in range(100):
     r.come(Q // 200 - 1)
     while r.present:
         r.leave()
@@ -129,13 +123,13 @@ while len(r.ops) < Q:
 add(150_000, r.ops)
 r = Room(MAXL)
 r.come(Q * 3 // 4)
-while len(r.ops) < Q:                          # the most recent arrivals leave (all small gaps reopen)
+while len(r.ops) < Q:
     r.leave(len(r.present) - 1)
     r.come()
 add(MAXL, r.ops)
 r = Room(MAXL - 1)
 r.come(Q // 2)
-for k in range(2, Q // 4):                     # all but the first person leave in arrival order
+for k in range(2, Q // 4):
     r.leave_ordered(k)
 r.come(Q - len(r.ops))
 add(MAXL - 1, r.ops)

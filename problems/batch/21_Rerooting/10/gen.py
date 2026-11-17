@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 tests = []
@@ -9,7 +9,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -20,21 +19,21 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, a few short branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains meeting at node 1
+        elif kind == "twopaths":
             p = 1 if i <= 3 else i - 2
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
-        elif kind == "spider":                      # about sqrt(n) legs of equal length from node 1
+        elif kind == "spider":
             p = 1 if i <= b + 1 else i - b
-        elif kind == "bushy":                       # star of stars: about sqrt(n) hubs, each with many leaves
+        elif kind == "bushy":
             p = 1 if i <= b + 1 else ri(2, b + 1)
         else:
             raise ValueError(kind)
@@ -43,7 +42,6 @@ def shape(n, kind):
 
 
 def shuffle(a):
-    """Fisher-Yates driven by random.random() only (fast, and the same on every Python 3 version)"""
     rnd = random.random
     for i in range(len(a) - 1, 0, -1):
         j = int(rnd() * (i + 1))
@@ -51,9 +49,8 @@ def shuffle(a):
 
 
 def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends"""
     n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
+    assert all(1 <= par[i] < i for i in range(2, n + 1))
     lab = list(range(1, n + 1))
     shuffle(lab)
     if root_first:
@@ -66,7 +63,6 @@ def relabel(par, root_first=False):
 
 
 def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
     assert len(edges) == n - 1
     root = list(range(n + 1))
 
@@ -104,9 +100,6 @@ def add(n, a, edges, from_shape=False):
 
 
 def make(n, kind, mode="signed", lo=-MAXA, hi=MAXA, root_first=False):
-    """"signed": random in [lo, hi]; "positive": 1..hi (a weighted centroid problem); "pairs": each surplus
-    sits next to a matching demand (sums stay small, many near ties); "sided": one half of the shape
-    supplies, the other half demands"""
     par = shape(n, kind)
     edges, lab = relabel(par, root_first)
     a = [0] * (n + 1)
@@ -126,9 +119,6 @@ def make(n, kind, mode="signed", lo=-MAXA, hi=MAXA, root_first=False):
 
 
 def make_plant(n, kind, lim, tgt, pairs):
-    """small values in [-lim, lim] with total tgt (or in [1, lim] if tgt is None), plus `pairs` roads p-c (c's side about a sixth to a
-    third of the tree) with +B at c and -B at p: such a road decides M, every depot on c's side ties on
-    M and S decides there, while the smallest S overall usually lies elsewhere (kills "minimise S only")"""
     par = shape(n, kind)
     sz = [1] * (n + 1)
     for i in range(n, 1, -1):
@@ -159,14 +149,13 @@ def make_plant(n, kind, lim, tgt, pairs):
     add(n, b[1:], edges, True)
 
 
-# samples
 add(6, [1, -1, -4, 3, -5, 1], [(1, 2), (2, 3), (3, 4), (3, 5), (1, 6)])
 add(4, [5, -1, -1, -5], [(1, 2), (2, 3), (3, 4)])
 add(1, [-7], [])
 add(4, [3, -1, -1, 3], [(1, 2), (2, 3), (3, 4)])
 add(7, [3, -5, -2, -1, -2, 3, 2], [(1, 2), (2, 4), (3, 4), (3, 5), (3, 7), (4, 6)])
-# hidden: small and medium (in the four hand-made trees the depot with the smallest S, or the smallest
-# number among those, has a larger M)
+
+
 add(2, [MAXA, -MAXA], [(1, 2)])
 add(7, [-2, 6, -3, 4, -6, 1, 2], [(1, 2), (2, 3), (2, 4), (4, 5), (5, 6), (6, 7)])
 add(9, [2, -4, 2, -4, 2, 2, -6, 1, 6], [(1, 5), (2, 4), (2, 7), (2, 8), (3, 4), (5, 7), (6, 7), (7, 9)])
@@ -178,14 +167,14 @@ make_plant(300, "caterpillar", 1000, None, 1)
 make(2000, "path", "positive", root_first=True)
 make_plant(5000, "chains", 3, 2, 1)
 make_plant(8000, "spider", 50, 3, 1)
-# hidden: maximum size
+
 N = MAXN
-make(N, "path", "sided", hi=MAXA)                 # the largest loads
+make(N, "path", "sided", hi=MAXA)
 make(N, "path", "signed", -2, 2)
 make(N, "deep", "signed")
 make(N, "caterpillar", "pairs")
 make(N, "random", "signed")
-# hidden: one heavy road decides M, S decides among many depots
+
 make_plant(N, "path", 1000, None, 1)
 make_plant(N, "caterpillar", 1000, None, 1)
 make_plant(N, "chains", 1000, None, 1)
@@ -195,6 +184,6 @@ make_plant(N, "twopaths", 100, None, 1)
 make_plant(N, "bushy", 5, 1, 1)
 make_plant(N, "random", 1000, 5, 2)
 make_plant(N, "spider", 1000, None, 1)
-# hidden: maximum size, no heavy road
+
 make(N, "binary", "pairs", root_first=True)
 write_tests()

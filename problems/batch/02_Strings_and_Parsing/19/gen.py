@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(151901)
@@ -15,8 +15,8 @@ def add(e):
 
 
 def check(e):
-    # iterative grammar check: E = T ('|' T)*, T = F ('&' F)*, F = digit | '!' F | '(' E ')'
-    # state machine: expect an operand (digit, '!', '(') or an operator / ')' after an operand
+
+
     depth, want_operand = 0, True
     for c in e:
         if want_operand:
@@ -36,7 +36,7 @@ def check(e):
 
 
 def small(budget, depth=0):
-    # a random expression of about budget characters (shallow recursion)
+
     r = random.random()
     if budget <= 1 or depth > 12 or r < 0.2:
         return random.choice("01")
@@ -58,7 +58,7 @@ def flat(n, ops, digits):
 
 
 def deep(levels, side):
-    # nest levels wrappers around a core; side(…) makes the small expressions put beside the inner part
+
     pre, suf = [], []
     for _ in range(levels):
         r = random.random()
@@ -77,7 +77,7 @@ def deep(levels, side):
 
 
 def balanced(levels, ops):
-    # complete binary tree, operator of level d is ops[d % len(ops)]
+
     e = "1"
     for d in range(levels):
         o = ops[d % len(ops)]
@@ -85,14 +85,13 @@ def balanced(levels, ops):
     return e
 
 
-# samples
 add("1|0&0")
 add("!(1&1)|0&0")
 add("0")
 add("!!!1")
 add("(1|1)&(1|1)")
 add("1|1|1")
-# hidden: small (brute tries every set of changed digits)
+
 add("1")
 add("!0")
 add("((((0))))")
@@ -101,11 +100,11 @@ for b in [8, 40, 60]:
     add(small(b))
 add(balanced(3, "&|"))
 add("!(" + flat(12, "&|", "01") + ")")
-# hidden: medium (brute evaluates recursively)
+
 add(small(3000))
 add(balanced(12, "&|"))
 add(flat(20000, "&|", "01"))
-# hidden: large
+
 add("(" * 499_999 + "1" + ")" * 499_999)
 add("!" * 999_999 + "0")
 add("!(" * 333_333 + "1" + ")" * 333_333)

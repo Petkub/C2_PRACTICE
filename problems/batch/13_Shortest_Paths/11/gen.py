@@ -1,8 +1,8 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(130808)
-MAXN, MAXM, MAXC = 100_000, 150_000, 10**9
+random.seed(131107)
+MAXN, MAXM, MAXW = 100_000, 100_000, 10**9
 tests = []
 
 
@@ -10,137 +10,236 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def shuffle(a):
-    for i in range(len(a) - 1, 0, -1):
-        j = int(random.random() * (i + 1))
-        a[i], a[j] = a[j], a[i]
-
-
-def add(n, abc, cost, roads, relabel=True):
-    roads = list(roads)
-    a, b, c = abc
+def add(n, edges, forced, relabel=True):
+    edges = list(edges)
+    forced = dict(forced)
     if relabel:
-        p = list(range(1, n + 1))
-        shuffle(p)
-        roads = [(p[u - 1], p[v - 1]) for u, v in roads]
-        new = [0] * n
-        for v in range(1, n + 1):
-            new[p[v - 1] - 1] = cost[v - 1]
-        cost = new
-        a, b, c = p[a - 1], p[b - 1], p[c - 1]
-        shuffle(roads)
-    m = len(roads)
-    assert 1 <= n <= MAXN and 0 <= m <= MAXM and len(cost) == n
-    assert all(1 <= x <= n for x in (a, b, c))
-    assert all(0 <= x <= MAXC for x in cost)
-    assert all(1 <= u <= n and 1 <= v <= n and u != v for u, v in roads)
-    tests.append(f"{n} {m}\n{a} {b} {c}\n" + " ".join(map(str, cost)) + "\n"
-                 + "".join(f"{u} {v}\n" for u, v in roads))
+        q = list(range(1, n))
+        random.shuffle(q)
+        q = [0] + q + [n]
+        rr = random.random
+        edges = [(q[a], q[b], w) if rr() < 0.5 else (q[b], q[a], w) for a, b, w in edges]
+        forced = {q[c]: q[t] for c, t in forced.items()}
+        random.shuffle(edges)
+    m = len(edges)
+    assert 2 <= n <= MAXN and 1 <= m <= MAXM
+    assert all(1 <= a <= n and 1 <= b <= n and a != b and 1 <= w <= MAXW for a, b, w in edges)
+    pairs = {a * 200_003 + b if a < b else b * 200_003 + a for a, b, w in edges}
+    assert len(pairs) == m
+    p = [0] * (n + 1)
+    for c, t in forced.items():
+        assert 1 <= c < n and 1 <= t <= n and pair_key(c, t) in pairs
+        p[c] = t
+    assert p[n] == 0
+    tests.append(f"{n} {m}\n" + " ".join(map(str, p[1:])) + "\n" + "".join(["%d %d %d\n" % e for e in edges]))
 
 
-def costs(n, lo, hi, zero=0.0):
-    return [0 if random.random() < zero else ri(lo, hi) for _ in range(n)]
+def pair_key(a, b):
+    return a * 200_003 + b if a < b else b * 200_003 + a
 
 
-def rnd_connected(n, m, first=1):
-    e = [(first + ri(0, v - 1), first + v) for v in range(1, n)]
-    while len(e) < m:
-        u, v = ri(first, first + n - 1), ri(first, first + n - 1)
-        if u != v:
-            e.append((u, v))
-    return e
+class Roads:
+
+    def __init__(self):
+        self.e = []
+        self.seen = set()
+
+    def put(self, a, b, w):
+        key = a * 200_003 + b if a < b else b * 200_003 + a
+        if a == b or key in self.seen:
+            return False
+        self.seen.add(key)
+        self.e.append((a, b, w))
+        return True
 
 
-def grid(r, c, m):
-    e = []
+def rnd(n, m, wfun, g=None):
+    g = g or Roads()
+    rr, put = random.random, g.put
+    while len(g.e) < m:
+        put(1 + int(rr() * n), 1 + int(rr() * n), wfun())
+    return g
+
+
+def chain(n, wfun):
+    g = Roads()
+    for i in range(1, n):
+        g.put(i, i + 1, wfun())
+    return g
+
+
+def band(n, m, width, wfun):
+    g = chain(n, wfun)
+    while len(g.e) < m:
+        a = ri(1, n - 1)
+        g.put(a, min(n, a + ri(2, width)), wfun())
+    return g
+
+
+def grid(r, c, wfun):
+    g = Roads()
     for i in range(r):
         for j in range(c):
             v = i * c + j + 1
             if j + 1 < c:
-                e.append((v, v + 1))
+                g.put(v, v + 1, wfun())
             if i + 1 < r:
-                e.append((v, v + c))
-    shuffle(e)
-    return e[:m]
+                g.put(v, v + c, wfun())
+    return g
 
 
-def three_arms(n, m, arm_lo, arm_hi, rest_lo, rest_hi, direct):
-    """centre 1 with three long arms (L cities each) of cheap cities ending at a, b, c; the other cities are
-    expensive and join everything at random; if direct, a cheap route a ... b of 1.5 L cities that misses the
-    centre is added: it is the cheapest a-b route, but joining c to it costs more than the three arms"""
-    L = n // 5
-    cost = [ri(rest_lo, rest_hi) for _ in range(n)]
-    cost[0] = ri(arm_lo, arm_hi)
-    e = []
-    ends = []
-    nxt = 2
-    for _ in range(3):
-        prev = 1
-        for _ in range(L):
-            e.append((prev, nxt))
-            cost[nxt - 1] = ri(arm_lo, arm_hi)
-            prev = nxt
-            nxt += 1
-        ends.append(prev)
-    if direct:
-        prev = ends[0]
-        for _ in range(L + L // 2):
-            e.append((prev, nxt))
-            cost[nxt - 1] = ri(arm_lo, arm_hi)
-            prev = nxt
-            nxt += 1
-        e.append((prev, ends[1]))
-    while nxt <= n:
-        e.append((ri(1, nxt - 1), nxt))
-        nxt += 1
-    while len(e) < m:
-        u, v = ri(1, n), ri(1, n)
-        if u != v and (cost[u - 1] >= rest_lo or cost[v - 1] >= rest_lo):
-            e.append((u, v))
-    return ends, cost, e
+def tree(n, window, wfun):
+    g = Roads()
+    for i in range(2, n + 1):
+        g.put(ri(max(1, i - window), i - 1), i, wfun())
+    return g
 
 
-# samples
-add(5, (1, 3, 5), [0, 4, 0, 2, 0], [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)], False)
-add(6, (2, 4, 6), [3, 0, 1, 0, 5, 0], [(1, 2), (2, 3), (3, 4), (5, 6)], False)
-add(3, (2, 2, 2), [1, 7, 2], [(1, 2), (2, 3)], False)
-add(6, (1, 6, 4), [2, 1, 3, 0, 6, 2], [(1, 2), (2, 3), (3, 6), (1, 4), (4, 5), (5, 6), (2, 4)], False)
-add(4, (1, 2, 3), [0, 0, 0, 0], [(1, 4), (2, 4), (3, 4)], False)
-# hidden: small (checked against the brute force)
-add(1, (1, 1, 1), [MAXC], [])
-add(2, (1, 2, 1), [MAXC, MAXC], [(1, 2)])
-for n, m, hi, zero in ((7, 9, 10, 0.3), (12, 20, 100, 0.0), (16, 22, 50, 0.1),
-                       (16, 30, MAXC, 0.2)):
-    add(n, random.sample(range(1, n + 1), 3), costs(n, 1, hi, zero), rnd_connected(n, m))
-for n, m, hi in ((15, 20, 3), (16, 22, 2)):
-    ends, cost, e = three_arms(n, m, 0, hi, 20, 40, True)
-    add(n, ends, cost, e)
-ends, cost, e = three_arms(40, 60, 0, 5, 50, 100, True)
-add(40, ends, cost, e)
-ends, cost, e = three_arms(200, 280, 0, 10, 100, 1000, True)
-add(200, ends, cost, e)
-add(300, random.sample(range(1, 301), 3), costs(300, 0, 20, 0.3), grid(15, 20, 500))
-# hidden: maximum size
+def neighbours(n, g):
+    adj = [[] for _ in range(n + 1)]
+    for a, b, _ in g.e:
+        adj[a].append(b)
+        adj[b].append(a)
+    return adj
+
+
+def force_random(n, g, share, pick=None, near=True):
+    adj = neighbours(n, g)
+    skip = set() if near else set(adj[n])
+    f = {}
+    for c in range(1, n):
+        if adj[c] and c not in skip and random.random() < share:
+            f[c] = pick(c, adj[c]) if pick else adj[c][ri(0, len(adj[c]) - 1)]
+    return f
+
+
+def line(n, m, share, width, wfun, bfun):
+    g = Roads()
+    f = {}
+    w = [0] + [wfun() for _ in range(n)]
+    c = 2
+    while c < n - 1:
+        if random.random() < share:
+            f[c] = c - 1 if random.random() < 0.5 else c + 1
+            g.put(c - 1, c + 1, bfun())
+            if f[c] == c + 1:
+                w[c] = MAXW if random.random() < 0.5 else w[c]
+            c += 2
+        else:
+            c += 1
+    for i in range(1, n):
+        g.put(i, i + 1, w[i])
+    while len(g.e) < m:
+        a = ri(1, n - 2)
+        g.put(a, min(n, a + ri(2, width)), bfun())
+    return g, f
+
+
+def highest(c, nb):
+    return max(nb)
+
+
+W1 = lambda: 1
+WBIG = lambda: MAXW
+wr = lambda lo, hi: (lambda: ri(lo, hi))
+
+
+add(5, [(1, 2, 2), (2, 5, 10), (2, 3, 1), (3, 5, 3), (1, 4, 4), (4, 5, 9)], {2: 5}, False)
+add(5, [(1, 2, 4), (2, 3, 1), (3, 5, 7), (4, 5, 2)], {1: 2, 2: 1}, False)
+add(4, [(1, 2, 5), (2, 4, 5), (1, 4, 1), (3, 1, 1)], {1: 2, 2: 4}, False)
+add(5, [(1, 5, 8), (1, 2, 3), (2, 5, 4), (3, 4, 6)], {}, False)
+add(2, [(1, 2, MAXW)], {1: 2}, False)
+
+
+add(2, [(2, 1, 1)], {})
+add(3, [(1, 2, MAXW), (2, 3, MAXW), (1, 3, MAXW)], {1: 2})
+for n, m, share, wf in ((5, 7, 0.5, wr(1, 5)), (7, 12, 0.6, wr(1, 9)), (8, 14, 0.3, W1),
+                        (10, 18, 0.5, WBIG), (12, 30, 0.35, wr(1, 20))):
+    g = rnd(n, m, wf)
+    add(n, g.e, force_random(n, g, share))
+g = rnd(60, 150, wr(1, 30))
+add(60, g.e, force_random(60, g, 0.3))
+g, f = line(400, 900, 0.3, 5, wr(1, 50), wr(10**8, MAXW))
+add(400, g.e, f)
+g = grid(30, 40, wr(1, 6))
+add(1200, g.e, force_random(1200, g, 0.25), False)
+g = rnd(3000, 5500, wr(1, MAXW), tree(3000, 40, wr(1, MAXW)))
+add(3000, g.e, force_random(3000, g, 0.2))
+g, f = line(4000, 7000, 0.35, 4, wr(1, 3), wr(1, 9))
+add(4000, g.e, f)
+
+
 N, M = MAXN, MAXM
-ends, cost, e = three_arms(N, M, 0, 3, 10**6, MAXC, True)
-add(N, ends, cost, e)
-ends, cost, e = three_arms(N, M, 1, 1000, 10**8, MAXC, True)
-add(N, ends, cost, e)
-ends, cost, e = three_arms(N, M, 0, 10**4, MAXC, MAXC, False)
-add(N, ends, cost, e)
-ends, cost, e = three_arms(N, M, 0, 50, 10**7, MAXC, True)
-add(N, (ends[1], ends[0], ends[2]), cost, e)
-add(N, (1, 400, N), costs(N, 1, 100, 0.3), grid(250, 400, M))                   # three corners of a grid
-add(N, (1, 400, N - 399), costs(N, 0, MAXC, 0.5), grid(250, 400, M))
-add(N, (ri(1, N), ri(1, N), ri(1, N)), costs(N, 1, MAXC, 0.3), rnd_connected(N, M))
-add(N, (ri(1, N), ri(1, N), ri(1, N)), costs(N, 1, 10, 0.5), rnd_connected(N, M))
-add(N, (1, N, N // 2), costs(N, MAXC, MAXC),                                      # a long line, all at 10^9
-    [(v, v + 1) for v in range(1, N)] + [(v, v + 2) for v in range(1, M - N + 2)])
-v = ri(1, N)
-add(N, (v, v, ri(1, N)), costs(N, 0, MAXC, 0.2), rnd_connected(N, M))
-e = rnd_connected(N - 500, M - 600) + rnd_connected(500, 600, N - 499)         # c is cut off
-add(N, (1, 2, N), costs(N, 0, 1000, 0.5), e)
+FIRST_MAX = len(tests) + 1
+g = rnd(80_000, M, wr(1, MAXW), tree(80_000, 80_000, wr(1, MAXW)))
+add(80_000, g.e, force_random(80_000, g, 0.1), False)
+g = Roads()
+for _ in range(4):
+    g.put(50_000, ri(1, 49_999), ri(1, MAXW))
+g = rnd(50_000, M, wr(1, MAXW), g)
+add(50_000, g.e, force_random(50_000, g, 0.3, None, False), False)
+g = rnd(40_000, M, wr(1, 10))
+add(40_000, g.e, force_random(40_000, g, 0.5, None, False), False)
+g = chain(N, WBIG)
+g.put(1, N // 2, MAXW)
+add(N, g.e, {}, False)
+g, f = line(70_000, M, 0.1, 6, wr(1, 1000), wr(10**6, MAXW))
+add(70_000, g.e, f, False)
+g, f = line(60_000, M, 0.3, 8, wr(1, 5), wr(1, 12))
+add(60_000, g.e, f, False)
 
+n, L = 60_000, 20_000
+g = Roads()
+f = {}
+for c in range(n - L, n):
+    g.put(c, c + 1, ri(10**8, MAXW))
+    f[c] = c + 1
+for c in range(1, n - L - 1):
+    g.put(c, c + 1, ri(1, 10**6))
+while len(g.e) < M:
+    k = ri(1, 3)
+    if k == 1:
+        g.put(ri(1, n - L - 1), ri(n - L, n), ri(1, MAXW))
+    elif k == 2:
+        a = ri(n - L, n - 2)
+        g.put(a, min(n, a + ri(2, 50)), ri(1, 10**6))
+    else:
+        a = ri(1, n - L - 2)
+        g.put(a, min(n - L - 1, a + ri(2, 30)), ri(1, 10**6))
+add(n, g.e, f, False)
+g = grid(200, 250, wr(1, MAXW))
+add(50_000, g.e, force_random(50_000, g, 0.2), False)
+g = grid(20, 2500, wr(10**8, MAXW))
+add(50_000, g.e, force_random(50_000, g, 0.08), False)
+g = rnd(50_000, M, WBIG)
+add(50_000, g.e, force_random(50_000, g, 0.5, highest, False), False)
+g = tree(60_000, 300, wr(1, MAXW))
+while len(g.e) < M:
+    a = ri(1, 59_990)
+    g.put(a, a + ri(2, 10), ri(1, MAXW))
+add(60_000, g.e, force_random(60_000, g, 0.03), False)
+
+n, H = 70_000, 40_000
+bid = lambda i: n if i == H else i + 1
+g0 = band(H, 45_000, 3, wr(1, 1000))
+g = Roads()
+for a, b, w in g0.e:
+    g.put(bid(a), bid(b), w)
+f = {}
+g.put(1, 2, ri(1, MAXW))
+f[1] = 2
+for c in range(H + 1, n):
+    g.put(1, c, ri(1, MAXW))
+    if len(g.e) < M - (n - 1 - c):
+        t = ri(2, H)
+        g.put(c, t, ri(1, MAXW))
+        k = ri(1, 3)
+        if k < 3:
+            f[c] = 1 if k == 1 else t
+assert len(g.e) == M
+add(n, g.e, f, False)
+
+assert len(tests) - FIRST_MAX + 1 >= 0.4 * len(tests)
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
 os.makedirs("tests", exist_ok=True)

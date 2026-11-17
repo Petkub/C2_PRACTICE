@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(140202)
@@ -32,7 +32,6 @@ def flip(a, b):
 
 
 def tree_rules(n, deep=False):
-    """n - 1 rules that join everything into one group, in a random order"""
     p = list(range(1, n + 1))
     random.shuffle(p)
     res = []
@@ -43,14 +42,13 @@ def tree_rules(n, deep=False):
     return res
 
 
-# samples
 add("a??b?", [(1, 2), (3, 5), (2, 3), (4, 5), (1, 1)])
 add("????", [(1, 2), (3, 4), (2, 1), (4, 1)])
 add("?", [(1, 1)])
 add("ab?ba?", [(3, 6), (1, 5), (2, 6), (1, 3)])
 add("abc", [(2, 2), (1, 2), (3, 3)])
 
-# hidden: small
+
 add("z", [(1, 1), (1, 1)])
 add("??", [(2, 1), (1, 2)])
 for n, m, pk in ((5, 8, 0.3), (6, 10, 0.0), (7, 12, 0.5), (8, 15, 0.2), (8, 6, 1.0)):
@@ -61,23 +59,23 @@ add(code(3000, 0.0), rnd_rules(3000, 5000))
 s = "".join(random.choice("xy") if random.random() < 0.01 else "?" for _ in range(5000))
 add(s, tree_rules(5000))
 
-# hidden: maximum size
+
 N, M = MAXN, MAXM
-add("?" * N, rnd_rules(N, M))                                      # nothing known
-add("?" * N, [(k, 1) for k in range(2, N + 1)] + [(N, 1)])          # one group grows by single positions
-add(code(N, 0.001, "q"), tree_rules(N, True) + rnd_rules(N, 1))    # one known letter only: never 0
+add("?" * N, rnd_rules(N, M))
+add("?" * N, [(k, 1) for k in range(2, N + 1)] + [(N, 1)])
+add(code(N, 0.001, "q"), tree_rules(N, True) + rnd_rules(N, 1))
 s = list("?" * N)
 s[ri(0, N - 1)] = "a"
 s[ri(0, N - 1)] = "b"
-add("".join(s), tree_rules(N) + [(1, 1)])                          # the two letters meet late
+add("".join(s), tree_rules(N) + [(1, 1)])
 add(code(N, 0.0005, "abcdefghij"), rnd_rules(N, M))
 half = N // 2
 pal = [(i, N + 1 - i) for i in range(1, half + 1)]
 random.shuffle(pal)
 s = code(half, 0.001, "m")
-add(s + s[::-1], pal + rnd_rules(N, M - half))                    # mirror positions first
-add("?" * N, [flip(k, k + 1) for k in range(1, N)] + [(1, N)])     # neighbours joined left to right
-add(code(N, 0.0, LET), [(k, k) for k in range(1, M // 2 + 1)] + rnd_rules(N, M // 2))  # a = b rules first
+add(s + s[::-1], pal + rnd_rules(N, M - half))
+add("?" * N, [flip(k, k + 1) for k in range(1, N)] + [(1, N)])
+add(code(N, 0.0, LET), [(k, k) for k in range(1, M // 2 + 1)] + rnd_rules(N, M // 2))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(250011)
@@ -19,24 +19,24 @@ def word(alpha, lo, hi):
 
 
 AZ = "abcdefghijklmnopqrstuvwxyz"
-# samples
+
 add(["ba", "a", "bb", "c"])
 add(["apple", "apply", "ape", "app", "bat"])
 add(["solo"])
 add(["aa", "aa", "aa"])
 add(["abc", "abd", "bcd", "abc", "bce", "a"])
-# hidden: small (brute force over all pairings)
+
 add(["x", "y"])
 add([word("ab", 1, 4) for _ in range(7)])
 add([word("abc", 1, 5) for _ in range(10)])
 add([word("ab", 1, 6) for _ in range(13)])
 add([word("ab", 2, 8) for _ in range(16)])
 add([word("abcd", 1, 6) for _ in range(15)])
-# hidden: medium (greedy check)
+
 add([word("ab", 1, 10) for _ in range(500)])
 add([word("abc", 1, 7) for _ in range(2001)])
-# hidden: maximum size. Most of them have about twenty words of length about 36 000 that share a long start
-# (their prefixes are long); several also have words with more than 2.1 * 10^5 distinct prefixes (trie nodes)
+
+
 N = MAXN
 
 
@@ -45,7 +45,6 @@ def nodes(ws):
 
 
 def longpart(ws, B=36_000, alpha="xy"):
-    """add words base + a short end (some twice) until the length budget is used"""
     room = MAXC - sum(len(w) for w in ws)
     base = word(alpha, B, B)
     extra = []
@@ -69,7 +68,7 @@ def many_nodes(chars, lo, hi):
 
 add(longpart(many_nodes(260_000, 10, 18)))
 add(longpart([word("ab", 1, 8) for _ in range(50_001)]))
-add(longpart(many_nodes(270_000, 5, 30)))                               # odd or even, many distinct prefixes
+add(longpart(many_nodes(270_000, 5, 30)))
 ws = ["same"] * 20_001 + many_nodes(260_000, 10, 18)
 random.shuffle(ws)
 add(longpart(ws))
@@ -80,16 +79,16 @@ add(["k" * 499_990, "k" * 499_990 + "x"] + ["k" + word("ab", 0, 2) for _ in rang
 ws = [word("pq", 20, 30) for _ in range(5_000)]
 add(longpart([random.choice(ws) for _ in range(10_001)]))
 ws = sorted(many_nodes(270_000, 10, 16))
-add(longpart(ws))                                                         # sorted words
+add(longpart(ws))
 ws = []
-for _ in range(40_000):                                                   # sorted neighbours are a bad pairing
+for _ in range(40_000):
     c = random.choice(AZ)
     ws.append(c + "a" + word("z", 0, 2))
     ws.append(c + "b" + word("y", 0, 2))
 random.shuffle(ws)
 add(longpart(ws))
 
-# about twenty-five words of length about 36 000 with a long common start (review)
+
 base = word("ab", 36_000, 36_000)
 add([base + word("ab", 1, 40) for _ in range(27)])
 

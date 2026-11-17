@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(220202)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -22,15 +21,15 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, short side branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
         else:
             raise ValueError(kind)
@@ -39,8 +38,6 @@ def shape(n, kind):
 
 
 def tree(n, kind):
-    """parent array p[0..n] (p[1] = 0) of a tree of the given shape with random labels (shape node 1 = folder 1);
-    also lab: lab[i - 1] = label of shape node i (small i = close to the root)"""
     par = shape(n, kind)
     lab = list(range(2, n + 1))
     random.shuffle(lab)
@@ -62,7 +59,7 @@ def add(n, p, a, ops):
     order = [1]
     for u in order:
         order.extend(ch[u])
-    assert len(order) == n                     # every folder lies inside folder 1
+    assert len(order) == n
     for op in ops:
         assert 1 <= op[1] <= n
         if op[0] == 1:
@@ -77,8 +74,6 @@ def add(n, p, a, ops):
 
 
 def rops(n, q, lab, p_save, vhi, top=None, p_top=1.0):
-    """random operations: saves of 1..vhi into random folders; an archive picks, with probability p_top,
-    one of the top folders closest to the root (huge ranges), else a random folder"""
     res = []
     for _ in range(q):
         if random.random() < p_save:
@@ -98,13 +93,12 @@ def case(n, kind, q, p_save, vhi, top=None, p_top=1.0, ahi=None):
     add(n, p, a, rops(n, q, lab, p_save, vhi, top, p_top))
 
 
-# samples
 add(6, [0, 0, 1, 1, 2, 2, 3], [3, 1, 4, 1, 5, 9], [(2, 2), (1, 4, 6), (2, 1), (2, 1)])
 add(4, [0, 0, 1, 2, 3], [2, 7, 1, 8], [(2, 3), (1, 4, 5), (2, 2), (2, 1)])
 add(2, [0, 0, 1], [0, 0], [(2, 1), (1, 2, 5), (2, 2), (2, 1)])
 add(5, [0, 0, 3, 1, 3, 2], [1, 2, 3, 4, 5], [(1, 5, 10), (2, 2), (2, 3), (2, 1)])
 add(5, [0, 0, 1, 1, 1, 1], [5, 0, 0, 7, 0], [(1, 3, 4), (2, 3), (2, 2), (2, 1)])
-# hidden: small and medium
+
 for n, kind, q in ((3, "path", 6), (10, "random", 20), (30, "deep", 50), (50, "star", 80), (80, "caterpillar", 120),
                    (200, "binary", 300)):
     case(n, kind, q, 0.6, 100, top=max(2, n // 10), p_top=0.4)
@@ -112,7 +106,7 @@ case(5000, "random", 8000, 0.6, MAXV, top=20, p_top=0.3)
 case(5000, "broom", 8000, 0.5, 1000, top=100, p_top=0.5)
 case(5000, "chains", 8000, 0.5, MAXV, top=300, p_top=0.5)
 case(5000, "path", 8000, 0.7, MAXV, top=2500, p_top=0.5)
-# hidden: maximum size, most archives on huge folders
+
 case(MAXN, "path", MAXQ, 0.3, MAXV, top=2000, p_top=0.95, ahi=99)
 case(MAXN, "path", MAXQ, 0.3, MAXV, top=100, p_top=0.95, ahi=99)
 case(MAXN, "deep", MAXQ, 0.3, MAXV, top=2000, p_top=0.95, ahi=99)

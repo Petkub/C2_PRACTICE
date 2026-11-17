@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(80200)
@@ -36,7 +36,6 @@ def rnd_roads(n, m, wlo, whi, conn=True):
 
 
 def rnd_q(n, q, h, mode="mix"):
-    """thresholds: around the levels of the towns (each value of k makes a different set of towns usable)"""
     lv = sorted(h)
     qs = []
     for _ in range(q):
@@ -52,13 +51,12 @@ def rnd_q(n, q, h, mode="mix"):
     return qs
 
 
-# samples
 add(4, [5, 1, 3, 2], [(1, 2, 4), (2, 4, 4), (1, 3, 1), (3, 4, 2)], [(1, 4, 0), (1, 4, 1), (1, 4, 3)])
 add(3, [1, 9, 1], [(1, 2, 3), (2, 3, 3)], [(1, 3, 8), (1, 3, 9), (1, 2, 0)])
 add(1, [7], [], [(1, 1, 0)])
 add(3, [3, 3, 3], [(1, 2, 2), (2, 3, 2), (3, 1, 5)], [(3, 1, 3)])
 add(2, [9, 9], [(1, 2, 5)], [(2, 2, 0), (2, 1, 0)])
-# hidden: small
+
 add(4, [5, 1, 3, 2], [(1, 2, 4), (2, 4, 4), (1, 3, 1), (3, 4, 2), (1, 4, 10)],
     [(1, 4, 0), (1, 4, 1), (1, 4, 3), (4, 1, 2), (2, 3, 5), (2, 3, 4)])
 add(5, [2, 4, 6, 8, 10], [(1, 2, 1), (2, 3, 1), (3, 4, 1), (4, 5, 1), (1, 5, 9), (2, 4, 3)],
@@ -68,7 +66,7 @@ add(2, [MAXH, MAXH], [(1, 2, MAXW), (2, 1, MAXW - 1)], [(1, 2, 0), (2, 1, MAXH),
 for n, m, q, wmax, hmax in ((6, 9, 30, 10, 5), (10, 20, 60, 20, 10), (20, 40, 100, 100, 1000), (50, 120, 300, 10**4, 50)):
     h = [ri(1, hmax) for _ in range(n)]
     add(n, h, rnd_roads(n, m, 1, wmax), rnd_q(n, q, h))
-n = 30                                                            # a path: the order of levels matters
+n = 30
 h = [ri(1, 100) for _ in range(n)]
 add(n, h, [(i, i + 1, ri(1, 9)) for i in range(1, n)], rnd_q(n, 200, h))
 n = 120
@@ -77,17 +75,17 @@ add(n, h, rnd_roads(n, 500, 1, MAXW), rnd_q(n, 2000, h))
 n = 200
 h = [ri(1, MAXH) for _ in range(n)]
 add(n, h, rnd_roads(n, 300, 1, 1000, conn=False), rnd_q(n, 1500, h))
-# hidden: largest
+
 N, M, Q = MAXN, MAXM, MAXQ
 h = [ri(1, MAXH) for _ in range(N)]
 add(N, h, rnd_roads(N, M, 1, MAXW), rnd_q(N, Q, h))
 h = [ri(1, MAXH) for _ in range(N)]
 add(N, h, rnd_roads(N, 30_000, 1, MAXW), rnd_q(N, Q, h))
-h = [ri(1, 20) for _ in range(N)]                                 # many equal levels
+h = [ri(1, 20) for _ in range(N)]
 add(N, h, rnd_roads(N, M, 1, 1000), rnd_q(N, Q, h))
-h = [ri(1, MAXH) for _ in range(N)]                               # a path with the largest lengths
+h = [ri(1, MAXH) for _ in range(N)]
 add(N, h, [(i, i + 1, MAXW) for i in range(1, N)], [(1, N, MAXH)] * 10 + rnd_q(N, Q - 10, h))
-h = list(range(1, N + 1))                                         # a path, levels rise along it
+h = list(range(1, N + 1))
 qs = []
 for _ in range(Q):
     u = ri(1, 200)
@@ -96,26 +94,26 @@ for _ in range(Q):
 roads = [(i, i + 1, ri(1, 1000)) for i in range(1, N)] + [(1, N, MAXW)] + rnd_roads(N, 25_000, 10**8, MAXW, conn=False)
 random.shuffle(roads)
 add(N, h, roads, qs)
-h = [ri(1, MAXH) for _ in range(N)]                               # only roads from a hub to everybody
+h = [ri(1, MAXH) for _ in range(N)]
 hub = ri(1, N)
 h[hub - 1] = MAXH
 roads = [(hub, v, ri(1, MAXW)) for v in range(1, N + 1) if v != hub] + rnd_roads(N, 300, MAXW // 2, MAXW, conn=False)
 add(N, h, roads, rnd_q(N, Q // 2, h) + [(ri(1, N), ri(1, N), MAXH - ri(0, 1)) for _ in range(Q // 2)])
-h = [ri(1, MAXH) for _ in range(N)]                               # complete graph, lengths almost equal
+h = [ri(1, MAXH) for _ in range(N)]
 roads = [(a, b, ri(10**8, 10**8 + 1000)) for a in range(1, N + 1) for b in range(a + 1, N + 1)]
 random.shuffle(roads)
 add(N, h, roads[:M], rnd_q(N, Q, h))
-h = [ri(1, MAXH) for _ in range(N)]                               # two groups of towns joined by few roads
+h = [ri(1, MAXH) for _ in range(N)]
 roads = rnd_roads(N // 2, M // 2 - 5, 1, 10**6) + [(a + N // 2, b + N // 2, w) for a, b, w in rnd_roads(N // 2, M // 2 - 5, 1, 10**6)]
 roads += [(ri(1, N // 2), ri(N // 2 + 1, N), ri(1, 10**6)) for _ in range(10)]
 add(N, h, roads, rnd_q(N, Q, h))
 h = [ri(1, MAXH) for _ in range(N)]
 add(N, h, rnd_roads(N, M, 1, 10), rnd_q(N, Q, h, "levels"))
-h = [ri(1, MAXH) for _ in range(N)]                               # every k below all levels: direct roads only
+h = [ri(1, MAXH) for _ in range(N)]
 add(N, h, rnd_roads(N, M, 1, MAXW), [(ri(1, N), ri(1, N), ri(0, min(h) - 1)) for _ in range(Q)])
-h = [ri(1, MAXH) for _ in range(N)]                               # every k above all levels: plain shortest paths
+h = [ri(1, MAXH) for _ in range(N)]
 add(N, h, rnd_roads(N, 1000, 1, MAXW), [(ri(1, N), ri(1, N), ri(max(h), MAXH)) for _ in range(Q)])
-# a grid of 20 x 20 towns
+
 h = [ri(1, MAXH) for _ in range(N)]
 roads = []
 for r in range(20):

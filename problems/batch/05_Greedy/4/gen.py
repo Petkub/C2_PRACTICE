@@ -1,86 +1,122 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(3002)
-MAXN, MAXD, MAXC = 200_000, 10**9, 10**9
+random.seed(5003)
+MAXN, MAXQ, MAXV, MAXG = 100_000, 100_000, 10**9, 10**9
 tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(D, C, p):
-    n = len(p)
-    assert 1 <= n <= MAXN
-    assert 2 <= D <= MAXD and 1 <= C <= MAXC
-    assert all(0 < x < D for x in p) and all(p[i] < p[i + 1] for i in range(n - 1))
-    tests.append(f"{n} {D} {C}\n" + " ".join(map(str, p)) + "\n")
+def add(matches, gs):
+    n, q = len(matches), len(gs)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(0 <= s <= MAXV and 0 <= r <= MAXV for s, r in matches)
+    assert all(0 <= g <= MAXG for g in gs)
+    tests.append(f"{n} {q}\n" + "".join(f"{s} {r}\n" for s, r in matches) + " ".join(map(str, gs)) + "\n")
 
 
-def need(D, p):
-    """the smallest tank that makes the trip possible"""
-    return max(max(b - a for a, b in zip([0] + p, p)), 2 * (D - p[-1]))
+def match_with(d):
+    if d >= 0:
+        s = ri(0, MAXV - d)
+        return (s, s + d)
+    r = ri(0, MAXV + d)
+    return (r - d, r)
 
 
-def stations(n, D):
-    """n distinct sorted positions in 1..D-1"""
-    if n * 3 > D:
-        return sorted(random.sample(range(1, D), n))
-    s = set()
-    while len(s) < n:
-        s.add(ri(1, D - 1))
-    return sorted(s)
+def small_match(d):
+    s = ri(0, 20)
+    return (s, s + d) if d >= 0 else (s - d, s)
 
 
-# samples
-add(10, 8, [3, 6, 8])
-add(10, 5, [4, 7])
-add(5, 10, [2])
-add(6, 6, [3])
-add(30, 9, [4, 9, 12, 17, 20, 26])
-add(100, 30, [40, 60])
-# hidden: small
-add(2, 1, [1])                         # the turnaround 1 -> 2 -> 1 is longer than the tank
-add(2, 2, [1])
-add(2, 4, [1])                         # no refill
-add(7, 4, [1, 3, 5])                   # turnaround 5 -> 7 -> 5 is exactly 4
-add(7, 3, [1, 3, 5])                   # turnaround too long
-add(12, 5, [2, 5, 9])
-for D, n in [(20, 5), (30, 8), (40, 12), (60, 20), (100, 30), (1000, 300), (50, 6), (80, 15)]:
-    p = stations(n, D)
-    add(D, need(D, p) + ri(0, 2 * need(D, p)), p)
-D = 10**6
-add(D, 4000, stations(3000, D))
-add(MAXD, 10**8, stations(5000, MAXD))
-p = stations(3000, 10**5)
-add(10**5, need(10**5, p), p)   # just enough fuel
-# hidden: maximum size
+def thresholds(matches):
+    draws = sum(1 for s, r in matches if s == r)
+    need = sorted(r - s for s, r in matches if s < r)
+    pts, acc = [], draws
+    out = list(range(0, draws + 2))
+    for d in need:
+        out += [acc + d - 1, acc + d, acc + d + 1]
+        acc += d + 1
+    out += [acc - 1, acc, acc + 1]
+    return [g for g in out if 0 <= g <= MAXG], acc
+
+
+add([(2, 2), (1, 3), (5, 0), (0, 1)], [0, 1, 4, 6])
+add([(0, 5), (2, 7), (10, 15)], [3, 6, 12, 18])
+add([(10, 3)], [0, 5])
+add([(7, 7), (0, 0), (4, 4)], [1, 2, 5])
+add([(3, 9), (9, 3), (4, 4), (0, 2), (1, 1), (6, 6), (12, 13)], [0, 2, 3, 5, 8, 15])
+
+add([(0, 10**9)], [0, 10**9 - 1, 10**9])
+add([(5, 5)], [0, 1, 10**9])
+add([(0, 3), (0, 3), (0, 3)], list(range(0, 14)))
+add([(4, 0), (2, 1), (8, 3)], [0, 7, 10**9])
+for n, q in [(6, 40), (10, 60), (25, 80)]:
+    ms = [small_match(ri(-3, 6)) for _ in range(n)]
+    gs, tot = thresholds(ms)
+    gs += [ri(0, tot + 3) for _ in range(q)]
+    random.shuffle(gs)
+    add(ms, gs[:q])
+ms = [small_match(ri(-50, 100)) for _ in range(2000)]
+gs, tot = thresholds(ms)
+random.shuffle(gs)
+add(ms, gs[:3000] + [ri(0, tot) for _ in range(1000)])
+ms = [match_with(ri(-MAXV, MAXV)) for _ in range(3000)]
+gs, tot = thresholds(ms)
+gs = [g for g in gs if g <= MAXG]
+random.shuffle(gs)
+add(ms, gs[:3000] + [ri(0, MAXG) for _ in range(2000)])
+
+ms = [small_match(ri(0, 50)) for _ in range(9000)] + [match_with(ri(MAXV // 2, MAXV)) for _ in range(1000)]
+_, cheap = thresholds(ms[:9000])
+random.shuffle(ms)
+add(ms, [ri(cheap, MAXG) for _ in range(10000)])
+
+
+def big(ms, gs):
+    random.shuffle(ms)
+    add(ms, gs)
+
+
+def near(tot, lo_frac=0.5):
+    return [ri(int(tot * lo_frac), max(int(tot * lo_frac), tot - 1)) for _ in range(MAXQ)]
+
+
+def huge_losses(k):
+    return [match_with(ri(MAXV // 2, MAXV)) for _ in range(k)]
+
+
+def cheap_then_huge(cheap, gs_desc=False):
+    _, tot = thresholds(cheap)
+    gs = [ri(tot, MAXG) for _ in range(MAXQ)]
+    if gs_desc:
+        gs.sort(reverse=True)
+    big(cheap + huge_losses(N // 10), gs)
+
+
 N = MAXN
-add(MAXD, 4 * 10**8, stations(N, MAXD))                          # long tank: many stations within reach
-add(MAXD, 2 * 10**8 + 7, stations(N, MAXD))
-add(MAXD, 3 * 10**7, stations(N, MAXD))
-add(MAXD, 2 * 10**4, stations(N, MAXD))                           # likely impossible somewhere
-p = [4900 * (i + 1) for i in range(N)]                            # evenly spaced
-D = p[-1] + 2450
-add(D, 4900, p)                                                   # refill at every passing: 2N
-add(D, 9800, p)
-add(MAXD, MAXC, stations(N, MAXD))                                # tank C < 2D: one refill near the far end
-add(MAXD - 1, MAXC, stations(N, MAXD - 1))
-p = stations(N, MAXD // 2)                                        # all stations in the first half
-add(MAXD, 6 * 10**8, p)                                           # turnaround longer than the tank
-p = stations(N - 1, MAXD // 2) + [MAXD - 3 * 10**8]
-add(MAXD, 6 * 10**8, p)                                           # turnaround exactly C
-p = []                                                            # 20 dense clusters with long gaps between
-for c in range(20):
-    base = 25_000_000 + c * 48_000_000
-    p += [base + 1000 * k + ri(0, 999) for k in range(N // 20)]
-gap = need(MAXD, p)
-add(MAXD, gap, p)                                                 # tightest feasible tank
-add(MAXD, gap - 1, p)                                             # one less: impossible
-p = list(range(1, N + 1))                                         # stations packed near home
-add(N + 1, 7, p)
+ms = [small_match(ri(-5, 1000)) for _ in range(N)]
+_, tot = thresholds(ms)
+big(ms, near(tot))
+ms = [small_match(ri(1, 10**4)) for _ in range(N)]
+th, tot = thresholds(ms)
+gs = [g for g in th if g <= MAXG and g >= tot // 3]
+random.shuffle(gs)
+big(ms, (gs + near(tot, 0.4))[:MAXQ])
+cheap_then_huge([small_match(ri(1, 100)) for _ in range(N - N // 10)])
+ms = [(s, s) for s in (ri(0, MAXV) for _ in range(N * 3 // 10))] + [small_match(1) for _ in range(N * 7 // 10)]
+_, tot = thresholds(ms)
+big(ms, [ri(tot - 5, MAXG) for _ in range(MAXQ)])
+cheap_then_huge([match_with(ri(0, 2000)) for _ in range(N - N // 10)])
+ms = [small_match(7) for _ in range(N)]
+th, tot = thresholds(ms)
+gs = [8 * k + 7 for k in range(N // 2, N)] + [8 * k + 6 for k in range(N // 2, N)]
+random.shuffle(gs)
+big(ms, gs[:MAXQ])
+cheap_then_huge([small_match(ri(-3, 10)) for _ in range(N - N // 10)], True)
+cheap_then_huge([match_with(ri(1, 2 * 10**4)) for _ in range(N - N // 10)])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

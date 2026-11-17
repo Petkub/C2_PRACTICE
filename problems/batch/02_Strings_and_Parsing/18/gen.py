@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(151801)
@@ -27,14 +27,13 @@ def plant(t, word, positions):
     return "".join(t)
 
 
-# samples
 add("abzzzcdabcd", ["ab", "cd"])
 add("aaa", ["aa", "aa"])
 add("mississippi", ["ssi"])
 add("abcabc", ["a", "c"])
 add("programming", ["r", "g", "m", "n"])
 add("aabaab", ["a", "a", "b"])
-# hidden: small (brute checks these)
+
 add("a", ["a"])
 add("a", ["b"])
 add("ab", ["a", "b"])
@@ -44,10 +43,10 @@ for n, alpha, k, pl in [(30, "ab", 3, 2), (80, "abc", 2, 3), (200, "ab", 5, 2), 
 add(rs(3000, "ab"), [rs(random.randint(3, 6), "ab") for _ in range(6)])
 t = rs(5000, "abcd")
 add(t, [t[100:105], t[2000:2004], t[4900:4903]])
-# hidden: large
+
 N = MAXN
 H = N // 2
-# many starts and the later pieces only at the far right: every scan from a start is long
+
 add("b" * H + "x" * (N - H - 1) + "c", ["b", "xc"])
 add("a" * (N - 1) + "b", ["a", "ab"])
 add("a" * N, ["aa", "a", "aaa"])

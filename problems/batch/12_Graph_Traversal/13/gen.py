@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(7013)
@@ -8,7 +8,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -36,7 +35,6 @@ def free_cell(g, inner=False):
 
 
 def finish(g, s, fires):
-    """g: list of lists, s = (i, j) 0-based, fires = [(i, j, t)] 0-based cells"""
     g[s[0]][s[1]] = "S"
     rows = ["".join(x) for x in g]
     add(rows, [(i + 1, j + 1, t) for i, j, t in fires])
@@ -51,8 +49,6 @@ def random_fires(g, k, tlo, thi):
 
 
 def serpentine(r, c):
-    """border of walls, corridors on odd rows joined at alternating ends, the exit gap at the end;
-    returns the grid, the start cell and the number of steps from the start to the exit gap"""
     g = [["#"] * c for _ in range(r)]
     rows = list(range(1, r - 1, 2))
     for k, i in enumerate(rows):
@@ -68,7 +64,6 @@ def serpentine(r, c):
     return g, (1, 1), (last, exit_j), steps
 
 
-# samples
 add(["#####",
      "#...#",
      "#.S..",
@@ -89,7 +84,7 @@ add(["#.####",
 add(["#####",
      "#.S.#",
      "#####"], [(2, 2, 5)])
-# hidden: small (checked by simulation)
+
 add(["S"], [(1, 1, 1)])
 add(["...", ".S.", "..."], [(2, 2, 1)])
 add(["#.#", "#S#", "#.#"], [(1, 2, 1), (3, 2, 1)])
@@ -100,25 +95,25 @@ for r, c, d, k, thi in ((6, 6, 0.2, 2, 5), (8, 9, 0.3, 3, 10), (10, 10, 0.25, 5,
     s = free_cell(g, True)
     finish(g, s, random_fires(g, k, 1, thi))
 g, s, ex, L = serpentine(21, 15)
-finish(g, s, [(ex[0], ex[1], L + 1)])                            # just in time
+finish(g, s, [(ex[0], ex[1], L + 1)])
 g, s, ex, L = serpentine(21, 15)
-finish(g, s, [(ex[0], ex[1], L)])                                # one minute late
+finish(g, s, [(ex[0], ex[1], L)])
 g = grid(60, 60, 0.3)
 s = free_cell(g, True)
 finish(g, s, random_fires(g, 400, 1, 100))
-# hidden: large
+
 R, C = MAXR, MAXC
-g = [["."] * C for _ in range(R)]                                 # open field, fires near the middle of each side
+g = [["."] * C for _ in range(R)]
 finish(g, (R // 2, C // 2), [(0, C // 2, 1), (R - 1, C // 2, 1), (R // 2, 0, 1), (R // 2, C - 1, 1)])
-g = [["."] * C for _ in range(R)]                                 # fires at the corners a bit later
+g = [["."] * C for _ in range(R)]
 finish(g, (R // 2 - 3, C // 2 + 10), [(0, 0, 20), (R - 1, C - 1, 1), (0, C - 1, 5), (R - 1, 0, 12)])
 g = grid(R, C, 0.3)
 s = free_cell(g, True)
-finish(g, s, random_fires(g, MAXK, 1, MAXT))                      # many fires, most of them too late to matter
+finish(g, s, random_fires(g, MAXK, 1, MAXT))
 g = grid(R, C, 0.25)
 s = (R // 2, C // 2)
 g[s[0]][s[1]] = "."
-f = random_fires(g, MAXK, 600, 5000)                              # many fires at close times, listed latest first
+f = random_fires(g, MAXK, 600, 5000)
 f.sort(key=lambda x: -x[2])
 finish(g, s, f)
 g = grid(R, C, 0.2)
@@ -126,36 +121,36 @@ s = (R // 2, C // 2)
 g[s[0]][s[1]] = "."
 finish(g, s, random_fires(g, 2000, 400, 900))
 g, s, ex, L = serpentine(R - 1, C)
-finish(g, s, [(ex[0], ex[1], L + 1)] + [(ex[0], ex[1], MAXT)] * 10)   # just in time along the long corridor
+finish(g, s, [(ex[0], ex[1], L + 1)] + [(ex[0], ex[1], MAXT)] * 10)
 g, s, ex, L = serpentine(R - 1, C)
-finish(g, s, [(ex[0], ex[1], L)])                                 # one minute late
+finish(g, s, [(ex[0], ex[1], L)])
 g, s, ex, L = serpentine(R - 1, C)
-mid = (R // 2 | 1, C // 2)                                        # a fire in the middle of the way, late enough
+mid = (R // 2 | 1, C // 2)
 finish(g, s, [(mid[0], mid[1], L - 3000)] + random_fires(g, 1000, L, MAXT))
-g = grid(R, C, 0.3)                                               # the person is walled in: no way out, no fire
+g = grid(R, C, 0.3)
 s = (R // 2, C // 2)
 for i in range(s[0] - 2, s[0] + 3):
     for j in range(s[1] - 2, s[1] + 3):
         g[i][j] = "#" if max(abs(i - s[0]), abs(j - s[1])) == 2 else "."
 fires = [(i, j, t) for i, j, t in random_fires(g, 100, 1, 10) if max(abs(i - s[0]), abs(j - s[1])) > 2]
 finish(g, s, fires)
-g = [["."] * C for _ in range(R)]                                 # the fire starts under the person's feet
+g = [["."] * C for _ in range(R)]
 finish(g, (R // 2, 3), [(R // 2, 3, 1)] + [(ri(0, R - 1), ri(10, C - 1), ri(1, 50)) for _ in range(500)])
 g = grid(R, C, 0.15)
 s = (R // 2, C // 2)
 g[s[0]][s[1]] = "."
 fires = []
-for _ in range(MAXK):                                             # a ring of fires around the person
+for _ in range(MAXK):
     i, j = free_cell(g)
     d = abs(i - s[0]) + abs(j - s[1])
     fires.append((i, j, max(1, d + ri(20, 300))))
 finish(g, s, fires)
-for dens, k, thi in ((0.2, 1000, 1500), (0.1, MAXK, 3000)):     # fires at very different times all over the map
+for dens, k, thi in ((0.2, 1000, 1500), (0.1, MAXK, 3000)):
     g = grid(R, C, dens)
     s = (R // 2, C // 2)
     g[s[0]][s[1]] = "."
     finish(g, s, random_fires(g, k, 1, thi))
-g = [["#"] * C for _ in range(R)]                                # two corridors; a late fire sits where an early one arrives
+g = [["#"] * C for _ in range(R)]
 for j in range(601):
     g[499][j] = g[520][j] = "."
 for i in range(499, 521):

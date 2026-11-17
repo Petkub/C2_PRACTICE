@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(130202)
@@ -54,7 +54,6 @@ def cycle(vs, lo, hi):
 
 
 def closed_walk(n, length, lo, hi):
-    """a random closed walk (every vertex on it gets an even number of new roads)"""
     while True:
         vs = [ri(1, n) for _ in range(length)]
         if all(vs[i] != vs[(i + 1) % length] for i in range(length)):
@@ -66,7 +65,6 @@ def path(vs, lo, hi):
 
 
 def eulerian(n, m, lo, hi):
-    """connected, every degree even: a big cycle through all vertices plus random closed walks"""
     e = cycle(perm(n), lo, hi)
     assert m - len(e) != 1
     while len(e) < m:
@@ -77,7 +75,6 @@ def eulerian(n, m, lo, hi):
 
 
 def with_odd(n, m, k, lo, hi, plen=(1, 30)):
-    """eulerian base plus k/2 random paths -> at most k odd vertices (k <= 6)"""
     e = []
     for _ in range(k // 2):
         L = min(ri(*plen), n - 1)
@@ -89,8 +86,6 @@ def with_odd(n, m, k, lo, hi, plen=(1, 30)):
 
 
 def chain_trap(n, m, k, x, base_lo, base_hi):
-    """odd vertices o1..ok joined by light paths o1~o2 (length x), o3~o4, ... and doubled roads of length 1
-    between o2-o3, o4-o5 (they stay even); pairing the closest two first is a bad choice"""
     vs = random.sample(range(1, n + 1), k)
     others = [v for v in range(1, n + 1) if v not in vs]
     e = []
@@ -103,13 +98,12 @@ def chain_trap(n, m, k, x, base_lo, base_hi):
     return eulerian(n, m - len(e), base_lo, base_hi) + e
 
 
-# samples
 add(4, [(1, 2, 1), (2, 3, 1), (3, 4, 1), (4, 1, 1), (2, 4, 5)], False)
 add(3, [(1, 2, 4), (2, 3, 6), (3, 1, 5), (1, 3, 2), (3, 1, 3)], False)
 add(5, [(1, 2, 3), (1, 3, 1), (1, 4, 2), (1, 5, 4)], False)
 add(2, [(1, 2, 7)], False)
 add(6, [(1, 2, 2), (1, 3, 2), (1, 4, 2), (4, 5, 3), (4, 6, 3)], False)
-# hidden: small (checked against the brute force)
+
 add(2, [(2, 1, 1), (1, 2, 1)])
 add(3, [(1, 2, MAXW), (2, 3, MAXW)])
 add(30, chain_trap(30, 60, 4, 30, 100, 200))
@@ -118,7 +112,7 @@ for n, m, k, hi in ((8, 12, 6, 10), (10, 20, 4, 5), (30, 50, 6, 100), (60, 120, 
                     (300, 900, 6, 50)):
     add(n, with_odd(n, m, k, 1, hi))
 add(400, chain_trap(400, 1000, 6, 900, 10**4, 10**5))
-# hidden: maximum size
+
 N, M = MAXN, MAXM
 add(N, chain_trap(N, M, 6, 3000, 10**6, 10**7))
 add(N, chain_trap(N, M, 4, 10**6, 10**8, MAXW))
@@ -127,9 +121,9 @@ add(N, with_odd(N, M, 6, 1, MAXW))
 add(N, with_odd(N, M, 6, MAXW, MAXW, (1000, 5000)))
 add(N, with_odd(N, M, 4, 1, 1000))
 add(N, with_odd(N, M, 2, MAXW // 2, MAXW))
-add(5000, eulerian(5000, 8000, 1, MAXW))                              # no odd intersection
+add(5000, eulerian(5000, 8000, 1, MAXW))
 p = perm(N)
-e = path(p, MAXW - 1000, MAXW)                                      # a long line with 6 odd intersections
+e = path(p, MAXW - 1000, MAXW)
 for i in range(0, N - 3, 2):
     if len(e) + 2 > M - 2:
         break

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(15012)
@@ -28,7 +28,7 @@ def rnd_target(n):
 
 
 def shifted(s, moves):
-    # counts of s with `moves` letters moved from one kind to another (a small repair)
+
     t = counts(s)
     for _ in range(moves):
         a = random.choice([k for k in range(4) if t[k] > 0])
@@ -38,13 +38,12 @@ def shifted(s, moves):
     return t
 
 
-# samples
 add("AACGTAAA", [2, 2, 2, 2])
 add("GAAG", [2, 1, 1, 0])
 add("TGCA", [1, 1, 1, 1])
 add("AAAAA", [0, 0, 0, 5])
 add("CATTGCATTA", [3, 3, 2, 2])
-# hidden: small and medium (brute force checks them)
+
 add("C", [0, 1, 0, 0])
 add("C", [0, 0, 1, 0])
 add("ACGTACGTAC", [3, 3, 2, 2])
@@ -57,7 +56,7 @@ s = rnd(3000)
 add(s, shifted(s, 40))
 s = "A" * 1500 + "CGT" * 500
 add(s, [500, 1000, 500, 1000])
-# hidden: large (the answer is long in most of them, so trying every window is far too slow)
+
 add("A" * MAXN, [0, 0, 0, MAXN])
 add("A" * MAXN, [MAXN // 2, MAXN // 2, 0, 0])
 add("A" * (MAXN // 2) + "C" * (MAXN // 2), [0, MAXN // 2, MAXN // 2, 0])
@@ -67,20 +66,20 @@ s = rnd(MAXN, (8, 1, 1, 1))
 add(s, [MAXN // 4] * 4)
 s = rnd(MAXN)
 t = counts(s)
-t[0] -= 20000  # 20000 surplus A spread over the whole string
+t[0] -= 20000
 t[1] += 20000
 add(s, t)
 s = rnd(MAXN)
 t = counts(s)
-t[2] -= 1  # one G too many: the answer is a single letter
+t[2] -= 1
 t[3] += 1
 add(s, t)
 s = ("ACGT" * (MAXN // 4))
-add(s, [MAXN // 4 + 1, MAXN // 4 - 1, MAXN // 4, MAXN // 4])  # many shortest windows: leftmost
+add(s, [MAXN // 4 + 1, MAXN // 4 - 1, MAXN // 4, MAXN // 4])
 s = rnd(MAXN // 2) + "G" * (MAXN // 2)
 t = counts(s[:MAXN // 2])
 t = [t[0] + MAXN // 8, t[1] + MAXN // 8, t[2] + MAXN // 8, t[3] + MAXN // 8]
-add(s, t)  # the repair is at the right end
+add(s, t)
 s = "T" * 10 + rnd(MAXN - 20, (1, 1, 1, 0)) + "T" * 10
 add(s, [0, 0, 0, MAXN])
 s = rnd(MAXN, (1, 3, 3, 1))

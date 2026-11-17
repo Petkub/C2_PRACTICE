@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(12005)
@@ -21,12 +21,9 @@ def rand_grid(r, c, pwater):
 
 
 def serpentine(r, c, a, b, pwater=0.0):
-    """vertical land corridors separated by water bars of thickness max(a, b) (no jump crosses a bar);
-    the bars are open alternately at the bottom and at the top, so the reachable part is one long snake
-    that climbs up every second corridor"""
     t = max(a, b)
-    w = a + b + 1                       # corridor width
-    h = a + b + 1                       # height of the opening at the end of a bar
+    w = a + b + 1
+    h = a + b + 1
     g = [[("#" if random.random() < pwater else ".") for _ in range(c)] for _ in range(r)]
     x, k = w, 0
     while x < c:
@@ -40,31 +37,30 @@ def serpentine(r, c, a, b, pwater=0.0):
     return ["".join(row) for row in g]
 
 
-# samples
 add(1, 2, ["...", "...", "..#"])
 add(0, 1, ["...", ".#.", "..."])
 add(1, 2, ["....", ".#..", "...."])
 add(2, 1, ["..", ".."])
 add(2, 3, ["..#..", ".....", "#..#.", ".....", "..#.."])
 add(3, 1, ["......", ".##...", "......", "...#..", "......"])
-# hidden: small and special
+
 add(1, 2, ["."])
 add(0, 1, ["....."])
 add(2, 2, ["....."] * 5)
-add(5, 1, ["..."] * 3)                                  # every jump leaves the board
+add(5, 1, ["..."] * 3)
 add(3, 0, rand_grid(7, 7, 0.15))
 add(1, 1, rand_grid(8, 9, 0.2))
 add(1, 2, rand_grid(10, 10, 0.2))
 add(4, 4, rand_grid(12, 15, 0.1))
 add(2, 3, rand_grid(30, 30, 0.25))
 add(0, 2, rand_grid(50, 50, 0.2))
-g = rand_grid(300, 300, 0.1)                            # the start is cut off: every jump target is water
+g = rand_grid(300, 300, 0.1)
 g = [list(x) for x in g]
 for i, j in ((1, 2), (2, 1)):
     g[i][j] = "#"
 add(1, 2, ["".join(x) for x in g])
 add(1, 2, rand_grid(200, 200, 0.3))
-# hidden: large (a long snake of corridors, slow flood fills need one sweep per climbing jump)
+
 R = C = MAXN
 add(1, 2, serpentine(R, C, 1, 2))
 add(2, 1, serpentine(R, C, 2, 1, 0.05))

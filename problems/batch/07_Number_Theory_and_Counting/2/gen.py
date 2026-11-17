@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(14005)
@@ -18,20 +18,19 @@ def add(qs):
     tests.append(f"{len(qs)}\n" + "".join(f"{n} {d}\n" for n, d in qs))
 
 
-# samples
 add([(1, 7), (2, 7), (2, 0)])
 add([(1, 0), (3, 0)])
 add([(3, 5), (6, 9), (10, 1)])
 add([(MAXN, 0), (MAXN, 9), (MAXN - 1, 3)])
 add([(19, 0), (20, 4), (P - 1, 5), (P, 0)])
-# hidden: small (the digit-by-digit count checks them)
+
 add([(1, d) for d in range(10)])
 add([(n, d) for n in range(1, 101) for d in range(10)])
 add([(ri(1, 2000), ri(0, 9)) for _ in range(1000)])
 add([(ri(10 ** 5, 3 * 10 ** 5), ri(0, 9)) for _ in range(100)])
 add([(ri(1, 30), 0) for _ in range(500)] + [(ri(1, 30), ri(1, 9)) for _ in range(500)])
 add([(ri(P - 50, P + 50), ri(0, 9)) for _ in range(20)])
-# hidden: large
+
 add([(ri(1, MAXN), ri(0, 9)) for _ in range(MAXQ)])
 add([(MAXN - ri(0, 10 ** 6), ri(0, 9)) for _ in range(MAXQ)])
 add([(ri(1, MAXN), 0) for _ in range(MAXQ)])

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(250004)
@@ -17,32 +17,31 @@ def rnd(n, lo, hi):
     return [random.randint(lo, hi) for _ in range(n)]
 
 
-# samples
 add([5, 1, 7], [4, 6, 3])
 add([0, 0, 0], [9, 2, 9])
 add([7], [7])
 add([12, 3, 3, 8], [1, 15, 3, 9])
 add([6, 0, 11, 6, 2], [6, 13, 2, 4, 6])
-# hidden: small
+
 add([0, 1], [1, 0])
 add(rnd(10, 0, 15), rnd(10, 0, 15))
 add(rnd(100, 0, 7), rnd(100, 0, 7))
 add(rnd(1000, 0, MAXV), rnd(1000, 0, MAXV))
 add(rnd(3000, 0, 1023), rnd(3000, 0, 1023))
 a = rnd(2000, 0, MAXV)
-add(a, random.sample(a, len(a)))                                    # keys are the message itself
-# hidden: maximum size
+add(a, random.sample(a, len(a)))
+
 N = MAXN
 add(rnd(N, 0, MAXV), rnd(N, 0, MAXV))
 a = rnd(N, 0, MAXV)
-add(a, random.sample(a, N))                                         # every answer is 0
-add([MAXV] * N, rnd(N, 0, MAXV))                                    # one message value, many keys
-add(rnd(N, 0, MAXV), [random.choice([0, MAXV])] * N)                # one key value
-add(rnd(N, 0, 63), rnd(N, 0, 63))                                   # many repeats
-add(rnd(N, 0, (1 << 10) - 1), rnd(N, (1 << 19), MAXV))              # every result has the top bit
+add(a, random.sample(a, N))
+add([MAXV] * N, rnd(N, 0, MAXV))
+add(rnd(N, 0, MAXV), [random.choice([0, MAXV])] * N)
+add(rnd(N, 0, 63), rnd(N, 0, 63))
+add(rnd(N, 0, (1 << 10) - 1), rnd(N, (1 << 19), MAXV))
 add(sorted(rnd(N, 0, MAXV)), sorted(rnd(N, 0, MAXV), reverse=True))
 a = rnd(N, 0, MAXV)
-add(a, [x ^ random.choice([1, 2, 4, 1 << 15]) for x in a])          # close keys, reused by earlier positions
+add(a, [x ^ random.choice([1, 2, 4, 1 << 15]) for x in a])
 add([random.randint(0, 3) << 18 for _ in range(N)], rnd(N, 0, MAXV))
 
 for t in tests:

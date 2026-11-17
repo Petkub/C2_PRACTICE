@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(11602)
@@ -18,14 +18,13 @@ def rnd(n, letters=AL):
     return "".join(random.choices(letters, k=n))
 
 
-# samples
 add("abba")
 add("abc")
 add("aaaaa")
 add("racecar")
 add("abcabcab")
 add("z")
-# hidden (small)
+
 add("ab")
 add(AL)
 add(AL + AL[::-1])
@@ -35,14 +34,14 @@ add(rnd(2000, "abcde"))
 add(rnd(3000))
 add("ab" * 1500)
 add(("abcdefghij" * 300)[:2999] + "z")
-# large
-add("a" * MAXN)                               # every substring, answer about 2*10^10
+
+add("a" * MAXN)
 add("ab" * (MAXN // 2))
 add(rnd(MAXN, "ab"))
 add(rnd(MAXN, "abc"))
 add(rnd(MAXN, "abcdefgh"))
 add(rnd(MAXN))
-add((AL * (MAXN // 26 + 1))[:MAXN])           # the 26 letters cycled
+add((AL * (MAXN // 26 + 1))[:MAXN])
 s = "".join(random.choice(AL) * random.randint(1, 4) for _ in range(MAXN))[:MAXN]
 add(s)
 half = rnd(MAXN // 2, "abcdefghijklm")
@@ -50,7 +49,7 @@ add(half + half[::-1])
 s = list(rnd(MAXN, "a"))
 for i in random.sample(range(MAXN), 300):
     s[i] = random.choice(AL[1:])
-add("".join(s))                               # almost all equal letters
+add("".join(s))
 add("".join(random.choice(AL) + random.choice(AL) * 2 for _ in range(MAXN // 3)) + "zz")
 
 for t in tests:

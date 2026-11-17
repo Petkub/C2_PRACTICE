@@ -1,3 +1,4 @@
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 tests = []
@@ -8,7 +9,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     global LONG, SPINE
     LONG, SPINE = n * 85 // 100, n * 3 // 4
     par = [0, 0]
@@ -21,21 +21,21 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, a few short branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains meeting at node 1
+        elif kind == "twopaths":
             p = 1 if i <= 3 else i - 2
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
-        elif kind == "lopsided":                    # node 1 joins a chain of 85% of the nodes and one of 15%
+        elif kind == "lopsided":
             p = 1 if i == LONG + 2 else i - 1
-        elif kind == "comb":                        # a spine of 75% of the nodes, short teeth near its top
+        elif kind == "comb":
             p = i - 1 if i <= SPINE or (i - 1 > SPINE and random.random() < 0.6) else ri(1, n // 10)
         else:
             raise ValueError(kind)
@@ -44,7 +44,6 @@ def shape(n, kind):
 
 
 def shuffle(a):
-    """Fisher-Yates with random.random (faster than random.shuffle, same on every Python 3 version)"""
     rnd = random.random
     for i in range(len(a) - 1, 0, -1):
         j = int(rnd() * (i + 1))
@@ -52,10 +51,8 @@ def shuffle(a):
 
 
 def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends;
-    lab[i - 1] is the label of shape node i"""
     n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
+    assert all(1 <= par[i] < i for i in range(2, n + 1))
     lab = list(range(1, n + 1))
     shuffle(lab)
     if root_first:
@@ -68,8 +65,6 @@ def relabel(par, root_first=False):
 
 
 def random_ancestors(par, stay):
-    """for every shape node i a random proper ancestor (i itself for the root): with probability stay the
-    choice of the parent is inherited, so the jump is about 1 / (1 - stay) levels on average (O(n) total)"""
     n = len(par) - 1
     far = list(range(n + 1))
     rnd = random.random
@@ -79,7 +74,6 @@ def random_ancestors(par, stay):
 
 
 def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
     assert len(edges) == n - 1
     root = list(range(n + 1))
 
@@ -121,8 +115,6 @@ def add(n, edges, qs, tree_ok=False):
 
 
 def make(n, kind, q, far=False, split=False, root=False):
-    """root: house 1 = shape node 1 (always for lopsided / comb); split: one end near the bottom of the long
-    chain, the other off it (split 2: near the bottom of the short chain)"""
     par = shape(n, kind)
     edges, lab = relabel(par, root_first=root or kind in ("lopsided", "comb"))
     deep = LONG if kind == "lopsided" else SPINE
@@ -145,7 +137,6 @@ def make(n, kind, q, far=False, split=False, root=False):
 
 
 def spiky(n, q):
-    """a spine of about n / 3 houses, every spine house with two leaves: long paths with many neighbours"""
     s = n // 3
     par = [0, 0] + [i - 1 for i in range(2, s + 1)] + [1 + (i - s - 1) % s for i in range(s + 1, n + 1)]
     edges, lab = relabel(par)
@@ -154,13 +145,12 @@ def spiky(n, q):
     add(n, edges, qs, True)
 
 
-# samples
 add(8, [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (5, 7), (6, 8)], [(4, 6), (7, 7), (8, 3), (5, 4)])
 add(6, [(1, 2), (3, 1), (1, 4), (5, 1), (1, 6)], [(2, 3), (4, 4)])
 add(1, [], [(1, 1)])
 add(6, [(5, 2), (2, 6), (6, 1), (1, 4), (4, 3)], [(5, 3), (2, 4), (3, 3), (1, 6)])
 add(9, [(3, 9), (9, 1), (9, 4), (4, 7), (4, 2), (2, 5), (1, 8), (8, 6)], [(5, 6), (7, 3), (9, 9), (2, 4), (6, 8)])
-# hidden: small and medium
+
 add(2, [(1, 2)], [(1, 2), (2, 2), (1, 1)])
 make(10, "random", 50)
 make(40, "binary", 100)
@@ -168,7 +158,7 @@ make(60, "caterpillar", 200)
 spiky(300, 300)
 make(3000, "path", 3000, far=True)
 make(4000, "chains", 4000)
-# hidden: maximum size
+
 make(MAXN, "path", MAXQ, far=True, root=True)
 make(MAXN, "caterpillar", MAXQ, far=True)
 spiky(MAXN, MAXQ)
@@ -181,7 +171,7 @@ make(MAXN, "comb", MAXQ, split=1)
 make(MAXN, "lopsided", MAXQ)
 make(MAXN, "comb", MAXQ)
 make(MAXN, "lopsided", MAXQ, split=2)
-# hidden: wide trees (not maximum size)
+
 make(20_000, "chains", 20_000)
 make(20_000, "random", 20_000)
 make(20_000, "star", 20_000)

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(90505)
@@ -22,7 +22,6 @@ def flip(a, b):
 
 
 def grow(vs, shape="random"):
-    """tree edges over the vertex list vs, each new vertex attached to an earlier one (BFS-like order)"""
     res = []
     for i in range(1, len(vs)):
         if shape == "path":
@@ -45,13 +44,12 @@ def rnd_tail(n, k):
     return [(ri(1, n), ri(1, n)) for _ in range(k)]
 
 
-# samples
 add(5, [(1, 2), (2, 3), (4, 5), (3, 1), (1, 4)])
 add(4, [(1, 2), (3, 4), (2, 3)])
 add(3, [(1, 2), (2, 2), (1, 3)])
 add(3, [(2, 3), (1, 2), (3, 2)])
 add(6, [(1, 2), (3, 4), (5, 6), (2, 3), (4, 5), (6, 1), (1, 3)])
-# hidden: small
+
 add(1, [(1, 1)])
 add(2, [(1, 2)])
 add(8, [(1, 2), (3, 4), (5, 6), (7, 8), (2, 3), (6, 7), (4, 5), (8, 1), (1, 5)])
@@ -59,28 +57,28 @@ p = labels(20)
 add(20, grow(p) + [flip(p[3], p[17])] + rnd_tail(20, 5))
 add(100, [(ri(1, 100), ri(1, 100)) for _ in range(100)])
 p = labels(500)
-add(500, grow(p[:250]) + grow(p[250:]))                         # forest: NONE
+add(500, grow(p[:250]) + grow(p[250:]))
 p = labels(2000)
 add(2000, grow(p, "deep") + [flip(p[0], p[-1])])
 p = labels(5000)
 e = grow(p)
-add(5000, e[:3000] + [flip(p[100], p[100])] + e[3000:])          # a self-loop closes the first cycle
-# hidden: maximum size
+add(5000, e[:3000] + [flip(p[100], p[100])] + e[3000:])
+
 N, M = MAXN, MAXM
 p = labels(N)
-add(N, grow(p, "path") + [flip(p[0], p[-1])])                    # the longest possible cycle
+add(N, grow(p, "path") + [flip(p[0], p[-1])])
 p = labels(N)
-add(N, grow(p))                                                  # a tree: NONE
+add(N, grow(p))
 p = labels(N)
 e = grow(p, "deep")
 add(N, e + [flip(p[ri(0, N - 1)], p[ri(0, N - 1)])])
 p = labels(N)
 e = grow(p, "path")
-add(N, e[:N - 2] + [e[N // 2]] + e[N - 2:])                      # a repeated cable, late
+add(N, e[:N - 2] + [e[N // 2]] + e[N - 2:])
 p = labels(N)
-add(N, grow(p) + [(p[N - 1], p[N - 1])])                         # the last cable is a self-loop
+add(N, grow(p) + [(p[N - 1], p[N - 1])])
 p = labels(N)
-add(N, [flip(p[0], p[k]) for k in range(1, N)] + [flip(p[N // 3], p[N // 2])])   # a star
+add(N, [flip(p[0], p[k]) for k in range(1, N)] + [flip(p[N // 3], p[N // 2])])
 add(N, [(1, k) for k in range(2, N + 1)] + [(N, 2)])
 add(N, [(k, 1) for k in range(2, N + 1)] + [(2, N)])
 add(N, [(k, k + 1) for k in range(1, N)] + [(N, 1)])
@@ -90,9 +88,9 @@ add(N, grow(p[:half], "deep") + grow(p[half:], "deep") + [flip(p[0], p[half])] +
 p = labels(N)
 e = grow(p[:100_000]) + grow(p[100_000:])
 random.shuffle(e)
-add(N, e)                                                        # a forest given in random order: NONE
+add(N, e)
 e = []
-for _ in range(M):                                               # random cables without self-loops
+for _ in range(M):
     a = ri(1, N)
     e.append((a, (a + ri(1, N - 1) - 1) % N + 1))
 add(N, e)

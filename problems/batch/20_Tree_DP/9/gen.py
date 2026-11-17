@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(200009)
@@ -19,7 +19,6 @@ def shuf(a):
 
 
 def shape(n, kind):
-    """par[i] (1 <= i < n) is a node in 0..i-1; node 0 is the root"""
     par = [-1] * n
     h = max(1, n // 2)
     s = max(1, int(n ** 0.5))
@@ -30,19 +29,19 @@ def shape(n, kind):
             par[i] = i - 1
         elif kind == "star":
             par[i] = 0
-        elif kind == "deep":                    # long and thin, short side branches
+        elif kind == "deep":
             par[i] = ri(max(0, i - 3), i - 1)
         elif kind == "binary":
             par[i] = (i - 1) // 2
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
+        elif kind == "broom":
             par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging on it
+        elif kind == "cater":
             par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "spider":                  # about sqrt(n) legs of length about sqrt(n) at the root
+        elif kind == "spider":
             par[i] = 0 if (i - 1) % s == 0 else i - 1
-        elif kind == "twopaths":                # two long chains below the root
+        elif kind == "twopaths":
             par[i] = 0 if i <= 2 else i - 2
-        elif kind == "midstar":                 # a path whose middle node has many leaves
+        elif kind == "midstar":
             par[i] = i - 1 if i < h else h // 2
         else:
             raise ValueError(kind)
@@ -50,7 +49,6 @@ def shape(n, kind):
 
 
 def labels(n, root=None):
-    """a random numbering 1..n of the nodes 0..n-1 (node 0 gets root if given)"""
     lab = list(range(1, n + 1))
     shuf(lab)
     if root is not None:
@@ -60,7 +58,6 @@ def labels(n, root=None):
 
 
 def edge_list(par, lab):
-    """edges (lab[u], lab[v]) of the tree in random order and orientation"""
     r = _rnd
     es = [(lab[par[i]], lab[i]) if r() < 0.5 else (lab[i], lab[par[i]]) for i in range(1, len(par))]
     shuf(es)
@@ -68,7 +65,6 @@ def edge_list(par, lab):
 
 
 def shape_ok(par, lab):
-    """par[i] < i for every node and lab is a numbering 1..n: the edges form a tree"""
     n = len(par)
     return (par[0] == -1 and all(0 <= par[i] < i for i in range(1, n))
             and len(set(lab)) == n and min(lab) == 1 and max(lab) == n)
@@ -95,7 +91,6 @@ def is_tree(n, es):
 
 
 def mis_size(n, es):
-    """largest number of pairwise non-adjacent villages (greedy: take a leaf, drop its neighbour)"""
     adj = [[] for _ in range(n + 1)]
     for u, v in es:
         adj[u].append(v)
@@ -118,7 +113,6 @@ def mis_size(n, es):
 
 
 def mis_par(par):
-    """the same greedy on a shape with par[i] < i (children have larger indices)"""
     n = len(par)
     blocked, cnt = [False] * n, 0
     for v in range(n - 1, -1, -1):
@@ -139,7 +133,6 @@ def add(K, a, es, checked=False):
 
 
 def blocks_shape(n, k):
-    """the root has many children, each heading a block of k nodes (worst case for the merging)"""
     par = [-1]
     for i in range(1, n):
         j = (i - 1) % k
@@ -148,7 +141,6 @@ def blocks_shape(n, k):
 
 
 def hubs_shape(n, k):
-    """a random tree on n // k hubs, every other node a leaf of a random hub (many merges into a full table)"""
     m = max(1, n // k)
     par = [-1] + [int(_rnd() * i) for i in range(1, m)]
     while len(par) < n:
@@ -179,7 +171,6 @@ def uni(lo, hi):
 
 
 def bait(i, d):
-    """odd levels are big, even levels negative: the forced choices hurt"""
     return ri(MAXA // 2, MAXA) if d % 2 == 1 else -ri(0, MAXA)
 
 
@@ -187,13 +178,12 @@ def mostly_neg(i, d):
     return ri(1, MAXA) if _rnd() < 0.05 else -ri(1, MAXA)
 
 
-# samples
 add(2, [5, 8, 6, 7, 3], [(1, 2), (1, 3), (3, 4), (3, 5)])
 add(3, [-1, 4, -2, -3, 5], [(1, 2), (2, 3), (3, 4), (4, 5)])
 add(1, [-7], [])
 add(3, [10, 1, 1, 1, 1], [(1, 2), (1, 3), (1, 4), (1, 5)])
 add(3, [4, -5, 9, 2, -1, 6, 3, -2], [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (6, 7), (6, 8)])
-# hidden: small
+
 add(1, [MAXA, -MAXA], [(1, 2)])
 build(8, 3, "random", uni(-10, 10))
 build(12, 5, "deep", bait)
@@ -203,13 +193,13 @@ build(300, 100, "random", bait)
 build(1000, 300, "blocks", uni(-MAXA, MAXA), 50)
 build(2000, 150, "path", mostly_neg)
 build(3000, 250, "spider", uni(-MAXA, MAXA))
-# hidden: maximum size
+
 N, K = MAXN, MAXK
 build(N, K, "path", uni(-MAXA, MAXA))
-build(N, K, "path", uni(MAXA, MAXA))           # the largest answer
-build(N, K, "blocks", uni(-MAXA, MAXA), 300)  # worst case for the merging work
+build(N, K, "path", uni(MAXA, MAXA))
+build(N, K, "blocks", uni(-MAXA, MAXA), 300)
 build(N, K, "blocks", bait, 200)
-build(N, K, "hubs", mostly_neg, 400)          # skipping only the impossible rows is still O(N K^2) here
+build(N, K, "hubs", mostly_neg, 400)
 build(N, K, "random", uni(-MAXA, MAXA))
 build(N, K, "hubs", bait, 1500)
 build(N, K, "broom", uni(-MAXA, MAXA))
@@ -218,7 +208,7 @@ build(N, K, "binary", mostly_neg)
 build(N, K, "deep", bait)
 build(N, K, "cater", uni(-MAXA, MAXA))
 build(N, K, "spider", bait)
-build(N, K, "random", uni(-MAXA, -1))         # every value negative
+build(N, K, "random", uni(-MAXA, -1))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

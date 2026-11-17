@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(110013)
@@ -45,13 +45,12 @@ def mix(n, q, flip_frac, long_frac=0.9):
     return ops
 
 
-# samples
 add("(()(", [(2, 1, 4), (1, 4), (2, 1, 4), (1, 2), (2, 1, 4)])
 add(")(", [(2, 1, 2), (1, 1), (2, 1, 2), (1, 2), (2, 1, 2)])
 add("(", [(2, 1, 1)])
 add("())(()))((", [(2, 1, 10), (2, 3, 8), (1, 9), (1, 10), (2, 1, 10)])
 add(")()(()(", [(2, 1, 7), (1, 1), (2, 1, 7), (2, 2, 6)])
-# hidden: small
+
 add(")", [(2, 1, 1), (1, 1), (2, 1, 1)])
 s = rnd_str(10)
 add(s, [(2, l, r) for l in range(1, 11) for r in range(l, 11)] + [(1, 3), (2, 1, 10), (1, 7), (2, 2, 9)])
@@ -60,16 +59,16 @@ add(rnd_str(1000, 0.6), mix(1000, 2000, 0.2, 0.4))
 add("(" * 5000 + ")" * 5000, mix(10000, 5000, 0.1, 0.5))
 add(rnd_str(30000), mix(30000, 10000, 0.3, 0.4))
 add(")" * 3000 + "(" * 3000, mix(6000, 4000, 0.2, 0.5))
-# hidden: maximum size
+
 N = MAXN
 add(rnd_str(N), mix(N, 150_000, 0.2))
 add(rnd_str(N), mix(N, 160_000, 0.5))
 add(rnd_str(N, 0.55), mix(N, 150_000, 0.3))
-add("(" * N, mix(N, 150_000, 0.3))                                     # flips create the only pairs
+add("(" * N, mix(N, 150_000, 0.3))
 add(")" * N, mix(N, 150_000, 0.3))
-add("(" * (N // 2) + ")" * (N // 2), mix(N, 150_000, 0.2))            # one deep nest
+add("(" * (N // 2) + ")" * (N // 2), mix(N, 150_000, 0.2))
 add("()" * (N // 2), mix(N, 150_000, 0.2))
-add(")" * (N // 2) + "(" * (N // 2), mix(N, 150_000, 0.2))            # nothing matches at first
+add(")" * (N // 2) + "(" * (N // 2), mix(N, 150_000, 0.2))
 s = "".join("(" * 3 + ")" * 2 if i % 2 else "(" + ")" * 2 for i in range(N // 4))[:N]
 add(s, mix(len(s), 150_000, 0.3))
 add(rnd_str(N), [(2, 1, N) if j % 2 else (1, ri(1, N)) for j in range(170_000)])

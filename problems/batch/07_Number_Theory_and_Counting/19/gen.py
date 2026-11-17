@@ -1,11 +1,11 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 from math import gcd
 
 random.seed(141901)
 MAXQ = 100_000
 MAXV = 10 ** 18
-SMALL = 1 << 21          # brute.cpp knows the sequence up to here
+SMALL = 1 << 21
 tests = []
 
 
@@ -52,7 +52,7 @@ F1, F2 = fib[-2], fib[-1]
 
 
 def huge_quotient():
-    # pairs whose Euclid quotients are enormous (one subtraction at a time is hopeless)
+
     c = ri(0, 5)
     if c == 0:
         return (2, 1, ri(MAXV // 2, MAXV))
@@ -69,13 +69,12 @@ def huge_quotient():
     return (2, MAXV - 1, MAXV)
 
 
-# samples
 add([(1, 5), (1, 10), (2, 3, 2), (2, 1, 1)])
 add([(2, 1, 4), (2, 4, 1), (2, 2, 7)])
 add([(1, MAXV), (2, 1, MAXV), (2, MAXV, 1)])
 add([(1, 1), (1, 2), (2, 1, 2), (2, 2, 1), (1, 1000)])
 add([(2, 832040, 514229), (2, 7, 1000), (1, 123456789), (1, 1 << 40)])
-# hidden: small (the brute force knows the answers)
+
 add([(1, n) for n in range(1, 301)] + [from_n(n) for n in range(1, 301)])
 add([(1, 1), (1, (1 << 59) + 1), (2, F1, F2), (2, F2, F1), (2, 999_999_999_999, 1_000_000_000_000)])
 add([(1, ri(1, SMALL)) for _ in range(3000)] + [from_n(ri(1, SMALL - 1)) for _ in range(3000)])
@@ -83,7 +82,7 @@ add([from_n(n) for n in [SMALL - 1, SMALL - 2, SMALL // 2, SMALL // 2 - 1, (SMAL
     [(1, SMALL), (1, SMALL - 1), (1, SMALL // 2)])
 qs = [from_n(ri(1, SMALL - 1)) if i % 2 else (1, ri(1, SMALL)) for i in range(5000)]
 add(qs)
-# hidden: medium and large
+
 add([(1, ri(1, MAXV)) for _ in range(MAXQ)])
 add([rand_coprime(1, MAXV) for _ in range(MAXQ)])
 add([huge_quotient() for _ in range(MAXQ)])

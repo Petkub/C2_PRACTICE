@@ -1,3 +1,4 @@
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 tests = []
@@ -8,7 +9,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the nodes 2..n of a tree of the given shape, before relabelling"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -20,23 +20,23 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, a few short branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 nodes with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "twopaths":                    # two long chains meeting at node 1
+        elif kind == "twopaths":
             p = 1 if i <= 3 else i - 2
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
-        elif kind == "longrandom":                  # a chain of 3n / 5 nodes, the rest hung at random
+        elif kind == "longrandom":
             p = i - 1 if i <= h else ri(1, i - 1)
-        elif kind == "longbinary":                  # a chain of 3n / 5 nodes ending in a binary tree
+        elif kind == "longbinary":
             p = i - 1 if i <= h else h - 1 + (i - h + 1) // 2
-        elif kind == "longstar":                    # a chain of 3n / 5 nodes plus a star around node 1
+        elif kind == "longstar":
             p = i - 1 if i <= h else 1
         else:
             raise ValueError(kind)
@@ -45,7 +45,6 @@ def shape(n, kind):
 
 
 def shuffle(a):
-    """Fisher-Yates with random.random (faster than random.shuffle, same on every Python 3 version)"""
     rnd = random.random
     for i in range(len(a) - 1, 0, -1):
         j = int(rnd() * (i + 1))
@@ -53,10 +52,8 @@ def shuffle(a):
 
 
 def relabel(par, root_first=False):
-    """random labels (node 1 of the shape keeps label 1 if root_first), shuffled edges and ends;
-    lab[i - 1] is the label of shape node i"""
     n = len(par) - 1
-    assert all(1 <= par[i] < i for i in range(2, n + 1))       # so the edges below always form a tree
+    assert all(1 <= par[i] < i for i in range(2, n + 1))
     lab = list(range(1, n + 1))
     shuffle(lab)
     if root_first:
@@ -69,8 +66,6 @@ def relabel(par, root_first=False):
 
 
 def random_ancestors(par, stay):
-    """for every shape node i a random proper ancestor (i itself for the root): with probability stay the
-    choice of the parent is inherited, so the jump is about 1 / (1 - stay) levels on average (O(n) total)"""
     n = len(par) - 1
     far = list(range(n + 1))
     rnd = random.random
@@ -80,7 +75,6 @@ def random_ancestors(par, stay):
 
 
 def check_tree(n, edges):
-    """the N - 1 edges connect all N nodes (union-find)"""
     assert len(edges) == n - 1
     root = list(range(n + 1))
 
@@ -122,8 +116,6 @@ def add(n, wedges, c, tree_ok=False):
 
 
 def make(n, kind, lo=1, hi=MAXW, order="rand"):
-    """order rand: random; inout: from the middle of the shape outwards (the pair changes often);
-    alt: alternating far ends; deepfirst: shape nodes in decreasing number"""
     par = shape(n, kind)
     edges, lab = relabel(par)
     rnd = random.random
@@ -143,13 +135,12 @@ def make(n, kind, lo=1, hi=MAXW, order="rand"):
     add(n, wedges, c, True)
 
 
-# samples
 add(6, [(1, 2, 3), (1, 3, 5), (2, 4, 2), (2, 5, 4), (3, 6, 1)], [4, 5, 6, 1, 3, 2])
 add(4, [(1, 2, 10), (2, 3, 1), (3, 4, 10)], [2, 3, 1, 4])
 add(1, [], [1])
 add(5, [(3, 1, 7), (1, 5, 2), (5, 2, 9), (5, 4, 4)], [5, 1, 4, 3, 2])
 add(7, [(1, 2, 1000000), (2, 3, 1), (2, 4, 1000000), (4, 5, 1), (1, 6, 3), (6, 7, 999999)], [3, 5, 1, 7, 6, 4, 2])
-# hidden: small and medium
+
 add(2, [(2, 1, 5)], [2, 1])
 make(10, "random", 1, 20)
 make(30, "binary", 1, 10, "inout")
@@ -159,7 +150,7 @@ make(3000, "path", 1, MAXW, "inout")
 make(4000, "chains", 1, 100)
 make(5000, "random", 1, MAXW)
 make(5000, "star", 1, MAXW)
-# hidden: maximum size
+
 make(MAXN, "path", MAXW, MAXW, "inout")
 make(MAXN, "path", 1, MAXW, "rand")
 make(MAXN, "twopaths", 1, MAXW, "inout")

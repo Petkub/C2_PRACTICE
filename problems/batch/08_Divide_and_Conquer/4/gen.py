@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(13004)
@@ -18,7 +18,6 @@ def rnd(n, q):
 
 
 def special(n, q):
-    """around the moves of the big disks, the ends, numbers made of few bits"""
     top = (1 << n) - 1
     ks = []
     while len(ks) < q:
@@ -39,13 +38,12 @@ def special(n, q):
     return ks
 
 
-# samples
 add(3, [3, 0, 7])
 add(2, [1, 2])
 add(1, [0, 1])
 add(4, [5, 8, 10])
 add(30, [536870912, 1073741823, 6])
-# hidden: small (the brute force lists every move)
+
 add(1, [1, 0, 1])
 add(3, list(range(8)))
 add(4, list(range(16)))
@@ -54,7 +52,7 @@ add(12, rnd(12, 2000))
 add(16, special(16, 3000))
 add(18, rnd(18, 5000))
 add(18, special(18, 5000))
-# hidden: large
+
 add(MAXN, rnd(MAXN, MAXQ))
 add(MAXN, rnd(MAXN, MAXQ))
 add(MAXN, special(MAXN, MAXQ))

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(150301)
@@ -20,7 +20,6 @@ def shuf(a):
 
 
 def shape(n, kind):
-    """par[i] for i = 1..n-1 is a node in 0..i-1; node 0 is house 1 (the top)"""
     par = [-1] * n
     h = max(1, n // 2)
     for i in range(1, n):
@@ -30,13 +29,13 @@ def shape(n, kind):
             par[i] = i - 1
         elif kind == "star":
             par[i] = 0
-        elif kind == "deep":                    # depth about n / 2, short side branches
+        elif kind == "deep":
             par[i] = ri(max(0, i - 3), i - 1)
-        elif kind == "broom":                   # a path of n / 2 nodes, then a star at its end
+        elif kind == "broom":
             par[i] = i - 1 if i <= h else h
-        elif kind == "cater":                   # a path of n / 2 nodes with leaves hanging anywhere on it
+        elif kind == "cater":
             par[i] = i - 1 if i < h else ri(0, h - 1)
-        elif kind == "twopaths":                # two long chains below the top
+        elif kind == "twopaths":
             par[i] = 0 if i <= 2 else i - 2
         else:
             raise ValueError(kind)
@@ -44,7 +43,6 @@ def shape(n, kind):
 
 
 def add(n, rows, parcels):
-    """rows[i] = (p, d, u) for house i = 2..n (index i - 2)"""
     assert 2 <= n <= MAXN and len(rows) == n - 1
     k = len(parcels)
     assert 1 <= k <= n and len(set(parcels)) == k and 1 <= min(parcels) and max(parcels) <= n
@@ -54,7 +52,7 @@ def add(n, rows, parcels):
     ch = [[] for _ in range(n + 1)]
     for i in range(2, n + 1):
         ch[p[i]].append(i)
-    order = [1]                                 # every house reaches house 1 going up
+    order = [1]
     for v in order:
         order.extend(ch[v])
     assert len(order) == n
@@ -63,8 +61,6 @@ def add(n, rows, parcels):
 
 
 def tree(n, kind, cost, pick, par=None):
-    """random labels (the top keeps number 1); cost(i) -> (d, u) for shape node i;
-    pick(par) -> list of shape nodes that get a parcel"""
     if par is None:
         par = shape(n, kind)
     lab = list(range(2, n + 1))
@@ -85,7 +81,6 @@ def rnd_cost(hi):
 
 
 def sample(pool, cnt):
-    """cnt different elements of pool (own Fisher-Yates, same result on every Python version)"""
     a = list(pool)
     for i in range(cnt):
         j = ri(i, len(a) - 1)
@@ -108,19 +103,18 @@ def everybody(par):
     return list(range(len(par)))
 
 
-# samples
 add(6, [(1, 2, 5), (1, 1, 3), (2, 1, 2), (3, 4, 6), (3, 1, 1)], [4, 6])
 add(3, [(3, 2, 1), (1, 3, 4)], [3, 2])
 add(2, [(1, 5, 5)], [1])
 add(5, [(1, 3, 4), (1, 1, 2), (1, 2, 2), (1, 5, 1)], [2, 3, 4, 5])
 add(5, [(1, 2, 3), (1, 4, 4), (2, 1, 1), (4, 2, 2)], [4, 1, 2])
-# hidden: small (the brute handles K <= 12)
+
 add(8, [(1, 2, 2), (1, 1, 1), (2, 3, 1), (2, 1, 2), (3, 2, 3), (6, 1, 4), (6, 5, 1)], [5, 7, 8])
 add(2, [(1, MAXC, MAXC)], [2])
 tree(10, "random", rnd_cost(10), some(3))
 tree(12, "path", rnd_cost(100), some(2))
 tree(30, "random", rnd_cost(MAXC), some(5))
-# two chains: the long one is cheap to climb, the short one is expensive
+
 par = shape(200, "twopaths")
 tree(200, None, lambda i: (ri(1, 10), ri(1, 10)) if i % 2 == 1 else (ri(1, 10), ri(10**6, MAXC)),
      lambda par: [199, 198, 100, 101, 7, 8], par)
@@ -128,11 +122,11 @@ tree(1000, "random", rnd_cost(MAXC), some(10))
 tree(2000, "broom", rnd_cost(MAXC), lambda par: leaves(par)[:8])
 tree(3000, "cater", rnd_cost(MAXC), some(10))
 tree(500, "star", rnd_cost(MAXC), some(10))
-tree(1000, "deep", rnd_cost(MAXC), lambda par: [0])                 # only the post office itself
-# hidden: medium
+tree(1000, "deep", rnd_cost(MAXC), lambda par: [0])
+
 tree(20_000, "random", rnd_cost(MAXC), everybody)
 tree(50_000, "deep", rnd_cost(MAXC), some(1000))
-# hidden: maximum size
+
 N = MAXN
 tree(N, "path", rnd_cost(MAXC), everybody)
 tree(N, "path", rnd_cost(MAXC), lambda par: sample(range(N // 2, N), N // 2))

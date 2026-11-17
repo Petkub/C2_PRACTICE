@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(110002)
@@ -18,7 +18,6 @@ def add(a):
 
 
 def halves(n, top):
-    """values v and v // 2 or 2 v next to each other: many pairs exactly on the boundary a_i = 2 a_j"""
     a = []
     while len(a) < n:
         v = ri(1, top // 2)
@@ -26,14 +25,13 @@ def halves(n, top):
     return a[:n]
 
 
-# samples
 add([9, 4, 2, 8, 1])
 add([8, 4, 2, 1])
 add([5])
 add([1, 2, 3, 4, 5, 6])
 add([MAXV, 499_999_999, 1, 500_000_000])
 add([7, 3, 3, 10, 1, 4, 2])
-# hidden: small
+
 add([1, 1])
 add([3, 1])
 add([2, 1])
@@ -41,16 +39,16 @@ for n, vmax in ((10, 10), (50, 6), (300, 1000), (2000, MAXV), (5000, 20)):
     add([ri(1, vmax) for _ in range(n)])
 add(halves(3000, 100))
 add(halves(4000, MAXV))
-# hidden: maximum size
+
 N = MAXN
 add([ri(1, MAXV) for _ in range(N)])
 add([ri(1, 10) for _ in range(N)])
-add([MAXV] * (N // 2) + [1] * (N // 2))                         # about 10^10 pairs
+add([MAXV] * (N // 2) + [1] * (N // 2))
 add(sorted((ri(1, MAXV) for _ in range(N)), reverse=True))
-add(sorted(ri(1, MAXV) for _ in range(N)))                      # no drop at all
-add([ri(MAXV // 2, MAXV) for _ in range(N)])                    # within a factor 2: no drop
+add(sorted(ri(1, MAXV) for _ in range(N)))
+add([ri(MAXV // 2, MAXV) for _ in range(N)])
 add(halves(N, MAXV))
-add([MAXV >> ri(0, 29) for _ in range(N)])                      # powers of two times a constant
+add([MAXV >> ri(0, 29) for _ in range(N)])
 add([ri(1, 1000) * ri(1, 1000) for _ in range(N)])
 a = [ri(MAXV // 2 + 1, MAXV) for _ in range(N // 2)] + [ri(1, MAXV // 4) for _ in range(N // 2)]
 random.shuffle(a)

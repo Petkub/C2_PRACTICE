@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(140909)
@@ -28,7 +28,6 @@ def add(n, k, links, mix=True):
 
 
 def tree_links(group, p, shape="random"):
-    """links of app p joining the students of `group` (a fresh random tree each time)"""
     g = list(group)
     shuffle(g)
     res = []
@@ -40,11 +39,6 @@ def tree_links(group, p, shape="random"):
 
 
 def planted(n, k, fine, coarse, m, cover=None, shape="random", common=0.0):
-    """`cover` students (all if None) are split into `fine` small groups; app p merges them into `coarse[p]`
-    bigger groups at random and joins each bigger group with its own random links. The close pairs are the
-    pairs in the same bigger group of every app. `common`: share of the fine groups whose tree is the same in
-    every app (the 'common links' shortcut finds those). The other students get no link at all. The links
-    left over (up to m) are extra random links inside the bigger groups."""
     who = list(range(1, n + 1))
     shuffle(who)
     cover = n if cover is None else cover
@@ -72,7 +66,7 @@ def planted(n, k, fine, coarse, m, cover=None, shape="random", common=0.0):
             members = [x for gi in gis for x in groups[gi]]
             if len(members) > 1:
                 bigs.append((p, members))
-    m = max(m, len(links))          # small tests: at least the links that build the groups
+    m = max(m, len(links))
     assert bigs
     while len(links) < m:
         p, members = bigs[ri(0, len(bigs) - 1)]
@@ -91,33 +85,32 @@ def random_apps(n, k, m):
     return n, k, links
 
 
-# samples
 add(5, 2, [(1, 2, 1), (2, 3, 1), (4, 5, 1), (1, 2, 2), (2, 3, 2), (3, 4, 2)], mix=False)
 add(4, 3, [(1, 2, 1), (2, 1, 2), (3, 4, 3), (1, 2, 1)], mix=False)
 add(6, 1, [(1, 2, 1), (3, 4, 1), (4, 5, 1), (5, 3, 1), (2, 6, 1)], mix=False)
 add(4, 2, [(1, 2, 1), (2, 1, 2), (1, 2, 2), (3, 4, 1), (4, 3, 2), (2, 3, 1)], mix=False)
 add(7, 3, [(1, 2, 1), (2, 3, 1), (3, 4, 1), (5, 6, 1), (1, 2, 2), (2, 3, 2), (3, 4, 2), (6, 7, 2), (1, 2, 3),
            (2, 3, 3), (3, 4, 3), (5, 7, 3), (4, 5, 3)], mix=False)
-# hidden: small (checked against brute.cpp)
+
 add(2, 1, [(2, 1, 1)])
 add(2, 2, [(1, 2, 1), (1, 2, 1)])
-add(5, 2, [(1, 2, 1), (2, 3, 1), (1, 3, 2), (3, 2, 2), (4, 5, 2)])     # 1-2 joined by different routes
+add(5, 2, [(1, 2, 1), (2, 3, 1), (1, 3, 2), (3, 2, 2), (4, 5, 2)])
 add(*planted(8, 2, 3, [2, 2], 9))
 add(*planted(12, 3, 4, [2, 3, 2], 20, cover=10))
 add(*random_apps(10, 10, 60))
 add(*planted(2000, 3, 60, [10, 12, 8], 7000))
 add(*planted(1500, 1, 30, [6], 2000))
 add(*planted(1800, 4, 40, [5, 5, 5, 5], 8000, common=0.5))
-# hidden: maximum size
+
 N, M = MAXN, MAXM
-add(*planted(N, 2, 50, [1, 2], M))                                   # big groups: over 2 * 10^9 pairs
-add(*planted(N, 1, 1, [1], M, shape="path"))                         # one app, everyone reaches everyone
-add(*planted(N, 2, 1, [1, 1], M, shape="star"))                      # 4 999 950 000 pairs
+add(*planted(N, 2, 50, [1, 2], M))
+add(*planted(N, 1, 1, [1], M, shape="path"))
+add(*planted(N, 2, 1, [1, 1], M, shape="star"))
 add(*planted(N, 10, 400, [3] * 10, M, cover=18_000))
 add(*planted(N, 5, 2000, [20, 30, 25, 40, 15], M, cover=35_000))
-add(*planted(N, 3, 300, [1, 1, 1], M, cover=66_000, common=0.3))   # one group of 66 000
+add(*planted(N, 3, 300, [1, 1, 1], M, cover=66_000, common=0.3))
 add(*planted(N, 2, 20, [1, 2], M, shape="path"))
-add(*random_apps(N, 2, M))                                           # two random graphs with a giant part each
+add(*random_apps(N, 2, M))
 add(*planted(N, 10, 30, [2] * 10, M, cover=19_000, shape="star"))
 add(*planted(N, 4, 5000, [100, 120, 90, 110], M, cover=45_000, common=0.8))
 add(*planted(N, 7, 150, [4, 5, 3, 6, 4, 5, 3], M, cover=25_000))

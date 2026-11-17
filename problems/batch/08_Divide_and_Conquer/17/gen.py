@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(131703)
@@ -29,8 +29,6 @@ def build(s, x, k):
 
 
 def case(nlo, nhi, slen, xlen, al, sub=0.7):
-    """random case; with probability sub the pattern is a piece of S_k for a small k,
-    often one that covers a copy of X (so that it crosses the middle)"""
     s = word(1, slen, al)
     x = word(1, xlen, al)
     n = random.randint(nlo, nhi)
@@ -38,7 +36,7 @@ def case(nlo, nhi, slen, xlen, al, sub=0.7):
         t = build(s, x, random.randint(1, 6))
         m = random.randint(1, min(20, len(t)))
         if random.random() < 0.5 and len(t) > len(s) + len(x):
-            # around the first copy of X
+
             c = len(s) + random.randint(0, len(x) - 1)
             i = max(0, min(len(t) - m, c - random.randint(0, m - 1)))
         else:
@@ -64,14 +62,13 @@ def small_file(cnt, nmax, slen, xlen, al, budget=3 * 10**7):
     return cases
 
 
-# samples
 add([(2, "ab", "a", "aba"), (1, "aaa", "aa", "aaaa")])
 add([(0, "abc", "x", "abc"), (3, "a", "b", "aba")])
 add([(10**18, "ab", "a", "aba"), (10**18, "z", "z", "zzzzzzzzzzzzzzzzzzzz"), (999_999_999_999, "abc", "d", "cda")])
 add([(5, "ab", "c", "ca"), (0, "a", "a", "aa"), (7, "cat", "s", "tsc"), (60, "xyz", "x", "yx")])
 add([(4, "ba", "ab", "bab"), (6, "a", "aa", "aaaaaaa"), (50, "hello", "o", "oo"), (1, "pq", "rs", "qrsp"),
      (2, "abc", "abc", "cabca"), (3, "a", "b", "babab")])
-# hidden: small n (the brute force builds S_n)
+
 add([(n, s, x, p) for n in range(0, 5) for s in ("a", "b", "ab") for x in ("a", "b", "ba")
      for p in ("a", "ab", "aba", "bab", "aaa", "abba", "aabaa", "abaabaaba")])
 add(small_file(400, 8, 2, 2, "ab"))
@@ -83,7 +80,7 @@ add(small_file(300, 12, 3, 5, "a"))
 add([case(0, 3, 50, 50, "abcdefghijklmnopqrstuvwxyz") for _ in range(300)])
 add([(n, "a", "b", ("ab" * 10)[:m]) for n in range(0, 13) for m in range(1, 21)])
 add(small_file(30, 21, 1, 1, "ab", budget=4 * 10**8))
-# hidden: large (n up to 10^18)
+
 add([case(0, MAXN, 50, 50, "ab") for _ in range(MAXT)])
 add([case(10**17, MAXN, 3, 3, "ab") for _ in range(MAXT)])
 add([case(10**9, MAXN, 1, 1, "ab") for _ in range(MAXT)])

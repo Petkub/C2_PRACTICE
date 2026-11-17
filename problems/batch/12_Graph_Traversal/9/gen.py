@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(7009)
@@ -7,7 +7,6 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
@@ -43,14 +42,13 @@ def rand_queries(k, q, banned_share=None):
     return [code(k, ri(0, 10 ** k - 1)) for _ in range(q)]
 
 
-# samples
 add(3, "000", ["555"], ["111", "190", "000"])
 add(1, "0", ["1", "9"], ["5", "1", "0"])
 add(2, "55", ["45", "65", "54", "56", "66"], ["57", "66"])
 add(4, "1234", ["1233", "1235", "2345"], ["1243", "0000", "9999"])
 add(5, "00000", ["11000", "99999", "01110"], ["55555", "13579"])
 add(2, "09", ["08", "00", "19", "99", "10", "98"], ["09", "00", "77"])
-# hidden: small and medium (every answer checked by brute force)
+
 add(1, "7", ["0"], [code(1, x) for x in range(10)])
 add(1, "3", ["5"], [code(1, x) for x in range(10)])
 add(2, "00", rand_banned(2, 30, "00"), [code(2, x) for x in range(100)])
@@ -63,16 +61,16 @@ add(4, "4826", rand_banned(4, 5500, "4826"), rand_queries(4, 3000))
 wall = [code(4, x) for x in range(10 ** 4) if code(4, x)[1] == "5" and x % 97 != 0]
 add(4, "3333", wall, rand_queries(4, 3000))
 add(5, "12345", rand_banned(5, 20000, "12345"), rand_queries(5, 10000))
-# hidden: large
+
 add(6, "000000", ["999999"], rand_queries(6, MAXQ))
 add(6, "135792", rand_banned(6, MAXF, "135792"), rand_queries(6, MAXQ))
-add(6, "000000", [code(6, x) for x in range(1, MAXF + 1)], rand_queries(6, MAXQ))   # 000001..100000 banned
-wall = [code(6, x) for x in range(5 * 10 ** 5, 6 * 10 ** 5)]                         # leftmost wheel never shows 5
+add(6, "000000", [code(6, x) for x in range(1, MAXF + 1)], rand_queries(6, MAXQ))
+wall = [code(6, x) for x in range(5 * 10 ** 5, 6 * 10 ** 5)]
 random.shuffle(wall)
 add(6, "300000", wall, rand_queries(6, MAXQ))
-wall = [code(6, x) for x in range(10 ** 6) if code(6, x)[2:4] == "55"][:MAXF]        # wheels 3 and 4 never both 5
+wall = [code(6, x) for x in range(10 ** 6) if code(6, x)[2:4] == "55"][:MAXF]
 add(6, "414141", wall, rand_queries(6, MAXQ))
-ball = []                                                                            # a shell around the start
+ball = []
 for x in range(10 ** 6):
     c = code(6, x)
     if sum(min(int(a), 10 - int(a)) for a in c) == 3:
@@ -80,12 +78,12 @@ for x in range(10 ** 6):
 s = "000000"
 ball = [c for c in ball if c != s][:MAXF]
 add(6, s, ball, rand_queries(6, MAXQ))
-add(5, "00000", rand_banned(5, 50000, "00000"), rand_queries(5, MAXQ))               # many unreachable codes
+add(5, "00000", rand_banned(5, 50000, "00000"), rand_queries(5, MAXQ))
 add(5, "55555", rand_banned(5, 30000, "55555"), rand_queries(5, MAXQ))
 add(5, "24680", rand_banned(5, 60000, "24680"), [code(5, x) for x in range(MAXQ)])
 add(6, "999999", rand_banned(6, MAXF, "999999"), [code(6, ri(0, 10 ** 6 - 1)) for _ in range(MAXQ)])
 add(6, "505050", rand_banned(6, 1, "505050"), ["050505"] * MAXQ)
-add(6, "000000", [code(6, x) for x in range(10 ** 5, 2 * 10 ** 5)],                  # leftmost wheel never shows 1
+add(6, "000000", [code(6, x) for x in range(10 ** 5, 2 * 10 ** 5)],
     rand_queries(6, MAXQ))
 
 for t in tests:

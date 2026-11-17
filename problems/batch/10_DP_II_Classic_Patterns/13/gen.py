@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10016)
@@ -29,9 +29,6 @@ def words(n, lo, hi):
     return [word(ri(lo, hi)) for _ in range(n)]
 
 
-# Word lengths (one digit per word) of paragraphs on which a DP from the front with "the latest parent on a
-# tie" breaks the tie rule (found by search against brute.cpp): T10 when the last line is chosen with the
-# longest last line, T11 with the shortest last line.
 T10_W21 = "11321123223122121313121312231333121113122"
 T11_W11 = "322133322231313111112113331233321113321312331"
 T11_W13 = ("2211112121112222222222222121121122221111121122221121111222222121122121122211121112212211221211"
@@ -44,7 +41,7 @@ T10_W25 = ("42323423134342444323441231321224131241424432131123221111232424323134
            "3112424234441133213441124331331211243243134413231244131214313314142112343311232211411423214434"
            "334213212231213433243234123241212242331441231112314211341144132232221")
 
-# more of them (found the same way): F = breaks the DP that picks the longest tying last line, S = the shortest
+
 F_W17 = "1122323221232133112111213122111312213331213221"
 F_W30 = "121221133312313221311132122332312211331223211121222133312232"
 F_W50 = ("3554143115533224422552314313431524444411213245425453525144131411254143525514452212152141432522"
@@ -62,18 +59,16 @@ def from_lengths(code):
 
 
 def tie_trap(w, n, code, hi):
-    """n words: tie-heavy random words, one word of length w (alone on its line, cost 0), then a trap paragraph"""
     tail = from_lengths(code)
     return words(n - len(tail) - 1, 1, hi) + [word(w)] + tail
 
 
-# samples
 add(6, ["sun", "a", "go", "rain"])
 add(5, ["aa", "bb", "cc", "dd", "e", "ffff"])
 add(5, ["hello"])
 add(12, ["this", "is", "a", "test", "of", "a", "neat", "paragraph"])
 add(4, ["x", "y", "z", "w", "v", "u", "t"])
-# hidden: small (brute.cpp tries every set of line breaks)
+
 add(1, ["q"])
 add(3, ["a", "b", "c", "d", "e", "f", "g", "h", "i"])
 add(8, words(14, 1, 4))
@@ -83,13 +78,13 @@ add(17, from_lengths(F_W17))
 add(10, from_lengths(S_W10))
 add(21, from_lengths(T10_W21))
 add(11, from_lengths(T11_W11))
-# hidden: maximum size
+
 N = MAXN
 add(100, words(N, 1, 10))
 add(10, tie_trap(10, N, S_W10, 3))
 add(50, tie_trap(50, N, F_W50, 8))
-add(30, tie_trap(30, N, F_W30, 4))       # many equal-cost layouts
-add(11, ["ab"] * (N - len(S_W11) - 1) + [word(11)] + from_lengths(S_W11))   # even more ties
+add(30, tie_trap(30, N, F_W30, 4))
+add(11, ["ab"] * (N - len(S_W11) - 1) + [word(11)] + from_lengths(S_W11))
 add(100, words(N - 10000, 5, 15))
 add(100, [word(ri(90, 100)) if k % 13 == 0 else word(ri(1, 3)) for k in range(N)])
 add(64, tie_trap(64, N, F_W64, 3))

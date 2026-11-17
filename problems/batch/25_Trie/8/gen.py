@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(250008)
@@ -31,25 +31,23 @@ def distinct(n, make):
     return ws
 
 
-# samples
 add(["print", "the", "poem"])
 add(["ab", "a"])
 add(["zzz"])
 add(["abc", "abd", "b", "ab"])
 add(["ba", "aab", "bab", "a", "abba"])
-# hidden: small (N <= 15)
+
 add(["q", "r"])
 add(distinct(6, lambda: word("ab", 1, 4)))
 add(distinct(9, lambda: word("abc", 1, 6)))
 add(distinct(12, lambda: word("ab", 1, 8)))
 add(distinct(15, lambda: word("abcd", 1, 10)))
-add(["zzzzzzzzzz", "a", "b", "c", "ab", "abc", "abcd", "z"])                 # the longest word is last in order
+add(["zzzzzzzzzz", "a", "b", "c", "ab", "abc", "abcd", "z"])
 add(distinct(14, lambda: word("xy", 3, 7)))
-# hidden: larger
+
 add(distinct(3000, lambda: word("abcdefghijklmnopqrstuvwxyz", 1, 8)))
-# hidden: maximum size
+
 def fixed(n, alpha, L):
-    """n distinct words of length L over alpha, in random order"""
     k = len(alpha)
     out = []
     for x in random.sample(range(k ** L), n):
@@ -66,7 +64,6 @@ N = MAXN
 
 
 def longpart(ws, B=36_000, alpha="no"):
-    """add about twenty words base + a short end (their prefixes are long) until the length budget is used"""
     room = MAXC - sum(len(w) for w in ws)
     have = set(ws)
     base = word(alpha, B, B)
@@ -80,7 +77,6 @@ def longpart(ws, B=36_000, alpha="no"):
     return ws[:k] + extra + ws[k:]
 
 
-# hidden: maximum size. Most of them end with about twenty words of length about 36 000 that share a long start
 ws = fixed(5_000, AZ, 3) + distinct(25_000, lambda: word(AZ, 10, 14)) + ["abcdefgh"]
 ws = sorted(set(ws))
 random.shuffle(ws)
@@ -90,16 +86,16 @@ ws = fixed(7776, "abcdef", 5) + fixed(10_000, "abcdef", 6) + fixed(20_000, "abcd
 random.shuffle(ws)
 add(longpart(ws))
 add(longpart(["kitti" + w for w in fixed(15_000, "abc", 11)] + ["kitta" + "b" * 20]))
-add(longpart(["a" * k for k in range(1, 701)], alpha="ab"))                 # each word is a prefix of the next
-add(["m" * 500_000, "b" * 499_000] + distinct(100, lambda: word("abc", 1, 9)))   # two very long words
+add(longpart(["a" * k for k in range(1, 701)], alpha="ab"))
+add(["m" * 500_000, "b" * 499_000] + distinct(100, lambda: word("abc", 1, 9)))
 ws = fixed(600, AZ, 2) + fixed(17_000, AZ, 3) + fixed(N - 17_601, AZ, 4)
 random.shuffle(ws)
-add(ws + ["a" * 100_000])                                                     # the longest word is lexicographically small
+add(ws + ["a" * 100_000])
 add(sorted(longpart(fixed(15_000, "wxyz", 8) + fixed(15_000, "wxyz", 9) + ["w" * 12])))
 add(longpart(["d" * 30 + w for w in fixed(7_000, "abcdefgh", 5)] + ["d" * 29 + "a" * 10]))
 add(longpart(distinct(250, lambda: word("ab", 900, 990))))
 base = word("st", 5000, 5000)
-add(distinct(100, lambda: base + word("st", 4800, 4900)))                    # long words with a long common start
+add(distinct(100, lambda: base + word("st", 4800, 4900)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

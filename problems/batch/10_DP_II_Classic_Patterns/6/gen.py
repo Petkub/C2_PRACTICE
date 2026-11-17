@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10006)
@@ -14,7 +14,6 @@ def add(s):
 
 
 def rnd(n, p_broken, p_taken, end=""):
-    """random row; a taken seat is never placed next to another one"""
     n -= len(end)
     out = []
     for i in range(n):
@@ -29,14 +28,13 @@ def rnd(n, p_broken, p_taken, end=""):
     return s.replace("oo", "o.")
 
 
-# samples
 add("..#...o")
 add("o.#.o")
 add(".....#")
 add("#.#.#.#")
 add("..o.....#...o......#")
 add("................................o")
-# hidden: small (brute.cpp tries every set of free seats)
+
 add(".")
 add("o")
 add("..")
@@ -47,7 +45,7 @@ add(rnd(18, 0.2, 0.1, ".."))
 add(rnd(20, 0.3, 0.05, ".."))
 add(rnd(19, 0.1, 0.15, "#."))
 add("#" * 7 + "." + "#" * 7 + ".." + "#" * 3)
-# hidden: big
+
 add(rnd(400000, 0.1, 0.03, ".."))
 N = MAXN
 add("." * N)

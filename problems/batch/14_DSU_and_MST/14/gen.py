@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(141616)
@@ -57,12 +57,11 @@ def add(n, roads, ks, mix=True):
 
 
 def part_roads(n, groups, p, extra, shape="random"):
-    """roads of company p: a random tree inside each of `groups` random groups, plus `extra` roads inside groups"""
     who = list(range(1, n + 1))
     shuffle(who)
     pos = list(range(1, n))
     shuffle(pos)
-    cut = sorted(pos[:groups - 1])                  # exactly `groups` groups
+    cut = sorted(pos[:groups - 1])
     parts = [who[a:b] for a, b in zip([0] + cut, cut + [n])]
     res = []
     for g in parts:
@@ -81,7 +80,6 @@ def part_roads(n, groups, p, extra, shape="random"):
 
 
 def queries(n, q, lo, hi, near=0.5):
-    """a mix of random k and k around both ends of [lo, hi] (and of the wrong ends a shortcut may use)"""
     ks = []
     spots = [lo - 2, lo - 1, lo, lo + 1, hi - 1, hi, hi + 1, hi + 2, 0, n - 1]
     for _ in range(q):
@@ -94,8 +92,6 @@ def queries(n, q, lo, hi, near=0.5):
 
 
 def build(n, m, q, g1, g2, share1=0.5, shape="random", connect=True, near=0.5):
-    """company 1 alone splits the districts into about g1 groups, company 2 alone into about g2 groups;
-    about share1 of the extra roads belong to company 1; then roads of random companies join what is left"""
     base1 = n - g1
     base2 = n - g2
     assert base1 + base2 + (min(g1, g2) if connect else 0) <= m, "too many roads for these groups"
@@ -114,7 +110,6 @@ def build(n, m, q, g1, g2, share1=0.5, shape="random", connect=True, near=0.5):
 
 
 def split(n, m, q):
-    """two halves with no road between them: every answer is NO"""
     h = n // 2
     a = build(h, m // 2, 1, max(1, h // 2), max(1, h // 3))[1]
     b = build(n - h, m - m // 2, 1, max(1, h // 3), max(1, h // 2))[1]
@@ -122,16 +117,15 @@ def split(n, m, q):
     return n, roads, [ri(0, n - 1) for _ in range(q)]
 
 
-# samples
 add(5, [(1, 2, 1), (2, 3, 2), (3, 4, 1), (4, 5, 2), (5, 1, 2), (1, 3, 2)], [0, 1, 2, 3], mix=False)
 add(4, [(1, 2, 1), (2, 1, 2), (3, 4, 1)], [0, 1, 2], mix=False)
 add(4, [(1, 2, 1), (2, 3, 1), (3, 1, 1), (3, 4, 2), (1, 4, 1)], [3, 2], mix=False)
 add(2, [(1, 2, 2), (2, 1, 2)], [0, 1], mix=False)
 add(6, [(1, 2, 1), (2, 3, 2), (3, 1, 1), (4, 5, 2), (5, 6, 2), (6, 4, 1), (3, 4, 1), (2, 5, 2)], [4, 1, 5, 3],
     mix=False)
-# hidden: small (checked against brute.cpp)
+
 add(2, [(1, 2, 1)], [0, 1])
-add(3, [(1, 2, 1), (2, 3, 1), (3, 1, 2)], [0, 1, 2])                    # company 1 is needed at least once
+add(3, [(1, 2, 1), (2, 3, 1), (3, 1, 2)], [0, 1, 2])
 add(4, [(1, 2, 1), (2, 3, 1), (3, 1, 1), (1, 2, 2), (3, 4, 2), (1, 4, 1)], [0, 1, 2, 3])
 add(*build(7, 12, 7, 3, 3))
 add(*build(8, 14, 8, 2, 4, share1=0.7))
@@ -140,13 +134,13 @@ add(*build(40, 120, 40, 6, 9))
 add(*build(60, 200, 60, 20, 4, share1=0.8))
 add(*split(50, 150, 50))
 add(*build(300, 900, 600, 40, 70))
-# hidden: maximum size
+
 N, M, Q = MAXN, MAXM, MAXQ
 add(*build(N, M, Q, 60_000, 20_000))
-add(*build(70_000, M, Q, 1, 1))                                         # either company alone reaches everyone
-add(*build(N, M, Q, 50_000, 1_000, share1=0.9))                         # company 1 roads full of cycles
-add(*build(N, M, Q, 2_000, 60_000, share1=0.1))                         # company 1 is needed many times
-add(*split(N, M, Q))                                                    # never connected: all NO
+add(*build(70_000, M, Q, 1, 1))
+add(*build(N, M, Q, 50_000, 1_000, share1=0.9))
+add(*build(N, M, Q, 2_000, 60_000, share1=0.1))
+add(*split(N, M, Q))
 add(*build(N, M, Q, 70_000, 70_000, shape="path"))
 add(*build(N, M, Q, 10, 90_000, near=0.8))
 add(*build(N, M, Q, 90_000, 10, near=0.8))

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(60001)
@@ -14,7 +14,6 @@ def add(g):
 
 
 def rnd(r, c, rock, star):
-    """each cell is a rock with probability rock, a viewpoint with probability star"""
     g = []
     for _ in range(r):
         row = []
@@ -35,27 +34,26 @@ def clear_ends(g):
     return g
 
 
-# samples
 add(["..*.", ".#..", "...."])
 add([".#*", "..."])
 add(["*..", "...", "..."])
 add(["#"])
 add(["...#....", ".*....#.", "..#.*...", "#.......", "...*..#."])
 add(["."] * 3 + ["*"] + ["."] * 2)
-# hidden: small (every path is walked)
+
 add(["*"])
 add(["."])
 add(["...."])
 add(["..*.", "....", "...#"])
 add(clear_ends(rnd(8, 9, 0.2, 0.05)))
 add(clear_ends(rnd(12, 12, 0.1, 0.02)))
-add(clear_ends(rnd(13, 14, 0.05, 0.0)))                    # no viewpoint: 0
+add(clear_ends(rnd(13, 14, 0.05, 0.0)))
 g = ["." * 14 for _ in range(14)]
-put(g, 13, 13, "*")                                        # viewpoint at the end: every path counts
+put(g, 13, 13, "*")
 add(g)
-add(clear_ends(rnd(14, 13, 0.0, 0.3)))                     # many viewpoints on one path
-add(rnd(10, 10, 0.0, 1.0))                                 # all viewpoints
-# hidden: large
+add(clear_ends(rnd(14, 13, 0.0, 0.3)))
+add(rnd(10, 10, 0.0, 1.0))
+
 R = C = 1000
 
 
@@ -65,20 +63,20 @@ def blank(r, c):
 
 g = blank(R, C)
 put(g, 500, 500, "*")
-add(g)                                                     # one viewpoint, huge counts
+add(g)
 g = blank(R, C)
 put(g, 0, 0, "*")
-add(g)                                                     # every path counts
+add(g)
 add(rnd(R, C, 0.0, 1.0))
 add(clear_ends(rnd(R, C, 0.1, 0.0001)))
 add(clear_ends(rnd(R, C, 0.25, 0.001)))
 add(clear_ends(rnd(R, C, 0.05, 0.05)))
-add(clear_ends(rnd(R, C, 0.1, 0.0)))                       # no viewpoint: 0
+add(clear_ends(rnd(R, C, 0.1, 0.0)))
 g = clear_ends(rnd(R, C, 0.02, 0.0))
 put(g, R - 1, C - 1, "*")
-add(g)                                                     # viewpoint only at the end
+add(g)
 g = blank(R, C)
-for i in range(R):                                         # anti-diagonal wall with a few gaps
+for i in range(R):
     if i % 97 != 0:
         put(g, i, C - 1 - i, "#")
 for k in range(30):
@@ -87,9 +85,9 @@ add(clear_ends(g))
 g = blank(R, C)
 put(g, 0, 0, "#")
 put(g, 3, 3, "*")
-add(g)                                                     # start is a rock
-add(["*" if i == 700 else "." for i in range(R)])          # one column
-add([".." * 300 + "*" + "." * 399])                        # one row
+add(g)
+add(["*" if i == 700 else "." for i in range(R)])
+add([".." * 300 + "*" + "." * 399])
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

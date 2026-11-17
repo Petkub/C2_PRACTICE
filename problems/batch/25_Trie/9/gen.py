@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(250009)
@@ -24,7 +24,6 @@ def add(ops):
 
 
 def churn(q, lo, hi, p_add, p_del, kmode="any", pre=0):
-    """pre inserts first, then q - pre random operations"""
     bag = [random.randint(lo, hi) for _ in range(pre)]
     ops = [("+", x) for x in bag]
     q -= pre
@@ -48,34 +47,33 @@ def churn(q, lo, hi, p_add, p_del, kmode="any", pre=0):
     return ops
 
 
-# samples
 add([("+", 5), ("+", 1), ("+", 6), ("?", 4, 1), ("?", 4, 2), ("?", 4, 3), ("?", 4, 4)])
 add([("+", 3), ("+", 3), ("+", 0), ("?", 3, 2), ("-", 3), ("?", 3, 2), ("?", 0, 1)])
 add([("?", 7, 1), ("+", 7), ("?", 7, 1)])
 add([("+", 12), ("+", 9), ("+", 2), ("+", 9), ("?", 8, 2), ("-", 12), ("?", 8, 3), ("?", 1, 1)])
 add([("+", 0), ("+", 15), ("+", 8), ("+", 7), ("?", 15, 3), ("?", 8, 4), ("-", 7), ("?", 8, 4)])
-# hidden: small
+
 add([("?", 0, 1)])
 add(churn(30, 0, 15, 0.5, 0.2))
 add(churn(200, 0, 31, 0.4, 0.2))
 add(churn(1000, 0, MAXV, 0.4, 0.2))
 add(churn(3000, 0, 7, 0.4, 0.3))
 add(churn(5000, 0, 1023, 0.5, 0.1, "big"))
-# hidden: maximum size
+
 Q = MAXQ
 ops = [("+", random.randint(0, MAXV)) for _ in range(Q // 2)]
 ops += [("?", random.randint(0, MAXV), random.randint(1, Q // 2)) for _ in range(Q // 2)]
-add(ops)                                                              # all inserts first, then queries
+add(ops)
 ops = [("+", random.randint(0, MAXV)) for _ in range(Q // 2)]
 ops += [("?", random.randint(0, MAXV), random.choice([1, Q // 2, Q // 2 - 1, Q // 4])) for _ in range(Q // 2)]
 add(ops)
 add(churn(Q, 0, MAXV, 0.5, 0.1))
-add(churn(Q, 0, 255, 0.45, 0.2))                                       # many copies of each value
-add(churn(Q, 0, MAXV, 0.35, 0.3, "big", Q // 3))                        # many deletions, k near the size
+add(churn(Q, 0, 255, 0.45, 0.2))
+add(churn(Q, 0, MAXV, 0.35, 0.3, "big", Q // 3))
 ops = [("+", 777)] * (Q // 2) + [("?", random.randint(0, MAXV), random.randint(1, Q // 2 + 1)) for _ in range(Q // 2)]
-add(ops)                                                              # one value only
+add(ops)
 ops = [("+", x) for x in random.sample(range(MAXV + 1), Q // 2)]
-ops += [("?", 0, random.randint(1, Q // 2)) for _ in range(Q // 2)]   # x = 0: the k-th smallest value itself
+ops += [("?", 0, random.randint(1, Q // 2)) for _ in range(Q // 2)]
 add(ops)
 ops = []
 bag = []

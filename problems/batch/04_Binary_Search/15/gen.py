@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(41502)
@@ -8,12 +8,10 @@ tests = []
 
 
 def ri(lo, hi):
-    """uniform integer in [lo, hi] (faster than randint, still deterministic)"""
     return lo + int(random.random() * (hi - lo + 1))
 
 
 def best(a, k, restart=True):
-    """small tests only: the answer (restart=False: the running total never drops a bad beginning)"""
     def count(x):
         cnt, cur, open_ = 0, 0, False
         for v in a:
@@ -39,7 +37,7 @@ def best(a, k, restart=True):
 def add(a, k, sample=False):
     n = len(a)
     assert 1 <= k <= n <= MAXN and all(-MAXV <= v <= MAXV for v in a)
-    if sample:  # samples do not separate the correct check from the classic mistakes
+    if sample:
         assert best(a, k) == best(a, k, restart=False)
         assert max(abs(v) for v in a) * n < 2**31
     tests.append(f"{n} {k}\n" + " ".join(map(str, a)) + "\n")
@@ -50,21 +48,19 @@ def rnd(n, lo, hi):
 
 
 def bumpy(n, hill, dip):
-    """good stretches of positive days separated by losing days"""
     a = []
     while len(a) < n:
         a += [ri(1, hill) for _ in range(ri(1, 6))] + [-ri(1, dip) for _ in range(ri(1, 4))]
     return a[:n]
 
 
-# samples
 add([4, -2, 5, 3, -1, 6], 2, sample=True)
 add([5, 1, -2, 4, 3], 3, sample=True)
 add([-MAXV], 1, sample=True)
 add([7, 7, 7], 3, sample=True)
 add([2, 2, 2, 2, 2, 2], 2, sample=True)
 add([6, 6, -1, -1, 3], 2, sample=True)
-# hidden: small (checked by brute force)
+
 add([-3, -1, -4, -2], 2)
 add([2, -5, 3, 4], 1)
 add([-1, 6, -1, 6, -1], 2)
@@ -73,8 +69,8 @@ for n in (8, 15, 25, 40, 40, 40):
     add(a, ri(1, n))
 add(rnd(40, -MAXV, MAXV), 5)
 add(bumpy(40, 10, 30), 4)
-add([MAXV] * 40, 2)                                   # stretch totals beyond 2^31
-# hidden: maximum size
+add([MAXV] * 40, 2)
+
 N = MAXN
 add(rnd(N, -MAXV, MAXV), 1000)
 add(rnd(N, -MAXV, MAXV), 1)

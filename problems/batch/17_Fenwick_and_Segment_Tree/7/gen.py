@@ -1,8 +1,8 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(110006)
-MAXRC, MAXQ, MAXX = 4000, 200_000, 10**9
+random.seed(170104)
+MAXN, MAXQ, MAXX = 200_000, 200_000, 10**9
 tests = []
 
 
@@ -10,79 +10,103 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(R, C, ops):
-    q = len(ops)
-    assert 1 <= R <= MAXRC and 1 <= C <= MAXRC and 1 <= q <= MAXQ
+def add(sq, ops):
+    n, q = len(sq), len(ops)
+    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
+    assert all(c in (1, 2) and -MAXX <= x <= MAXX for c, x in sq)
+    lines = []
     for op in ops:
         if op[0] == 1:
-            assert len(op) == 4 and 1 <= op[1] <= R and 1 <= op[2] <= C and 1 <= op[3] <= MAXX
+            _, i, c, x = op
+            assert 1 <= i <= n and c in (1, 2) and -MAXX <= x <= MAXX
         else:
-            assert len(op) == 5 and op[0] == 2
-            assert 1 <= op[1] <= R and 1 <= op[3] <= R and 1 <= op[2] <= C and 1 <= op[4] <= C
-    assert any(op[0] == 2 for op in ops)
-    tests.append(f"{R} {C} {q}\n" + "".join(f"1 {op[1]} {op[2]} {op[3]}\n" if op[0] == 1 else
-                                            f"2 {op[1]} {op[2]} {op[3]} {op[4]}\n" for op in ops))
+            _, l, r, v = op
+            assert 1 <= l <= r <= n and -MAXX <= v <= MAXX
+        lines.append(" ".join(map(str, op)))
+    tests.append(f"{n} {q}\n" + "\n".join(f"{c} {x}" for c, x in sq) + "\n" + "\n".join(lines) + "\n")
 
 
-def corners(r1, c1, r2, c2):
-    """the same rectangle, its corners given in a random one of the four ways"""
-    return ((2, r1, c1, r2, c2), (2, r2, c2, r1, c1), (2, r1, c2, r2, c1), (2, r2, c1, r1, c2))[int(random.random() * 4)]
+def squares(n, preset, xmax, lo=1, hi=None):
+    hi = n if hi is None else hi
+    return [(2 if lo <= i <= hi and random.random() < preset else 1, ri(-xmax, xmax)) for i in range(1, n + 1)]
 
 
-def rnd_ops(R, C, q, p_add, xmax, kind="any", where="any"):
-    """p_add = chance of planting; kind of rectangles: any / big (almost the whole field) / small;
-    where the planting happens: any / top (rows 1..9) / left (columns 1..9)"""
+def ops_of(n, q, upd, rng, xmax, preset, lo=1, hi=None, vmax=None):
+    hi = n if hi is None else hi
+    vmax = xmax if vmax is None else vmax
     ops = []
     for _ in range(q):
-        if random.random() < p_add:
-            r = ri(1, min(R, 9)) if where == "top" else ri(1, R)
-            c = ri(1, min(C, 9)) if where == "left" else ri(1, C)
-            ops.append((1, r, c, ri(1, xmax)))
-            continue
-        if kind == "big":
-            r1, r2 = ri(1, min(R, 9)), ri(max(1, R - 9), R)
-            c1, c2 = ri(1, min(C, 9)), ri(max(1, C - 9), C)
-        elif kind == "small":
-            r1, c1 = ri(1, R), ri(1, C)
-            r2, c2 = min(R, r1 + ri(0, 3)), min(C, c1 + ri(0, 3))
+        if random.random() < upd:
+            i = ri(1, n)
+            c = 2 if lo <= i <= hi and random.random() < preset else 1
+            ops.append((1, i, c, ri(-xmax, xmax)))
         else:
-            r1, r2 = sorted((ri(1, R), ri(1, R)))
-            c1, c2 = sorted((ri(1, C), ri(1, C)))
-        ops.append(corners(r1, c1, r2, c2))
-    if all(op[0] == 1 for op in ops):
-        ops[-1] = (2, 1, 1, R, C)
+            ops.append((2,) + rng() + (ri(-vmax, vmax),))
     return ops
 
 
-# samples
-add(3, 4, [(1, 1, 1, 5), (1, 2, 3, 2), (2, 1, 1, 3, 4), (1, 3, 4, 1), (2, 3, 4, 2, 2)])
-add(2, 2, [(1, 1, 2, 10), (1, 2, 1, 20), (2, 2, 1, 1, 2), (2, 2, 2, 2, 2)])
-add(1, 1, [(1, 1, 1, MAXX), (1, 1, 1, MAXX), (2, 1, 1, 1, 1)])
-add(1, 6, [(1, 1, 2, 3), (1, 1, 5, 4), (2, 1, 6, 1, 3), (1, 1, 3, 1), (2, 1, 2, 1, 5)])
-add(4, 3, [(1, 4, 1, 2), (1, 2, 2, 6), (1, 1, 3, 1), (2, 4, 3, 1, 1), (2, 2, 2, 4, 1)])
-# hidden: small
-add(1, 1, [(2, 1, 1, 1, 1), (1, 1, 1, 3), (2, 1, 1, 1, 1)])
-for R, C, q, xmax in ((3, 3, 15, 5), (5, 8, 40, 10), (20, 10, 100, 1000), (60, 60, 500, MAXX), (100, 300, 2000, 100), (1, 2000, 2000, MAXX), (2000, 1, 2000, 9)):
-    add(R, C, rnd_ops(R, C, q, 0.5, xmax))
-add(200, 200, rnd_ops(200, 200, 3000, 0.6, MAXX, "big"))
-add(300, 300, rnd_ops(300, 300, 5000, 0.5, 9, "small"))
-# hidden: maximum size (the rectangles cover almost the whole field; planting near the top or left edge
-# makes keeping prefix sums of every row or of every column slow as well)
-R = C = MAXRC
-Q = MAXQ
-add(R, C, rnd_ops(R, C, Q, 0.5, 9, "big"))
-add(R, C, rnd_ops(R, C, Q, 0.3, 9, "big"))
-add(R, C, rnd_ops(R, C, Q, 0.1, 9, "big"))
-add(R, C, rnd_ops(R, C, Q, 0.5, 9, "big", "top"))
-add(R, C, rnd_ops(R, C, Q, 0.6, 9, "big", "left"))
-add(R, C, rnd_ops(R, C, Q, 0.85, 9, "big", "top"))
-add(R, C, rnd_ops(R, C, Q, 0.5, 9, "big", "left"))
-add(R, C, [(1, ri(1, 9), ri(1, 9), ri(1, 9)) if k % 2 == 0 else corners(1, 1, R, C) for k in range(Q)])
-add(R, C, rnd_ops(R, C, 120_000, 0.5, 999))
-add(R, C, rnd_ops(R, C, 120_000, 0.5, 9, "small"))
-add(R, C, [(1, ri(1, R), ri(1, C), MAXX) if k % 2 == 0 else corners(1, 1, R, C) for k in range(140_000)])  # totals near 7 * 10^13
-add(1, MAXRC, rnd_ops(1, MAXRC, Q, 0.5, MAXX, "big"))
-add(MAXRC, 2, rnd_ops(MAXRC, 2, 150_000, 0.5, MAXX))
+def any_rng(n):
+    l = ri(1, n)
+    return l, ri(l, n)
+
+
+def long_rng(n, slack):
+    return ri(1, min(n, slack)), ri(max(1, n - slack + 1), n)
+
+
+add([(1, 3), (2, 10), (1, -4), (1, 2)], [(2, 1, 4, 5), (1, 3, 2, 20), (2, 1, 4, 0), (2, 4, 4, -3)])
+add([(2, 5), (1, -2), (1, -2)], [(2, 2, 3, 1), (2, 1, 3, -7), (1, 1, 1, 4), (2, 1, 3, -7)])
+add([(2, -MAXX), (1, MAXX)], [(2, 1, 2, 5), (2, 2, 2, -MAXX), (1, 1, 1, MAXX), (2, 1, 2, -MAXX)])
+add([(1, 2), (2, 1), (1, 5), (2, 0), (1, 3)], [(2, 1, 5, 10), (1, 4, 1, -9), (2, 1, 5, 10)])
+add([(1, 1), (1, -1), (1, 1), (1, -1)], [(2, 1, 4, 0), (2, 2, 4, 5)])
+
+for n, q, xmax, preset, upd in ((1, 6, 5, 0.5, 0.4), (3, 20, 5, 0.3, 0.3), (8, 60, 100, 0.2, 0.3),
+                                (30, 300, MAXX, 0.1, 0.3), (100, 800, 9, 0.05, 0.4), (300, 1500, MAXX, 0.02, 0.3),
+                                (300, 1500, 3, 0.5, 0.5)):
+    add(squares(n, preset, xmax), ops_of(n, q, upd, lambda: any_rng(n), xmax, preset))
+
+
+def edge_test(n, q, front, xmax, every):
+    sq0 = squares(n, 0.3, xmax, 1, front)
+    cur = sq0[:]
+    ops = []
+    for k in range(q):
+        if k % every == 0:
+            i = ri(1, front)
+            ops.append((1, i, ri(1, 2), ri(-xmax, xmax)))
+            cur[i - 1] = (ops[-1][2], ops[-1][3])
+        elif k % every == 1:
+            ends = [i for i in range(1, front + 1) if cur[i - 1][0] == 2]
+            r = random.choice(ends) if ends else front
+            ops.append((2, ri(1, r), r, ri(-xmax, xmax)))
+        else:
+            ops.append((2,) + (long_rng(n, 50) if n > 1000 else any_rng(n)) + (ri(-xmax, xmax),))
+    add(sq0, ops)
+
+
+edge_test(300, 1500, 300, 1000, 3)
+
+N = MAXN
+add(squares(N, 0.3, 9, 1, 20), ops_of(N, 130_000, 0.1, lambda: long_rng(N, 20), 9, 0.3, 1, 20, vmax=9))
+add(squares(N, 0, 9), ops_of(N, 130_000, 0.1, lambda: long_rng(N, 50), 9, 0, vmax=9))
+n = 100_000
+add(squares(n, 0.2, MAXX, 1, 10), ops_of(n, 60_000, 0.1, lambda: long_rng(n, 10), MAXX, 0.2, 1, 10))
+add(squares(N, 0.5, 9, 1, 5), [(2, 1, N, ri(-9, 9)) if k % 5 else (1, ri(1, 5), ri(1, 2), ri(-9, 9))
+                               for k in range(130_000)])
+add(squares(N, 0.3, 9, 1, 100), ops_of(N, 120_000, 0.3, lambda: long_rng(N, 100), 9, 0.3, 1, 100, vmax=9))
+n = 120_000
+add([(1, MAXX)] * n, ops_of(n, 55_000, 0.05, lambda: long_rng(n, 5), MAXX, 0, vmax=MAXX))
+n = 120_000
+add([(1, -MAXX)] * n, ops_of(n, 55_000, 0.05, lambda: long_rng(n, 5), MAXX, 0.5, 1, 3, vmax=MAXX))
+edge_test(N, 125_000, 50, 9, 10)
+n = 150_000
+sq = squares(n, 0, 9)
+for i in range(1, 31):
+    sq[i - 1] = (2, ri(-9, 9))
+add(sq, [(2, ri(1, 30), ri(n - 30, n), ri(-9, 9)) if k % 10 else (1, ri(31, n), 1, ri(-9, 9)) for k in range(120_000)])
+
+n = 2000
+add(squares(n, 0.05, MAXX), ops_of(n, MAXQ // 2, 0.3, lambda: any_rng(n), MAXX, 0.05))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

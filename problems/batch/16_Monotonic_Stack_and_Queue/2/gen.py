@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(160002)
@@ -28,40 +28,39 @@ def times(n, maxgap, start=1):
     return ts
 
 
-# samples
 add(10, [(1, 5), (4, 3), (12, 7), (13, 2), (22, 4), (40, 1)])
 add(0, [(2, 9), (3, 1), (5, 4), (6, 4)])
 add(5, [(100, 42)])
 add(1000, [(1, 2), (2, 8), (3, 3), (10, 9), (20, 1)])
 add(3, [(1, 9), (2, 8), (3, 7), (4, 6), (5, 5), (6, 4), (7, 3)])
-# hidden: small
+
 add(1, [(1, 0), (3, 5), (4, 0), (5, 0), (7, 1)])
 ts = times(50, 5)
 add(7, [(t, ri(0, 9)) for t in ts])
 ts = times(500, 100)
 add(ri(0, 3000), [(t, ri(0, MAXV)) for t in ts])
 ts = times(2000, 3)
-add(40, [(t, 2000 - i) for i, t in enumerate(ts)])            # decreasing values
+add(40, [(t, 2000 - i) for i, t in enumerate(ts)])
 ts = times(5000, 1000)
 add(MAXD, [(t, ri(0, 50)) for t in ts])
 ts = times(10000, 10)
-add(ri(5, 500), [(t, ri(0, 20)) for t in ts])                  # many equal maxima leave the window
+add(ri(5, 500), [(t, ri(0, 20)) for t in ts])
 ts = times(20000, 3)
-add(ri(100, 200), [(t, ri(0, MAXV)) for t in ts])              # tiny window
+add(ri(100, 200), [(t, ri(0, MAXV)) for t in ts])
 add(0, [(t, ri(0, MAXV)) for t in ts])
-# hidden: maximum size
+
 N = MAXN
 ts = times(N, 6000)
-add(MAXD, [(t, N - i) for i, t in enumerate(ts)])             # everything stays in the window, decreasing
-add(MAXD, [(t, MAXV) for t in ts])                             # all equal
-add(ts[-1] // 2, [(t, i % 1000) for i, t in enumerate(ts)])   # saw teeth: equal peaks leave the window
-add(ts[-1] // 2, [(t, N - i) for i, t in enumerate(ts)])      # half the history, decreasing
+add(MAXD, [(t, N - i) for i, t in enumerate(ts)])
+add(MAXD, [(t, MAXV) for t in ts])
+add(ts[-1] // 2, [(t, i % 1000) for i, t in enumerate(ts)])
+add(ts[-1] // 2, [(t, N - i) for i, t in enumerate(ts)])
 add(ts[-1] // 3, [(t, ri(0, MAXV)) for t in ts])
-add(ts[-1] - ts[0] - 1, [(t, i) for i, t in enumerate(ts)])  # increasing: the newest always wins
+add(ts[-1] - ts[0] - 1, [(t, i) for i, t in enumerate(ts)])
 ts = times(N, 3)
-add(ts[-1] // 5, [(t, ri(0, 30)) for t in ts])                 # many equal maxima, wide window
+add(ts[-1] // 5, [(t, ri(0, 30)) for t in ts])
 add(ts[-1] // 4, [(t, ri(0, 5) * 200_000) for t in ts])
-ts = [MAXT - N + 1 + i for i in range(N)]                       # consecutive seconds near 10^9
+ts = [MAXT - N + 1 + i for i in range(N)]
 add(N - 2, [(t, MAXV - i // 2) for i, t in enumerate(ts)])
 
 for t in tests:

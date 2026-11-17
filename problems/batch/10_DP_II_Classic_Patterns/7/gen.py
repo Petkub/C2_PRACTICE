@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10007)
@@ -23,12 +23,10 @@ def rnd(r, c, lo=1, hi=MAXH):
 
 
 def slope(r, c):
-    """height grows with i + j: every right/down staircase is a longest run (huge number of runs)"""
     return [[1 + (i + j) * 2 + ri(0, 1) for j in range(c)] for i in range(r)]
 
 
 def snake(r, c, noise_rows=False):
-    """one run covers the whole grid: boustrophedon order, heights 1..r*c along it"""
     g = [[0] * c for _ in range(r)]
     k = 1
     for i in range(r):
@@ -39,8 +37,6 @@ def snake(r, c, noise_rows=False):
 
 
 def comb(r, c):
-    """rows in groups of three: a run row (one long run, dropping by 3 per cell, snaking down through the end
-    columns), a row of dead-end cells just 1 below the run cell above them (between high walls), a wall row"""
     assert r >= 1 and c >= 5
     g = [[MAXH] * c for _ in range(r)]
     path = []
@@ -75,13 +71,12 @@ def spiral(n):
     return g
 
 
-# samples
 add([[9, 6, 3], [8, 7, 2], [5, 4, 1]])
 add([[3, 3], [3, 3]])
 add([[1, 5, 2, 8, 3]])
 add([[4], [9], [7], [1]])
 add([[7, 7, 6, 2], [8, 3, 5, 1], [9, 4, 4, 2], [1, 6, 8, 3]])
-# hidden: small
+
 add([[10, 12, 11, 30], [20, 14, 13, 25], [21, 15, 16, 22], [19, 18, 17, 23]])
 add([[1]])
 add(rnd(3, 4, 1, 5))
@@ -91,11 +86,11 @@ add(snake(6, 7))
 add(spiral(9))
 add(rnd(50, 60, 1, 1000))
 add(comb(30, 30))
-# hidden: medium (random and flat grids have only short runs)
+
 add(rnd(300, 300))
-add(rnd(200, 400, 1, 100))                    # many equal neighbours
-add([[MAXH] * 300 for _ in range(300)])        # nothing can move
-# hidden: maximum size (every one has very long runs)
+add(rnd(200, 400, 1, 100))
+add([[MAXH] * 300 for _ in range(300)])
+
 add(slope(547, 548))
 add(slope(1, MAXCELLS))
 add(snake(547, 548))

@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(220303)
@@ -11,7 +11,6 @@ def ri(lo, hi):
 
 
 def shape(n, kind):
-    """par[i] (< i) for the donors 2..n (donor i joins as the (i - 1)-th event of its kind)"""
     par = [0, 0]
     half = max(1, n // 2)
     b = max(2, int(n ** 0.5))
@@ -23,17 +22,17 @@ def shape(n, kind):
             p = 1
         elif kind == "random":
             p = ri(1, i - 1)
-        elif kind == "deep":                        # depth about n / 2, short side branches
+        elif kind == "deep":
             p = ri(max(1, i - 3), i - 1)
         elif kind == "binary":
             p = i // 2
-        elif kind == "caterpillar":                 # a spine of n / 2 donors with legs
+        elif kind == "caterpillar":
             p = i - 1 if i <= half else ri(1, half)
-        elif kind == "broom":                       # a long handle ending in a star
+        elif kind == "broom":
             p = i - 1 if i <= half else half
-        elif kind == "chains":                      # chains of length about sqrt(n) glued at random
+        elif kind == "chains":
             p = i - 1 if (i - 1) % b else ri(1, i - 1)
-        elif kind == "steps":                       # chains of length n / 12, each hung on the previous one
+        elif kind == "steps":
             k = (i - 2) // L
             p = i - 1 if (i - 2) % L else (1 if k == 0 else ri(max(2, (k - 1) * L + 2), k * L + 1))
         else:
@@ -59,8 +58,6 @@ def add(c, ops):
 
 
 def case(q, kind, p_join, vhi, top=None, p_top=1.0):
-    """q events: joins follow the shape in order; a question asks, with probability p_top, one of the top donors
-    with the smallest numbers (the biggest chains in deep shapes), else a random donor who has joined"""
     joins = sum(1 for _ in range(q) if random.random() < p_join)
     par = shape(joins + 1, kind)
     kinds = [1] * joins + [2] * (q - joins)
@@ -81,20 +78,19 @@ def case(q, kind, p_join, vhi, top=None, p_top=1.0):
     add(ri(0, vhi), ops)
 
 
-# samples
 add(5, [(1, 1, 3), (1, 1, 4), (1, 2, 2), (2, 2), (1, 4, 6), (2, 2), (2, 1)])
 add(1, [(1, 1, 10), (2, 1), (1, 2, 100), (2, 2), (1, 3, 1000), (2, 1)])
 add(0, [(2, 1), (1, 1, 0), (2, 2)])
 add(7, [(1, 1, 1), (1, 1, 2), (1, 3, 3), (1, 2, 4), (1, 3, 5), (2, 3), (2, 2)])
 add(2, [(2, 1), (1, 1, 5), (1, 1, 5), (2, 1), (2, 3)])
-# hidden: small and medium
+
 for q, kind in ((4, "path"), (15, "random"), (40, "deep"), (60, "star"), (100, "caterpillar"), (300, "binary")):
     case(q, kind, 0.7, 100, top=5, p_top=0.5)
 case(8000, "random", 0.7, MAXV, top=30, p_top=0.5)
 case(8000, "star", 0.8, MAXV, top=1, p_top=0.5)
 case(8000, "chains", 0.7, MAXV, top=100, p_top=0.5)
 case(8000, "path", 0.6, MAXV, top=2000, p_top=0.5)
-# hidden: maximum size, long chains of inviters
+
 case(MAXQ, "path", 0.7, 10**6, top=1000, p_top=0.7)
 case(MAXQ, "path", 0.75, MAXV, top=100, p_top=0.8)
 case(MAXQ, "deep", 0.7, 10**6, top=1000, p_top=0.7)

@@ -1,15 +1,14 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import gc, os, random
 
 random.seed(2405)
-gc.disable()                    # millions of small tuples: no cyclic GC needed, much faster
+gc.disable()
 rnd = random.random
 MAXN, MAXM, MAXG = 200_000, 200_000, 10**9
 tests = []
 
 
 def shuffled(a):
-    """a random permutation of the list a (faster than random.shuffle for long lists)"""
     rnd = random.random
     keys = [rnd() for _ in a]
     return [a[i] for i in sorted(range(len(a)), key=keys.__getitem__)]
@@ -27,7 +26,6 @@ def add(n, g, edges):
 
 
 def relabel(n, g, edges):
-    """random room numbers (gold moves with the rooms) and a random tunnel order"""
     lab = list(range(1, n + 1))
     lab = shuffled(lab)
     g2 = [0] * n
@@ -40,7 +38,6 @@ def relabel(n, g, edges):
 
 
 def blocks(n, m, size_fn, chain=True):
-    """consecutive blocks, each a cycle; tunnels between blocks only go forward (a DAG of blocks)"""
     e, bl, start = [], [], 1
     while start <= n:
         s = min(size_fn(), n - start + 1)
@@ -73,41 +70,38 @@ def rg(n, lo=0, hi=MAXG):
     return [ri(lo, hi) for _ in range(n)]
 
 
-# samples
 add(5, [3, 1, 4, 1, 5], [(1, 2), (2, 1), (2, 3), (1, 4), (4, 5)])
 add(4, [5, 0, 5, 3], [(1, 2), (2, 3), (3, 1), (4, 1)])
 add(1, [0], [])
 add(3, [4, 9, 2], [])
 add(4, [MAXG] * 4, [(1, 2), (2, 3), (3, 4)])
 add(6, [2, 7, 1, 8, 2, 8], [(1, 2), (2, 3), (3, 1), (3, 4), (5, 4), (5, 6), (6, 5), (2, 6)])
-# hidden: small
+
 add(2, [5, 6], [(1, 2), (2, 1)])
 for n, m in ((6, 7), (8, 10), (12, 14), (12, 20)):
     add(n, rg(n, 0, 20), rand_edges(n, m))
 add(*relabel(2000, rg(2000), blocks(2000, 5000, lambda: ri(1, 4), False)))
 add(*relabel(2500, rg(2500, 0, 100), blocks(2500, 6000, lambda: ri(1, 2), True)))
 add(3000, rg(3000), rand_edges(3000, 3000))
-add(*relabel(100_000, [MAXG] * 100_000, [(i, i + 1) for i in range(1, 100_000)]))  # a chain of 10^5: 10^14
+add(*relabel(100_000, [MAXG] * 100_000, [(i, i + 1) for i in range(1, 100_000)]))
 
 
 def rgm(n):
-    """mostly one-digit gold (keeps the input near 3 MB), one room in 200 with up to 10^9"""
     return [ri(0, MAXG) if rnd() < 0.005 else ri(0, 9) for _ in range(n)]
 
 
-# hidden: maximum size (every one has many groups)
 N = MAXN
-add(*relabel(N, rgm(N), [(i, i + 1) for i in range(1, N)]))                     # one long chain
+add(*relabel(N, rgm(N), [(i, i + 1) for i in range(1, N)]))
 h = N // 2
-add(*relabel(N, rgm(N), [(i, i + 1) for i in range(1, N)] + [(N, h + 1)]))      # a chain into a long cycle
-add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: 1, False)))                     # a random DAG
+add(*relabel(N, rgm(N), [(i, i + 1) for i in range(1, N)] + [(N, h + 1)]))
+add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: 1, False)))
 add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: ri(1, 3), True)))
 add(*relabel(N, rg(N, 0, 10), blocks(N, MAXM, lambda: ri(1, 3), False)))
-n = N - 1000                                           # many rooms alone, a few big groups, all chained
+n = N - 1000
 add(*relabel(n, rgm(n), blocks(n, MAXM, lambda: ri(100, 2000) if rnd() < 0.0005 else 1, True)))
 add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: 2, False)))
 add(N, rgm(N), rand_edges(N, MAXM))
-add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: ri(2, 6), True)))              # small groups, all chained
+add(*relabel(N, rgm(N), blocks(N, MAXM, lambda: ri(2, 6), True)))
 add(*relabel(N, [0] * (N - 1) + [MAXG], [(i, i + 1) for i in range(1, N // 2)] + [(i + 1, i) for i in range(N // 2, N)]))
 
 for t in tests:

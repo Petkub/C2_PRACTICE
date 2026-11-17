@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(402613)
@@ -11,9 +11,8 @@ def ri(lo, hi):
 
 
 def check(lines):
-    """asserts the format and the guarantees; returns the coefficients (exact)"""
     assert 1 <= len(lines) <= MAXN
-    st = [[1, 0, True]]                    # product, power, contains an OP
+    st = [[1, 0, True]]
     coef = {}
     for ln in lines:
         p = ln.split()
@@ -49,16 +48,13 @@ def add(lines):
 
 
 def program(n, p_open, p_n, p_close, kconst=(1, 3), kop=(1, 9), big=0.0):
-    """a random program of about n lines, kept within the limits while it is written.
-    p_open: chance to open a loop, p_n: chance that it is LOOP n, p_close: chance to close one (if allowed).
-    big: chance that an OP or a LOOP uses a large number (as large as the limits allow)."""
-    lines, st = [], []                     # st: [product, power, has OP] of the enclosing level
+    lines, st = [], []
     coef = {}
     mult, e = 1, 0
-    has = []                               # has[i]: the i-th open loop contains an OP
-    empty = [0]                            # open loops that contain no OP yet (each may still need "OP 1")
+    has = []
+    empty = [0]
 
-    def room():                            # how large an OP may be here
+    def room():
         return (MAXC - coef.get(e, 0)) // mult
 
     def op(k):
@@ -94,7 +90,7 @@ def program(n, p_open, p_n, p_close, kconst=(1, 3), kop=(1, 9), big=0.0):
             has.pop()
             lines.append("END")
         else:
-            hi = min(MAXK, room() // 4)    # leaves room for the "OP 1" an open loop may still need
+            hi = min(MAXK, room() // 4)
             if hi < 1:
                 continue
             op(ri(1, hi) if random.random() < big else min(hi, ri(*kop)))
@@ -108,7 +104,6 @@ def program(n, p_open, p_n, p_close, kconst=(1, 3), kop=(1, 9), big=0.0):
 
 
 def chain(depth, every=False, kop=(1, 9)):
-    """LOOP n nested `depth` times; an OP at the bottom (and at every level if `every`)"""
     lines = []
     for _ in range(depth):
         lines.append("LOOP n")
@@ -119,13 +114,12 @@ def chain(depth, every=False, kop=(1, 9)):
     return lines
 
 
-# samples
 add(["OP 5", "LOOP n", "OP 4", "LOOP 3", "OP 2", "END", "END"])
 add(["LOOP n", "LOOP n", "OP 1", "END", "OP 2", "END", "LOOP 2", "OP 3", "END"])
 add(["OP 7"])
 add(["LOOP n", "LOOP n", "LOOP n", "OP 1", "END", "END", "END", "OP 1"])
 add(["LOOP 2", "LOOP n", "OP 3", "LOOP 2", "LOOP n", "OP 1", "END", "END", "END", "END"])
-# hidden: small
+
 add(["LOOP 1000000000", "OP 1000000000", "END"])
 add(["LOOP 1", "LOOP n", "LOOP 1", "OP 1", "END", "END", "END",
      "LOOP 1000", "LOOP 1000", "LOOP n", "OP 999", "END", "END", "END"])
@@ -134,7 +128,7 @@ add(program(200, 0.35, 0.4, 0.3, big=0.1))
 add(program(2000, 0.4, 0.7, 0.35))
 add(chain(3000, True))
 add(program(20000, 0.45, 0.6, 0.4, big=0.02))
-# hidden: maximum size (all deep in LOOP n)
+
 N = MAXN
 add(chain((N - 1) // 2))
 add(chain((N - 1) // 3, True, (1, MAXK)))

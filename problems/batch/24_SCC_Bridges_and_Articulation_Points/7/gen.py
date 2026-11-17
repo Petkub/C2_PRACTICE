@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(2407)
@@ -22,7 +22,6 @@ def add(pts, shuffle=True):
 
 
 def one_way_chain(n, x0, y0, g0, step, horizontal=True):
-    """points along a line with shrinking gaps; each one sets off only the next one"""
     pts, pos = [], 0
     for i in range(n):
         g = g0 - step * i
@@ -34,9 +33,6 @@ def one_way_chain(n, x0, y0, g0, step, horizontal=True):
 
 
 def clusters(k, per, spread, links):
-    """k clusters on a jittered grid with spacing 40 * spread (everyone inside a cluster sets off everyone else in
-    it); links one-way links between neighbouring grid clusters, from the cluster with the lower random rank:
-    the firecracker of cluster a nearest to b gets the radius that just reaches the nearest firecracker of b"""
     side = 1
     while side * side < k:
         side += 1
@@ -77,7 +73,6 @@ def clusters(k, per, spread, links):
 
 
 def chain_ending_at(n, xend, y, g0, step):
-    """one_way_chain shifted so that its last firecracker is at (xend, y)"""
     ch = one_way_chain(n, 0, y, g0, step)
     sh = xend - ch[-1][0]
     assert sh >= 0
@@ -85,13 +80,10 @@ def chain_ending_at(n, xend, y, g0, step):
 
 
 def blob(n, x0, y0, cols, gap):
-    """n firecrackers on a grid with the given number of columns and spacing gap, radius gap: each one sets off
-    its grid neighbours, so all of them end up in one group"""
     return [(x0 + gap * (i % cols), y0 + gap * (i // cols), gap) for i in range(n)]
 
 
 def reach_to(p, q):
-    """p with its radius raised just enough to set off q"""
     dd = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2
     r = int(dd ** 0.5)
     while r * r < dd:
@@ -109,43 +101,42 @@ def rand_pts(n, lo_r, hi_r, box=MAXC):
     return [(x, y, ri(lo_r, hi_r)) for x, y in sorted(s)]
 
 
-# samples
 add([(0, 0, 3), (3, 0, 4), (6, 0, 1), (6, 5, 5)], False)
 add([(1, 1, 2), (2, 2, 2), (10, 10, 2), (11, 11, 2), (20, 20, 0)], False)
 add([(5, 5, 0)], False)
 add([(0, 0, 10), (3, 4, 5), (6, 8, 5)], False)
 add([(0, 0, 1), (2, 0, 1), (4, 0, 2), (6, 0, 2)], False)
 add([(0, 0, 2), (2, 0, 2), (4, 0, 1), (0, 3, 3), (9, 9, 20), (30, 30, 0)], False)
-# hidden: small
+
 for n, hi in ((5, 6), (7, 10), (8, 8), (10, 12), (12, 15)):
     add(rand_pts(n, 0, hi, 12))
 add(clusters(6, 2, 3, 4))
 add(rand_pts(500, 0, 60_000_000))
 add(clusters(150, 10, 1000, 200))
-add([(x, y, 0) for x, y, r in rand_pts(3000, 0, 0)])                     # nobody sets off anybody
-# hidden: maximum size (most of them have a large group that many firecrackers reach)
+add([(x, y, 0) for x, y, r in rand_pts(3000, 0, 0)])
+
 N = MAXN
-bl = blob(N - 4000, 500_000_000, 500_000_000, 63, 10)       # a one-way chain that ends next to a big group: 1
+bl = blob(N - 4000, 500_000_000, 500_000_000, 63, 10)
 ch = chain_ending_at(4000, 500_000_000 - 3000, 500_000_000, 100_000, 10)
 ch[-1] = reach_to(ch[-1], min(bl, key=lambda q: (q[0] - ch[-1][0]) ** 2 + (q[1] - ch[-1][1]) ** 2))
 add(ch + bl)
-bl = blob(N - 6000, 700_000_000, 200_000_000, 2, 300)      # two chains into one big group: 2
+bl = blob(N - 6000, 700_000_000, 200_000_000, 2, 300)
 pts = list(bl)
 for y in (200_000_000, 200_000_000 + 300 * 999):
     ch = chain_ending_at(3000, 700_000_000 - 3000, y, 100_000, 10)
     ch[-1] = reach_to(ch[-1], min(bl, key=lambda q: (q[0] - ch[-1][0]) ** 2 + (q[1] - ch[-1][1]) ** 2))
     pts += ch
 add(pts)
-add(clusters(125, 80, 1000, 190))                           # many clusters, sources are whole clusters
+add(clusters(125, 80, 1000, 190))
 add(clusters(25, 400, 5000, 38))
 add(clusters(500, 20, 1000, 375))
 add(clusters(2500, 4, 100, 3750))
 add(rand_pts(N, 0, 30_000_000))
 add(rand_pts(N, 20_000_000, 40_000_000))
 add(rand_pts(N, 0, 120_000_000, 400_000_000))
-add([(10 * (i // 100), 10 * (i % 100), 10) for i in range(N)])           # a grid: one group, deep search
-add([(x, y, MAXR) for x, y, r in rand_pts(N, 0, 0, 700_000_000)])        # everyone sets off everyone: 1
-# 40 one-way chains in separate lanes; 27 of them end next to a tall column of 5999 firecrackers
+add([(10 * (i // 100), 10 * (i % 100), 10) for i in range(N)])
+add([(x, y, MAXR) for x, y, r in rand_pts(N, 0, 0, 700_000_000)])
+
 bl = blob(5999, 900_000_000, 100_000_000, 1, 2000)
 pts = list(bl)
 for c in range(40):
@@ -156,8 +147,8 @@ for c in range(40):
     pts += ch
 pts.append((10, 10, 0))
 add(pts)
-# a dense group of 9000 (everyone sets off everyone: 8.1 * 10^7 pairs) and, far from it, 30 one-way chains of 25,
-# 20 of them ending next to a column of 249 firecrackers
+
+
 pts = [(100_000_000 + i % 95, 100_000_000 + i // 95, 140) for i in range(9000)]
 bl = blob(249, 600_000_000, 100_000_000, 1, 24_000)
 pts += bl

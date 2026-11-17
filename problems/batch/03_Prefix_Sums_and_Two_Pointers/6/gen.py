@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(30606)
@@ -23,7 +23,6 @@ def once_jobs(T, n, maxlen):
     return out
 
 def routine_jobs(D, m, lo=0, hi=None, maxlen=None):
-    """m routine jobs inside the positions lo..hi-1 of a cycle"""
     hi = D if hi is None else hi
     maxlen = hi - lo if maxlen is None else maxlen
     out = []
@@ -33,27 +32,27 @@ def routine_jobs(D, m, lo=0, hi=None, maxlen=None):
         out.append((u, u + L))
     return out
 
-# samples
+
 add(21, 7, [(3, 9), (12, 16)], [(0, 2), (5, 6)])
 add(12, 4, [], [(0, 3), (2, 4)])
 add(10, 10, [(0, 4), (4, 8), (2, 6)], [])
 add(5, 1, [(1, 3)], [(0, 1)])
 add(17, 5, [(0, 6), (9, 13), (14, 15)], [(1, 2), (3, 5)])
-# hidden: small and special
+
 add(1, 1, [(0, 1)], [])
 add(1, 1, [(0, 1)], [(0, 1)])
-add(23, 6, [(20, 23)], [(1, 4), (2, 3)])            # clash in the last, partial cycle
-add(30, 7, [(0, 30), (5, 12)], [(4, 6)])            # three jobs at once
-add(40, 40, once_jobs(40, 6, 15), routine_jobs(40, 5))   # one cycle only
+add(23, 6, [(20, 23)], [(1, 4), (2, 3)])
+add(30, 7, [(0, 30), (5, 12)], [(4, 6)])
+add(40, 40, once_jobs(40, 6, 15), routine_jobs(40, 5))
 add(50, 8, once_jobs(50, 8, 10), routine_jobs(8, 4))
 add(97, 10, once_jobs(97, 12, 30), routine_jobs(10, 6, maxlen=3))
 add(300, 1, once_jobs(300, 20, 50), [])
 add(2000, 37, once_jobs(2000, 60, 200), routine_jobs(37, 20, maxlen=6))
 add(3000, 701, once_jobs(3000, 100, 500), routine_jobs(701, 30, maxlen=40))
-# hidden: big timeline, long cycles (partial last cycle)
+
 add(MAXT, 999_983, once_jobs(MAXT, 40_000, 3000), routine_jobs(999_983, 20_000, maxlen=200))
 add(MAXT - 1, 333_334, once_jobs(MAXT - 1, 40_000, 50), routine_jobs(333_334, 40_000, maxlen=20))
-# hidden: maximum size (many routine jobs, short cycles)
+
 add(MAXT, 1, once_jobs(MAXT, MAXN, 100), [(0, 1)] * MAXN)
 add(MAXT, 10, once_jobs(MAXT, MAXN, 30), routine_jobs(10, MAXN, 0, 1))
 add(MAXT, 20, once_jobs(MAXT, MAXN, 8), routine_jobs(20, MAXN, 3, 9, maxlen=2))

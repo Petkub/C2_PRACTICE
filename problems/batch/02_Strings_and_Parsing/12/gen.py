@@ -1,12 +1,12 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, re
 
 random.seed(15011)
 MAXN = 100_000
 MAXQ = 50_000
 MAXSIZE = 10 ** 12
-MAXOUT = 2_000_000      # total length of the outline lines
-MAXQLEN = 1_000_000     # total length of the query lines
+MAXOUT = 2_000_000
+MAXQLEN = 1_000_000
 NAMECH = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-"
 ALLOWED = bytes(range(32, 127)) + b"\n"
 tests = []
@@ -25,12 +25,11 @@ def ok_name(s):
 
 
 def add(outline, queries):
-    """outline: list of (depth, name, size or None for a folder); queries: list of path strings"""
     n, q = len(outline), len(queries)
     assert 1 <= n <= MAXN and 1 <= q <= MAXQ
     lines = []
     prev_d, prev_folder = -1, True
-    open_names = []          # names used inside each open folder (index = depth)
+    open_names = []
     for i, (d, name, size) in enumerate(outline):
         assert ok_name(name)
         assert d == 0 if i == 0 else 0 <= d <= prev_d + 1
@@ -72,7 +71,6 @@ def rname(lo=1, hi=8):
     return "".join(random.choices(NAMECH, k=ri(lo, hi)))
 
 
-# ---------- trees ----------
 class Tree:
     def __init__(self):
         self.parent, self.name, self.size, self.kids = [], [], [], []
@@ -131,11 +129,11 @@ def random_tree(n, folder_p=0.3, roots=3, namelen=(1, 8), big=False, deep_bias=0
         if i < roots or not folders:
             par = -1
         elif hub and random.random() < hub:
-            par = folders[0]                                           # one folder holding many entries
+            par = folders[0]
         elif deep_bias and random.random() < deep_bias:
             par = folders[-1 - min(len(folders) - 1, ri(0, 3))]
         else:
-            par = folders[int(len(folders) * random.random() ** 3)]   # mostly shallow folders
+            par = folders[int(len(folders) * random.random() ** 3)]
         if par >= 0 and t.depth[par] >= maxdepth:
             par = folders[int(len(folders) * random.random() ** 3)]
             if t.depth[par] >= maxdepth:
@@ -158,20 +156,20 @@ def make_queries(t, q, p_folder=0.5, p_bad=0.2):
             p = t.paths[v]
             k = ri(0, 5)
             if k == 0:
-                p = p + "/" + rname()                        # one level too deep (maybe under a file)
+                p = p + "/" + rname()
             elif k == 1:
                 parts = p.split("/")
-                parts[-1] = parts[-1] + "x"                  # a name that does not exist (probably)
+                parts[-1] = parts[-1] + "x"
                 p = "/".join(parts)
             elif k == 2:
                 parts = p.split("/")
-                parts[-1] = parts[-1].swapcase()             # names are case sensitive
+                parts[-1] = parts[-1].swapcase()
                 p = "/".join(parts)
             elif k == 3:
-                p = t.name[v]                                # the bare name at the top level
+                p = t.name[v]
             elif k == 4 and "/" in p:
                 parts = p.split("/")
-                parts[0] = rname()                           # wrong first folder
+                parts[0] = rname()
                 p = "/".join(parts)
             else:
                 p = p + "/" + t.name[v]
@@ -195,7 +193,6 @@ def build(t, q, **kw):
     add(out, make_queries(t, q, **kw))
 
 
-# samples
 add(from_text("""
 docs/
   a.txt 100
@@ -221,7 +218,7 @@ add(from_text("""
 f 0
 """), ["f", "f/f"])
 
-# hidden: small (brute force checks them)
+
 add(from_text("""
 a/
   b/
@@ -260,19 +257,19 @@ for _ in range(3000):
     t.node(root, False, rsize())
 build(t, 3000)
 
-# hidden: large
+
 build(random_tree(MAXN, 0.3, 1, (1, 6), hub=0.97), MAXQ)
 build(random_tree(MAXN, 0.5, 1, (1, 4), big=True, hub=0.9), MAXQ, p_folder=0.8)
-t = Tree().start((1, 5))                         # one folder holding everything: wide
+t = Tree().start((1, 5))
 root = t.node(-1, True, name="data")
 for _ in range(MAXN - 1):
     t.node(root, random.random() < 0.01, rsize(True))
 build(t, MAXQ, p_folder=0.1)
-t = Tree().start((1, 5))                         # many top-level files and folders
+t = Tree().start((1, 5))
 for _ in range(MAXN):
     t.node(-1, random.random() < 0.5, rsize())
 build(t, MAXQ)
-t = Tree().start((1, 2))                         # a chain of 900 folders, files hanging all along it
+t = Tree().start((1, 2))
 chain = [t.node(-1, True)]
 for _ in range(899):
     chain.append(t.node(chain[-1], True))
@@ -281,7 +278,7 @@ while budget < MAXOUT - 50_000:
     v = t.node(chain[int(400 * random.random() ** 3)], False, rsize(True))
     budget += 2 * t.depth[v] + len(t.name[v]) + 1 + len(str(t.size[v]))
 build(t, 2000, p_folder=0.9)
-t = Tree().start((1, 3))                         # broom: a chain of 300, then a wide fan of files
+t = Tree().start((1, 3))
 chain = [t.node(-1, True)]
 for _ in range(299):
     chain.append(t.node(chain[-1], True))
@@ -294,7 +291,7 @@ build(t, 30_000, p_folder=0.5)
 t = random_tree(60_000, 0.4, 2, (1, 3), deep_bias=0.95, maxdepth=10)
 build(t, 50_000, p_folder=0.7)
 build(random_tree(MAXN, 0.05, 50, (2, 6), hub=0.95), MAXQ, p_bad=0.5)
-t = Tree().start((3, 4))                         # two levels: 300 folders with 300 files each
+t = Tree().start((3, 4))
 for _ in range(330):
     f = t.node(-1, True)
     for _ in range(300):
@@ -302,7 +299,7 @@ for _ in range(330):
 build(t, MAXQ, p_folder=0.3)
 t = random_tree(MAXN, 0.3, 1, (1, 5), big=True, hub=0.97)
 build(t, MAXQ, p_bad=0.0, p_folder=0.5)
-t = Tree().start((1, 5))                         # 2000 small folders first, then many files beside them
+t = Tree().start((1, 5))
 home = t.node(-1, True, name="home")
 for _ in range(2000):
     f = t.node(home, True)
@@ -311,7 +308,7 @@ for _ in range(2000):
 while len(t.parent) < MAXN:
     t.node(home, False, rsize(True))
 add(t.outline(shuffle=False), make_queries(t, MAXQ, p_folder=0.3))
-t = Tree().start((1, 4))                         # a chain of 5 folders, 19999 files beside every link
+t = Tree().start((1, 4))
 chain = [t.node(-1, True)]
 for _ in range(4):
     chain.append(t.node(chain[-1], True))

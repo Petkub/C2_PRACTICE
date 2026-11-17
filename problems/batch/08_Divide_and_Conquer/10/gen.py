@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(131602)
@@ -24,7 +24,6 @@ def rnd(n, letters):
 
 
 def good(n, c=0):
-    """a random c-good string of length 2^n (as a list of letters)"""
     if n == 0:
         return [LET[c]]
     half = 1 << (n - 1)
@@ -35,7 +34,6 @@ def good(n, c=0):
 
 
 def noisy(n, p, letters=LET[:20]):
-    """an a-good string with each letter replaced with probability p"""
     g = good(n)
     for i in range(len(g)):
         if random.random() < p:
@@ -44,14 +42,12 @@ def noisy(n, p, letters=LET[:20]):
 
 
 def decoy(n, p):
-    """a noisy good string whose other halves are filled with many copies of their letter
-    (choosing the half that already looks right is not always best)"""
     g = good(n)
     l, r, c = 0, len(g), 0
     while r - l > 1:
         mid = (l + r) // 2
         side_all_c = all(x == LET[c] for x in g[l:mid])
-        # put c into about 40-70% of the half that is c-good below this level
+
         lo, hi = (mid, r) if side_all_c else (l, mid)
         for i in range(lo, hi):
             if random.random() < random.uniform(0.4, 0.7):
@@ -67,13 +63,12 @@ def decoy(n, p):
     return "".join(g)
 
 
-# samples
 add([(3, "abaabbdd"), (2, "bcaa")])
 add([(1, "ba"), (0, "z")])
 add([(3, "dcbbaaba")])
 add([(4, "aaaaaaaabbbbccde"), (4, "bbbbbbbbaaaaaaaa")])
 add([(0, "a"), (1, "aa"), (2, "cbaa"), (2, "abcd"), (3, "zzzzzzzz"), (3, "abababab"), (3, "aaaaaaab")])
-# hidden: small (the brute force tries every a-good string)
+
 add([(n, rnd(n, "ab")) for n in range(0, 5) for _ in range(40)])
 add([(n, rnd(n, "abc")) for n in range(1, 8) for _ in range(30)])
 add([(n, rnd(n, "abcdefg")) for n in range(3, 10) for _ in range(10)])
@@ -82,7 +77,7 @@ add([(n, decoy(n, 0.05)) for n in range(2, 12) for _ in range(5)])
 add([(n, "".join(good(n))) for n in range(0, 12)])
 add([(12, rnd(12, LET)), (12, "a" * 4096), (12, "z" * 4096), (12, noisy(12, 0.5)), (12, decoy(12, 0.1))])
 add([(13, decoy(13, 0.02)), (13, noisy(13, 0.1)), (12, rnd(12, "ab"))])
-# hidden: large
+
 add([(MAXN, rnd(MAXN, LET))])
 add([(MAXN, rnd(MAXN, "ab"))])
 add([(MAXN, noisy(MAXN, 0.1))])

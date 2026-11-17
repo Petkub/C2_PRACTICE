@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(151701)
@@ -26,13 +26,13 @@ def pal(n, alpha):
 
 
 def change(s, pos, alpha):
-    # set s[pos] (0-based) to a different letter of alpha
+
     c = random.choice([x for x in sorted(set(alpha + "b")) if x != s[pos]])
     return s[:pos] + c + s[pos + 1:]
 
 
 def perturbed(n, alpha, k_a, k_b, where):
-    # A = B = one palindrome, then a few letters changed; where picks the positions (0-based)
+
     p = pal(n, alpha)
     a, b = p, p
     for _ in range(k_a):
@@ -56,28 +56,27 @@ def anywhere(n):
 
 
 def bounded(n, p, qa, qb, alpha="ab"):
-    # A, B with chosen p (prefix of A equals reversed B), centres qa, qb (1-based, <= n // 2)
+
     b = list(pal(n, alpha))
     if qb > 0:
         b[qb - 1] = "a" if b[n - qb] != "a" else "b"
     a = list(pal(n, alpha))
     if qa > 0:
         a[qa - 1] = "a" if a[n - qa] != "a" else "b"
-    # force a[k] == b[n+1-k] for k <= p (1-based) where it does not touch a's centre letter, then break at p + 1
+
     for k in range(1, p + 1):
         if k != qa and n + 1 - k != qa:
             a[k - 1] = b[n - k]
     return "".join(a), "".join(b)
 
 
-# samples
 add("abcab", "cxyba")
 add("ab", "ab")
 add("z", "q")
 add("aaaa", "aaaa")
 add("abcd", "dcba")
 add("xaaab", "baaay")
-# hidden: small (brute checks these)
+
 add("a", "a")
 for n in [3, 7, 10]:
     add(rs(n, "ab"), rs(n, "ab"))
@@ -89,7 +88,7 @@ add(*perturbed(3000, "ab", 1, 1, near_mid))
 add(*perturbed(5000, "a", 1, 0, near_end))
 s = rs(4000, "abc")
 add(s, s[::-1])
-# hidden: large
+
 N = MAXN
 add("a" * N, "a" * N)
 p = pal(N, "ab")

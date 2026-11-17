@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(30232)
@@ -18,7 +18,7 @@ def song(n, p_miss):
 
 
 def runs(n, lo, hi):
-    # runs of O with lengths in [lo, hi], separated by single X
+
     out = []
     while len(out) < n:
         out.extend("O" * random.randint(lo, hi))
@@ -41,21 +41,20 @@ def queries(n, q, mode):
     return out
 
 
-# samples
 add("OOXOOO", [(1, 6), (4, 6), (1, 2)])
 add("OOOOXOOXO", [(1, 9), (6, 9), (5, 7), (8, 8)])
 add("X", [(1, 1)])
 add("XOOOOOOOOO", [(1, 10), (2, 5), (1, 1)])
 add("OXOOXXOOOX", [(1, 10), (2, 8), (5, 9), (3, 4)])
-# hidden: small and medium
+
 add("O", [(1, 1)])
 add(song(20, 0.3), queries(20, 60, "any"))
 add(song(50, 0.1), queries(50, 200, "any"))
 add(runs(300, 5, 40), queries(300, 300, "any"))
 add("O" * 2000, queries(2000, 1000, "any"))
 add(song(5000, 0.5), queries(5000, 3000, "any"))
-add("O" * 70_000, [(1, 70_000), (2, 70_000), (35_000, 70_000)])     # 32-bit overflow
-# hidden: maximum size
+add("O" * 70_000, [(1, 70_000), (2, 70_000), (35_000, 70_000)])
+
 add("O" * MAXN, queries(MAXN, MAXQ, "long"))
 add(runs(MAXN, 1000, 100_000), queries(MAXN, MAXQ, "long"))
 add(song(MAXN, 0.0001), queries(MAXN, MAXQ, "long"))

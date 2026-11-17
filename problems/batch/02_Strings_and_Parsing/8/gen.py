@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(150901)
@@ -24,7 +24,6 @@ def periodic(n, unit):
 
 
 def words_from(t, q, lo=1, hi=10, p_rand=0.2, alpha="ab"):
-    """mostly windows of t (so they occur), some random words"""
     out = []
     for _ in range(q):
         L = random.randint(lo, hi)
@@ -36,13 +35,12 @@ def words_from(t, q, lo=1, hi=10, p_rand=0.2, alpha="ab"):
     return out
 
 
-# samples
 add("abababa", ["aba", "ab", "bab", "c", "abababab"])
 add("aaaa", ["aa", "a", "aaaaa", "aa"])
 add("mississippi", ["ssi", "issi", "s", "pi", "ippi", "sip"])
 add("z", ["z", "zz", "a"])
 add("hellohello", ["hello", "lohe", "l", "ohell", "hellohello", "lo"])
-# hidden: small
+
 t = rs(50, "ab")
 add(t, words_from(t, 50))
 t = rs(500, "abc")
@@ -56,7 +54,7 @@ add(t, words_from(t, 3000, alpha="abcdefghijklmnopqrstuvwxyz"))
 add("q" * 9, ["q" * 10, "q" * 9, "q", "qq"])
 t = rs(MAXT, "ab")
 add(t, words_from(t, 300))
-# hidden: large
+
 t = rs(MAXT, "abcd")
 add(t, words_from(t, MAXQ, 7, 10, alpha="abcd"))
 t = rs(MAXT, "abc")
@@ -74,7 +72,7 @@ add(t, words_from(t, MAXQ, 9, 10, p_rand=0.05, alpha="abcdefgh"))
 t = "".join(random.choice(["a", "b", "ab", "ba"]) * random.randint(1, 6) for _ in range(MAXT))[:MAXT]
 add(t, words_from(t, MAXQ, 6, 10))
 t = rs(MAXT, "xy")
-add(t, ["z" * 10] * MAXQ)          # no keyword occurs
+add(t, ["z" * 10] * MAXQ)
 t = rs(MAXT, "abcd")
 add(t, [rs(10, "abcd") for _ in range(MAXQ)])
 

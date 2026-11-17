@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(5114)
@@ -29,31 +29,30 @@ def walk(n, step):
     return out
 
 
-# samples
 add([2, 3, 4, 1, 3])
 add([5, 4, 3])
 add([7])
 add([1, 3, 1, 3])
 add([3, 1, 4, 1, 5, 9, 2, 6])
 add([1, 10, 1, 1, 10, 1, 10])
-# hidden: small (the brute force can check these)
+
 add([1, MAXP])
 add([MAXP, 1])
 add(rnd(10, 1, 10))
 add(rnd(14, 1, 100))
 add(rnd(16, 1, MAXP))
-add([1, 2] * 8)                                  # zigzag: resting decides everything
+add([1, 2] * 8)
 add([1, MAXP, MAXP, 1, MAXP, 1, MAXP, 1, 1, MAXP, 1, MAXP, MAXP, 1, MAXP, 1, MAXP])
 add(list(range(1, 18)))
-# hidden: large
+
 N = MAXN
-add([1, MAXP] * (N // 2))                        # zigzag with the largest swings
-add([1, 1, MAXP] * (N // 3))                     # rest fits perfectly: largest profit
+add([1, MAXP] * (N // 2))
+add([1, 1, MAXP] * (N // 3))
 add(rnd(N, 1, MAXP))
 add(walk(N, 1000))
 add(walk(N, 10**7))
-add(list(range(N, 0, -1)))                       # always falling: 0
-add(list(range(1, N + 1)))                       # always rising: one trade
+add(list(range(N, 0, -1)))
+add(list(range(1, N + 1)))
 add([MAXP] * N)
 add([ri(1, 3) for _ in range(N)])
 add([1, 2, 3] * (N // 3))

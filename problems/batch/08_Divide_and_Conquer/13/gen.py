@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random, re, sys
 
 random.seed(131301)
@@ -14,13 +14,12 @@ TOKEN = re.compile(r"[0-9]+|[-+*^()]")
 
 
 def check(s):
-    """the expression follows the grammar of the statement, return its nesting depth"""
     assert 1 <= len(s) <= MAXLEN and set(s) <= set("0123456789+-*^()")
     toks = TOKEN.findall(s)
     assert sum(map(len, toks)) == len(s)
     depth = best = 0
-    want_operand = True         # True: a number or "(" must come next
-    can_pow = False             # the last thing is a number or ")" without an exponent yet
+    want_operand = True
+    can_pow = False
     i = 0
     while i < len(toks):
         t = toks[i]
@@ -79,7 +78,7 @@ class Gen:
         else:
             s = self.num()
         extra = 0
-        while d + extra < self.maxd and random.random() < self.wrap:   # redundant brackets
+        while d + extra < self.maxd and random.random() < self.wrap:
             s = "(" + s + ")"
             extra += 1
         if random.random() < self.ppow:
@@ -100,8 +99,6 @@ class Gen:
 
 
 def chains(total, depth, g, side=1.0):
-    """several towers of `depth` nested parentheses joined by operators
-    (each level has an operand before / after its brackets with probability side)"""
     parts = []
     length = 0
     while length < total:
@@ -128,7 +125,6 @@ def fit(s):
 
 
 def sized(g, target):
-    """an expression from generator g whose length is close to (and at most) target"""
     b = target
     while True:
         s = g.expr(b)
@@ -140,14 +136,13 @@ def sized(g, target):
         b = int(b * target * 0.97 / len(s))
 
 
-# samples
 add("2+3*4^2-(5-7)*3")
 add("(1-2)^3")
 add("0^0*5+0^3")
 add("10-4-3+2*3*4-1^5")
 add("2^1000000000000000000")
 add("((((1000000000))))*1000000000")
-# hidden: small (the brute force checks these; exponents stay small)
+
 add("7")
 add("1000000000^2")
 add("0-1000000000*1000000000")
@@ -158,13 +153,13 @@ add(sized(Gen(60, 0.5, 0.1, 10, ops="-"), 8000))
 add(fit(chains(15000, MAXDEPTH, Gen(5, 0.3, 0.2, 20))))
 add("(" * MAXDEPTH + "2" + ")^2" * MAXDEPTH)
 add(sized(Gen(1000, 0.6, 0.15, 40), 20000))
-# hidden: large
+
 add(sized(Gen(40, 0.35, 0.3, MAXEXP, wrap=0.85), 475000))
 add(sized(Gen(400, 0.45, 0.3, MAXEXP, wrap=0.9), 475000))
 add(sized(Gen(8, 0.25, 0.6, MAXEXP, wrap=0.8), 475000))
 add(fit(chains(485000, MAXDEPTH, Gen(5, 0.3, 0.1, MAXEXP), side=0.1)))
 add(fit(chains(485000, 700, Gen(5, 0.3, 0.15, MAXEXP, ops="-*"), side=0.2)))
-add(fit("+".join("(" + str(random.randint(0, 9)) + ")" for _ in range(122000))))           # many short brackets
+add(fit("+".join("(" + str(random.randint(0, 9)) + ")" for _ in range(122000))))
 add(fit("*".join("((" + str(random.randint(1, 9)) + ")-(" + str(random.randint(0, 9)) + "))^" + str(random.randint(1, 9))
                  for _ in range(35000))))
 add(fit("*".join(str(random.randint(2, MAXNUM)) + "^" + str(random.randint(MAXEXP // 2, MAXEXP)) for _ in range(16500))))
@@ -172,7 +167,7 @@ add(fit("+".join(f"{MAXNUM}*{MAXNUM}" for _ in range(22500))))
 add(fit("-".join(str(MAXNUM) for _ in range(45000))))
 add(fit("(" * (MAXDEPTH - 1) + "+".join(["(1000000000-999999999)^999999999999999999"] * 11500) + ")" * (MAXDEPTH - 1)))
 add(sized(Gen(1000, 0.7, 0.25, MAXEXP, num_hi=9, wrap=0.75), 485000))
-add(fit("-".join("(" * 999 + str(random.randint(0, 9)) + ")" * 999 for _ in range(250))))   # tall towers
+add(fit("-".join("(" * 999 + str(random.randint(0, 9)) + ")" * 999 for _ in range(250))))
 add(fit("(" * 999 + ")^1000000000000000000*(".join(["0^0+1"] * 15000) + ")" * 999))
 
 for t in tests:

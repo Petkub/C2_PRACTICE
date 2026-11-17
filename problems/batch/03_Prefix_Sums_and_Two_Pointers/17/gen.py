@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(11703)
@@ -29,7 +29,6 @@ def rnd_q(n, q):
 
 
 def wide_q(n, q):
-    """long ranges: l near the start, r near the end"""
     out = []
     for _ in range(q):
         l = random.randint(1, max(1, n // 20))
@@ -42,13 +41,12 @@ def all_q(n):
     return [(l, r) for l in range(1, n + 1) for r in range(l, n + 1)]
 
 
-# samples
 add(">.<><<", [(1, 6), (2, 5), (4, 6), (3, 3), (1, 3)])
 add("<<>>", [(1, 4), (2, 3)])
 add(">>><<<", [(1, 6), (2, 5), (3, 4), (4, 6)])
 add(".>.<.", [(1, 5), (2, 4), (1, 1)])
 add("><><><", [(1, 6), (2, 6), (2, 5), (3, 6)])
-# hidden (small)
+
 add(">", [(1, 1)])
 add("<", [(1, 1)])
 s = rnd_str(10)
@@ -61,18 +59,18 @@ s = rnd_str(1000)
 add(s, rnd_q(1000, 1000))
 s = rnd_str(3000, (5, 5, 1))
 add(s, wide_q(3000, 3000))
-# large
+
 n = MAXN
 s = ">" * (n // 2) + "<" * (n // 2)
-add(s, [(1, n)] * MAXQ)                                  # answer 10^10 every time
+add(s, [(1, n)] * MAXQ)
 qs = [(random.randint(2, n // 2), random.randint(n // 2 + 1, n)) for _ in range(MAXQ)]
-add(s, qs)                                               # many '>' before l
+add(s, qs)
 add("><" * (n // 2), wide_q(n, MAXQ))
 add(rnd_str(n), rnd_q(n, MAXQ))
 add(rnd_str(n, (10, 10, 1)), wide_q(n, MAXQ))
 add(rnd_str(n, (1, 1, 20)), rnd_q(n, MAXQ))
 add("." * n, wide_q(n, MAXQ))
-add("<" * (n // 2) + ">" * (n // 2), wide_q(n, MAXQ))   # nobody faces anybody in the full range
+add("<" * (n // 2) + ">" * (n // 2), wide_q(n, MAXQ))
 s = "".join(random.choice("><") * random.randint(1, 3000) for _ in range(400))[:n]
 s += ">" * (n - len(s))
 qs = rnd_q(n, MAXQ // 2) + [(l, l) for l in random.sample(range(1, n + 1), MAXQ // 2)]
@@ -80,7 +78,7 @@ random.shuffle(qs)
 add(s, qs)
 s = rnd_str(n, (2, 1, 0))
 qs = []
-for _ in range(MAXQ):                                    # l right after a '>' and r on a '<'
+for _ in range(MAXQ):
     l = random.randint(2, n // 3)
     r = random.randint(2 * n // 3, n)
     qs.append((l, r))

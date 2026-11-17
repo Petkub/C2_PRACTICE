@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(90117)
@@ -25,14 +25,12 @@ def rnd(n, hx, hy=None, hz=None):
 
 
 def perm3(pts):
-    """the same stars with the coordinates in a random order (each axis gets every role)"""
     o = [0, 1, 2]
     random.shuffle(o)
     return [(p[o[0]], p[o[1]], p[o[2]]) for p in pts]
 
 
 def zmatters(n):
-    """x and y are spread far apart, z is packed: the cheap tunnels come from the z order"""
     xs = random.sample(range(1, MAXC + 1), n)
     ys = random.sample(range(1, MAXC + 1), n)
     zs = [ri(1, max(1, n // 4)) * 3 for _ in range(n)]
@@ -40,7 +38,6 @@ def zmatters(n):
 
 
 def layers(n, k):
-    """k far apart groups along x, inside a group the stars are close along y or z"""
     pts = []
     for i in range(n):
         g = i % k
@@ -50,7 +47,6 @@ def layers(n, k):
 
 
 def diagonal(n, gap):
-    """x = y = z: every tunnel costs the full difference"""
     pts = []
     v = 1
     for i in range(n):
@@ -61,7 +57,6 @@ def diagonal(n, gap):
 
 
 def twisted(n):
-    """three interleaved rising sequences: each axis is good for a different pair"""
     pts = []
     for i in range(n):
         a = 1 + i * (MAXC // n)
@@ -72,13 +67,12 @@ def twisted(n):
     return pts
 
 
-# samples
 add([(1, 5, 10), (4, 9, 2), (7, 1, 6), (8, 8, 8)])
 add([(1, 1, 1), (10, 20, 30)])
 add([(10, 1, 7), (3, 8, 7), (6, 6, 1), (1, 2, 12), (12, 11, 5)])
 add([(2, 2, 2), (2, 2, 2), (2, 2, 3)])
 add([(1, 1, 1), (3, 3, 3), (6, 6, 6), (10, 10, 10), (1000000, 1000000, 1000000)])
-# hidden: small
+
 add([(1, 1, 1), (1000000, 1000000, 1000000)])
 for n, h in ((5, 5), (6, 3), (8, 20), (10, 1000), (30, 50), (60, 10**6), (200, 300)):
     add(rnd(n, h))
@@ -88,17 +82,17 @@ add(diagonal(100, 1000))
 add(twisted(120))
 add(rnd(3000, MAXC))
 add(perm3(zmatters(3000)))
-# hidden: maximum size
+
 N = MAXN
 add(rnd(N, MAXC))
-add(rnd(N, 300))                                                # many equal coordinates
-add(rnd(N, MAXC, MAXC, 1))                                      # one coordinate equal: answer 0
+add(rnd(N, 300))
+add(rnd(N, MAXC, MAXC, 1))
 add(zmatters(N))
 add(perm3(zmatters(N)))
 add(perm3(zmatters(N)))
 add(layers(N, 1000))
 add(perm3(layers(N, 37)))
-add(diagonal(N, 10))                                            # answer = the largest minus the smallest
+add(diagonal(N, 10))
 add(twisted(N))
 add(rnd(N, MAXC, 1000, MAXC))
 add(perm3(rnd(N, 5000, MAXC, 2 * 10**5)))

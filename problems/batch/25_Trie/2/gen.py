@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..05), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(250002)
@@ -31,21 +31,20 @@ def distinct(n, make):
     return ws
 
 
-# samples
 add(["apple", "apricot", "banana", "band", "ban"])
 add(["dog", "cat", "cow", "c"])
 add(["x"])
 add(["abc", "a", "abd", "ab"])
 add(["bab", "ba", "aab", "bbab", "abab", "babb"])
-# hidden: small
+
 add(["z", "zz"])
 add(distinct(10, lambda: word("ab", 1, 4)))
 add(distinct(40, lambda: word("abc", 1, 5)))
 add(distinct(200, lambda: word("ab", 1, 10)))
 add(distinct(1000, lambda: word("abcdefghijklmnopqrstuvwxyz", 2, 6)))
 add(distinct(2000, lambda: "q" * random.randint(0, 30) + word("pq", 1, 6)))
-# hidden: maximum size. Every one has about thirty names of length about 20 000 that share a long start
-# (their prefixes are long); several also have names with more than 2.2 * 10^5 distinct prefixes (trie nodes)
+
+
 AZ = "abcdefghijklmnopqrstuvwxyz"
 
 
@@ -54,7 +53,6 @@ def nodes(ws):
 
 
 def longpart(ws, B=20_000, alpha="xy"):
-    """add names base + a short end (and the base itself and a cut of it) until the length budget is used"""
     room = MAXC - sum(len(w) for w in ws)
     have = set(ws)
     base = word(alpha, B, B)
@@ -80,10 +78,10 @@ def many_nodes(chars, lo, hi, alpha=AZ):
 
 
 add(longpart(many_nodes(265_000, 12, 20)))
-add(longpart(distinct(50_000, lambda: word("abcdef", 4, 7))))       # many names are prefixes of others
-add(longpart(distinct(15_000, lambda: "kitti" + word("abc", 10, 12)))) # long common start
-add(longpart(["a" * k for k in range(1, 701)], alpha="ab"))           # each name is a prefix of the next
-ws = ["m" * 400_000 + "a", "m" * 400_000 + "b", "m" * 199_990]      # three very long names
+add(longpart(distinct(50_000, lambda: word("abcdef", 4, 7))))
+add(longpart(distinct(15_000, lambda: "kitti" + word("abc", 10, 12))))
+add(longpart(["a" * k for k in range(1, 701)], alpha="ab"))
+ws = ["m" * 400_000 + "a", "m" * 400_000 + "b", "m" * 199_990]
 add(ws)
 add(longpart(many_nodes(270_000, 5, 30)))
 ws = distinct(4_600, lambda: word("ab", 50, 60))
@@ -92,7 +90,7 @@ ws = sorted(set(ws))
 random.shuffle(ws)
 assert nodes(ws) > 200_000
 add(longpart(ws, alpha="cd"))
-# many names of one shape: d...d + 3 letters
+
 add(longpart(distinct(8_000, lambda: "d" * 30 + word("abcdefgh", 3, 6))))
 ws = distinct(19_000, lambda: word(AZ, 10, 16))
 have = set(ws)
@@ -101,7 +99,7 @@ ws = sorted(set(ws), key=lambda w: (len(w), w))[::-1]
 assert nodes(ws) > 200_000
 add(longpart(ws))
 
-# a hundred names of length about 10^4 with a long common start (review)
+
 base = word("ab", 9000, 9000)
 add(distinct(100, lambda: base + word("ab", 950, 1000)))
 

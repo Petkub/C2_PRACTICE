@@ -1,4 +1,4 @@
-# Writes tests/NN.in for this problem. Samples first (01..06), then hidden tests.
+# Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
 random.seed(10108)
@@ -21,14 +21,13 @@ def rotate(s, k):
     return s[k:] + s[:k]
 
 
-# samples
 add("1001010")
 add("10101010")
 add("00000")
 add("110011")
 add("1")
 add("0110100110")
-# hidden (small)
+
 add("0")
 add("1111111")
 add("1000000001")
@@ -38,15 +37,15 @@ for n in (8, 11, 13, 14):
 add(rnd(200, 0.4))
 add(rnd(3000, 0.6))
 add(rotate("1" * 6000 + "0" * 4000 + rnd(8000, 0.5), 9000))
-# large
+
 add(rnd(MAXN, 0.5))
 add(rnd(MAXN, 0.3))
 add(rnd(MAXN, 0.8))
 add("10" * (MAXN // 2))
 add("1" * MAXN)
 add("0" * MAXN)
-add(rotate("1" * 400_000 + "0" * 600_000, 750_000))           # already together across the end
-add(rotate("1" * 500_000 + "0" * 499_999 + "1", 123_456))       # one friend far away
+add(rotate("1" * 400_000 + "0" * 600_000, 750_000))
+add(rotate("1" * 500_000 + "0" * 499_999 + "1", 123_456))
 add("0" * (MAXN - 1) + "1")
 add("1" * (MAXN - 1) + "0")
 s = list("1" * 300_000 + "0" * 700_000)
