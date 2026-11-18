@@ -1,13 +1,13 @@
 # C2_PRACTICE — POSN Camp 2 Topic Practice (teacher's guide)
 
 This repo is the source of the judge and test data that students run on their own computers for Camp 2 topic
-practice. **Version 4** has 429 problems in 26 topics, each topic ordered from easy to hard (★ easy, ★★ medium,
+practice. **Version 4** has 519 problems in 33 topics, each topic ordered from easy to hard (★ easy, ★★ medium,
 ★★★ challenging), in three groups:
 
 - **Core** (01-14): the main content of Camp 2, 20 problems per topic.
 - **Intermediate** (15-25): the extended content, 12 problems per topic (15 Trees has 20, 17 Fenwick and Segment
   Tree has 15).
-- **Advanced (TOI)** (26): beyond Camp 2.
+- **Advanced (TOI)** (26-33): beyond Camp 2, 12 problems per topic.
 
 | topic | folder | group | problems |
 |---|---|---|---|
@@ -36,7 +36,14 @@ practice. **Version 4** has 429 problems in 26 topics, each topic ordered from e
 | 23 | `23_LCA_and_Binary_Lifting` | Intermediate | 12 |
 | 24 | `24_SCC_Bridges_and_Articulation_Points` | Intermediate | 12 |
 | 25 | `25_Trie` | Intermediate | 12 |
-| 26 | `26_Bitmask_and_Digit_DP` | Advanced (TOI) | 6 |
+| 26 | `26_Bitmask_and_Digit_DP` | Advanced (TOI) | 12 |
+| 27 | `27_DSU_on_Tree` | Advanced (TOI) | 12 |
+| 28 | `28_Heavy_Light_Decomposition` | Advanced (TOI) | 12 |
+| 29 | `29_Centroid_Decomposition` | Advanced (TOI) | 12 |
+| 30 | `30_Persistent_Segment_Tree` | Advanced (TOI) | 12 |
+| 31 | `31_Convex_Hull` | Advanced (TOI) | 12 |
+| 32 | `32_Convex_Hull_Trick_and_DP_Optimization` | Advanced (TOI) | 12 |
+| 33 | `33_Mo_Algorithm` | Advanced (TOI) | 12 |
 
 Students never clone this repo: they download `C2_Practice.zip` once from
 [Releases](https://github.com/Petkub/C2_PRACTICE/releases/latest), and from then on their judge **updates itself

@@ -2,12 +2,15 @@ POSN Practice Judge - changes
 
 4.0.0  Topics reorganised (your code moves with its problem, once; nothing you wrote is deleted):
        - English topic folders numbered in study order, basic to advanced: 01_Brute_Force_and_Implementation ...
-         26_Bitmask_and_Digit_DP, in three groups: Core (01-14), Intermediate (15-25), Advanced (TOI) (26).
+         33_Mo_Algorithm, in three groups: Core (01-14), Intermediate (15-25), Advanced (TOI) (26-33).
        - DP is now three core topics: 09 DP I Foundations, 10 DP II Classic Patterns, 11 DP III Faster Transitions
          (old topics 6 and 7, plus new problems); bitmask and digit DP moved to 26.
        - New intermediate topics: 16 Monotonic Stack and Queue, 18 Sparse Table, 19 Lazy Segment Tree (with the old
          lazy problems), 20 Tree DP, 21 Rerooting, 22 Euler Tour, 23 LCA and Binary Lifting, 24 SCC, Bridges and
          Articulation Points, 25 Trie.
+       - New advanced (TOI) topics, 12 problems each: 27 DSU on Tree, 28 Heavy-Light Decomposition, 29 Centroid
+         Decomposition, 30 Persistent Segment Tree, 31 Convex Hull, 32 Convex Hull Trick and DP Optimization,
+         33 Mo's Algorithm; 26 Bitmask and Digit DP gets 6 new problems.
        - Statements in the Camp 2 mock-exam layout (one or two pages, one sample per row).
        - An old Topic_K folder is removed only when nothing of yours is left in it; otherwise it gets README_MOVED.txt.
        - 71 problems replaced by new, better problems (most repeated problems you already solved elsewhere).
