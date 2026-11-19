@@ -12,6 +12,8 @@ Usage (anywhere)
   python3 judge.py --set K FOLDER              judge a whole practice topic (files 1.cpp, 2.cpp, ... in FOLDER)
   python3 judge.py --set K                     show the problems of practice topic K
   python3 judge.py --list                      list all topics and problems
+Mixed sets (folders M01, M02, ...: problems from different topics, the topic is not given) work the same way;
+their numbers are K = 41, 42, ... (M01-3 or 41-3 names problem 3 of M01).
 
 Options
   --tl SECONDS     time limit per test (default 1.0)
@@ -136,6 +138,8 @@ def bar(st, frac, width=24):
 
 def stars(st, tier):
     ch = st.chars
+    if not tier:                        # a Mixed set shows no level
+        return "   "
     return st.yellow(ch["star"] * tier) + st.dim(ch["nostar"] * (3 - tier))
 
 
@@ -224,6 +228,16 @@ def set_of(k, sets=None):
     return None
 
 
+def is_mixed(s):
+    """A Mixed set (sets.json "group": "Mixed", folder M01 ...): problems of different topics, no topic shown."""
+    return s.get("group") == "Mixed"
+
+
+def set_label(s):
+    """"Topic 4", or "Mixed M01" for a Mixed set."""
+    return f"Mixed {s.get('dir', s['set'])}" if is_mixed(s) else f"Topic {s['set']}"
+
+
 def load_sets():
     p = data_file("sets.json")
     if os.path.exists(p):
@@ -257,6 +271,10 @@ def has_tests(d):
 
 def find_problem(arg, meta):
     parts = arg.split("-")
+    m = re.match(r"^[Mm]([0-9]{1,2})$", parts[0]) if len(parts) == 2 else None
+    if m and parts[1].isdecimal():      # M01-3: problem 3 of the Mixed set M01
+        hit = [s for s in load_sets() if is_mixed(s) and s.get("dir") == f"M{int(m.group(1)):02d}"]
+        return find_problem(f"{hit[0]['set']}-{parts[1]}", meta) if hit else (None, None)
     if len(parts) == 2 and all(x.isdecimal() for x in parts):
         k, p = int(parts[0]), int(parts[1])
         sets = load_sets()
@@ -381,7 +399,7 @@ def expected_matches(fin, got, man_out):
 def where_in_sets(num):
     for s in load_sets():
         if num in s["problems"]:
-            return f"Topic {s['set']} · #{s['problems'].index(num) + 1}"
+            return f"{set_label(s)} · #{s['problems'].index(num) + 1}"
     return f"{num:02d}" if num is not None else "?"
 
 
@@ -1198,11 +1216,13 @@ def summary(st, passed, total, results, tl):
 
 def cmd_list(meta, st):
     sets = load_sets()
+    mixed = sum(1 for s in sets if is_mixed(s))
     box(st, [st.bold(st.cyan("POSN Camp 2 · Practice topics")),
-             f"{len(sets)} topics · {sum(len(s['problems']) for s in sets)} problems"], st.dim)
+             f"{len(sets) - mixed} topics" + (f" · {mixed} mixed sets" if mixed else "")
+             + f" · {sum(len(s['problems']) for s in sets)} problems"], st.dim)
     for s in sets:
         print()
-        print("  " + st.bold(f"Topic {s['set']}") + st.dim(f"  {s.get('level_en', '')}"))
+        print("  " + st.bold(set_label(s)) + st.dim(f"  {s.get('level_en', '')}"))
         for i, n in enumerate(s["problems"], 1):
             m = meta.get(n, {})
             print(f"    {s['set']}-{i:<3} {stars(st, m.get('tier', 0))}  {m.get('en', '?')}")
@@ -1238,14 +1258,14 @@ def is_template(src):
 
 def cmd_set(k, folder, meta, sets, st, tl, show_diff):
     if set_of(k, sets) is None:
-        print(st.red(f"Topic {k} does not exist (1-{max([x.get('set', 0) for x in sets] or [0])})."))
+        print(st.red(f"Topic {k} does not exist (1-{max_topic(sets)}; see --list)."))
         return 1
     if folder is not None and not os.path.isdir(folder):
         print(st.red(f"Folder not found: {folder}"))
         return 1
     s = set_of(k, sets)
     probs = s["problems"]
-    head = [title(st, f"POSN Camp 2 · Practice Topic {k}"),
+    head = [title(st, f"POSN Camp 2 · Practice {set_label(s)}"),
             f"{s.get('level_en', '')}",
             f"{len(probs)} problems · {100 * len(probs)} points · easy to hard"]
     box(st, head, st.dim)
@@ -1320,6 +1340,12 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
 
 
 TOPIC_DIR = re.compile(r"^([0-9]{2})_[A-Za-z0-9_]+")     # v4 topic folders: 04_Binary_Search (also "... - Copy")
+MIXED_DIR = re.compile(r"^(M[0-9]{2})(?![A-Za-z0-9_])")  # Mixed set folders: M01 (also "M01 - Copy")
+
+
+def max_topic(sets):
+    """The largest topic number (Mixed sets, numbered 41 and up, are not counted)."""
+    return max([x.get("set", 0) for x in sets if not is_mixed(x)] or [0])
 
 
 def topic_folder(k):
@@ -1332,7 +1358,11 @@ def topic_folder(k):
 def topic_set_of(folder):
     """Topic number K of a topic folder (04_Binary_Search -> 4), else None. Old Topic_K folders (before v4.0)
     are not topics any more: their numbers mean other topics now."""
-    m = TOPIC_DIR.match(os.path.basename(os.path.abspath(folder).rstrip("/\\")))
+    base = os.path.basename(os.path.abspath(folder).rstrip("/\\"))
+    mx = MIXED_DIR.match(base)
+    if mx:                              # M01 -> the set whose folder (sets.json "dir") is M01
+        return next((s["set"] for s in load_sets() if is_mixed(s) and s.get("dir") == mx.group(1)), None)
+    m = TOPIC_DIR.match(base)
     if not m:
         return None
     k = int(m.group(1))
@@ -1349,7 +1379,7 @@ def not_a_topic_folder(st, folder, name):
     base = os.path.basename(os.path.abspath(folder).rstrip("/\\"))
     if os.path.isfile(os.path.join(folder, "README_MOVED.txt")) or re.match(r"^topic[ _-]?[0-9]+$", base, re.I):
         print(st.red(f"'{base}' is an old topic folder: the topics were reorganised in v4 (see README_MOVED.txt)."))
-        print(st.dim("  The topics are now the numbered folders 01_... 26_...; your written files moved there."))
+        print(st.dim("  The topics are now the numbered folders 01_... 33_...; your written files moved there."))
         print(st.dim("  To judge this code against a problem there, copy it into that topic's folder, or give the"))
         print(st.dim("  problem yourself, e.g. topic 4 problem 2:"))
         print(f"  {PY} {prog_name()} \"{name or '2.cpp'}\" 4-2")
@@ -1446,7 +1476,7 @@ def show_moves(st):
     tidied = list(getattr(updater, "TIDIED", []))
     if not moved:
         if tidied:
-            print("  " + st.yellow(st.bold("The topics were reorganised: the new topics are the folders 01_... 26_...")))
+            print("  " + st.yellow(st.bold("The topics were reorganised: the new topics are the folders 01_... 33_...")))
             for folder, what in tidied:
                 print("    " + f"{folder:<10} {'removed (only empty starters)' if what == 'removed' else '-> ' + what}")
             print("  " + st.dim("(nothing you wrote was moved or deleted)"))
@@ -1602,7 +1632,7 @@ def main():
     if not pdir:
         sets = load_sets()
         print(st.red(f"Problem not found: {parg}"))
-        print(st.dim(f"  Use K-P with topic K = 1-{max([x.get('set', 0) for x in sets] or [0])} and problem P = 1-{max(len(s['problems']) for s in sets)} (e.g. 3-5); see --list."))
+        print(st.dim(f"  Use K-P with topic K = 1-{max_topic(sets)} and problem P = 1-{max(len(s['problems']) for s in sets)} (e.g. 3-5); see --list."))
         return 1
     if not shutil.which("g++"):
         print(st.red("g++ not found. Please install a C++ compiler and add it to PATH."))

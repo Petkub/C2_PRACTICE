@@ -1,13 +1,18 @@
 # C2_PRACTICE — POSN Camp 2 Topic Practice (teacher's guide)
 
 This repo is the source of the judge and test data that students run on their own computers for Camp 2 topic
-practice. **Version 4** has 519 problems in 33 topics, each topic ordered from easy to hard (★ easy, ★★ medium,
-★★★ challenging; in the Advanced group ★ reads "เริ่มต้น", starting level), in three groups:
+practice. **Version 4** has 567 problems: 519 in 33 topics, each topic ordered from easy to hard (★ easy, ★★ medium,
+★★★ challenging; in the Advanced group ★ reads "เริ่มต้น", starting level), in three groups, plus 48 in 8 Mixed sets:
 
 - **Core** (01-14): the main content of Camp 2, 20 problems per topic.
 - **Intermediate** (15-25): the extended content, 12 problems per topic (15 Trees has 20, 17 Fenwick and Segment
   Tree has 15).
 - **Advanced (TOI)** (26-33): beyond Camp 2, 12 problems per topic.
+- **Mixed** (folders `M01` ... `M08`, set numbers 41-48 in the judge): 8 sets of 6 problems from different Camp 2
+  topics, for practising which technique a problem needs. **Nothing a student sees names the topic or the
+  technique** (folder, PDF `Problems_M01.pdf`, cover "ชุดฝึกรวม · 6 ข้อ", titles, `--list`); there is no level, time
+  limit or target score. The techniques are only in the teacher's solution book and in
+  `C2_PRACTICE_SRC/plans/V4_MIXED_STATUS.md`. Used after the vjudge MUST list and before the timed mock exams.
 
 | topic | folder | group | problems |
 |---|---|---|---|
@@ -44,6 +49,7 @@ practice. **Version 4** has 519 problems in 33 topics, each topic ordered from e
 | 31 | `31_Convex_Hull` | Advanced (TOI) | 12 |
 | 32 | `32_Convex_Hull_Trick_and_DP_Optimization` | Advanced (TOI) | 12 |
 | 33 | `33_Mo_Algorithm` | Advanced (TOI) | 12 |
+| 41-48 | `M01` ... `M08` | Mixed | 6 each |
 
 Students never clone this repo: they download `C2_Practice.zip` once from
 [Releases](https://github.com/Petkub/C2_PRACTICE/releases/latest), and from then on their judge **updates itself

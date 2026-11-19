@@ -71,7 +71,8 @@ STAMP = ".update_check"             # Judge/.update_check: time of the last chec
 BACKUP = ".backup"
 TMP = ".update_tmp"
 NEVER_UPDATE = {"manifest.json", "progress.json", "progress.json.tmp"}
-TOPIC_DIR = r"(?:Topic_[0-9]+|[0-9]{2}_[A-Za-z0-9_]+)"     # a topic folder: Topic_3 (before 4.0) or 04_Binary_Search
+TOPIC_DIR = r"(?:Topic_[0-9]+|[0-9]{2}_[A-Za-z0-9_]+|M[0-9]{2})"   # Topic_3 (before 4.0), 04_Binary_Search, or a
+#                                                                    Mixed set folder M01 (v4.0)
 SET_FILE = re.compile(r"^" + TOPIC_DIR + r"/[0-9]+\.cpp$")                  # create-only: a student's own files
 OLD_FILE = re.compile(r"^" + TOPIC_DIR + r"/old/[0-9]+_[A-Za-z0-9]+\.cpp$")  # where the file of a dropped problem goes
 MOVES_DONE = ".moves_done"          # Judge/.moves_done: hashes of the old problems.json whose moves were applied
@@ -505,10 +506,10 @@ def tidy_old_folders(base, judge_dir, pairs, done):
         if not os.path.exists(note):
             with open(note, "w", encoding="utf-8") as f:
                 if pairs is None:
-                    f.write("เรื่องต่าง ๆ ถูกจัดใหม่ (v4): โฟลเดอร์นี้ไม่ใช่เรื่องแล้ว เรื่องใหม่อยู่ใน 01_... ถึง 26_...\n"
+                    f.write("เรื่องต่าง ๆ ถูกจัดใหม่ (v4): โฟลเดอร์นี้ไม่ใช่เรื่องแล้ว เรื่องใหม่อยู่ใน 01_... ถึง 33_...\n"
                             "ไฟล์ในโฟลเดอร์นี้ไม่ได้ถูกย้ายหรือลบ ถ้าจะส่งโค้ดเดิมกับโจทย์ในเรื่องใหม่ ให้คัดลอกไปเอง\n"
                             "The topics were reorganised (v4): this folder is no longer a topic; the topics are now\n"
-                            "the numbered folders 01_... 26_... Nothing here was moved or deleted. To judge old code\n"
+                            "the numbered folders 01_... 33_... Nothing here was moved or deleted. To judge old code\n"
                             "against a problem there, copy it there yourself.\n")
                 else:
                     lines = [f"{src} -> {dst}" for src, dst in done if src.startswith(folder + "/")]

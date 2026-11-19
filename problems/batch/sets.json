@@ -781,5 +781,117 @@
    3311,
    3312
   ]
+ },
+ {
+  "set": 41,
+  "dir": "M01",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4101,
+   4102,
+   4103,
+   4104,
+   4105,
+   4106
+  ]
+ },
+ {
+  "set": 42,
+  "dir": "M02",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4201,
+   4202,
+   4203,
+   4204,
+   4205,
+   4206
+  ]
+ },
+ {
+  "set": 43,
+  "dir": "M03",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4301,
+   4302,
+   4303,
+   4304,
+   4305,
+   4306
+  ]
+ },
+ {
+  "set": 44,
+  "dir": "M04",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4401,
+   4402,
+   4403,
+   4404,
+   4405,
+   4406
+  ]
+ },
+ {
+  "set": 45,
+  "dir": "M05",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4501,
+   4502,
+   4503,
+   4504,
+   4505,
+   4506
+  ]
+ },
+ {
+  "set": 46,
+  "dir": "M06",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4601,
+   4602,
+   4603,
+   4604,
+   4605,
+   4606
+  ]
+ },
+ {
+  "set": 47,
+  "dir": "M07",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4701,
+   4702,
+   4703,
+   4704,
+   4705,
+   4706
+  ]
+ },
+ {
+  "set": 48,
+  "dir": "M08",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4801,
+   4802,
+   4803,
+   4804,
+   4805,
+   4806
+  ]
  }
 ]

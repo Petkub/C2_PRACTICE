@@ -63,7 +63,9 @@ def copy_package_files(root):
     pairs = build_manifest.managed_files() + build_manifest.set_files()
     for rel, src in pairs:
         copy_file(os.path.join(REPO, src), os.path.join(root, *rel.split("/")))
-    return len({rel.split("/")[0] for rel, _ in pairs if rel.split("/")[0][:2].isdigit()})
+    tops = {rel.split("/")[0] for rel, _ in pairs}
+    return (len([d for d in tops if d[:2].isdigit()]),
+            len([d for d in tops if len(d) == 3 and d[0] == "M" and d[1:].isdigit()]))
 
 
 def make_zip(root):
@@ -95,7 +97,7 @@ def main():
     root = prepare(out)
     copy_judge(root, manifest)
     n = copy_package_files(root)
-    print(f"Built {root} (v{build_manifest.installed(manifest)['version']}, {n} topics)")
+    print(f"Built {root} (v{build_manifest.installed(manifest)['version']}, {n[0]} topics, {n[1]} Mixed sets)")
     if "--no-zip" not in argv:
         path = make_zip(root)
         print(f"Built {path} ({os.path.getsize(path) // 1024} KB)")

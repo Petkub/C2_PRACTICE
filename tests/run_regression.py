@@ -25,6 +25,7 @@ import time
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -197,8 +198,49 @@ def test_student_package():
         code, out, _ = run_judge(["2.cpp", "--no-color"], cwd=set1, judge_path=student_judge)
         check(code == 0 and "2.cpp is empty" in out and "Compil" not in out, "an empty .cpp: plain message, no compile",
               f"exit {code}\n{out}")
+        test_mixed_sets(root, student_judge)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+TECHNIQUE_WORDS = ("dp", "dynamic", "greedy", "binary search", "prefix", "two pointers", "graph", "bfs", "dfs",
+                   "dijkstra", "shortest", "dsu", "union", "heap", "stack", "queue", "sort", "sweep", "knapsack",
+                   "sieve", "number theory", "combinator", "implementation", "tree")
+
+
+def test_mixed_sets(root, student_judge):
+    """Mixed sets (folders M01 ...): judged like a topic, and nothing a student sees names a topic or a technique:
+    the folder, the PDF name, sets.json and the judge's headers say only "Mixed M01" (titles are story names)."""
+    mixed = [s for s in judge.load_sets() if judge.is_mixed(s)]
+    if not mixed:
+        return
+    check(all(re.fullmatch(r"M[0-9]{2}", s["dir"]) and len(s["problems"]) == 6 for s in mixed)
+          and [s["dir"] for s in mixed] == sorted(s["dir"] for s in mixed),
+          f"{len(mixed)} Mixed sets M01 ... of 6 problems")
+    texts = [s.get("level_en", "") + " " + s.get("group", "") for s in mixed]
+    check(not any(w in t.lower() for t in texts for w in TECHNIQUE_WORDS), "sets.json names no technique for a Mixed set",
+          str(texts))
+    m1 = os.path.join(root, mixed[0]["dir"])
+    names = sorted(os.listdir(m1)) if os.path.isdir(m1) else []
+    check(names == sorted([f"{i}.cpp" for i in range(1, 7)] + ["Makefile", "judge.bat", f"Problems_{mixed[0]['dir']}.pdf"]),
+          f"{mixed[0]['dir']}/ holds 1.cpp ... 6.cpp, Makefile, judge.bat and Problems_{mixed[0]['dir']}.pdf", str(names))
+    code, out, _ = run_judge(["--no-color"], cwd=m1, judge_path=student_judge)
+    check(code == 0 and f"Mixed {mixed[0]['dir']}" in out and "Topic" not in out and "Problem 6" in out
+          and out.count("still empty - skipped") == 6, f"inside {mixed[0]['dir']}: judge.py (whole set), no topic shown",
+          f"exit {code}\n{out}")
+    with open(os.path.join(m1, "3.cpp"), "w") as f:
+        f.write("int main() { return 0; }\n")
+    code, out, _ = run_judge(["3", "--no-color"], cwd=m1, judge_path=student_judge)
+    check(code == 0 and f"Mixed {mixed[0]['dir']}" in out and "Topic" not in out and "Problem not found" not in out,
+          f"inside {mixed[0]['dir']}: judge.py 3", f"exit {code}\n{out}")
+    code, out, _ = run_judge([os.path.join(m1, "3.cpp"), f"{mixed[0]['dir']}-3", "--no-color"], cwd=root,
+                             judge_path=os.path.join("Judge", "judge.py"))
+    check(code == 0 and "Problem not found" not in out, f"judge.py FILE {mixed[0]['dir']}-3", f"exit {code}\n{out}")
+    code, out, _ = run_judge(["--list", "--no-color"], cwd=root, judge_path=os.path.join("Judge", "judge.py"))
+    check(code == 0 and f"Mixed {mixed[-1]['dir']}" in out and f"Topic {mixed[0]['set']}" not in out
+          and f"{len(mixed)} mixed sets" in out, "judge.py --list shows the Mixed sets by name", f"exit {code}\n{out[-600:]}")
+    os.remove(os.path.join(m1, "3.cpp"))
+    open(os.path.join(m1, "3.cpp"), "w").close()
 
 
 # ----------------------------------------------------------------------------- 4. self-update
@@ -438,7 +480,7 @@ def test_retired_pdf():
         a, b = [s["dir"] for s in judge.load_sets()][:2]
         with open(os.path.join(REPO, "manifest.json"), encoding="utf-8") as f:
             real = json.load(f)["full_v4"]
-        check(len(real.get("retired", {})) == len(judge.load_sets())
+        check(len(real.get("retired", {})) == len([s for s in judge.load_sets() if not judge.is_mixed(s)])
               and all(k in real["retired"] for k in (f"{a}/{a}.pdf", f"{b}/{b}.pdf"))
               and all(os.path.exists(os.path.join(root, d, f"Problems_{d}.pdf"))
                       and not os.path.exists(os.path.join(root, d, f"{d}.pdf")) for d in (a, b)),

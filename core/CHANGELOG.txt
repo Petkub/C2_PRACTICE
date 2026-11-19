@@ -17,6 +17,8 @@ POSN Practice Judge - changes
          Your code for a replaced problem is kept in <topic>/old/<n>_<OldTitle>.cpp, never under the new problem.
        - Problems are ordered from easier to harder within each level (your file moves with its problem).
        - Each topic's statements are in Problems_<topic>.pdf, listed after your 1.cpp, 2.cpp, ...
+       - New: 8 Mixed sets (folders M01 ... M08, 6 problems each) with problems from different topics; the topic
+         of a problem is not given. Judge them like a topic (inside M01: judge, or M01-3 for problem 3).
 3.0.1  New statement layout: all text in Sarabun (a looped Thai font), more space between lines and below
        headings, sample labels inside the sample boxes; every statement still fits on one A4 page.
        New sets come with empty 1.cpp, 2.cpp, ... (your existing files are never changed); judging an empty file says so.

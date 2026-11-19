@@ -40,8 +40,11 @@ Advanced (TOI)  (เกินค่าย 2: ระดับ TOI)
   32_Convex_Hull_Trick_and_DP_Optimization   Convex Hull Trick and DP Optimization
   33_Mo_Algorithm                            Mo's Algorithm
 
+ชุดฝึกรวม  (โจทย์จากหลายเรื่องปนกัน ไม่บอกว่าข้อใดใช้เรื่องใด: ฝึกอ่านโจทย์แล้วคิดเองว่าควรใช้วิธีใด)
+  M01 ... M08                                ชุดละ 6 ข้อ ตรวจเหมือนโฟลเดอร์เรื่อง (เปิด Problems_M01.pdf ในโฟลเดอร์ M01)
+
 โครงสร้างโฟลเดอร์
-  01_Brute_Force_and_Implementation ... 33_Mo_Algorithm
+  01_Brute_Force_and_Implementation ... 33_Mo_Algorithm, M01 ... M08
       1.cpp, 2.cpp, ...   ไฟล์คำตอบของแต่ละข้อ (เริ่มต้นเป็นไฟล์ว่าง เขียน code ลงไฟล์เหล่านี้ได้เลย)
       Problems_<ชื่อโฟลเดอร์>.pdf   โจทย์ของเรื่อง (หน้าปก + โจทย์ทุกข้อ) อยู่ท้ายรายการไฟล์
   Judge            ตัวตรวจและชุดทดสอบ (ไม่ต้องแก้อะไรในโฟลเดอร์นี้)

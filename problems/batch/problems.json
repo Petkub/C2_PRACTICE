@@ -2477,7 +2477,7 @@
   "samples": 6
  },
  "2003": {
-  "title": "game ส่งงานลงตามสายงาน",
+  "title": "เกมส่งงานลงตามสายงาน",
   "en": "Jump Down Game",
   "tier": 1,
   "dir": "20_Tree_DP/3",
@@ -3636,6 +3636,342 @@
   "en": "Even Display Shelf",
   "tier": 3,
   "dir": "33_Mo_Algorithm/12",
+  "samples": 5
+ },
+ "4101": {
+  "title": "ยุ้งข้าวพอเมื่อไร",
+  "en": "When Are the Barns Full Enough",
+  "tier": 0,
+  "dir": "M01/1",
+  "samples": 5
+ },
+ "4102": {
+  "title": "ข้ามลำธารด้วยก้อนหิน",
+  "en": "Crossing the Stream",
+  "tier": 0,
+  "dir": "M01/2",
+  "samples": 5
+ },
+ "4103": {
+  "title": "ขนมปังต้องสด",
+  "en": "Fresh Bread Only",
+  "tier": 0,
+  "dir": "M01/3",
+  "samples": 5
+ },
+ "4104": {
+  "title": "ซองสติกเกอร์ของสองพี่น้อง",
+  "en": "Sticker Packs for Two",
+  "tier": 0,
+  "dir": "M01/4",
+  "samples": 5
+ },
+ "4105": {
+  "title": "คอนโดบันไดแปลก",
+  "en": "The Odd Staircases",
+  "tier": 0,
+  "dir": "M01/5",
+  "samples": 5
+ },
+ "4106": {
+  "title": "ไฟลามทุ่งหญ้า",
+  "en": "Grass Fire",
+  "tier": 0,
+  "dir": "M01/6",
+  "samples": 5
+ },
+ "4201": {
+  "title": "ซ่อมให้ทันก่อนร้านปิด",
+  "en": "Repairs Before Closing",
+  "tier": 0,
+  "dir": "M02/1",
+  "samples": 5
+ },
+ "4202": {
+  "title": "ต่อเพลงให้เนียน",
+  "en": "Smooth Song Changes",
+  "tier": 0,
+  "dir": "M02/2",
+  "samples": 5
+ },
+ "4203": {
+  "title": "เตาย่างในค่ายพักแรม",
+  "en": "Grills at the Camp",
+  "tier": 0,
+  "dir": "M02/3",
+  "samples": 5
+ },
+ "4204": {
+  "title": "กุญแจในตู้ล็อกเกอร์",
+  "en": "Keys in the Lockers",
+  "tier": 0,
+  "dir": "M02/4",
+  "samples": 5
+ },
+ "4205": {
+  "title": "กังหันลมบนสันเขา",
+  "en": "Wind Turbines on the Ridge",
+  "tier": 0,
+  "dir": "M02/5",
+  "samples": 6
+ },
+ "4206": {
+  "title": "ลูกเหล็กกับแผ่นกระจก",
+  "en": "The Ball and the Glass Panels",
+  "tier": 0,
+  "dir": "M02/6",
+  "samples": 5
+ },
+ "4301": {
+  "title": "ลูกเต่าลงทะเล",
+  "en": "Hatchlings to the Sea",
+  "tier": 0,
+  "dir": "M03/1",
+  "samples": 5
+ },
+ "4302": {
+  "title": "จดหมายในห้องเรียน",
+  "en": "Letters in the Classroom",
+  "tier": 0,
+  "dir": "M03/2",
+  "samples": 5
+ },
+ "4303": {
+  "title": "นักร้องประสานเสียง",
+  "en": "Singers in Tune",
+  "tier": 0,
+  "dir": "M03/3",
+  "samples": 5
+ },
+ "4304": {
+  "title": "แจกันดอกไม้หลายพันธุ์",
+  "en": "Vases of Many Kinds",
+  "tier": 0,
+  "dir": "M03/4",
+  "samples": 5
+ },
+ "4305": {
+  "title": "กันสาดหน้าร้าน",
+  "en": "Awnings Along the Street",
+  "tier": 0,
+  "dir": "M03/5",
+  "samples": 5
+ },
+ "4306": {
+  "title": "พาหมาดื้อไปเดินเล่น",
+  "en": "Walking the Stubborn Dog",
+  "tier": 0,
+  "dir": "M03/6",
+  "samples": 5
+ },
+ "4401": {
+  "title": "เดินกระดานสะสมแต้ม",
+  "en": "Walking the Board for Points",
+  "tier": 0,
+  "dir": "M04/1",
+  "samples": 5
+ },
+ "4402": {
+  "title": "คะแนนเปลี่ยนหลังแข่ง",
+  "en": "Score Changes After the Contest",
+  "tier": 0,
+  "dir": "M04/2",
+  "samples": 5
+ },
+ "4403": {
+  "title": "ตั้งวงดนตรีให้ครบเครื่อง",
+  "en": "Gearing Up the Band",
+  "tier": 0,
+  "dir": "M04/3",
+  "samples": 5
+ },
+ "4404": {
+  "title": "ถาดข้าวกล่องหมุนได้",
+  "en": "The Spinning Lunch Tray",
+  "tier": 0,
+  "dir": "M04/4",
+  "samples": 6
+ },
+ "4405": {
+  "title": "ฝากหนังสือข้ามชมรม",
+  "en": "Passing a Book Through the Clubs",
+  "tier": 0,
+  "dir": "M04/5",
+  "samples": 5
+ },
+ "4406": {
+  "title": "ร้อยลูกปัดตัวเลข",
+  "en": "Stringing Number Beads",
+  "tier": 0,
+  "dir": "M04/6",
+  "samples": 6
+ },
+ "4501": {
+  "title": "เรียงแฟ้มตามรหัสสัน",
+  "en": "Filing by Spine Codes",
+  "tier": 0,
+  "dir": "M05/1",
+  "samples": 5
+ },
+ "4502": {
+  "title": "กล่องของขวัญราคาใกล้เป้า",
+  "en": "The Gift Box Closest to the Voucher",
+  "tier": 0,
+  "dir": "M05/2",
+  "samples": 6
+ },
+ "4503": {
+  "title": "ประตูทางเข้าสวน",
+  "en": "The Garden's Entrances",
+  "tier": 0,
+  "dir": "M05/3",
+  "samples": 5
+ },
+ "4504": {
+  "title": "ธงราวบนเสาเว้นระยะ",
+  "en": "Bunting on Every T-th Post",
+  "tier": 0,
+  "dir": "M05/4",
+  "samples": 5
+ },
+ "4505": {
+  "title": "โอทีปลายปี",
+  "en": "Year-End Overtime",
+  "tier": 0,
+  "dir": "M05/5",
+  "samples": 6
+ },
+ "4506": {
+  "title": "ถนนเลนด่วนสายเดียว",
+  "en": "One Fast Lane",
+  "tier": 0,
+  "dir": "M05/6",
+  "samples": 5
+ },
+ "4601": {
+  "title": "รอเรียกหน้าห้องตรวจ",
+  "en": "Waiting Outside the Examination Room",
+  "tier": 0,
+  "dir": "M06/1",
+  "samples": 5
+ },
+ "4602": {
+  "title": "แต้มล่ามอนสเตอร์",
+  "en": "Points for the Monster Hunt",
+  "tier": 0,
+  "dir": "M06/2",
+  "samples": 5
+ },
+ "4603": {
+  "title": "แข่งเรือยาวที่เห็นสองครั้ง",
+  "en": "The Boat Race Seen Twice",
+  "tier": 0,
+  "dir": "M06/3",
+  "samples": 5
+ },
+ "4604": {
+  "title": "ขายปลาเป็นบิล",
+  "en": "Selling Fish by the Bill",
+  "tier": 0,
+  "dir": "M06/4",
+  "samples": 5
+ },
+ "4605": {
+  "title": "เครนสลับลังสินค้า",
+  "en": "The Crate-Swapping Crane",
+  "tier": 0,
+  "dir": "M06/5",
+  "samples": 5
+ },
+ "4606": {
+  "title": "เดินป่าหลายภูมิประเทศ",
+  "en": "Jungle Trek Courses",
+  "tier": 0,
+  "dir": "M06/6",
+  "samples": 5
+ },
+ "4701": {
+  "title": "ยามหลับบนแนวกำแพง",
+  "en": "Dozing Guards Along the Wall",
+  "tier": 0,
+  "dir": "M07/1",
+  "samples": 5
+ },
+ "4702": {
+  "title": "ลานหินตะไคร่",
+  "en": "The Mossy Courtyard",
+  "tier": 0,
+  "dir": "M07/2",
+  "samples": 5
+ },
+ "4703": {
+  "title": "วัตถุดิบกับเครื่องปรุง",
+  "en": "Ingredients and Seasonings",
+  "tier": 0,
+  "dir": "M07/3",
+  "samples": 5
+ },
+ "4704": {
+  "title": "มุกตลกแพร่ไปทั่ว",
+  "en": "The Joke Goes Around",
+  "tier": 0,
+  "dir": "M07/4",
+  "samples": 5
+ },
+ "4705": {
+  "title": "ขยับที่นั่งบนม้านั่งยาว",
+  "en": "Sliding Along the Bench",
+  "tier": 0,
+  "dir": "M07/5",
+  "samples": 5
+ },
+ "4706": {
+  "title": "รถตู้ไปตลาดน้ำ",
+  "en": "The Van to the Floating Market",
+  "tier": 0,
+  "dir": "M07/6",
+  "samples": 5
+ },
+ "4801": {
+  "title": "ไพ่ตัวเลขสองถุง",
+  "en": "Two Bags of Number Cards",
+  "tier": 0,
+  "dir": "M08/1",
+  "samples": 5
+ },
+ "4802": {
+  "title": "สะพานทางเดียวทีละสาย",
+  "en": "One-Way Bridges, One by One",
+  "tier": 0,
+  "dir": "M08/2",
+  "samples": 5
+ },
+ "4803": {
+  "title": "เลขมงคล 727",
+  "en": "The Lucky 727",
+  "tier": 0,
+  "dir": "M08/3",
+  "samples": 5
+ },
+ "4804": {
+  "title": "ประภาคารริมแหลม",
+  "en": "Lighthouses Along the Cape",
+  "tier": 0,
+  "dir": "M08/4",
+  "samples": 5
+ },
+ "4805": {
+  "title": "ไต่อันดับด้วยการ์ดโอนแต้ม",
+  "en": "Climbing with Transfer Cards",
+  "tier": 0,
+  "dir": "M08/5",
+  "samples": 5
+ },
+ "4806": {
+  "title": "ตัดต่อรายการประกวดดาวเด่น",
+  "en": "Editing the Talent Show",
+  "tier": 0,
+  "dir": "M08/6",
   "samples": 5
  }
 }

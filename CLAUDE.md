@@ -3,7 +3,10 @@
 A terminal judge that students run on their own machines to practice for the POSN Computer Olympiad Camp 2,
 organised by topic. Since v4.0 (plan `C2_PRACTICE_SRC/plans/V4_RESTRUCTURE.md`): English numbered topic folders in
 study order (`01_Brute_Force_and_Implementation` ... `26_Bitmask_and_Digit_DP`), in three groups (Core 01-14 with 20
-problems, Intermediate 15-25 with 12 (15 and 17 keep their old problems), Advanced (TOI) 26 and later). Problem id =
+problems, Intermediate 15-25 with 12 (15 and 17 keep their old problems), Advanced (TOI) 26 and later), plus the
+group **Mixed**: 8 sets of 6 problems with no topic label (student folders `M01` ... `M08`, set numbers 41-48,
+`sets.json` "group": "Mixed", tier 0 = no level shown; nothing a student sees may name a topic or technique:
+`is_mixed`, `set_label`, `MIXED_DIR` in `judge.py`; regression "Mixed sets"). Problem id =
 100 * topic + n. `sets.json` gives each topic's `set` number, `dir`, `group` and problem ids; the judge looks a topic
 up by its number and recognises a topic folder by its two-digit prefix. In the judge, the data files and options keep
 the mock-exam names (`sets.json`, `--set K`): a "set" here is a topic.
@@ -54,7 +57,7 @@ C2_PRACTICE/
     interactive/<name>/{problem.json, interactor.cpp, tests/NN.in}
     communication/<name>/{problem.json, manager.cpp, stub/, tests/}
   student/                      # student-side files outside Judge/ (copied by build_dist.py)
-    README.txt, .vscode/, <NN_Name>/Problems_<NN_Name>.pdf
+    README.txt, .vscode/, <NN_Name>/Problems_<NN_Name>.pdf, M01/Problems_M01.pdf (Mixed sets)
     set_files/{Makefile, Makefile_<n>, judge.bat, template.cpp}   # in every topic folder (Makefile_<n> for n != 20
                                                                   # problems); template.cpp (empty) -> 1.cpp ... n.cpp
   samples/                      # known-verdict programs used as regression tests
