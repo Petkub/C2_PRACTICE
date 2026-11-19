@@ -1,5 +1,6 @@
 {
  "Are We Friends?": "14_DSU_and_MST/1",
+ "Assigning Jobs": "26_Bitmask_and_Digit_DP/1",
  "Assigning Rooms": "05_Greedy/9",
  "Backpack": "09_DP_I_Foundations/6",
  "Bacteria Colony": "08_Divide_and_Conquer/1",
@@ -13,6 +14,7 @@
  "Config File": "02_Strings_and_Parsing/4",
  "Costly Edits": "10_DP_II_Classic_Patterns/2",
  "Delivery Times": "13_Shortest_Paths/1",
+ "Digit Sum Divisible": "26_Bitmask_and_Digit_DP/2",
  "Distance Queries": "15_Trees/8",
  "Distinct in a Range": "17_Fenwick_and_Segment_Tree/9",
  "Error Bursts": "02_Strings_and_Parsing/10",

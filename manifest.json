@@ -104,7 +104,7 @@
 },
 "bundles/26_Bitmask_and_Digit_DP.zip": {
 "prefix": "problems/batch/26_Bitmask_and_Digit_DP/",
-"sha256": "85f15da2b0d4979a73ccbc2d7c2c750643eac7c61881ec2185aaceae28c52431"
+"sha256": "9a0e7c5cfa554de47d07c41bcc64eb10fc765d960d885d5c8b6c9435bb51ea4b"
 },
 "bundles/27_DSU_on_Tree.zip": {
 "prefix": "problems/batch/27_DSU_on_Tree/",
@@ -16933,59 +16933,65 @@
 "problems/batch/25_Trie/9/11.out": "64097e8ff669d032c8308eb6a7dc38c53dcf600bc0b42bba51bd40f201dbd5b3",
 "problems/batch/25_Trie/9/gen.py": "97500b22ae96a7943363bee43d2b2a154b6db3e30970f3d8f8d4fc961e9319fb",
 "problems/batch/25_Trie/9/manifest.json": "4af399f064b345ae977c33a171cb226ec2dc750b271b5d87d2355b45ce84d67d",
-"problems/batch/26_Bitmask_and_Digit_DP/1/01.in": "a64e5533b4d64fb37a470185ed21d94adf5d8ab516677bc75ab2dad0e39b567c",
-"problems/batch/26_Bitmask_and_Digit_DP/1/01.out": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
-"problems/batch/26_Bitmask_and_Digit_DP/1/02.in": "ed3b4cd300fb862d2a40199e425d24470fb62dcaa6274b50dca2f54544380ccd",
-"problems/batch/26_Bitmask_and_Digit_DP/1/02.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/1/03.in": "5d90ef7fc0d040fd56a1e48697cfa99e0dfaf4fd803aefefc3b5053ec1d36aea",
-"problems/batch/26_Bitmask_and_Digit_DP/1/03.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/1/04.in": "7f14218f7d67a39991fde31997b9f05d88ea20dd8fe19191c4600eb198355b34",
-"problems/batch/26_Bitmask_and_Digit_DP/1/04.out": "917df3320d778ddbaa5c5c7742bc4046bf803c36ed2b050f30844ed206783469",
-"problems/batch/26_Bitmask_and_Digit_DP/1/05.in": "adf87942ec0200b939bca77a762e348671a20f2a174fb2800694ef241f861da1",
-"problems/batch/26_Bitmask_and_Digit_DP/1/05.out": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
-"problems/batch/26_Bitmask_and_Digit_DP/1/06.in": "d4f2a52b2d65ba7b64c62889cd4fc641e8fff80a7635a792bb19b41de4c71764",
-"problems/batch/26_Bitmask_and_Digit_DP/1/06.out": "aa67a169b0bba217aa0aa88a65346920c84c42447c36ba5f7ea65f422c1fe5d8",
-"problems/batch/26_Bitmask_and_Digit_DP/1/07.in": "cf1f2f9e36e5c80e0d1b261dae4179a249ec8c1262224489288d266ea39aa6a4",
-"problems/batch/26_Bitmask_and_Digit_DP/1/07.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/1/08.in": "d755650319990c596f8bcd715089635e74658214d6733e859c395870763fd65a",
-"problems/batch/26_Bitmask_and_Digit_DP/1/08.out": "adcbf91eb3ade9751d194c2c44d1a5fac3e898de7229bbd813870520119de82b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/09.in": "ecb88c4d93a6f96e4d488ae6494eec16a3780689d012f1645418aad77a93fc5e",
-"problems/batch/26_Bitmask_and_Digit_DP/1/09.out": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017",
-"problems/batch/26_Bitmask_and_Digit_DP/1/10.in": "bc1e5753909259e1ad52fe0d42c42f2c68f4108dc42af424044ad1f4b9d51833",
-"problems/batch/26_Bitmask_and_Digit_DP/1/10.out": "581e6f63150ed78728300379fdaf1b2bde00e9622e54a201e5e31d567a900b1b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/11.in": "2300a7e178baddcc2ea24a006deac5d5705807ab769e7c3a5167959c434bb092",
-"problems/batch/26_Bitmask_and_Digit_DP/1/11.out": "af47d633fd7b021370c1e508b69df8586d3a1258133c41a32972ba6e64d94899",
-"problems/batch/26_Bitmask_and_Digit_DP/1/12.in": "37d5bca81909b3b397dda3fbf6d00f8b080b4dc150de99b26256362378994b05",
-"problems/batch/26_Bitmask_and_Digit_DP/1/12.out": "282858b7c9cd0565c2cccb9ee1d290be034a8feab81a38585c0123b0e0ebf07b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/13.in": "288c2bd293b8369d6ee3821571cd3dbaa4930ead4c3af4c7b4058f2f650b33bf",
-"problems/batch/26_Bitmask_and_Digit_DP/1/13.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/1/14.in": "dd66e0643e4e9f148dbb1535a429139ddabef54fc93108202138060e8ec3b62b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/14.out": "a6d54585ab24a4e07afe8b55ff47a49d7cce0265631d036e00224bb7bea29e82",
-"problems/batch/26_Bitmask_and_Digit_DP/1/15.in": "a8043a6859b69799f26fec3e69adfae33cba327457367bacfede22939f1f6bf9",
-"problems/batch/26_Bitmask_and_Digit_DP/1/15.out": "bd497163567b0fba1e580340067fd3d8e7202169e07c364f57a599a6b59b3fc0",
-"problems/batch/26_Bitmask_and_Digit_DP/1/16.in": "48c5818f1e6d6f7cb7bbcbd745ab4f21be9d2cadd7f2cc09444361b52625d920",
-"problems/batch/26_Bitmask_and_Digit_DP/1/16.out": "aa67a169b0bba217aa0aa88a65346920c84c42447c36ba5f7ea65f422c1fe5d8",
-"problems/batch/26_Bitmask_and_Digit_DP/1/17.in": "f37c999962bbfa523e16a203a5423f3668ecb1254302f4e14ef5bb36511e945b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/17.out": "4d76875c5778767bf1e03e87770a7dabe9c335677bda9a583fed003e48042154",
-"problems/batch/26_Bitmask_and_Digit_DP/1/18.in": "728897f129c8b5482bfe9ab7781af826ed1ff35eff82762295288cd4768aa7a5",
-"problems/batch/26_Bitmask_and_Digit_DP/1/18.out": "1dd4a86481b847773a24387cc7403681e63e92628db236af277e5830904208be",
-"problems/batch/26_Bitmask_and_Digit_DP/1/19.in": "01470eb73d8f5f677346e2970dbcad325f57d7c8395f5be3ac93b20e188dbc3d",
-"problems/batch/26_Bitmask_and_Digit_DP/1/19.out": "128cad051a9566da30da51b6707e1d6235cbd805e63ccedb7d795a28afaf57dd",
-"problems/batch/26_Bitmask_and_Digit_DP/1/20.in": "fc9926a7cddfa006018a8c94e7865952c51fb5f2202e2181b45a5013a7a7a588",
-"problems/batch/26_Bitmask_and_Digit_DP/1/20.out": "a49d29cbf6e2dbad172c8890e3fa60a42d3bb49ee794409251ae9c796403a83d",
-"problems/batch/26_Bitmask_and_Digit_DP/1/21.in": "18a9d11132a79a2f3e403ae0a034c88c2ff904a9f1a76f5aaad8fcf5c429b372",
-"problems/batch/26_Bitmask_and_Digit_DP/1/21.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/1/22.in": "b1484fb574d69bd92e132cddd79c631c1f8b2a9b6dd7c56a21944f3ec3a2cdd7",
-"problems/batch/26_Bitmask_and_Digit_DP/1/22.out": "86934eb1e6fb3e6c19389fb395916c5f200af00ada9b3b5dfd93e705bd3b3156",
-"problems/batch/26_Bitmask_and_Digit_DP/1/23.in": "14b9d483005eb49f7781ba0a6376609e69ecf611be435564091415ac97bb5dae",
-"problems/batch/26_Bitmask_and_Digit_DP/1/23.out": "d4612362ca328ef9af6d1c767f5283a2af988cb007ffa210cd62e726978fd244",
-"problems/batch/26_Bitmask_and_Digit_DP/1/24.in": "3d6ea631e3b40e944f2cf97bd59fc4efcc1fe7750a4dee73f90999281822e905",
-"problems/batch/26_Bitmask_and_Digit_DP/1/24.out": "fbeee694bbf7109cdf73b19f4a9d89c0af13e7fc4c460e2e4b6b8c72eb9c585c",
-"problems/batch/26_Bitmask_and_Digit_DP/1/25.in": "b6576754a59b4b0632c549e1b12478d14e3be159ac4abaa5615abe1860e730db",
-"problems/batch/26_Bitmask_and_Digit_DP/1/25.out": "2b0a9d51de86e83d7f070bdb47220e2911f8c500fa8bc8f79e77fb0cdbc28b17",
-"problems/batch/26_Bitmask_and_Digit_DP/1/26.in": "347446a5960c22bf30416910f28572b0558b7eff925a6f1e3ffe63518844e49c",
-"problems/batch/26_Bitmask_and_Digit_DP/1/26.out": "e508e6cf32f0141136e2e8ff716cb9a694d30c24294eee8a8a1060609a552c8e",
-"problems/batch/26_Bitmask_and_Digit_DP/1/manifest.json": "441345b129e3bdbae956afd62ec8c600cf01e2c8b0a2128fecc1737d354c5863",
+"problems/batch/26_Bitmask_and_Digit_DP/1/01.in": "d2291140774f58d5bd06b4ee97be2a59cfe78ec5e9811f90304168de601502d5",
+"problems/batch/26_Bitmask_and_Digit_DP/1/01.out": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/02.in": "3a94d98580e8b23ddbf63c0d0bbce4dcc54e4290729e92277cabb41a540ae155",
+"problems/batch/26_Bitmask_and_Digit_DP/1/02.out": "10159baf262b43a92d95db59dae1f72c645127301661e0a3ce4e38b295a97c58",
+"problems/batch/26_Bitmask_and_Digit_DP/1/03.in": "869f4097dfc94c18a7d92ac617a206b4144de8865808ed7ab3a3b565d8ee8236",
+"problems/batch/26_Bitmask_and_Digit_DP/1/03.out": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+"problems/batch/26_Bitmask_and_Digit_DP/1/04.in": "b12840db8c4734ea1b7dd8c928466e8ace565fad2c0b4b0b9f1d20170eecf44e",
+"problems/batch/26_Bitmask_and_Digit_DP/1/04.out": "54183f4323f377b737433a1e98229ead0fdc686f93bab057ecb612daa94002b5",
+"problems/batch/26_Bitmask_and_Digit_DP/1/05.in": "af680ae30887a849efa48c2103f50f094eb839f7e8b2471489e82c3d7de762e7",
+"problems/batch/26_Bitmask_and_Digit_DP/1/05.out": "b58a3da5fde2680191877ec88a1aa7d06927cc3b30cdf0d0db8c39b488891576",
+"problems/batch/26_Bitmask_and_Digit_DP/1/06.in": "f4a8ae8e74ddfb896a256de4e3099911dcaa6a9302591713898069b0bcd6e3d7",
+"problems/batch/26_Bitmask_and_Digit_DP/1/06.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+"problems/batch/26_Bitmask_and_Digit_DP/1/07.in": "e75b271dcc7ba20e7c2810dbedd3df04e8b9b067acdb158497cb312c58be594f",
+"problems/batch/26_Bitmask_and_Digit_DP/1/07.out": "8bd5a23c3aef1243c78bac155b39b9d57a43d8c49665ccf6f42acf2992a94afa",
+"problems/batch/26_Bitmask_and_Digit_DP/1/08.in": "13316410c3243a6b30a5a799aabf36a1e1a8f2aec49fd3af6869c33441dabea7",
+"problems/batch/26_Bitmask_and_Digit_DP/1/08.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+"problems/batch/26_Bitmask_and_Digit_DP/1/09.in": "15740bbbbf1e91a33d60647cd71ed93cfb20c16c052cf8821a54eb1b8bd7ccf6",
+"problems/batch/26_Bitmask_and_Digit_DP/1/09.out": "15d6f42ba683d3f3b2b6c1ef7d19ce4e8e776284395e8f200000093559a86b88",
+"problems/batch/26_Bitmask_and_Digit_DP/1/10.in": "d4960b7a11479e3b3ab79a08ed3d2c33c3b1c923954557976a63a5a841583446",
+"problems/batch/26_Bitmask_and_Digit_DP/1/10.out": "d6ba4fb19951b0a0175af857ec4891947aaf65d7de043c48a38b2daf2df0a329",
+"problems/batch/26_Bitmask_and_Digit_DP/1/11.in": "10e9243121baaa1891f580fab6fee160732fc3851d114d371abd1368dc606bd1",
+"problems/batch/26_Bitmask_and_Digit_DP/1/11.out": "1326faec3eb42dc72ddffe46daf3940b932f48b9799f6cbf28e80504e7b34958",
+"problems/batch/26_Bitmask_and_Digit_DP/1/12.in": "f2bce469530483c8f9a934b428338bf2b307d1c58a36cedb1f600994ababea90",
+"problems/batch/26_Bitmask_and_Digit_DP/1/12.out": "54183f4323f377b737433a1e98229ead0fdc686f93bab057ecb612daa94002b5",
+"problems/batch/26_Bitmask_and_Digit_DP/1/13.in": "a8cfc0218ca6f466b5553e6fc895b4a47c5174fd0ae46c7634f9e7caecf47331",
+"problems/batch/26_Bitmask_and_Digit_DP/1/13.out": "bce431880c191aa6b8a8a2e3aba640671d600a54c22e9169720613f2b22dcec3",
+"problems/batch/26_Bitmask_and_Digit_DP/1/14.in": "e68b9a1167378d8b69d30e6e09618726aacba00be7c550c5593a9193e23fba46",
+"problems/batch/26_Bitmask_and_Digit_DP/1/14.out": "13bf8b0303fde3792881f560001cd88db2d12c8d9dd78c1413acf6846d686adc",
+"problems/batch/26_Bitmask_and_Digit_DP/1/15.in": "8f374a1b4aea6919855bfa9acbdbedee5e75fac9702fe27027c6fc59c91a8d1c",
+"problems/batch/26_Bitmask_and_Digit_DP/1/15.out": "1e073ed67a43de7cae32b4f81d2d58aeef09c1e2bb144486dabd9da3311cd173",
+"problems/batch/26_Bitmask_and_Digit_DP/1/16.in": "85e0eb049c8b5c8614cda2532e315c65207d1dbb351073f601fae1330fc215c8",
+"problems/batch/26_Bitmask_and_Digit_DP/1/16.out": "03053e810abc7ad380f6916bdf7439d97684319f85ec274ff26c0b133ca0a07c",
+"problems/batch/26_Bitmask_and_Digit_DP/1/17.in": "b891771cf57e7dd243cf41fd47618cde6dd7c58d98bab333102dddb690cabcb2",
+"problems/batch/26_Bitmask_and_Digit_DP/1/17.out": "128ae569523a3d15aa7c163f0a843081cd059f23a818c943f39c4ee146a42994",
+"problems/batch/26_Bitmask_and_Digit_DP/1/18.in": "b2b208593fd04c9905e2886d0180057e2460cb8079076c206a19271a4a048e7a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/18.out": "e4cbf06cad1d6802e044780b5bab381248e15c4c5699b988a4af1b8070a9d10b",
+"problems/batch/26_Bitmask_and_Digit_DP/1/19.in": "ef360bfd382f6ecc776dd666668510049f4f90fe21e664c8bf0e7d2cb3e361cc",
+"problems/batch/26_Bitmask_and_Digit_DP/1/19.out": "6b818040f3ec89d92f0d074df944899ade340cd5257332877fa1e3aeda42b97a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/20.in": "d75019e570757bb913e630996040d6d309989500a29afdc30f8cfd459ace57b8",
+"problems/batch/26_Bitmask_and_Digit_DP/1/20.out": "5cb0e531e184391a28dbfa32ccd0d2f4eeb9740a04264837053ae6e031e75443",
+"problems/batch/26_Bitmask_and_Digit_DP/1/21.in": "f6c0f8df9900276e529ca50af3d7d1dba43da0daf5358f464a81de9e93057b91",
+"problems/batch/26_Bitmask_and_Digit_DP/1/21.out": "6bdfdde902444d07f3a40e37d599be39c3490a6cc0a0a0a5aa8c94856a0d523a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/22.in": "39a86d24d1bba523b39a30b2a0a1616572b05e1cb15beb911085e1aa61165140",
+"problems/batch/26_Bitmask_and_Digit_DP/1/22.out": "68df2a7a62f96b51246c016704185d4868554f431aa9489c8db1e0fbc5acbc4d",
+"problems/batch/26_Bitmask_and_Digit_DP/1/23.in": "e92d210895d2adf2c938d0b52b559a79e309158e062ea91f654331fe81824a38",
+"problems/batch/26_Bitmask_and_Digit_DP/1/23.out": "32aff921a22e7e79945922b5e30138d23d3ad5242756cfbdfd3d419659b3ee37",
+"problems/batch/26_Bitmask_and_Digit_DP/1/24.in": "bfe3f9dd7191f7d6fd356e9d05d577b53dd4cc582f009e9b81520444cdaeadb8",
+"problems/batch/26_Bitmask_and_Digit_DP/1/24.out": "b49cb26b068e8f8f9880d0ebda1417f2966f0a420108173504b51c34045b350a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/25.in": "b2dddbba3dab11ea57f05e2b6321daf9c94a0c84521f77f80b9c760501085875",
+"problems/batch/26_Bitmask_and_Digit_DP/1/25.out": "b1bfd5dae47da9a6f0480fb5e1212006129696ce4f0e83d387268b12feb48306",
+"problems/batch/26_Bitmask_and_Digit_DP/1/26.in": "58b6ca6afc09bc8d8185cc5d305eb3b9be24769f7e3fdf928d37d25b0258a32b",
+"problems/batch/26_Bitmask_and_Digit_DP/1/26.out": "408e5ac40badff88b4326b0610bc20b0c686b7da5a8c692c6d6464aafb75c6bf",
+"problems/batch/26_Bitmask_and_Digit_DP/1/27.in": "231eb456926bbbd65e9084857aec9278a56540fd7745e618740ef5b0c1c0c85a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/27.out": "50171db392d8ad090e08cd09594ac58c6e555e442fe6a121a1de54a910e213b6",
+"problems/batch/26_Bitmask_and_Digit_DP/1/28.in": "eeee1a742fe1d0f3966db3ed4d5d428e56bcd8d1123fffc4a06dfca9f9c9ae5f",
+"problems/batch/26_Bitmask_and_Digit_DP/1/28.out": "c1748312f39caeab4db8a5d68bc6382ced3d7c9393df2a2bd1ab00f42959d3b3",
+"problems/batch/26_Bitmask_and_Digit_DP/1/29.in": "338a34d29b07962e0fccd7888eef34c065ac69324e29e3989e4ffbf272212268",
+"problems/batch/26_Bitmask_and_Digit_DP/1/29.out": "0ef4e1a6f9e2e77d081c8943f03b3df5fc6339e2690024c928a14f3e04ea7954",
+"problems/batch/26_Bitmask_and_Digit_DP/1/manifest.json": "2daf8d0b7db74396f37886290a5787bdbb1382363807474ec9a97e9dbd7c3364",
 "problems/batch/26_Bitmask_and_Digit_DP/10/01.in": "8ffc2f1537361b98fb3c94ce895b3896176b0f15f77c9be67fb09af560534062",
 "problems/batch/26_Bitmask_and_Digit_DP/10/01.out": "a65728b82e1e4b2c5ce543e0250c1cf23ace37ccbc51e8c1dcc1e09db38b92cc",
 "problems/batch/26_Bitmask_and_Digit_DP/10/02.in": "f595b9da4d825b33fe5cd441ef2ede5ec1aea9d979ab32c254d4b709ed54e4cc",
@@ -17094,136 +17100,97 @@
 "problems/batch/26_Bitmask_and_Digit_DP/12/28.in": "5c0192f754a2eb393231d43d951738f7491ec6ddad3fe7069e925c551de660b3",
 "problems/batch/26_Bitmask_and_Digit_DP/12/28.out": "0a428d60feec1a3681b6a9c16b1d1f4323f5167332aca68ff37d88f412c32a35",
 "problems/batch/26_Bitmask_and_Digit_DP/12/manifest.json": "5046ccfeb562cec8b3dd0f0aaeeb1714bfaf5c601f7a87b218fe9735fea2a3fa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/01.in": "dca4ff407c4897ad3baa83871c58e2d5e4049b937603c73dcb451a6537781c38",
-"problems/batch/26_Bitmask_and_Digit_DP/2/01.out": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d",
-"problems/batch/26_Bitmask_and_Digit_DP/2/02.in": "3763aa345e45c6b96755861bf4e4ac977ed5986345fde490bcd7706edc357ac5",
-"problems/batch/26_Bitmask_and_Digit_DP/2/02.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/03.in": "2e5bc8f5217c2ab0d89815bac038c3d076aac1eafd01b0d820e720ea432afcd5",
-"problems/batch/26_Bitmask_and_Digit_DP/2/03.out": "b8650fe462b5b738b2bb69af1d3c3f16974db285c79025cf1b98652763ff509a",
-"problems/batch/26_Bitmask_and_Digit_DP/2/04.in": "85d749ea2d1acc4cd09b5efd715e7fca6ffb0a79f3c27e641f83a817c215069a",
-"problems/batch/26_Bitmask_and_Digit_DP/2/04.out": "690e07064753123c967bbac0180f32da6a753a5bd8b79a47644cef58e776d9f0",
-"problems/batch/26_Bitmask_and_Digit_DP/2/05.in": "9b6c1d34c6d123c2baea32416ead23a8487f8cd384515654f1f8a7f051c83e7c",
-"problems/batch/26_Bitmask_and_Digit_DP/2/05.out": "2feaea8c12c4c8b91b6b86ba67f5a1cb955d7cae77beb7560b62120f9df3249d",
-"problems/batch/26_Bitmask_and_Digit_DP/2/06.in": "06c77efa21f5665fefa6eb6cd9e4d8307e7c068352e57262849357da31f1f769",
-"problems/batch/26_Bitmask_and_Digit_DP/2/06.out": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
-"problems/batch/26_Bitmask_and_Digit_DP/2/07.in": "a7c6882a45dbaefd37c17f1da98fee82c0ba4fa5d79908d624741725ff887328",
-"problems/batch/26_Bitmask_and_Digit_DP/2/07.out": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-"problems/batch/26_Bitmask_and_Digit_DP/2/08.in": "eeb3a37409cee4a3af9c26a0fa157ab300bff6ba594fd0a09cad9294852e0cd2",
+"problems/batch/26_Bitmask_and_Digit_DP/2/01.in": "6d1cb6735c220f16b5d3ea5939f5cabe18119e03134d8707a39f22942252a673",
+"problems/batch/26_Bitmask_and_Digit_DP/2/01.out": "54183f4323f377b737433a1e98229ead0fdc686f93bab057ecb612daa94002b5",
+"problems/batch/26_Bitmask_and_Digit_DP/2/02.in": "6292710b6ec460c8e8678e5ff7395f6540b0f45c0141e86ac904e9a5b0f76750",
+"problems/batch/26_Bitmask_and_Digit_DP/2/02.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
+"problems/batch/26_Bitmask_and_Digit_DP/2/03.in": "4b5cffd5039d7c3a845ec03fe97f14c803284d3a013ec48eaf9d4953fd74820e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/03.out": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/04.in": "bafc01d1f706a9985bf3f27b6be5681cefc2875e6b48588e70106092c871637d",
+"problems/batch/26_Bitmask_and_Digit_DP/2/04.out": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+"problems/batch/26_Bitmask_and_Digit_DP/2/05.in": "c3c0415b1cbe641894863ded5b8612fdbda2a90248bdd5d40d71c3dfce0affce",
+"problems/batch/26_Bitmask_and_Digit_DP/2/05.out": "3840bc236ee03aacbb1ef7d5108ddfa347c59f10b68d4174affbb53140f31273",
+"problems/batch/26_Bitmask_and_Digit_DP/2/06.in": "2fc5dc45f793ee772a4f6a00bdd3e9e2aedacfdd0c1ab1a3cb975fd5642d08b5",
+"problems/batch/26_Bitmask_and_Digit_DP/2/06.out": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+"problems/batch/26_Bitmask_and_Digit_DP/2/07.in": "81bf69706f562a55839a449a6cc5930117d2ffa2e507a20e488186cc783d7d53",
+"problems/batch/26_Bitmask_and_Digit_DP/2/07.out": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a",
+"problems/batch/26_Bitmask_and_Digit_DP/2/08.in": "6da7ad18d60989937e754ab4fdc52721ab52897485af4e0e8c28381e659feff2",
 "problems/batch/26_Bitmask_and_Digit_DP/2/08.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/09.in": "bb042a639a01fd5f72f7e32d779e50075c59a9ef97d3a9642cbc3d050058dfc7",
-"problems/batch/26_Bitmask_and_Digit_DP/2/09.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/10.in": "d8770c5007957185ed434bed6aa6f4bc77dfb109a8f87fefdd8cb799159c3d87",
-"problems/batch/26_Bitmask_and_Digit_DP/2/10.out": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-"problems/batch/26_Bitmask_and_Digit_DP/2/11.in": "186b0d8449a25861bdac5d4859d201eba5672edc377a672c3c7ebccabbb1ea11",
-"problems/batch/26_Bitmask_and_Digit_DP/2/11.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/12.in": "02364b67b23d40bf50d569f16c71343a5cf1ccd65c600d16b0bebf0763d95866",
-"problems/batch/26_Bitmask_and_Digit_DP/2/12.out": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
-"problems/batch/26_Bitmask_and_Digit_DP/2/13.in": "063e5dec585f28c3841d6f6e1a3bbfe7065d3b7e2da063483bfeee02ed6993ad",
-"problems/batch/26_Bitmask_and_Digit_DP/2/13.out": "91672c6071c0e2f53f20c4fb7577b032b3390beed25b07a25f19864e59d270d8",
-"problems/batch/26_Bitmask_and_Digit_DP/2/14.in": "c1bf1ac16dd1369826eae6fcf578c161b53afde6fd05f64e4373305b253258ba",
-"problems/batch/26_Bitmask_and_Digit_DP/2/14.out": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
-"problems/batch/26_Bitmask_and_Digit_DP/2/15.in": "a04e25cce6df112e02fb6f50eab0e2f4bc4cc816880a032b8e1bf5db7eb7f302",
-"problems/batch/26_Bitmask_and_Digit_DP/2/15.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/16.in": "5a942db10cf2adad30f5220352ea7ffd6730c78360f9bd608b85a59229a237eb",
-"problems/batch/26_Bitmask_and_Digit_DP/2/16.out": "9961d158a7e0e2f990765971a9e490af826c0743b7d603020f34cc8944319fcb",
-"problems/batch/26_Bitmask_and_Digit_DP/2/17.in": "f0616be47a0d3a6620eae5971720783128307f4a3abcbd53187ae0e01ad08678",
-"problems/batch/26_Bitmask_and_Digit_DP/2/17.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/18.in": "c7e63ebff19f2bd36f3dbd51a96c20dc39fa1376049e9d31d400d5486a75e453",
-"problems/batch/26_Bitmask_and_Digit_DP/2/18.out": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-"problems/batch/26_Bitmask_and_Digit_DP/2/19.in": "d391d945e7dc07be8f9cad482358bd55074d9e324f0ca1eb08d09f38e06a52b3",
-"problems/batch/26_Bitmask_and_Digit_DP/2/19.out": "d05fd0b138935fd1b930163e7eadd8dab2914ddd3f5038390242d54c03aeed75",
-"problems/batch/26_Bitmask_and_Digit_DP/2/20.in": "8e291a3edec9d9cf72f3df64c612288c642e5ca4a1af53e3a03ce51329f3c89c",
-"problems/batch/26_Bitmask_and_Digit_DP/2/20.out": "7387d7271e35605c4a3385d7bf1314125b8f048e84f2566915db34fea128d11f",
-"problems/batch/26_Bitmask_and_Digit_DP/2/21.in": "1d742e570c8d44723f3ea272d0d38a0b65c59f9b4d4ed3643c5a686d947e44bb",
-"problems/batch/26_Bitmask_and_Digit_DP/2/21.out": "002edf1a0c2d9bf138ae5c2d4c036073dcc3d45da7936bc8a7db16943d8720e6",
-"problems/batch/26_Bitmask_and_Digit_DP/2/22.in": "2e9bc82dd3331df441b85079092745ce7497e6810b7234174ffe50da19cf411e",
-"problems/batch/26_Bitmask_and_Digit_DP/2/22.out": "45426c0aa977ccd17645291a8f0cdca7569d355c3b85669d4c248343edf1a519",
-"problems/batch/26_Bitmask_and_Digit_DP/2/23.in": "bbfa6d307936a56f8b4b737b888cfac0a430d4121a49b1319d736b935cd58b1d",
-"problems/batch/26_Bitmask_and_Digit_DP/2/23.out": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-"problems/batch/26_Bitmask_and_Digit_DP/2/24.in": "d11086d0b0413e37b36c4aaca314d292c9fc0fe828ed34d5586dfcc36a72e34d",
-"problems/batch/26_Bitmask_and_Digit_DP/2/24.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/25.in": "c9b6adfe56f18d5920df01b84d0e6a763cbf58b6b493790360fef5268b4605a7",
-"problems/batch/26_Bitmask_and_Digit_DP/2/25.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/26.in": "18a076403b7a73eea69828a6db29f07129bc2303d0913633e56aca131061f67e",
-"problems/batch/26_Bitmask_and_Digit_DP/2/26.out": "354c80bdbdad074622fa22623ade9c4bbfe5b104a4a35f6366083c5fabc5b709",
-"problems/batch/26_Bitmask_and_Digit_DP/2/27.in": "f1f03cf1a5415f0a031720b7612ee618cd1e57a2d3945656c573be8544257178",
-"problems/batch/26_Bitmask_and_Digit_DP/2/27.out": "19637d5fd2745d8933f151ec2e69059eeed7e75182d744bc48ba76646f4e9ca2",
-"problems/batch/26_Bitmask_and_Digit_DP/2/28.in": "46f680641efcec1d940acbdeea9e45803927852e22f3de5ead38108033db2db1",
-"problems/batch/26_Bitmask_and_Digit_DP/2/28.out": "7b54e0479a5cf663eb6ee61b8dc907bb91d1f38859976f47aae52b049dfa84a7",
-"problems/batch/26_Bitmask_and_Digit_DP/2/29.in": "c235019c29d8651ad6ff6364514565e0f64e0de42583a7e5e4ffe7bb05934a9c",
-"problems/batch/26_Bitmask_and_Digit_DP/2/29.out": "c43c5ceb21024cc1ab28f061f33b82a143eaeb7e51669b7770d2b3c13412d988",
-"problems/batch/26_Bitmask_and_Digit_DP/2/30.in": "c5346200d41dd56550ecad8a203410596cc1775ddd85eb0a96898822fc2374cf",
-"problems/batch/26_Bitmask_and_Digit_DP/2/30.out": "cd3bc581bf82fa5f738aa6c5e0a9ad998ca29c33f2d5fa0251cb5fc83afe7570",
-"problems/batch/26_Bitmask_and_Digit_DP/2/31.in": "787c6c637a78a770a363ca7e11758ca5dd59f0514ae1848e750a831b586677c4",
-"problems/batch/26_Bitmask_and_Digit_DP/2/31.out": "3383a87497d11ffbebfcb115726b65be6da2461cbfe238533ed55f7b4ef00a2a",
-"problems/batch/26_Bitmask_and_Digit_DP/2/32.in": "5a1b40bdd671d3ad3d25983e87bd300b591d32718b49c263f0269491b3a4d02f",
-"problems/batch/26_Bitmask_and_Digit_DP/2/32.out": "d23be8da1058c188189e1fd37c59c16b9d12e3cb142cc73964197e94f09174a4",
-"problems/batch/26_Bitmask_and_Digit_DP/2/33.in": "04877bb05ff88890587c40cd9308941e91ddf3ad095d30e38fa71125024100ab",
-"problems/batch/26_Bitmask_and_Digit_DP/2/33.out": "580c266b93cb3ae42f6355eced1da4caf1c8617a6ca0237beb5797c241b09a6b",
-"problems/batch/26_Bitmask_and_Digit_DP/2/34.in": "359a0f0ed0209a4e16f7e4429ef6868c9e091b0c438edb6c4f01ff4f79ed61d4",
-"problems/batch/26_Bitmask_and_Digit_DP/2/34.out": "5480aa3ef9ece7a3e21a042867ac12ad03af76ef1a0c62d0542c4027d24ac24a",
-"problems/batch/26_Bitmask_and_Digit_DP/2/manifest.json": "da08a00fe6ba32fb440d0183bd8d38b10f883b5d5e8af5526b520e22b9d43f98",
-"problems/batch/26_Bitmask_and_Digit_DP/3/01.in": "6d1cb6735c220f16b5d3ea5939f5cabe18119e03134d8707a39f22942252a673",
-"problems/batch/26_Bitmask_and_Digit_DP/3/01.out": "54183f4323f377b737433a1e98229ead0fdc686f93bab057ecb612daa94002b5",
-"problems/batch/26_Bitmask_and_Digit_DP/3/02.in": "6292710b6ec460c8e8678e5ff7395f6540b0f45c0141e86ac904e9a5b0f76750",
-"problems/batch/26_Bitmask_and_Digit_DP/3/02.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/3/03.in": "4b5cffd5039d7c3a845ec03fe97f14c803284d3a013ec48eaf9d4953fd74820e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/03.out": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/04.in": "bafc01d1f706a9985bf3f27b6be5681cefc2875e6b48588e70106092c871637d",
-"problems/batch/26_Bitmask_and_Digit_DP/3/04.out": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
-"problems/batch/26_Bitmask_and_Digit_DP/3/05.in": "c3c0415b1cbe641894863ded5b8612fdbda2a90248bdd5d40d71c3dfce0affce",
-"problems/batch/26_Bitmask_and_Digit_DP/3/05.out": "3840bc236ee03aacbb1ef7d5108ddfa347c59f10b68d4174affbb53140f31273",
-"problems/batch/26_Bitmask_and_Digit_DP/3/06.in": "2fc5dc45f793ee772a4f6a00bdd3e9e2aedacfdd0c1ab1a3cb975fd5642d08b5",
-"problems/batch/26_Bitmask_and_Digit_DP/3/06.out": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
-"problems/batch/26_Bitmask_and_Digit_DP/3/07.in": "81bf69706f562a55839a449a6cc5930117d2ffa2e507a20e488186cc783d7d53",
-"problems/batch/26_Bitmask_and_Digit_DP/3/07.out": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a",
-"problems/batch/26_Bitmask_and_Digit_DP/3/08.in": "6da7ad18d60989937e754ab4fdc52721ab52897485af4e0e8c28381e659feff2",
-"problems/batch/26_Bitmask_and_Digit_DP/3/08.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/3/09.in": "2c6b695e7b78a24b80d03510ec2e15f9430c79c50f2a0204c0775fed55c0d8bc",
-"problems/batch/26_Bitmask_and_Digit_DP/3/09.out": "f5bbc9df805e66180e1640add85a5de00bf2e13d1f5415e22278318f2d82d5d1",
-"problems/batch/26_Bitmask_and_Digit_DP/3/10.in": "1daede5733f03e1851f758bc53d5d30cbd1f1d079a23a45b95986970be6402a9",
-"problems/batch/26_Bitmask_and_Digit_DP/3/10.out": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
-"problems/batch/26_Bitmask_and_Digit_DP/3/11.in": "4d9181adb656e0e3323b8276a0ffa17d0525d3324c25dc43689b7592c784dd6d",
-"problems/batch/26_Bitmask_and_Digit_DP/3/11.out": "4836c1e7e6726fa96685f6d23823ddfc467d57dde5c687a714c603bb37e0a48f",
-"problems/batch/26_Bitmask_and_Digit_DP/3/12.in": "90e12e8e3a012dfd7c7e9721e5b6addcca250ca038f098c21b196cef4c295de7",
-"problems/batch/26_Bitmask_and_Digit_DP/3/12.out": "a7ff402f519c2cbceaa833e9edd8350c1d85116a425856543bebdea23578a0cc",
-"problems/batch/26_Bitmask_and_Digit_DP/3/13.in": "895f1d1df33acc19013586f0c821ddadc2735e6bc8ebb66c02056eb43c8b025c",
-"problems/batch/26_Bitmask_and_Digit_DP/3/13.out": "bc8d99bfb63491f724f5eda8a587dbcefec24e522d73521bb508e971fab302b7",
-"problems/batch/26_Bitmask_and_Digit_DP/3/14.in": "a21f00eca9ff23939fe9b652c7a37736b9ff1cf5d2338382306c433d87b54ce2",
-"problems/batch/26_Bitmask_and_Digit_DP/3/14.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/3/15.in": "f7d93fb81e90402d5b558dae0e51a45b68f5cebdf6ec2eb2e3177600c9012695",
-"problems/batch/26_Bitmask_and_Digit_DP/3/15.out": "6f3e559bbd93fa2f9b25cbd9b5f348a4b20c902d8e6498de5c28d73df8e2f571",
-"problems/batch/26_Bitmask_and_Digit_DP/3/16.in": "e56adc7a9d45c6bb7bf19042f7664089e5b06585400c2ee7ec9968aab491b34e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/16.out": "7d3eba029fbb26e3dfb3213c65c62276d621db3a1173cb582c16f2e6cde71d73",
-"problems/batch/26_Bitmask_and_Digit_DP/3/17.in": "b83ea55bf1ded91e36e62c8222f6b5c543e26fa7ee1f8b09594606cf902b88a9",
-"problems/batch/26_Bitmask_and_Digit_DP/3/17.out": "0a8753014cb7c28da6785e8cc39abfc1a891dbb5590bcae632e3088c2f3d2282",
-"problems/batch/26_Bitmask_and_Digit_DP/3/18.in": "202ae50d6a39dc070dcefba7fff0f5ee7c1157ac84bc824575bcc5223b3d372a",
-"problems/batch/26_Bitmask_and_Digit_DP/3/18.out": "8843a0b4a857e938c28627e9da54f727aa97dbb4ad4d8012f3166b00bce5d354",
-"problems/batch/26_Bitmask_and_Digit_DP/3/19.in": "3cb8867bdf8799624cd2c3e2b4b4255599a68ec302a1231c8bb324c300ab28f0",
-"problems/batch/26_Bitmask_and_Digit_DP/3/19.out": "21b268db36bacef479b0061578d01ac65e738403c851f8e1c9a2e331ec4ff0d0",
-"problems/batch/26_Bitmask_and_Digit_DP/3/20.in": "92485aa75d6a3d1900e28f134e8c7dcb2d88734ec7579e8365423fc1d2f78d6b",
-"problems/batch/26_Bitmask_and_Digit_DP/3/20.out": "feeef0879d01bbba4e5d7618c60bfb6d9129e6e7b4068d2bd067c70132318214",
-"problems/batch/26_Bitmask_and_Digit_DP/3/21.in": "af1b1be2b199e207619faa8299c8fe02777cefe130b146c79e22dd75a1290059",
-"problems/batch/26_Bitmask_and_Digit_DP/3/21.out": "9e55a6584040cda28b535bb8739540147a72a051572605a2207ca898044ee28a",
-"problems/batch/26_Bitmask_and_Digit_DP/3/22.in": "87dedc9d176418b0d8fe158b39de3b748d0cd53e00e25d3bf29fb5a4198af113",
-"problems/batch/26_Bitmask_and_Digit_DP/3/22.out": "b128404ba4d07e20fda1559882256c68b58d7856eeb794f95ba1c123669a71ee",
-"problems/batch/26_Bitmask_and_Digit_DP/3/23.in": "b134a3951b3152187ac69c8531325c0e0aabd4594f9fc463110a6f0f66dab757",
-"problems/batch/26_Bitmask_and_Digit_DP/3/23.out": "eea8254c7500ba3de996aa8ad6af399183f04e17d4a8102fde539dbc93a90012",
-"problems/batch/26_Bitmask_and_Digit_DP/3/24.in": "9e4f3b687266a265fda803cf606299eab02fe84f0802cd59f2c6bd84e2c0acd5",
-"problems/batch/26_Bitmask_and_Digit_DP/3/24.out": "48e6e169549b89f94fb81a0448bbf58a2e65805a2feb817a97fe503157687f1e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/25.in": "e2b78e281178ac18d3a5f6a14e7aff51747f4b0c794b7d9bbada11bf3026f677",
-"problems/batch/26_Bitmask_and_Digit_DP/3/25.out": "d1c7f031f6b36b1f2b531b31c4d312571ea63b7f5ddf96100a8d99c548406eb5",
-"problems/batch/26_Bitmask_and_Digit_DP/3/26.in": "168b0b91299aec02ddf17fa717ff1d38ef677750931a3b8e1fc7a95eadfbb8b6",
-"problems/batch/26_Bitmask_and_Digit_DP/3/26.out": "90201aa920a934da2581a2e6735918daf102182572ab70ca6a3a8d88f34ea7b9",
-"problems/batch/26_Bitmask_and_Digit_DP/3/27.in": "8553e6eb9fd6debca1813a31aa88c62ad46959ce86cabc7bab47f093a98caa0e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/27.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/3/28.in": "7f2883b97aa09a6a599c5fce9634f24a32fd7aec10bead10f04bbb32dce02bb3",
-"problems/batch/26_Bitmask_and_Digit_DP/3/28.out": "33af8436cb9c3616da419e24e10fd5914479204137814751b047838330a403e1",
-"problems/batch/26_Bitmask_and_Digit_DP/3/29.in": "8dcffd39d55c77a73adc2e139f9c311c5e0e9e187cb42dbe81f5fdf792a6f63a",
-"problems/batch/26_Bitmask_and_Digit_DP/3/29.out": "d3abe84671b7e36923f524af0fbe94b7af5bef9484d9a8682bad48a490736b0b",
-"problems/batch/26_Bitmask_and_Digit_DP/3/30.in": "da957e2cb81f8c85433a52f6146a8996cf38b14bbc9bde98f5324226d4e30c43",
-"problems/batch/26_Bitmask_and_Digit_DP/3/30.out": "083ea78a7f43f23d120d112648187da0975aeea8902fd5f7b4af87b47d2843cd",
-"problems/batch/26_Bitmask_and_Digit_DP/3/manifest.json": "7548cb1a9b0d647d261b7e303caef6be06dd798100977563bd323835755a830b",
+"problems/batch/26_Bitmask_and_Digit_DP/2/09.in": "2c6b695e7b78a24b80d03510ec2e15f9430c79c50f2a0204c0775fed55c0d8bc",
+"problems/batch/26_Bitmask_and_Digit_DP/2/09.out": "f5bbc9df805e66180e1640add85a5de00bf2e13d1f5415e22278318f2d82d5d1",
+"problems/batch/26_Bitmask_and_Digit_DP/2/10.in": "1daede5733f03e1851f758bc53d5d30cbd1f1d079a23a45b95986970be6402a9",
+"problems/batch/26_Bitmask_and_Digit_DP/2/10.out": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+"problems/batch/26_Bitmask_and_Digit_DP/2/11.in": "4d9181adb656e0e3323b8276a0ffa17d0525d3324c25dc43689b7592c784dd6d",
+"problems/batch/26_Bitmask_and_Digit_DP/2/11.out": "4836c1e7e6726fa96685f6d23823ddfc467d57dde5c687a714c603bb37e0a48f",
+"problems/batch/26_Bitmask_and_Digit_DP/2/12.in": "90e12e8e3a012dfd7c7e9721e5b6addcca250ca038f098c21b196cef4c295de7",
+"problems/batch/26_Bitmask_and_Digit_DP/2/12.out": "a7ff402f519c2cbceaa833e9edd8350c1d85116a425856543bebdea23578a0cc",
+"problems/batch/26_Bitmask_and_Digit_DP/2/13.in": "895f1d1df33acc19013586f0c821ddadc2735e6bc8ebb66c02056eb43c8b025c",
+"problems/batch/26_Bitmask_and_Digit_DP/2/13.out": "bc8d99bfb63491f724f5eda8a587dbcefec24e522d73521bb508e971fab302b7",
+"problems/batch/26_Bitmask_and_Digit_DP/2/14.in": "a21f00eca9ff23939fe9b652c7a37736b9ff1cf5d2338382306c433d87b54ce2",
+"problems/batch/26_Bitmask_and_Digit_DP/2/14.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
+"problems/batch/26_Bitmask_and_Digit_DP/2/15.in": "f7d93fb81e90402d5b558dae0e51a45b68f5cebdf6ec2eb2e3177600c9012695",
+"problems/batch/26_Bitmask_and_Digit_DP/2/15.out": "6f3e559bbd93fa2f9b25cbd9b5f348a4b20c902d8e6498de5c28d73df8e2f571",
+"problems/batch/26_Bitmask_and_Digit_DP/2/16.in": "e56adc7a9d45c6bb7bf19042f7664089e5b06585400c2ee7ec9968aab491b34e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/16.out": "7d3eba029fbb26e3dfb3213c65c62276d621db3a1173cb582c16f2e6cde71d73",
+"problems/batch/26_Bitmask_and_Digit_DP/2/17.in": "b83ea55bf1ded91e36e62c8222f6b5c543e26fa7ee1f8b09594606cf902b88a9",
+"problems/batch/26_Bitmask_and_Digit_DP/2/17.out": "0a8753014cb7c28da6785e8cc39abfc1a891dbb5590bcae632e3088c2f3d2282",
+"problems/batch/26_Bitmask_and_Digit_DP/2/18.in": "202ae50d6a39dc070dcefba7fff0f5ee7c1157ac84bc824575bcc5223b3d372a",
+"problems/batch/26_Bitmask_and_Digit_DP/2/18.out": "8843a0b4a857e938c28627e9da54f727aa97dbb4ad4d8012f3166b00bce5d354",
+"problems/batch/26_Bitmask_and_Digit_DP/2/19.in": "3cb8867bdf8799624cd2c3e2b4b4255599a68ec302a1231c8bb324c300ab28f0",
+"problems/batch/26_Bitmask_and_Digit_DP/2/19.out": "21b268db36bacef479b0061578d01ac65e738403c851f8e1c9a2e331ec4ff0d0",
+"problems/batch/26_Bitmask_and_Digit_DP/2/20.in": "92485aa75d6a3d1900e28f134e8c7dcb2d88734ec7579e8365423fc1d2f78d6b",
+"problems/batch/26_Bitmask_and_Digit_DP/2/20.out": "feeef0879d01bbba4e5d7618c60bfb6d9129e6e7b4068d2bd067c70132318214",
+"problems/batch/26_Bitmask_and_Digit_DP/2/21.in": "af1b1be2b199e207619faa8299c8fe02777cefe130b146c79e22dd75a1290059",
+"problems/batch/26_Bitmask_and_Digit_DP/2/21.out": "9e55a6584040cda28b535bb8739540147a72a051572605a2207ca898044ee28a",
+"problems/batch/26_Bitmask_and_Digit_DP/2/22.in": "87dedc9d176418b0d8fe158b39de3b748d0cd53e00e25d3bf29fb5a4198af113",
+"problems/batch/26_Bitmask_and_Digit_DP/2/22.out": "b128404ba4d07e20fda1559882256c68b58d7856eeb794f95ba1c123669a71ee",
+"problems/batch/26_Bitmask_and_Digit_DP/2/23.in": "b134a3951b3152187ac69c8531325c0e0aabd4594f9fc463110a6f0f66dab757",
+"problems/batch/26_Bitmask_and_Digit_DP/2/23.out": "eea8254c7500ba3de996aa8ad6af399183f04e17d4a8102fde539dbc93a90012",
+"problems/batch/26_Bitmask_and_Digit_DP/2/24.in": "9e4f3b687266a265fda803cf606299eab02fe84f0802cd59f2c6bd84e2c0acd5",
+"problems/batch/26_Bitmask_and_Digit_DP/2/24.out": "48e6e169549b89f94fb81a0448bbf58a2e65805a2feb817a97fe503157687f1e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/25.in": "e2b78e281178ac18d3a5f6a14e7aff51747f4b0c794b7d9bbada11bf3026f677",
+"problems/batch/26_Bitmask_and_Digit_DP/2/25.out": "d1c7f031f6b36b1f2b531b31c4d312571ea63b7f5ddf96100a8d99c548406eb5",
+"problems/batch/26_Bitmask_and_Digit_DP/2/26.in": "168b0b91299aec02ddf17fa717ff1d38ef677750931a3b8e1fc7a95eadfbb8b6",
+"problems/batch/26_Bitmask_and_Digit_DP/2/26.out": "90201aa920a934da2581a2e6735918daf102182572ab70ca6a3a8d88f34ea7b9",
+"problems/batch/26_Bitmask_and_Digit_DP/2/27.in": "8553e6eb9fd6debca1813a31aa88c62ad46959ce86cabc7bab47f093a98caa0e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/27.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
+"problems/batch/26_Bitmask_and_Digit_DP/2/28.in": "7f2883b97aa09a6a599c5fce9634f24a32fd7aec10bead10f04bbb32dce02bb3",
+"problems/batch/26_Bitmask_and_Digit_DP/2/28.out": "33af8436cb9c3616da419e24e10fd5914479204137814751b047838330a403e1",
+"problems/batch/26_Bitmask_and_Digit_DP/2/29.in": "8dcffd39d55c77a73adc2e139f9c311c5e0e9e187cb42dbe81f5fdf792a6f63a",
+"problems/batch/26_Bitmask_and_Digit_DP/2/29.out": "d3abe84671b7e36923f524af0fbe94b7af5bef9484d9a8682bad48a490736b0b",
+"problems/batch/26_Bitmask_and_Digit_DP/2/30.in": "da957e2cb81f8c85433a52f6146a8996cf38b14bbc9bde98f5324226d4e30c43",
+"problems/batch/26_Bitmask_and_Digit_DP/2/30.out": "083ea78a7f43f23d120d112648187da0975aeea8902fd5f7b4af87b47d2843cd",
+"problems/batch/26_Bitmask_and_Digit_DP/2/manifest.json": "7548cb1a9b0d647d261b7e303caef6be06dd798100977563bd323835755a830b",
+"problems/batch/26_Bitmask_and_Digit_DP/3/01.in": "dcdf7a6d8e98e0b0f23ecd64ddaf0f92af1f83408444a00e0bc25b12fe55dba8",
+"problems/batch/26_Bitmask_and_Digit_DP/3/01.out": "54d6bedd10098f133f0584784f30d94ed0d4787afd70e14d0380b717229e85c1",
+"problems/batch/26_Bitmask_and_Digit_DP/3/02.in": "883dc777ae52c55a93132a01af71b0ecf9ccceb43e7013b5fc91fc4493b50b89",
+"problems/batch/26_Bitmask_and_Digit_DP/3/02.out": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+"problems/batch/26_Bitmask_and_Digit_DP/3/03.in": "0c35b0fdac3d1f68998a3f4828154862c19ecc04b301677784c30b70f12c4ec7",
+"problems/batch/26_Bitmask_and_Digit_DP/3/03.out": "4feeb289e4a18329fb2dbd8509a9ba0beef0b0d8ccd32c4e60c8dcf573b17e13",
+"problems/batch/26_Bitmask_and_Digit_DP/3/04.in": "debc3e16f7321167b94012b0b16359382e2d783dcfe2bb3d9c9dc8d7d7ae780b",
+"problems/batch/26_Bitmask_and_Digit_DP/3/04.out": "d2b00a089fbdf66e513d575f37515a5b90b5d931e81c9d68548e49a7d92494db",
+"problems/batch/26_Bitmask_and_Digit_DP/3/05.in": "b281a5b540210017f243ae1d6273643c5741c25fb45c63e93d6aa225828dffe7",
+"problems/batch/26_Bitmask_and_Digit_DP/3/05.out": "7763ec10e7476e40dd475e9f663d616551f86783750d3c35d4e266c268e91a32",
+"problems/batch/26_Bitmask_and_Digit_DP/3/06.in": "259c71ace99456554f844b5076439aef6e4f8904176f9c2c616b5adbf51ac1a3",
+"problems/batch/26_Bitmask_and_Digit_DP/3/06.out": "66c011b69deb2af1f733da15c484a8f936e5242dbec671021e02ed82b9e09047",
+"problems/batch/26_Bitmask_and_Digit_DP/3/07.in": "39e9472f1e2d3fe1cfa543de8ac1af0d30c07fae90b009575cc3886b36915294",
+"problems/batch/26_Bitmask_and_Digit_DP/3/07.out": "9479ba19f84b86c9a9085294c3db790796671c94a173ca59edd37068adf18243",
+"problems/batch/26_Bitmask_and_Digit_DP/3/08.in": "b47f0447acb8f0dc060164dd372e331c217fe88d66998cdac842b78164c58e56",
+"problems/batch/26_Bitmask_and_Digit_DP/3/08.out": "646d2c98cabb4e3736746e47704b39da92bfecd29e5f8ecabe508ae549f40746",
+"problems/batch/26_Bitmask_and_Digit_DP/3/09.in": "c8e4997f7d1e4f20eefb464238c5675f54948f6afc72340255140b36b077fe6d",
+"problems/batch/26_Bitmask_and_Digit_DP/3/09.out": "98b74db515c1b2d713074584c3b357442387bf7b1273fa8f0a0d485338e53be5",
+"problems/batch/26_Bitmask_and_Digit_DP/3/10.in": "77d2f59f5b43b3093981c04f1ab02ad3ea0d6d4c84ef8df16ac836f4717a6b5d",
+"problems/batch/26_Bitmask_and_Digit_DP/3/10.out": "9780a72c05ee88782eb95a0083f148893cfb7fe338cf30687cc044fd112c1cd4",
+"problems/batch/26_Bitmask_and_Digit_DP/3/11.in": "8e1cb56206f004e1a2f5a3280d226d3d0ae38e59e19c42a28d7342c77bf69758",
+"problems/batch/26_Bitmask_and_Digit_DP/3/11.out": "7a30927c48e29e34bfe69f727b2c702cc2d7cefffa77f3502ba5cc2005d02970",
+"problems/batch/26_Bitmask_and_Digit_DP/3/12.in": "8d5f2685e4633d5f72e7baaa8da361c7836dbf922b85fc62e0f64738535c64dc",
+"problems/batch/26_Bitmask_and_Digit_DP/3/12.out": "63bc744ed0b119061780fd50d1abaa657e93fb5d9c8a8c9b7090ed34b91bef11",
+"problems/batch/26_Bitmask_and_Digit_DP/3/13.in": "7a505aaf5c2afec28ddd4e5a4eb30b3def0fa75a68fa2c2ff8e2e0d60d8669cb",
+"problems/batch/26_Bitmask_and_Digit_DP/3/13.out": "924ecd8183abb7bcbb88bd645e5c76aaab1061ee9c557235becad4b7468fbbb4",
+"problems/batch/26_Bitmask_and_Digit_DP/3/14.in": "4a9dc68f32f7d68941a053cc038c424d2132444c58866a940f421281324b4faa",
+"problems/batch/26_Bitmask_and_Digit_DP/3/14.out": "20456d8df97b0bfe1a3abe1737e7ea78599827143673343ae64819243534c432",
+"problems/batch/26_Bitmask_and_Digit_DP/3/gen.py": "2bd59c8c9ae056b076e30b392662ac3f7568565b6fbe976ec8991ee530c88148",
+"problems/batch/26_Bitmask_and_Digit_DP/3/manifest.json": "7f9d1eeaf77f33d62db18391b3c45542ecafd5342bcf8485903b07e0c0f933bd",
 "problems/batch/26_Bitmask_and_Digit_DP/4/01.in": "abf6f46f4c0ca1187ce5c2b0599c17de5c0698afbec1901f876e88d5fb07ce48",
 "problems/batch/26_Bitmask_and_Digit_DP/4/01.out": "e517da93113f63146122b513f999821a9289e6e1c8be267bee0912cdff2e401b",
 "problems/batch/26_Bitmask_and_Digit_DP/4/02.in": "0c201625af31df37620b28d732bb816f3fe86ae74b92a6585f033409f9c8bd42",
@@ -19978,7 +19945,7 @@
 "problems/batch/33_Mo_Algorithm/9/12.out": "0c869ddbc1e154471c0d1921d509a6f86e48cdc383db95c5b3ab5944b78ae8f3",
 "problems/batch/33_Mo_Algorithm/9/gen.py": "acb54b6918d9b16aa1225a3a8d0b5da4c07486800b598154ea44c16a5605e135",
 "problems/batch/33_Mo_Algorithm/9/manifest.json": "d4d8caf876cec13626aebb28bcd5054be6c002d43c40df6afd886c07d35f6ae2",
-"problems/batch/problems.json": "5e36ef2d07324669ab5880dd29be9fd3c645c2297a89c14adb70246cb76ac9d1",
+"problems/batch/problems.json": "483679ec11cf29def5bc9834d80e4f0f02328ad0155568f11504dce55f2eff57",
 "problems/batch/sets.json": "6858a4cee17b568a1f9cdeeea64e6800edfb1879566d1fc6fbe3f0ccf2ca4815",
 "updater.py": "5a5e17e18036049d7168ac80056f64ff5ad7df812208c46536cdca4571241de0"
 },
@@ -19992,7 +19959,7 @@
 "student/.vscode/tasks.json"
 ],
 "README.txt": [
-"d74a4d08db69eb34501107b3f169060a5a8286a7ed357f5bcb304a3c9a63086d",
+"aa0557e0525623aa9b0b29529217d7b6c37103d44a53365135901a3e8fd689c1",
 "student/README.txt"
 ]
 },
@@ -20860,7 +20827,7 @@
 ],
 [
 "Topic_7/5.cpp",
-"26_Bitmask_and_Digit_DP/1.cpp"
+"26_Bitmask_and_Digit_DP/old/1_AssigningJobs.cpp"
 ],
 [
 "Topic_7/6.cpp",
@@ -20872,11 +20839,11 @@
 ],
 [
 "Topic_7/8.cpp",
-"26_Bitmask_and_Digit_DP/3.cpp"
+"26_Bitmask_and_Digit_DP/2.cpp"
 ],
 [
 "Topic_7/9.cpp",
-"26_Bitmask_and_Digit_DP/2.cpp"
+"26_Bitmask_and_Digit_DP/old/2_DigitSumDivisible.cpp"
 ],
 [
 "Topic_8/1.cpp",
@@ -22062,7 +22029,7 @@
 ],
 [
 "Topic_7/5.cpp",
-"26_Bitmask_and_Digit_DP/1.cpp"
+"26_Bitmask_and_Digit_DP/old/1_AssigningJobs.cpp"
 ],
 [
 "Topic_7/6.cpp",
@@ -22074,11 +22041,11 @@
 ],
 [
 "Topic_7/8.cpp",
-"26_Bitmask_and_Digit_DP/3.cpp"
+"26_Bitmask_and_Digit_DP/2.cpp"
 ],
 [
 "Topic_7/9.cpp",
-"26_Bitmask_and_Digit_DP/2.cpp"
+"26_Bitmask_and_Digit_DP/old/2_DigitSumDivisible.cpp"
 ],
 [
 "Topic_8/1.cpp",
@@ -23024,7 +22991,7 @@
 ],
 [
 "Topic_6/5.cpp",
-"26_Bitmask_and_Digit_DP/1.cpp"
+"26_Bitmask_and_Digit_DP/old/1_AssigningJobs.cpp"
 ],
 [
 "Topic_6/6.cpp",
@@ -23036,11 +23003,11 @@
 ],
 [
 "Topic_6/8.cpp",
-"26_Bitmask_and_Digit_DP/3.cpp"
+"26_Bitmask_and_Digit_DP/2.cpp"
 ],
 [
 "Topic_6/9.cpp",
-"26_Bitmask_and_Digit_DP/2.cpp"
+"26_Bitmask_and_Digit_DP/old/2_DigitSumDivisible.cpp"
 ],
 [
 "Topic_7/1.cpp",
@@ -23906,7 +23873,7 @@
 ],
 [
 "Topic_6/5.cpp",
-"26_Bitmask_and_Digit_DP/1.cpp"
+"26_Bitmask_and_Digit_DP/old/1_AssigningJobs.cpp"
 ],
 [
 "Topic_6/6.cpp",
@@ -23918,11 +23885,11 @@
 ],
 [
 "Topic_6/8.cpp",
-"26_Bitmask_and_Digit_DP/3.cpp"
+"26_Bitmask_and_Digit_DP/2.cpp"
 ],
 [
 "Topic_6/9.cpp",
-"26_Bitmask_and_Digit_DP/2.cpp"
+"26_Bitmask_and_Digit_DP/old/2_DigitSumDivisible.cpp"
 ],
 [
 "Topic_7/1.cpp",
@@ -24276,7 +24243,7 @@
 },
 "bundles/26_Bitmask_and_Digit_DP.zip": {
 "prefix": "problems/batch/26_Bitmask_and_Digit_DP/",
-"sha256": "85f15da2b0d4979a73ccbc2d7c2c750643eac7c61881ec2185aaceae28c52431"
+"sha256": "9a0e7c5cfa554de47d07c41bcc64eb10fc765d960d885d5c8b6c9435bb51ea4b"
 },
 "bundles/27_DSU_on_Tree.zip": {
 "prefix": "problems/batch/27_DSU_on_Tree/",
@@ -43182,59 +43149,65 @@
 "problems/batch/25_Trie/9/11.out": "64097e8ff669d032c8308eb6a7dc38c53dcf600bc0b42bba51bd40f201dbd5b3",
 "problems/batch/25_Trie/9/gen.py": "97500b22ae96a7943363bee43d2b2a154b6db3e30970f3d8f8d4fc961e9319fb",
 "problems/batch/25_Trie/9/manifest.json": "4af399f064b345ae977c33a171cb226ec2dc750b271b5d87d2355b45ce84d67d",
-"problems/batch/26_Bitmask_and_Digit_DP/1/01.in": "a64e5533b4d64fb37a470185ed21d94adf5d8ab516677bc75ab2dad0e39b567c",
-"problems/batch/26_Bitmask_and_Digit_DP/1/01.out": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
-"problems/batch/26_Bitmask_and_Digit_DP/1/02.in": "ed3b4cd300fb862d2a40199e425d24470fb62dcaa6274b50dca2f54544380ccd",
-"problems/batch/26_Bitmask_and_Digit_DP/1/02.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/1/03.in": "5d90ef7fc0d040fd56a1e48697cfa99e0dfaf4fd803aefefc3b5053ec1d36aea",
-"problems/batch/26_Bitmask_and_Digit_DP/1/03.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/1/04.in": "7f14218f7d67a39991fde31997b9f05d88ea20dd8fe19191c4600eb198355b34",
-"problems/batch/26_Bitmask_and_Digit_DP/1/04.out": "917df3320d778ddbaa5c5c7742bc4046bf803c36ed2b050f30844ed206783469",
-"problems/batch/26_Bitmask_and_Digit_DP/1/05.in": "adf87942ec0200b939bca77a762e348671a20f2a174fb2800694ef241f861da1",
-"problems/batch/26_Bitmask_and_Digit_DP/1/05.out": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
-"problems/batch/26_Bitmask_and_Digit_DP/1/06.in": "d4f2a52b2d65ba7b64c62889cd4fc641e8fff80a7635a792bb19b41de4c71764",
-"problems/batch/26_Bitmask_and_Digit_DP/1/06.out": "aa67a169b0bba217aa0aa88a65346920c84c42447c36ba5f7ea65f422c1fe5d8",
-"problems/batch/26_Bitmask_and_Digit_DP/1/07.in": "cf1f2f9e36e5c80e0d1b261dae4179a249ec8c1262224489288d266ea39aa6a4",
-"problems/batch/26_Bitmask_and_Digit_DP/1/07.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/1/08.in": "d755650319990c596f8bcd715089635e74658214d6733e859c395870763fd65a",
-"problems/batch/26_Bitmask_and_Digit_DP/1/08.out": "adcbf91eb3ade9751d194c2c44d1a5fac3e898de7229bbd813870520119de82b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/09.in": "ecb88c4d93a6f96e4d488ae6494eec16a3780689d012f1645418aad77a93fc5e",
-"problems/batch/26_Bitmask_and_Digit_DP/1/09.out": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017",
-"problems/batch/26_Bitmask_and_Digit_DP/1/10.in": "bc1e5753909259e1ad52fe0d42c42f2c68f4108dc42af424044ad1f4b9d51833",
-"problems/batch/26_Bitmask_and_Digit_DP/1/10.out": "581e6f63150ed78728300379fdaf1b2bde00e9622e54a201e5e31d567a900b1b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/11.in": "2300a7e178baddcc2ea24a006deac5d5705807ab769e7c3a5167959c434bb092",
-"problems/batch/26_Bitmask_and_Digit_DP/1/11.out": "af47d633fd7b021370c1e508b69df8586d3a1258133c41a32972ba6e64d94899",
-"problems/batch/26_Bitmask_and_Digit_DP/1/12.in": "37d5bca81909b3b397dda3fbf6d00f8b080b4dc150de99b26256362378994b05",
-"problems/batch/26_Bitmask_and_Digit_DP/1/12.out": "282858b7c9cd0565c2cccb9ee1d290be034a8feab81a38585c0123b0e0ebf07b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/13.in": "288c2bd293b8369d6ee3821571cd3dbaa4930ead4c3af4c7b4058f2f650b33bf",
-"problems/batch/26_Bitmask_and_Digit_DP/1/13.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/1/14.in": "dd66e0643e4e9f148dbb1535a429139ddabef54fc93108202138060e8ec3b62b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/14.out": "a6d54585ab24a4e07afe8b55ff47a49d7cce0265631d036e00224bb7bea29e82",
-"problems/batch/26_Bitmask_and_Digit_DP/1/15.in": "a8043a6859b69799f26fec3e69adfae33cba327457367bacfede22939f1f6bf9",
-"problems/batch/26_Bitmask_and_Digit_DP/1/15.out": "bd497163567b0fba1e580340067fd3d8e7202169e07c364f57a599a6b59b3fc0",
-"problems/batch/26_Bitmask_and_Digit_DP/1/16.in": "48c5818f1e6d6f7cb7bbcbd745ab4f21be9d2cadd7f2cc09444361b52625d920",
-"problems/batch/26_Bitmask_and_Digit_DP/1/16.out": "aa67a169b0bba217aa0aa88a65346920c84c42447c36ba5f7ea65f422c1fe5d8",
-"problems/batch/26_Bitmask_and_Digit_DP/1/17.in": "f37c999962bbfa523e16a203a5423f3668ecb1254302f4e14ef5bb36511e945b",
-"problems/batch/26_Bitmask_and_Digit_DP/1/17.out": "4d76875c5778767bf1e03e87770a7dabe9c335677bda9a583fed003e48042154",
-"problems/batch/26_Bitmask_and_Digit_DP/1/18.in": "728897f129c8b5482bfe9ab7781af826ed1ff35eff82762295288cd4768aa7a5",
-"problems/batch/26_Bitmask_and_Digit_DP/1/18.out": "1dd4a86481b847773a24387cc7403681e63e92628db236af277e5830904208be",
-"problems/batch/26_Bitmask_and_Digit_DP/1/19.in": "01470eb73d8f5f677346e2970dbcad325f57d7c8395f5be3ac93b20e188dbc3d",
-"problems/batch/26_Bitmask_and_Digit_DP/1/19.out": "128cad051a9566da30da51b6707e1d6235cbd805e63ccedb7d795a28afaf57dd",
-"problems/batch/26_Bitmask_and_Digit_DP/1/20.in": "fc9926a7cddfa006018a8c94e7865952c51fb5f2202e2181b45a5013a7a7a588",
-"problems/batch/26_Bitmask_and_Digit_DP/1/20.out": "a49d29cbf6e2dbad172c8890e3fa60a42d3bb49ee794409251ae9c796403a83d",
-"problems/batch/26_Bitmask_and_Digit_DP/1/21.in": "18a9d11132a79a2f3e403ae0a034c88c2ff904a9f1a76f5aaad8fcf5c429b372",
-"problems/batch/26_Bitmask_and_Digit_DP/1/21.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/1/22.in": "b1484fb574d69bd92e132cddd79c631c1f8b2a9b6dd7c56a21944f3ec3a2cdd7",
-"problems/batch/26_Bitmask_and_Digit_DP/1/22.out": "86934eb1e6fb3e6c19389fb395916c5f200af00ada9b3b5dfd93e705bd3b3156",
-"problems/batch/26_Bitmask_and_Digit_DP/1/23.in": "14b9d483005eb49f7781ba0a6376609e69ecf611be435564091415ac97bb5dae",
-"problems/batch/26_Bitmask_and_Digit_DP/1/23.out": "d4612362ca328ef9af6d1c767f5283a2af988cb007ffa210cd62e726978fd244",
-"problems/batch/26_Bitmask_and_Digit_DP/1/24.in": "3d6ea631e3b40e944f2cf97bd59fc4efcc1fe7750a4dee73f90999281822e905",
-"problems/batch/26_Bitmask_and_Digit_DP/1/24.out": "fbeee694bbf7109cdf73b19f4a9d89c0af13e7fc4c460e2e4b6b8c72eb9c585c",
-"problems/batch/26_Bitmask_and_Digit_DP/1/25.in": "b6576754a59b4b0632c549e1b12478d14e3be159ac4abaa5615abe1860e730db",
-"problems/batch/26_Bitmask_and_Digit_DP/1/25.out": "2b0a9d51de86e83d7f070bdb47220e2911f8c500fa8bc8f79e77fb0cdbc28b17",
-"problems/batch/26_Bitmask_and_Digit_DP/1/26.in": "347446a5960c22bf30416910f28572b0558b7eff925a6f1e3ffe63518844e49c",
-"problems/batch/26_Bitmask_and_Digit_DP/1/26.out": "e508e6cf32f0141136e2e8ff716cb9a694d30c24294eee8a8a1060609a552c8e",
-"problems/batch/26_Bitmask_and_Digit_DP/1/manifest.json": "441345b129e3bdbae956afd62ec8c600cf01e2c8b0a2128fecc1737d354c5863",
+"problems/batch/26_Bitmask_and_Digit_DP/1/01.in": "d2291140774f58d5bd06b4ee97be2a59cfe78ec5e9811f90304168de601502d5",
+"problems/batch/26_Bitmask_and_Digit_DP/1/01.out": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/02.in": "3a94d98580e8b23ddbf63c0d0bbce4dcc54e4290729e92277cabb41a540ae155",
+"problems/batch/26_Bitmask_and_Digit_DP/1/02.out": "10159baf262b43a92d95db59dae1f72c645127301661e0a3ce4e38b295a97c58",
+"problems/batch/26_Bitmask_and_Digit_DP/1/03.in": "869f4097dfc94c18a7d92ac617a206b4144de8865808ed7ab3a3b565d8ee8236",
+"problems/batch/26_Bitmask_and_Digit_DP/1/03.out": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+"problems/batch/26_Bitmask_and_Digit_DP/1/04.in": "b12840db8c4734ea1b7dd8c928466e8ace565fad2c0b4b0b9f1d20170eecf44e",
+"problems/batch/26_Bitmask_and_Digit_DP/1/04.out": "54183f4323f377b737433a1e98229ead0fdc686f93bab057ecb612daa94002b5",
+"problems/batch/26_Bitmask_and_Digit_DP/1/05.in": "af680ae30887a849efa48c2103f50f094eb839f7e8b2471489e82c3d7de762e7",
+"problems/batch/26_Bitmask_and_Digit_DP/1/05.out": "b58a3da5fde2680191877ec88a1aa7d06927cc3b30cdf0d0db8c39b488891576",
+"problems/batch/26_Bitmask_and_Digit_DP/1/06.in": "f4a8ae8e74ddfb896a256de4e3099911dcaa6a9302591713898069b0bcd6e3d7",
+"problems/batch/26_Bitmask_and_Digit_DP/1/06.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+"problems/batch/26_Bitmask_and_Digit_DP/1/07.in": "e75b271dcc7ba20e7c2810dbedd3df04e8b9b067acdb158497cb312c58be594f",
+"problems/batch/26_Bitmask_and_Digit_DP/1/07.out": "8bd5a23c3aef1243c78bac155b39b9d57a43d8c49665ccf6f42acf2992a94afa",
+"problems/batch/26_Bitmask_and_Digit_DP/1/08.in": "13316410c3243a6b30a5a799aabf36a1e1a8f2aec49fd3af6869c33441dabea7",
+"problems/batch/26_Bitmask_and_Digit_DP/1/08.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+"problems/batch/26_Bitmask_and_Digit_DP/1/09.in": "15740bbbbf1e91a33d60647cd71ed93cfb20c16c052cf8821a54eb1b8bd7ccf6",
+"problems/batch/26_Bitmask_and_Digit_DP/1/09.out": "15d6f42ba683d3f3b2b6c1ef7d19ce4e8e776284395e8f200000093559a86b88",
+"problems/batch/26_Bitmask_and_Digit_DP/1/10.in": "d4960b7a11479e3b3ab79a08ed3d2c33c3b1c923954557976a63a5a841583446",
+"problems/batch/26_Bitmask_and_Digit_DP/1/10.out": "d6ba4fb19951b0a0175af857ec4891947aaf65d7de043c48a38b2daf2df0a329",
+"problems/batch/26_Bitmask_and_Digit_DP/1/11.in": "10e9243121baaa1891f580fab6fee160732fc3851d114d371abd1368dc606bd1",
+"problems/batch/26_Bitmask_and_Digit_DP/1/11.out": "1326faec3eb42dc72ddffe46daf3940b932f48b9799f6cbf28e80504e7b34958",
+"problems/batch/26_Bitmask_and_Digit_DP/1/12.in": "f2bce469530483c8f9a934b428338bf2b307d1c58a36cedb1f600994ababea90",
+"problems/batch/26_Bitmask_and_Digit_DP/1/12.out": "54183f4323f377b737433a1e98229ead0fdc686f93bab057ecb612daa94002b5",
+"problems/batch/26_Bitmask_and_Digit_DP/1/13.in": "a8cfc0218ca6f466b5553e6fc895b4a47c5174fd0ae46c7634f9e7caecf47331",
+"problems/batch/26_Bitmask_and_Digit_DP/1/13.out": "bce431880c191aa6b8a8a2e3aba640671d600a54c22e9169720613f2b22dcec3",
+"problems/batch/26_Bitmask_and_Digit_DP/1/14.in": "e68b9a1167378d8b69d30e6e09618726aacba00be7c550c5593a9193e23fba46",
+"problems/batch/26_Bitmask_and_Digit_DP/1/14.out": "13bf8b0303fde3792881f560001cd88db2d12c8d9dd78c1413acf6846d686adc",
+"problems/batch/26_Bitmask_and_Digit_DP/1/15.in": "8f374a1b4aea6919855bfa9acbdbedee5e75fac9702fe27027c6fc59c91a8d1c",
+"problems/batch/26_Bitmask_and_Digit_DP/1/15.out": "1e073ed67a43de7cae32b4f81d2d58aeef09c1e2bb144486dabd9da3311cd173",
+"problems/batch/26_Bitmask_and_Digit_DP/1/16.in": "85e0eb049c8b5c8614cda2532e315c65207d1dbb351073f601fae1330fc215c8",
+"problems/batch/26_Bitmask_and_Digit_DP/1/16.out": "03053e810abc7ad380f6916bdf7439d97684319f85ec274ff26c0b133ca0a07c",
+"problems/batch/26_Bitmask_and_Digit_DP/1/17.in": "b891771cf57e7dd243cf41fd47618cde6dd7c58d98bab333102dddb690cabcb2",
+"problems/batch/26_Bitmask_and_Digit_DP/1/17.out": "128ae569523a3d15aa7c163f0a843081cd059f23a818c943f39c4ee146a42994",
+"problems/batch/26_Bitmask_and_Digit_DP/1/18.in": "b2b208593fd04c9905e2886d0180057e2460cb8079076c206a19271a4a048e7a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/18.out": "e4cbf06cad1d6802e044780b5bab381248e15c4c5699b988a4af1b8070a9d10b",
+"problems/batch/26_Bitmask_and_Digit_DP/1/19.in": "ef360bfd382f6ecc776dd666668510049f4f90fe21e664c8bf0e7d2cb3e361cc",
+"problems/batch/26_Bitmask_and_Digit_DP/1/19.out": "6b818040f3ec89d92f0d074df944899ade340cd5257332877fa1e3aeda42b97a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/20.in": "d75019e570757bb913e630996040d6d309989500a29afdc30f8cfd459ace57b8",
+"problems/batch/26_Bitmask_and_Digit_DP/1/20.out": "5cb0e531e184391a28dbfa32ccd0d2f4eeb9740a04264837053ae6e031e75443",
+"problems/batch/26_Bitmask_and_Digit_DP/1/21.in": "f6c0f8df9900276e529ca50af3d7d1dba43da0daf5358f464a81de9e93057b91",
+"problems/batch/26_Bitmask_and_Digit_DP/1/21.out": "6bdfdde902444d07f3a40e37d599be39c3490a6cc0a0a0a5aa8c94856a0d523a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/22.in": "39a86d24d1bba523b39a30b2a0a1616572b05e1cb15beb911085e1aa61165140",
+"problems/batch/26_Bitmask_and_Digit_DP/1/22.out": "68df2a7a62f96b51246c016704185d4868554f431aa9489c8db1e0fbc5acbc4d",
+"problems/batch/26_Bitmask_and_Digit_DP/1/23.in": "e92d210895d2adf2c938d0b52b559a79e309158e062ea91f654331fe81824a38",
+"problems/batch/26_Bitmask_and_Digit_DP/1/23.out": "32aff921a22e7e79945922b5e30138d23d3ad5242756cfbdfd3d419659b3ee37",
+"problems/batch/26_Bitmask_and_Digit_DP/1/24.in": "bfe3f9dd7191f7d6fd356e9d05d577b53dd4cc582f009e9b81520444cdaeadb8",
+"problems/batch/26_Bitmask_and_Digit_DP/1/24.out": "b49cb26b068e8f8f9880d0ebda1417f2966f0a420108173504b51c34045b350a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/25.in": "b2dddbba3dab11ea57f05e2b6321daf9c94a0c84521f77f80b9c760501085875",
+"problems/batch/26_Bitmask_and_Digit_DP/1/25.out": "b1bfd5dae47da9a6f0480fb5e1212006129696ce4f0e83d387268b12feb48306",
+"problems/batch/26_Bitmask_and_Digit_DP/1/26.in": "58b6ca6afc09bc8d8185cc5d305eb3b9be24769f7e3fdf928d37d25b0258a32b",
+"problems/batch/26_Bitmask_and_Digit_DP/1/26.out": "408e5ac40badff88b4326b0610bc20b0c686b7da5a8c692c6d6464aafb75c6bf",
+"problems/batch/26_Bitmask_and_Digit_DP/1/27.in": "231eb456926bbbd65e9084857aec9278a56540fd7745e618740ef5b0c1c0c85a",
+"problems/batch/26_Bitmask_and_Digit_DP/1/27.out": "50171db392d8ad090e08cd09594ac58c6e555e442fe6a121a1de54a910e213b6",
+"problems/batch/26_Bitmask_and_Digit_DP/1/28.in": "eeee1a742fe1d0f3966db3ed4d5d428e56bcd8d1123fffc4a06dfca9f9c9ae5f",
+"problems/batch/26_Bitmask_and_Digit_DP/1/28.out": "c1748312f39caeab4db8a5d68bc6382ced3d7c9393df2a2bd1ab00f42959d3b3",
+"problems/batch/26_Bitmask_and_Digit_DP/1/29.in": "338a34d29b07962e0fccd7888eef34c065ac69324e29e3989e4ffbf272212268",
+"problems/batch/26_Bitmask_and_Digit_DP/1/29.out": "0ef4e1a6f9e2e77d081c8943f03b3df5fc6339e2690024c928a14f3e04ea7954",
+"problems/batch/26_Bitmask_and_Digit_DP/1/manifest.json": "2daf8d0b7db74396f37886290a5787bdbb1382363807474ec9a97e9dbd7c3364",
 "problems/batch/26_Bitmask_and_Digit_DP/10/01.in": "8ffc2f1537361b98fb3c94ce895b3896176b0f15f77c9be67fb09af560534062",
 "problems/batch/26_Bitmask_and_Digit_DP/10/01.out": "a65728b82e1e4b2c5ce543e0250c1cf23ace37ccbc51e8c1dcc1e09db38b92cc",
 "problems/batch/26_Bitmask_and_Digit_DP/10/02.in": "f595b9da4d825b33fe5cd441ef2ede5ec1aea9d979ab32c254d4b709ed54e4cc",
@@ -43343,136 +43316,97 @@
 "problems/batch/26_Bitmask_and_Digit_DP/12/28.in": "5c0192f754a2eb393231d43d951738f7491ec6ddad3fe7069e925c551de660b3",
 "problems/batch/26_Bitmask_and_Digit_DP/12/28.out": "0a428d60feec1a3681b6a9c16b1d1f4323f5167332aca68ff37d88f412c32a35",
 "problems/batch/26_Bitmask_and_Digit_DP/12/manifest.json": "5046ccfeb562cec8b3dd0f0aaeeb1714bfaf5c601f7a87b218fe9735fea2a3fa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/01.in": "dca4ff407c4897ad3baa83871c58e2d5e4049b937603c73dcb451a6537781c38",
-"problems/batch/26_Bitmask_and_Digit_DP/2/01.out": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d",
-"problems/batch/26_Bitmask_and_Digit_DP/2/02.in": "3763aa345e45c6b96755861bf4e4ac977ed5986345fde490bcd7706edc357ac5",
-"problems/batch/26_Bitmask_and_Digit_DP/2/02.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/03.in": "2e5bc8f5217c2ab0d89815bac038c3d076aac1eafd01b0d820e720ea432afcd5",
-"problems/batch/26_Bitmask_and_Digit_DP/2/03.out": "b8650fe462b5b738b2bb69af1d3c3f16974db285c79025cf1b98652763ff509a",
-"problems/batch/26_Bitmask_and_Digit_DP/2/04.in": "85d749ea2d1acc4cd09b5efd715e7fca6ffb0a79f3c27e641f83a817c215069a",
-"problems/batch/26_Bitmask_and_Digit_DP/2/04.out": "690e07064753123c967bbac0180f32da6a753a5bd8b79a47644cef58e776d9f0",
-"problems/batch/26_Bitmask_and_Digit_DP/2/05.in": "9b6c1d34c6d123c2baea32416ead23a8487f8cd384515654f1f8a7f051c83e7c",
-"problems/batch/26_Bitmask_and_Digit_DP/2/05.out": "2feaea8c12c4c8b91b6b86ba67f5a1cb955d7cae77beb7560b62120f9df3249d",
-"problems/batch/26_Bitmask_and_Digit_DP/2/06.in": "06c77efa21f5665fefa6eb6cd9e4d8307e7c068352e57262849357da31f1f769",
-"problems/batch/26_Bitmask_and_Digit_DP/2/06.out": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
-"problems/batch/26_Bitmask_and_Digit_DP/2/07.in": "a7c6882a45dbaefd37c17f1da98fee82c0ba4fa5d79908d624741725ff887328",
-"problems/batch/26_Bitmask_and_Digit_DP/2/07.out": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-"problems/batch/26_Bitmask_and_Digit_DP/2/08.in": "eeb3a37409cee4a3af9c26a0fa157ab300bff6ba594fd0a09cad9294852e0cd2",
+"problems/batch/26_Bitmask_and_Digit_DP/2/01.in": "6d1cb6735c220f16b5d3ea5939f5cabe18119e03134d8707a39f22942252a673",
+"problems/batch/26_Bitmask_and_Digit_DP/2/01.out": "54183f4323f377b737433a1e98229ead0fdc686f93bab057ecb612daa94002b5",
+"problems/batch/26_Bitmask_and_Digit_DP/2/02.in": "6292710b6ec460c8e8678e5ff7395f6540b0f45c0141e86ac904e9a5b0f76750",
+"problems/batch/26_Bitmask_and_Digit_DP/2/02.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
+"problems/batch/26_Bitmask_and_Digit_DP/2/03.in": "4b5cffd5039d7c3a845ec03fe97f14c803284d3a013ec48eaf9d4953fd74820e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/03.out": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/04.in": "bafc01d1f706a9985bf3f27b6be5681cefc2875e6b48588e70106092c871637d",
+"problems/batch/26_Bitmask_and_Digit_DP/2/04.out": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
+"problems/batch/26_Bitmask_and_Digit_DP/2/05.in": "c3c0415b1cbe641894863ded5b8612fdbda2a90248bdd5d40d71c3dfce0affce",
+"problems/batch/26_Bitmask_and_Digit_DP/2/05.out": "3840bc236ee03aacbb1ef7d5108ddfa347c59f10b68d4174affbb53140f31273",
+"problems/batch/26_Bitmask_and_Digit_DP/2/06.in": "2fc5dc45f793ee772a4f6a00bdd3e9e2aedacfdd0c1ab1a3cb975fd5642d08b5",
+"problems/batch/26_Bitmask_and_Digit_DP/2/06.out": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+"problems/batch/26_Bitmask_and_Digit_DP/2/07.in": "81bf69706f562a55839a449a6cc5930117d2ffa2e507a20e488186cc783d7d53",
+"problems/batch/26_Bitmask_and_Digit_DP/2/07.out": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a",
+"problems/batch/26_Bitmask_and_Digit_DP/2/08.in": "6da7ad18d60989937e754ab4fdc52721ab52897485af4e0e8c28381e659feff2",
 "problems/batch/26_Bitmask_and_Digit_DP/2/08.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/09.in": "bb042a639a01fd5f72f7e32d779e50075c59a9ef97d3a9642cbc3d050058dfc7",
-"problems/batch/26_Bitmask_and_Digit_DP/2/09.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/10.in": "d8770c5007957185ed434bed6aa6f4bc77dfb109a8f87fefdd8cb799159c3d87",
-"problems/batch/26_Bitmask_and_Digit_DP/2/10.out": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-"problems/batch/26_Bitmask_and_Digit_DP/2/11.in": "186b0d8449a25861bdac5d4859d201eba5672edc377a672c3c7ebccabbb1ea11",
-"problems/batch/26_Bitmask_and_Digit_DP/2/11.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/12.in": "02364b67b23d40bf50d569f16c71343a5cf1ccd65c600d16b0bebf0763d95866",
-"problems/batch/26_Bitmask_and_Digit_DP/2/12.out": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
-"problems/batch/26_Bitmask_and_Digit_DP/2/13.in": "063e5dec585f28c3841d6f6e1a3bbfe7065d3b7e2da063483bfeee02ed6993ad",
-"problems/batch/26_Bitmask_and_Digit_DP/2/13.out": "91672c6071c0e2f53f20c4fb7577b032b3390beed25b07a25f19864e59d270d8",
-"problems/batch/26_Bitmask_and_Digit_DP/2/14.in": "c1bf1ac16dd1369826eae6fcf578c161b53afde6fd05f64e4373305b253258ba",
-"problems/batch/26_Bitmask_and_Digit_DP/2/14.out": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
-"problems/batch/26_Bitmask_and_Digit_DP/2/15.in": "a04e25cce6df112e02fb6f50eab0e2f4bc4cc816880a032b8e1bf5db7eb7f302",
-"problems/batch/26_Bitmask_and_Digit_DP/2/15.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/16.in": "5a942db10cf2adad30f5220352ea7ffd6730c78360f9bd608b85a59229a237eb",
-"problems/batch/26_Bitmask_and_Digit_DP/2/16.out": "9961d158a7e0e2f990765971a9e490af826c0743b7d603020f34cc8944319fcb",
-"problems/batch/26_Bitmask_and_Digit_DP/2/17.in": "f0616be47a0d3a6620eae5971720783128307f4a3abcbd53187ae0e01ad08678",
-"problems/batch/26_Bitmask_and_Digit_DP/2/17.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/18.in": "c7e63ebff19f2bd36f3dbd51a96c20dc39fa1376049e9d31d400d5486a75e453",
-"problems/batch/26_Bitmask_and_Digit_DP/2/18.out": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-"problems/batch/26_Bitmask_and_Digit_DP/2/19.in": "d391d945e7dc07be8f9cad482358bd55074d9e324f0ca1eb08d09f38e06a52b3",
-"problems/batch/26_Bitmask_and_Digit_DP/2/19.out": "d05fd0b138935fd1b930163e7eadd8dab2914ddd3f5038390242d54c03aeed75",
-"problems/batch/26_Bitmask_and_Digit_DP/2/20.in": "8e291a3edec9d9cf72f3df64c612288c642e5ca4a1af53e3a03ce51329f3c89c",
-"problems/batch/26_Bitmask_and_Digit_DP/2/20.out": "7387d7271e35605c4a3385d7bf1314125b8f048e84f2566915db34fea128d11f",
-"problems/batch/26_Bitmask_and_Digit_DP/2/21.in": "1d742e570c8d44723f3ea272d0d38a0b65c59f9b4d4ed3643c5a686d947e44bb",
-"problems/batch/26_Bitmask_and_Digit_DP/2/21.out": "002edf1a0c2d9bf138ae5c2d4c036073dcc3d45da7936bc8a7db16943d8720e6",
-"problems/batch/26_Bitmask_and_Digit_DP/2/22.in": "2e9bc82dd3331df441b85079092745ce7497e6810b7234174ffe50da19cf411e",
-"problems/batch/26_Bitmask_and_Digit_DP/2/22.out": "45426c0aa977ccd17645291a8f0cdca7569d355c3b85669d4c248343edf1a519",
-"problems/batch/26_Bitmask_and_Digit_DP/2/23.in": "bbfa6d307936a56f8b4b737b888cfac0a430d4121a49b1319d736b935cd58b1d",
-"problems/batch/26_Bitmask_and_Digit_DP/2/23.out": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-"problems/batch/26_Bitmask_and_Digit_DP/2/24.in": "d11086d0b0413e37b36c4aaca314d292c9fc0fe828ed34d5586dfcc36a72e34d",
-"problems/batch/26_Bitmask_and_Digit_DP/2/24.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/25.in": "c9b6adfe56f18d5920df01b84d0e6a763cbf58b6b493790360fef5268b4605a7",
-"problems/batch/26_Bitmask_and_Digit_DP/2/25.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/2/26.in": "18a076403b7a73eea69828a6db29f07129bc2303d0913633e56aca131061f67e",
-"problems/batch/26_Bitmask_and_Digit_DP/2/26.out": "354c80bdbdad074622fa22623ade9c4bbfe5b104a4a35f6366083c5fabc5b709",
-"problems/batch/26_Bitmask_and_Digit_DP/2/27.in": "f1f03cf1a5415f0a031720b7612ee618cd1e57a2d3945656c573be8544257178",
-"problems/batch/26_Bitmask_and_Digit_DP/2/27.out": "19637d5fd2745d8933f151ec2e69059eeed7e75182d744bc48ba76646f4e9ca2",
-"problems/batch/26_Bitmask_and_Digit_DP/2/28.in": "46f680641efcec1d940acbdeea9e45803927852e22f3de5ead38108033db2db1",
-"problems/batch/26_Bitmask_and_Digit_DP/2/28.out": "7b54e0479a5cf663eb6ee61b8dc907bb91d1f38859976f47aae52b049dfa84a7",
-"problems/batch/26_Bitmask_and_Digit_DP/2/29.in": "c235019c29d8651ad6ff6364514565e0f64e0de42583a7e5e4ffe7bb05934a9c",
-"problems/batch/26_Bitmask_and_Digit_DP/2/29.out": "c43c5ceb21024cc1ab28f061f33b82a143eaeb7e51669b7770d2b3c13412d988",
-"problems/batch/26_Bitmask_and_Digit_DP/2/30.in": "c5346200d41dd56550ecad8a203410596cc1775ddd85eb0a96898822fc2374cf",
-"problems/batch/26_Bitmask_and_Digit_DP/2/30.out": "cd3bc581bf82fa5f738aa6c5e0a9ad998ca29c33f2d5fa0251cb5fc83afe7570",
-"problems/batch/26_Bitmask_and_Digit_DP/2/31.in": "787c6c637a78a770a363ca7e11758ca5dd59f0514ae1848e750a831b586677c4",
-"problems/batch/26_Bitmask_and_Digit_DP/2/31.out": "3383a87497d11ffbebfcb115726b65be6da2461cbfe238533ed55f7b4ef00a2a",
-"problems/batch/26_Bitmask_and_Digit_DP/2/32.in": "5a1b40bdd671d3ad3d25983e87bd300b591d32718b49c263f0269491b3a4d02f",
-"problems/batch/26_Bitmask_and_Digit_DP/2/32.out": "d23be8da1058c188189e1fd37c59c16b9d12e3cb142cc73964197e94f09174a4",
-"problems/batch/26_Bitmask_and_Digit_DP/2/33.in": "04877bb05ff88890587c40cd9308941e91ddf3ad095d30e38fa71125024100ab",
-"problems/batch/26_Bitmask_and_Digit_DP/2/33.out": "580c266b93cb3ae42f6355eced1da4caf1c8617a6ca0237beb5797c241b09a6b",
-"problems/batch/26_Bitmask_and_Digit_DP/2/34.in": "359a0f0ed0209a4e16f7e4429ef6868c9e091b0c438edb6c4f01ff4f79ed61d4",
-"problems/batch/26_Bitmask_and_Digit_DP/2/34.out": "5480aa3ef9ece7a3e21a042867ac12ad03af76ef1a0c62d0542c4027d24ac24a",
-"problems/batch/26_Bitmask_and_Digit_DP/2/manifest.json": "da08a00fe6ba32fb440d0183bd8d38b10f883b5d5e8af5526b520e22b9d43f98",
-"problems/batch/26_Bitmask_and_Digit_DP/3/01.in": "6d1cb6735c220f16b5d3ea5939f5cabe18119e03134d8707a39f22942252a673",
-"problems/batch/26_Bitmask_and_Digit_DP/3/01.out": "54183f4323f377b737433a1e98229ead0fdc686f93bab057ecb612daa94002b5",
-"problems/batch/26_Bitmask_and_Digit_DP/3/02.in": "6292710b6ec460c8e8678e5ff7395f6540b0f45c0141e86ac904e9a5b0f76750",
-"problems/batch/26_Bitmask_and_Digit_DP/3/02.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/3/03.in": "4b5cffd5039d7c3a845ec03fe97f14c803284d3a013ec48eaf9d4953fd74820e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/03.out": "25d4f2a86deb5e2574bb3210b67bb24fcc4afb19f93a7b65a057daa874a9d18e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/04.in": "bafc01d1f706a9985bf3f27b6be5681cefc2875e6b48588e70106092c871637d",
-"problems/batch/26_Bitmask_and_Digit_DP/3/04.out": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164",
-"problems/batch/26_Bitmask_and_Digit_DP/3/05.in": "c3c0415b1cbe641894863ded5b8612fdbda2a90248bdd5d40d71c3dfce0affce",
-"problems/batch/26_Bitmask_and_Digit_DP/3/05.out": "3840bc236ee03aacbb1ef7d5108ddfa347c59f10b68d4174affbb53140f31273",
-"problems/batch/26_Bitmask_and_Digit_DP/3/06.in": "2fc5dc45f793ee772a4f6a00bdd3e9e2aedacfdd0c1ab1a3cb975fd5642d08b5",
-"problems/batch/26_Bitmask_and_Digit_DP/3/06.out": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
-"problems/batch/26_Bitmask_and_Digit_DP/3/07.in": "81bf69706f562a55839a449a6cc5930117d2ffa2e507a20e488186cc783d7d53",
-"problems/batch/26_Bitmask_and_Digit_DP/3/07.out": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a",
-"problems/batch/26_Bitmask_and_Digit_DP/3/08.in": "6da7ad18d60989937e754ab4fdc52721ab52897485af4e0e8c28381e659feff2",
-"problems/batch/26_Bitmask_and_Digit_DP/3/08.out": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-"problems/batch/26_Bitmask_and_Digit_DP/3/09.in": "2c6b695e7b78a24b80d03510ec2e15f9430c79c50f2a0204c0775fed55c0d8bc",
-"problems/batch/26_Bitmask_and_Digit_DP/3/09.out": "f5bbc9df805e66180e1640add85a5de00bf2e13d1f5415e22278318f2d82d5d1",
-"problems/batch/26_Bitmask_and_Digit_DP/3/10.in": "1daede5733f03e1851f758bc53d5d30cbd1f1d079a23a45b95986970be6402a9",
-"problems/batch/26_Bitmask_and_Digit_DP/3/10.out": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
-"problems/batch/26_Bitmask_and_Digit_DP/3/11.in": "4d9181adb656e0e3323b8276a0ffa17d0525d3324c25dc43689b7592c784dd6d",
-"problems/batch/26_Bitmask_and_Digit_DP/3/11.out": "4836c1e7e6726fa96685f6d23823ddfc467d57dde5c687a714c603bb37e0a48f",
-"problems/batch/26_Bitmask_and_Digit_DP/3/12.in": "90e12e8e3a012dfd7c7e9721e5b6addcca250ca038f098c21b196cef4c295de7",
-"problems/batch/26_Bitmask_and_Digit_DP/3/12.out": "a7ff402f519c2cbceaa833e9edd8350c1d85116a425856543bebdea23578a0cc",
-"problems/batch/26_Bitmask_and_Digit_DP/3/13.in": "895f1d1df33acc19013586f0c821ddadc2735e6bc8ebb66c02056eb43c8b025c",
-"problems/batch/26_Bitmask_and_Digit_DP/3/13.out": "bc8d99bfb63491f724f5eda8a587dbcefec24e522d73521bb508e971fab302b7",
-"problems/batch/26_Bitmask_and_Digit_DP/3/14.in": "a21f00eca9ff23939fe9b652c7a37736b9ff1cf5d2338382306c433d87b54ce2",
-"problems/batch/26_Bitmask_and_Digit_DP/3/14.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/3/15.in": "f7d93fb81e90402d5b558dae0e51a45b68f5cebdf6ec2eb2e3177600c9012695",
-"problems/batch/26_Bitmask_and_Digit_DP/3/15.out": "6f3e559bbd93fa2f9b25cbd9b5f348a4b20c902d8e6498de5c28d73df8e2f571",
-"problems/batch/26_Bitmask_and_Digit_DP/3/16.in": "e56adc7a9d45c6bb7bf19042f7664089e5b06585400c2ee7ec9968aab491b34e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/16.out": "7d3eba029fbb26e3dfb3213c65c62276d621db3a1173cb582c16f2e6cde71d73",
-"problems/batch/26_Bitmask_and_Digit_DP/3/17.in": "b83ea55bf1ded91e36e62c8222f6b5c543e26fa7ee1f8b09594606cf902b88a9",
-"problems/batch/26_Bitmask_and_Digit_DP/3/17.out": "0a8753014cb7c28da6785e8cc39abfc1a891dbb5590bcae632e3088c2f3d2282",
-"problems/batch/26_Bitmask_and_Digit_DP/3/18.in": "202ae50d6a39dc070dcefba7fff0f5ee7c1157ac84bc824575bcc5223b3d372a",
-"problems/batch/26_Bitmask_and_Digit_DP/3/18.out": "8843a0b4a857e938c28627e9da54f727aa97dbb4ad4d8012f3166b00bce5d354",
-"problems/batch/26_Bitmask_and_Digit_DP/3/19.in": "3cb8867bdf8799624cd2c3e2b4b4255599a68ec302a1231c8bb324c300ab28f0",
-"problems/batch/26_Bitmask_and_Digit_DP/3/19.out": "21b268db36bacef479b0061578d01ac65e738403c851f8e1c9a2e331ec4ff0d0",
-"problems/batch/26_Bitmask_and_Digit_DP/3/20.in": "92485aa75d6a3d1900e28f134e8c7dcb2d88734ec7579e8365423fc1d2f78d6b",
-"problems/batch/26_Bitmask_and_Digit_DP/3/20.out": "feeef0879d01bbba4e5d7618c60bfb6d9129e6e7b4068d2bd067c70132318214",
-"problems/batch/26_Bitmask_and_Digit_DP/3/21.in": "af1b1be2b199e207619faa8299c8fe02777cefe130b146c79e22dd75a1290059",
-"problems/batch/26_Bitmask_and_Digit_DP/3/21.out": "9e55a6584040cda28b535bb8739540147a72a051572605a2207ca898044ee28a",
-"problems/batch/26_Bitmask_and_Digit_DP/3/22.in": "87dedc9d176418b0d8fe158b39de3b748d0cd53e00e25d3bf29fb5a4198af113",
-"problems/batch/26_Bitmask_and_Digit_DP/3/22.out": "b128404ba4d07e20fda1559882256c68b58d7856eeb794f95ba1c123669a71ee",
-"problems/batch/26_Bitmask_and_Digit_DP/3/23.in": "b134a3951b3152187ac69c8531325c0e0aabd4594f9fc463110a6f0f66dab757",
-"problems/batch/26_Bitmask_and_Digit_DP/3/23.out": "eea8254c7500ba3de996aa8ad6af399183f04e17d4a8102fde539dbc93a90012",
-"problems/batch/26_Bitmask_and_Digit_DP/3/24.in": "9e4f3b687266a265fda803cf606299eab02fe84f0802cd59f2c6bd84e2c0acd5",
-"problems/batch/26_Bitmask_and_Digit_DP/3/24.out": "48e6e169549b89f94fb81a0448bbf58a2e65805a2feb817a97fe503157687f1e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/25.in": "e2b78e281178ac18d3a5f6a14e7aff51747f4b0c794b7d9bbada11bf3026f677",
-"problems/batch/26_Bitmask_and_Digit_DP/3/25.out": "d1c7f031f6b36b1f2b531b31c4d312571ea63b7f5ddf96100a8d99c548406eb5",
-"problems/batch/26_Bitmask_and_Digit_DP/3/26.in": "168b0b91299aec02ddf17fa717ff1d38ef677750931a3b8e1fc7a95eadfbb8b6",
-"problems/batch/26_Bitmask_and_Digit_DP/3/26.out": "90201aa920a934da2581a2e6735918daf102182572ab70ca6a3a8d88f34ea7b9",
-"problems/batch/26_Bitmask_and_Digit_DP/3/27.in": "8553e6eb9fd6debca1813a31aa88c62ad46959ce86cabc7bab47f093a98caa0e",
-"problems/batch/26_Bitmask_and_Digit_DP/3/27.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
-"problems/batch/26_Bitmask_and_Digit_DP/3/28.in": "7f2883b97aa09a6a599c5fce9634f24a32fd7aec10bead10f04bbb32dce02bb3",
-"problems/batch/26_Bitmask_and_Digit_DP/3/28.out": "33af8436cb9c3616da419e24e10fd5914479204137814751b047838330a403e1",
-"problems/batch/26_Bitmask_and_Digit_DP/3/29.in": "8dcffd39d55c77a73adc2e139f9c311c5e0e9e187cb42dbe81f5fdf792a6f63a",
-"problems/batch/26_Bitmask_and_Digit_DP/3/29.out": "d3abe84671b7e36923f524af0fbe94b7af5bef9484d9a8682bad48a490736b0b",
-"problems/batch/26_Bitmask_and_Digit_DP/3/30.in": "da957e2cb81f8c85433a52f6146a8996cf38b14bbc9bde98f5324226d4e30c43",
-"problems/batch/26_Bitmask_and_Digit_DP/3/30.out": "083ea78a7f43f23d120d112648187da0975aeea8902fd5f7b4af87b47d2843cd",
-"problems/batch/26_Bitmask_and_Digit_DP/3/manifest.json": "7548cb1a9b0d647d261b7e303caef6be06dd798100977563bd323835755a830b",
+"problems/batch/26_Bitmask_and_Digit_DP/2/09.in": "2c6b695e7b78a24b80d03510ec2e15f9430c79c50f2a0204c0775fed55c0d8bc",
+"problems/batch/26_Bitmask_and_Digit_DP/2/09.out": "f5bbc9df805e66180e1640add85a5de00bf2e13d1f5415e22278318f2d82d5d1",
+"problems/batch/26_Bitmask_and_Digit_DP/2/10.in": "1daede5733f03e1851f758bc53d5d30cbd1f1d079a23a45b95986970be6402a9",
+"problems/batch/26_Bitmask_and_Digit_DP/2/10.out": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+"problems/batch/26_Bitmask_and_Digit_DP/2/11.in": "4d9181adb656e0e3323b8276a0ffa17d0525d3324c25dc43689b7592c784dd6d",
+"problems/batch/26_Bitmask_and_Digit_DP/2/11.out": "4836c1e7e6726fa96685f6d23823ddfc467d57dde5c687a714c603bb37e0a48f",
+"problems/batch/26_Bitmask_and_Digit_DP/2/12.in": "90e12e8e3a012dfd7c7e9721e5b6addcca250ca038f098c21b196cef4c295de7",
+"problems/batch/26_Bitmask_and_Digit_DP/2/12.out": "a7ff402f519c2cbceaa833e9edd8350c1d85116a425856543bebdea23578a0cc",
+"problems/batch/26_Bitmask_and_Digit_DP/2/13.in": "895f1d1df33acc19013586f0c821ddadc2735e6bc8ebb66c02056eb43c8b025c",
+"problems/batch/26_Bitmask_and_Digit_DP/2/13.out": "bc8d99bfb63491f724f5eda8a587dbcefec24e522d73521bb508e971fab302b7",
+"problems/batch/26_Bitmask_and_Digit_DP/2/14.in": "a21f00eca9ff23939fe9b652c7a37736b9ff1cf5d2338382306c433d87b54ce2",
+"problems/batch/26_Bitmask_and_Digit_DP/2/14.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
+"problems/batch/26_Bitmask_and_Digit_DP/2/15.in": "f7d93fb81e90402d5b558dae0e51a45b68f5cebdf6ec2eb2e3177600c9012695",
+"problems/batch/26_Bitmask_and_Digit_DP/2/15.out": "6f3e559bbd93fa2f9b25cbd9b5f348a4b20c902d8e6498de5c28d73df8e2f571",
+"problems/batch/26_Bitmask_and_Digit_DP/2/16.in": "e56adc7a9d45c6bb7bf19042f7664089e5b06585400c2ee7ec9968aab491b34e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/16.out": "7d3eba029fbb26e3dfb3213c65c62276d621db3a1173cb582c16f2e6cde71d73",
+"problems/batch/26_Bitmask_and_Digit_DP/2/17.in": "b83ea55bf1ded91e36e62c8222f6b5c543e26fa7ee1f8b09594606cf902b88a9",
+"problems/batch/26_Bitmask_and_Digit_DP/2/17.out": "0a8753014cb7c28da6785e8cc39abfc1a891dbb5590bcae632e3088c2f3d2282",
+"problems/batch/26_Bitmask_and_Digit_DP/2/18.in": "202ae50d6a39dc070dcefba7fff0f5ee7c1157ac84bc824575bcc5223b3d372a",
+"problems/batch/26_Bitmask_and_Digit_DP/2/18.out": "8843a0b4a857e938c28627e9da54f727aa97dbb4ad4d8012f3166b00bce5d354",
+"problems/batch/26_Bitmask_and_Digit_DP/2/19.in": "3cb8867bdf8799624cd2c3e2b4b4255599a68ec302a1231c8bb324c300ab28f0",
+"problems/batch/26_Bitmask_and_Digit_DP/2/19.out": "21b268db36bacef479b0061578d01ac65e738403c851f8e1c9a2e331ec4ff0d0",
+"problems/batch/26_Bitmask_and_Digit_DP/2/20.in": "92485aa75d6a3d1900e28f134e8c7dcb2d88734ec7579e8365423fc1d2f78d6b",
+"problems/batch/26_Bitmask_and_Digit_DP/2/20.out": "feeef0879d01bbba4e5d7618c60bfb6d9129e6e7b4068d2bd067c70132318214",
+"problems/batch/26_Bitmask_and_Digit_DP/2/21.in": "af1b1be2b199e207619faa8299c8fe02777cefe130b146c79e22dd75a1290059",
+"problems/batch/26_Bitmask_and_Digit_DP/2/21.out": "9e55a6584040cda28b535bb8739540147a72a051572605a2207ca898044ee28a",
+"problems/batch/26_Bitmask_and_Digit_DP/2/22.in": "87dedc9d176418b0d8fe158b39de3b748d0cd53e00e25d3bf29fb5a4198af113",
+"problems/batch/26_Bitmask_and_Digit_DP/2/22.out": "b128404ba4d07e20fda1559882256c68b58d7856eeb794f95ba1c123669a71ee",
+"problems/batch/26_Bitmask_and_Digit_DP/2/23.in": "b134a3951b3152187ac69c8531325c0e0aabd4594f9fc463110a6f0f66dab757",
+"problems/batch/26_Bitmask_and_Digit_DP/2/23.out": "eea8254c7500ba3de996aa8ad6af399183f04e17d4a8102fde539dbc93a90012",
+"problems/batch/26_Bitmask_and_Digit_DP/2/24.in": "9e4f3b687266a265fda803cf606299eab02fe84f0802cd59f2c6bd84e2c0acd5",
+"problems/batch/26_Bitmask_and_Digit_DP/2/24.out": "48e6e169549b89f94fb81a0448bbf58a2e65805a2feb817a97fe503157687f1e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/25.in": "e2b78e281178ac18d3a5f6a14e7aff51747f4b0c794b7d9bbada11bf3026f677",
+"problems/batch/26_Bitmask_and_Digit_DP/2/25.out": "d1c7f031f6b36b1f2b531b31c4d312571ea63b7f5ddf96100a8d99c548406eb5",
+"problems/batch/26_Bitmask_and_Digit_DP/2/26.in": "168b0b91299aec02ddf17fa717ff1d38ef677750931a3b8e1fc7a95eadfbb8b6",
+"problems/batch/26_Bitmask_and_Digit_DP/2/26.out": "90201aa920a934da2581a2e6735918daf102182572ab70ca6a3a8d88f34ea7b9",
+"problems/batch/26_Bitmask_and_Digit_DP/2/27.in": "8553e6eb9fd6debca1813a31aa88c62ad46959ce86cabc7bab47f093a98caa0e",
+"problems/batch/26_Bitmask_and_Digit_DP/2/27.out": "ee3aa64bb94a50845d5024cd4bd20202a4567aed5cd5328c0d97e9920775fc28",
+"problems/batch/26_Bitmask_and_Digit_DP/2/28.in": "7f2883b97aa09a6a599c5fce9634f24a32fd7aec10bead10f04bbb32dce02bb3",
+"problems/batch/26_Bitmask_and_Digit_DP/2/28.out": "33af8436cb9c3616da419e24e10fd5914479204137814751b047838330a403e1",
+"problems/batch/26_Bitmask_and_Digit_DP/2/29.in": "8dcffd39d55c77a73adc2e139f9c311c5e0e9e187cb42dbe81f5fdf792a6f63a",
+"problems/batch/26_Bitmask_and_Digit_DP/2/29.out": "d3abe84671b7e36923f524af0fbe94b7af5bef9484d9a8682bad48a490736b0b",
+"problems/batch/26_Bitmask_and_Digit_DP/2/30.in": "da957e2cb81f8c85433a52f6146a8996cf38b14bbc9bde98f5324226d4e30c43",
+"problems/batch/26_Bitmask_and_Digit_DP/2/30.out": "083ea78a7f43f23d120d112648187da0975aeea8902fd5f7b4af87b47d2843cd",
+"problems/batch/26_Bitmask_and_Digit_DP/2/manifest.json": "7548cb1a9b0d647d261b7e303caef6be06dd798100977563bd323835755a830b",
+"problems/batch/26_Bitmask_and_Digit_DP/3/01.in": "dcdf7a6d8e98e0b0f23ecd64ddaf0f92af1f83408444a00e0bc25b12fe55dba8",
+"problems/batch/26_Bitmask_and_Digit_DP/3/01.out": "54d6bedd10098f133f0584784f30d94ed0d4787afd70e14d0380b717229e85c1",
+"problems/batch/26_Bitmask_and_Digit_DP/3/02.in": "883dc777ae52c55a93132a01af71b0ecf9ccceb43e7013b5fc91fc4493b50b89",
+"problems/batch/26_Bitmask_and_Digit_DP/3/02.out": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+"problems/batch/26_Bitmask_and_Digit_DP/3/03.in": "0c35b0fdac3d1f68998a3f4828154862c19ecc04b301677784c30b70f12c4ec7",
+"problems/batch/26_Bitmask_and_Digit_DP/3/03.out": "4feeb289e4a18329fb2dbd8509a9ba0beef0b0d8ccd32c4e60c8dcf573b17e13",
+"problems/batch/26_Bitmask_and_Digit_DP/3/04.in": "debc3e16f7321167b94012b0b16359382e2d783dcfe2bb3d9c9dc8d7d7ae780b",
+"problems/batch/26_Bitmask_and_Digit_DP/3/04.out": "d2b00a089fbdf66e513d575f37515a5b90b5d931e81c9d68548e49a7d92494db",
+"problems/batch/26_Bitmask_and_Digit_DP/3/05.in": "b281a5b540210017f243ae1d6273643c5741c25fb45c63e93d6aa225828dffe7",
+"problems/batch/26_Bitmask_and_Digit_DP/3/05.out": "7763ec10e7476e40dd475e9f663d616551f86783750d3c35d4e266c268e91a32",
+"problems/batch/26_Bitmask_and_Digit_DP/3/06.in": "259c71ace99456554f844b5076439aef6e4f8904176f9c2c616b5adbf51ac1a3",
+"problems/batch/26_Bitmask_and_Digit_DP/3/06.out": "66c011b69deb2af1f733da15c484a8f936e5242dbec671021e02ed82b9e09047",
+"problems/batch/26_Bitmask_and_Digit_DP/3/07.in": "39e9472f1e2d3fe1cfa543de8ac1af0d30c07fae90b009575cc3886b36915294",
+"problems/batch/26_Bitmask_and_Digit_DP/3/07.out": "9479ba19f84b86c9a9085294c3db790796671c94a173ca59edd37068adf18243",
+"problems/batch/26_Bitmask_and_Digit_DP/3/08.in": "b47f0447acb8f0dc060164dd372e331c217fe88d66998cdac842b78164c58e56",
+"problems/batch/26_Bitmask_and_Digit_DP/3/08.out": "646d2c98cabb4e3736746e47704b39da92bfecd29e5f8ecabe508ae549f40746",
+"problems/batch/26_Bitmask_and_Digit_DP/3/09.in": "c8e4997f7d1e4f20eefb464238c5675f54948f6afc72340255140b36b077fe6d",
+"problems/batch/26_Bitmask_and_Digit_DP/3/09.out": "98b74db515c1b2d713074584c3b357442387bf7b1273fa8f0a0d485338e53be5",
+"problems/batch/26_Bitmask_and_Digit_DP/3/10.in": "77d2f59f5b43b3093981c04f1ab02ad3ea0d6d4c84ef8df16ac836f4717a6b5d",
+"problems/batch/26_Bitmask_and_Digit_DP/3/10.out": "9780a72c05ee88782eb95a0083f148893cfb7fe338cf30687cc044fd112c1cd4",
+"problems/batch/26_Bitmask_and_Digit_DP/3/11.in": "8e1cb56206f004e1a2f5a3280d226d3d0ae38e59e19c42a28d7342c77bf69758",
+"problems/batch/26_Bitmask_and_Digit_DP/3/11.out": "7a30927c48e29e34bfe69f727b2c702cc2d7cefffa77f3502ba5cc2005d02970",
+"problems/batch/26_Bitmask_and_Digit_DP/3/12.in": "8d5f2685e4633d5f72e7baaa8da361c7836dbf922b85fc62e0f64738535c64dc",
+"problems/batch/26_Bitmask_and_Digit_DP/3/12.out": "63bc744ed0b119061780fd50d1abaa657e93fb5d9c8a8c9b7090ed34b91bef11",
+"problems/batch/26_Bitmask_and_Digit_DP/3/13.in": "7a505aaf5c2afec28ddd4e5a4eb30b3def0fa75a68fa2c2ff8e2e0d60d8669cb",
+"problems/batch/26_Bitmask_and_Digit_DP/3/13.out": "924ecd8183abb7bcbb88bd645e5c76aaab1061ee9c557235becad4b7468fbbb4",
+"problems/batch/26_Bitmask_and_Digit_DP/3/14.in": "4a9dc68f32f7d68941a053cc038c424d2132444c58866a940f421281324b4faa",
+"problems/batch/26_Bitmask_and_Digit_DP/3/14.out": "20456d8df97b0bfe1a3abe1737e7ea78599827143673343ae64819243534c432",
+"problems/batch/26_Bitmask_and_Digit_DP/3/gen.py": "2bd59c8c9ae056b076e30b392662ac3f7568565b6fbe976ec8991ee530c88148",
+"problems/batch/26_Bitmask_and_Digit_DP/3/manifest.json": "7f9d1eeaf77f33d62db18391b3c45542ecafd5342bcf8485903b07e0c0f933bd",
 "problems/batch/26_Bitmask_and_Digit_DP/4/01.in": "abf6f46f4c0ca1187ce5c2b0599c17de5c0698afbec1901f876e88d5fb07ce48",
 "problems/batch/26_Bitmask_and_Digit_DP/4/01.out": "e517da93113f63146122b513f999821a9289e6e1c8be267bee0912cdff2e401b",
 "problems/batch/26_Bitmask_and_Digit_DP/4/02.in": "0c201625af31df37620b28d732bb816f3fe86ae74b92a6585f033409f9c8bd42",
@@ -46227,7 +46161,7 @@
 "problems/batch/33_Mo_Algorithm/9/12.out": "0c869ddbc1e154471c0d1921d509a6f86e48cdc383db95c5b3ab5944b78ae8f3",
 "problems/batch/33_Mo_Algorithm/9/gen.py": "acb54b6918d9b16aa1225a3a8d0b5da4c07486800b598154ea44c16a5605e135",
 "problems/batch/33_Mo_Algorithm/9/manifest.json": "d4d8caf876cec13626aebb28bcd5054be6c002d43c40df6afd886c07d35f6ae2",
-"problems/batch/problems.json": "5e36ef2d07324669ab5880dd29be9fd3c645c2297a89c14adb70246cb76ac9d1",
+"problems/batch/problems.json": "483679ec11cf29def5bc9834d80e4f0f02328ad0155568f11504dce55f2eff57",
 "problems/batch/sets.json": "6858a4cee17b568a1f9cdeeea64e6800edfb1879566d1fc6fbe3f0ccf2ca4815",
 "updater.py": "5a5e17e18036049d7168ac80056f64ff5ad7df812208c46536cdca4571241de0"
 },
@@ -46241,7 +46175,7 @@
 "student/.vscode/tasks.json"
 ],
 "01_Brute_Force_and_Implementation/01_Brute_Force_and_Implementation.pdf": [
-"38ee7863ba705f99683aff0ab7cb3a99db2ffcfe02da73b864fe35d54af315ff",
+"08d54cf6d30bd4747926dd3f1f66e8cfb85a952c413d09cd8f01fcbc8b849218",
 "student/01_Brute_Force_and_Implementation/01_Brute_Force_and_Implementation.pdf"
 ],
 "01_Brute_Force_and_Implementation/Makefile": [
@@ -46253,7 +46187,7 @@
 "student/set_files/judge.bat"
 ],
 "02_Strings_and_Parsing/02_Strings_and_Parsing.pdf": [
-"c6cfa85200a838ae4d7e22657fe2c114348f083d924e93a004929f37980edf73",
+"a7e1f8726074abac7c19275124a09b9945c347be7428477c5bed6e92c010e55b",
 "student/02_Strings_and_Parsing/02_Strings_and_Parsing.pdf"
 ],
 "02_Strings_and_Parsing/Makefile": [
@@ -46265,7 +46199,7 @@
 "student/set_files/judge.bat"
 ],
 "03_Prefix_Sums_and_Two_Pointers/03_Prefix_Sums_and_Two_Pointers.pdf": [
-"ab848a644094b2a24fef884571e458c5d46ac5ca0756a575d19f11e49cf2d322",
+"10951363892bddc4c8dc4d071dd65f63f76bb6f8ba7c045fcb95487b67d3384b",
 "student/03_Prefix_Sums_and_Two_Pointers/03_Prefix_Sums_and_Two_Pointers.pdf"
 ],
 "03_Prefix_Sums_and_Two_Pointers/Makefile": [
@@ -46277,7 +46211,7 @@
 "student/set_files/judge.bat"
 ],
 "04_Binary_Search/04_Binary_Search.pdf": [
-"f30b8a3b00b60e9d6e2e934a90f00038d376755816193bad78c0a409d2ce4a42",
+"6036637827cbafe2b4e2102d6ef367f5f978cf5546f7d41eed4a0d4823f50a5b",
 "student/04_Binary_Search/04_Binary_Search.pdf"
 ],
 "04_Binary_Search/Makefile": [
@@ -46289,7 +46223,7 @@
 "student/set_files/judge.bat"
 ],
 "05_Greedy/05_Greedy.pdf": [
-"fef50bb779cc0db98b98793b43193738ea7f017076ab15f6f63d8ba3f60acb44",
+"e0a1a4464b79947c8ae0021b55c9d79106fbc3c3dbc85b194759469e510c2a8b",
 "student/05_Greedy/05_Greedy.pdf"
 ],
 "05_Greedy/Makefile": [
@@ -46301,7 +46235,7 @@
 "student/set_files/judge.bat"
 ],
 "06_Sorting_and_Sweep_Line/06_Sorting_and_Sweep_Line.pdf": [
-"a5523556c5bb27cc49579b9f42e3389e52a30f298aad8a0d001dfd9899e9da6d",
+"8f70c4b8ae79f427efdcef179ff138fcafe8284a4ac3a83d6394a30e047109f6",
 "student/06_Sorting_and_Sweep_Line/06_Sorting_and_Sweep_Line.pdf"
 ],
 "06_Sorting_and_Sweep_Line/Makefile": [
@@ -46313,7 +46247,7 @@
 "student/set_files/judge.bat"
 ],
 "07_Number_Theory_and_Counting/07_Number_Theory_and_Counting.pdf": [
-"2d3a217ed10ae06fb625fc48de6dfd23d0bdaa1c7b2b98ebc38b3b74173428ff",
+"acbd4c6932260daea4841627f878b4a1dcc5a04ece8702f4016e6bab4d5deaf3",
 "student/07_Number_Theory_and_Counting/07_Number_Theory_and_Counting.pdf"
 ],
 "07_Number_Theory_and_Counting/Makefile": [
@@ -46325,7 +46259,7 @@
 "student/set_files/judge.bat"
 ],
 "08_Divide_and_Conquer/08_Divide_and_Conquer.pdf": [
-"2fd694e0eb8e1f773e0fc5e54e4badadfb277e5290fa2ca524702667465388b3",
+"9dec8d3bcaa67bc7d1a4bfc3eb7b172887ff41256c36ab59c1ec616c81b20398",
 "student/08_Divide_and_Conquer/08_Divide_and_Conquer.pdf"
 ],
 "08_Divide_and_Conquer/Makefile": [
@@ -46337,7 +46271,7 @@
 "student/set_files/judge.bat"
 ],
 "09_DP_I_Foundations/09_DP_I_Foundations.pdf": [
-"72486bdce86a29b622353bb93c2cd95f74fc443c1c699f270fc3476bf97a8e4b",
+"338a5dfcfe963cf166c9bf16b99a096d330241b60463e1256cd7a773f05efcac",
 "student/09_DP_I_Foundations/09_DP_I_Foundations.pdf"
 ],
 "09_DP_I_Foundations/Makefile": [
@@ -46349,7 +46283,7 @@
 "student/set_files/judge.bat"
 ],
 "10_DP_II_Classic_Patterns/10_DP_II_Classic_Patterns.pdf": [
-"ba6ba214e51d5298b8050da9f24d256abce432cba8759e3685b26eda32c360a4",
+"792ae26e6c0e127a66c3fc2752730163e6aebe33193faafecc9b9bd5031aa430",
 "student/10_DP_II_Classic_Patterns/10_DP_II_Classic_Patterns.pdf"
 ],
 "10_DP_II_Classic_Patterns/Makefile": [
@@ -46361,7 +46295,7 @@
 "student/set_files/judge.bat"
 ],
 "11_DP_III_Faster_Transitions/11_DP_III_Faster_Transitions.pdf": [
-"946f85e64beb00c0b34e2f37ff51d32ccffea9865138b8d4898fb3d8ff46e124",
+"dd2e07d01d1c527739c6bbb0c4e31f586dee1d30854e5a8c0c1d1fc2e0632cfe",
 "student/11_DP_III_Faster_Transitions/11_DP_III_Faster_Transitions.pdf"
 ],
 "11_DP_III_Faster_Transitions/Makefile": [
@@ -46373,7 +46307,7 @@
 "student/set_files/judge.bat"
 ],
 "12_Graph_Traversal/12_Graph_Traversal.pdf": [
-"a661f8c4460ba113ced01c9e5063f020ffb232aff090343e3e2ebb9c75a3bb06",
+"aeb09f7a6e66759a2d83a9d2f134550d71ae7b6a2d0578960e41d534eab3b08f",
 "student/12_Graph_Traversal/12_Graph_Traversal.pdf"
 ],
 "12_Graph_Traversal/Makefile": [
@@ -46385,7 +46319,7 @@
 "student/set_files/judge.bat"
 ],
 "13_Shortest_Paths/13_Shortest_Paths.pdf": [
-"55b27f09db4cec0efb54ac5fd44df63b3868483e1ea843db7bc683eb24dc4412",
+"6a98672c36caf8694b67176175f90db4a52eb9ad91cad7f97c2b5e2bdafb3f21",
 "student/13_Shortest_Paths/13_Shortest_Paths.pdf"
 ],
 "13_Shortest_Paths/Makefile": [
@@ -46397,7 +46331,7 @@
 "student/set_files/judge.bat"
 ],
 "14_DSU_and_MST/14_DSU_and_MST.pdf": [
-"7a3c2aee18d643a5f68f9eb232e4d5d63f0212d73e999c5665602782b54ddc70",
+"7ad631374880c83d1229ad2b1ca218d9db38d9ce1bb8bbbbb1e562db0a11b050",
 "student/14_DSU_and_MST/14_DSU_and_MST.pdf"
 ],
 "14_DSU_and_MST/Makefile": [
@@ -46409,7 +46343,7 @@
 "student/set_files/judge.bat"
 ],
 "15_Trees/15_Trees.pdf": [
-"d2b4930f59bc1122543c4d81dbd7263b59807e9783ccb15e58f4b4b334bdbec4",
+"42503f07296fdf90cd24d98c78dbfa905d572a7ca4477f8f297deb779ba45815",
 "student/15_Trees/15_Trees.pdf"
 ],
 "15_Trees/Makefile": [
@@ -46421,7 +46355,7 @@
 "student/set_files/judge.bat"
 ],
 "16_Monotonic_Stack_and_Queue/16_Monotonic_Stack_and_Queue.pdf": [
-"c014b7d3d8c29d86acee397b67680ebc9a745f6ebfa7537b43150ce99ceaa649",
+"3a24969cb74ae6415739f91e6dee909c7be74d68e478f5ec979af1af35aed4eb",
 "student/16_Monotonic_Stack_and_Queue/16_Monotonic_Stack_and_Queue.pdf"
 ],
 "16_Monotonic_Stack_and_Queue/Makefile": [
@@ -46433,7 +46367,7 @@
 "student/set_files/judge.bat"
 ],
 "17_Fenwick_and_Segment_Tree/17_Fenwick_and_Segment_Tree.pdf": [
-"7bcbe3b404e7973ac3a15f7e505a66903a1fb4d393ec9b89adcafc151350746d",
+"17517c1de10e1dd455ad3946159a7575ecb252c757bd565a231b02811d66b9b4",
 "student/17_Fenwick_and_Segment_Tree/17_Fenwick_and_Segment_Tree.pdf"
 ],
 "17_Fenwick_and_Segment_Tree/Makefile": [
@@ -46445,7 +46379,7 @@
 "student/set_files/judge.bat"
 ],
 "18_Sparse_Table/18_Sparse_Table.pdf": [
-"98d72fceef4fd40c390ef7d4909674f5f3d90f8687f688e6b9dde6c9e761ea58",
+"e0a300da35fd4e2f8b3e85a0cca949fef52feddb9adb354d1a413e07ecf4f965",
 "student/18_Sparse_Table/18_Sparse_Table.pdf"
 ],
 "18_Sparse_Table/Makefile": [
@@ -46457,7 +46391,7 @@
 "student/set_files/judge.bat"
 ],
 "19_Lazy_Segment_Tree/19_Lazy_Segment_Tree.pdf": [
-"c5b7af690dd2b86a36835e8aa95f9feae27c81dbfd00d5c9efaf0512a9bec15b",
+"5a24604a7f83db245fe4f0ad045565bb1760da82b7610df7991afa7bf25655b5",
 "student/19_Lazy_Segment_Tree/19_Lazy_Segment_Tree.pdf"
 ],
 "19_Lazy_Segment_Tree/Makefile": [
@@ -46469,7 +46403,7 @@
 "student/set_files/judge.bat"
 ],
 "20_Tree_DP/20_Tree_DP.pdf": [
-"4185953a836024638c83ed8c1da99e33bcad34bc9a74fb8e0dc8518e5a861688",
+"de3c0db46ff44eb5aeb7652cad4be305c3c6df3164e4996daef6eb5df8d3b8c7",
 "student/20_Tree_DP/20_Tree_DP.pdf"
 ],
 "20_Tree_DP/Makefile": [
@@ -46481,7 +46415,7 @@
 "student/set_files/judge.bat"
 ],
 "21_Rerooting/21_Rerooting.pdf": [
-"73c24aa9f91376a8da7a6bc7421bfd863af934751c53d6d1ffac2198fa75a3a7",
+"9d3fcc6bfc727331ddca649f9f063a286680cad41ba2e66ed937cc62a226cdfc",
 "student/21_Rerooting/21_Rerooting.pdf"
 ],
 "21_Rerooting/Makefile": [
@@ -46493,7 +46427,7 @@
 "student/set_files/judge.bat"
 ],
 "22_Euler_Tour/22_Euler_Tour.pdf": [
-"27884f5c41fcb760894e379c2bb22cb21ae2da01b7dfafbae162cd0969007376",
+"e810bc6ecf999f9a08e6c4003a5ea5252b192b11c0b9825664b1c4696f729219",
 "student/22_Euler_Tour/22_Euler_Tour.pdf"
 ],
 "22_Euler_Tour/Makefile": [
@@ -46505,7 +46439,7 @@
 "student/set_files/judge.bat"
 ],
 "23_LCA_and_Binary_Lifting/23_LCA_and_Binary_Lifting.pdf": [
-"6e1b11c0bfeaf81d4b651a46db3cdb8227965d1acd432755f12aae424729ebec",
+"2cf5f125e2267c97873c47ca62682cc11a6d956d372c1a95abebf3a920a81b1e",
 "student/23_LCA_and_Binary_Lifting/23_LCA_and_Binary_Lifting.pdf"
 ],
 "23_LCA_and_Binary_Lifting/Makefile": [
@@ -46517,7 +46451,7 @@
 "student/set_files/judge.bat"
 ],
 "24_SCC_Bridges_and_Articulation_Points/24_SCC_Bridges_and_Articulation_Points.pdf": [
-"02eb54b39fd241e5919e23eb72b08a99c2160ce56eaf7bbda4e644c7f2180345",
+"782a394c8be8d058d875c2490c9f469c3b5ab8f3df12b2485e3565e0eb9cc8b3",
 "student/24_SCC_Bridges_and_Articulation_Points/24_SCC_Bridges_and_Articulation_Points.pdf"
 ],
 "24_SCC_Bridges_and_Articulation_Points/Makefile": [
@@ -46529,7 +46463,7 @@
 "student/set_files/judge.bat"
 ],
 "25_Trie/25_Trie.pdf": [
-"c0e0984ebc1be1a3223d56122d3b196e07edde132f5af47d8c8a98b9f781962e",
+"8c27ad02b088be92b09be878d728573b4b4cc53b74f35b4e94dabebfd56a108c",
 "student/25_Trie/25_Trie.pdf"
 ],
 "25_Trie/Makefile": [
@@ -46541,7 +46475,7 @@
 "student/set_files/judge.bat"
 ],
 "26_Bitmask_and_Digit_DP/26_Bitmask_and_Digit_DP.pdf": [
-"cb8a185bd30401de92cf5a156a8db019e9cc4bb71117f9d31f4d2255ce49d6e1",
+"345d8ed4ca3db17f5de140fa70dce84267bf61392975a1a6d49b969e995f3703",
 "student/26_Bitmask_and_Digit_DP/26_Bitmask_and_Digit_DP.pdf"
 ],
 "26_Bitmask_and_Digit_DP/Makefile": [
@@ -46553,7 +46487,7 @@
 "student/set_files/judge.bat"
 ],
 "27_DSU_on_Tree/27_DSU_on_Tree.pdf": [
-"f1fc514dcaac7360497baddc5cc9648b3eff1190e1166a0839b5588e4cff828d",
+"ab7e3c7cfc8ad852be49a45078b928b9ad78a5e5b8b2281a93c2f822c6a4ccc8",
 "student/27_DSU_on_Tree/27_DSU_on_Tree.pdf"
 ],
 "27_DSU_on_Tree/Makefile": [
@@ -46565,7 +46499,7 @@
 "student/set_files/judge.bat"
 ],
 "28_Heavy_Light_Decomposition/28_Heavy_Light_Decomposition.pdf": [
-"df942a25836c793872ff0ef32b142eb0102b052f0bb331d8ef527e19d1368000",
+"0215784ad0fdb59d6e1151d1ecad5ccf4976430ad3e058c4d88bc27a65621ef8",
 "student/28_Heavy_Light_Decomposition/28_Heavy_Light_Decomposition.pdf"
 ],
 "28_Heavy_Light_Decomposition/Makefile": [
@@ -46577,7 +46511,7 @@
 "student/set_files/judge.bat"
 ],
 "29_Centroid_Decomposition/29_Centroid_Decomposition.pdf": [
-"bf90410b0fa7b72f9b379d710515bb7d04402cc34300757d8d940ec91b4f20b7",
+"1905b5287f426fba945f9a3d7ac9322e4a5279be832b95d07584a5e514770132",
 "student/29_Centroid_Decomposition/29_Centroid_Decomposition.pdf"
 ],
 "29_Centroid_Decomposition/Makefile": [
@@ -46589,7 +46523,7 @@
 "student/set_files/judge.bat"
 ],
 "30_Persistent_Segment_Tree/30_Persistent_Segment_Tree.pdf": [
-"0e98a89271963072aacecaf90883c20c2b530880e91e339387ebac697c8583a6",
+"a76c6a6f69056ceef74370dfce2aca65b16babf617376bff58cf8adb0404bc0f",
 "student/30_Persistent_Segment_Tree/30_Persistent_Segment_Tree.pdf"
 ],
 "30_Persistent_Segment_Tree/Makefile": [
@@ -46601,7 +46535,7 @@
 "student/set_files/judge.bat"
 ],
 "31_Convex_Hull/31_Convex_Hull.pdf": [
-"3a61f801d47cc1c5a7876a8587426e463a5bf36be5abbd37b6a474b4b5a800cf",
+"3ae001970794bb60039089a8d28a44728b02c7f0627fca33e3ad808196f73c62",
 "student/31_Convex_Hull/31_Convex_Hull.pdf"
 ],
 "31_Convex_Hull/Makefile": [
@@ -46613,7 +46547,7 @@
 "student/set_files/judge.bat"
 ],
 "32_Convex_Hull_Trick_and_DP_Optimization/32_Convex_Hull_Trick_and_DP_Optimization.pdf": [
-"a0d12f03f4d7296b7259e0f93ec07f68782f9b28568f4583351c153d2cd439d7",
+"f46c021a42ab0fc0f594db93cc52fa9ac779a22dab22c4469659ba486561d213",
 "student/32_Convex_Hull_Trick_and_DP_Optimization/32_Convex_Hull_Trick_and_DP_Optimization.pdf"
 ],
 "32_Convex_Hull_Trick_and_DP_Optimization/Makefile": [
@@ -46625,7 +46559,7 @@
 "student/set_files/judge.bat"
 ],
 "33_Mo_Algorithm/33_Mo_Algorithm.pdf": [
-"40a750a017b736fc222544c62825b3749303e2eceb4384ee129b6824499542af",
+"c6ddb67e73a8d2e375c38caa4019aefbac564137abe4e751bf726e10b56c91d1",
 "student/33_Mo_Algorithm/33_Mo_Algorithm.pdf"
 ],
 "33_Mo_Algorithm/Makefile": [
@@ -46637,7 +46571,7 @@
 "student/set_files/judge.bat"
 ],
 "README.txt": [
-"d74a4d08db69eb34501107b3f169060a5a8286a7ed357f5bcb304a3c9a63086d",
+"aa0557e0525623aa9b0b29529217d7b6c37103d44a53365135901a3e8fd689c1",
 "student/README.txt"
 ]
 },
@@ -47505,7 +47439,7 @@
 ],
 [
 "Topic_7/5.cpp",
-"26_Bitmask_and_Digit_DP/1.cpp"
+"26_Bitmask_and_Digit_DP/old/1_AssigningJobs.cpp"
 ],
 [
 "Topic_7/6.cpp",
@@ -47517,11 +47451,11 @@
 ],
 [
 "Topic_7/8.cpp",
-"26_Bitmask_and_Digit_DP/3.cpp"
+"26_Bitmask_and_Digit_DP/2.cpp"
 ],
 [
 "Topic_7/9.cpp",
-"26_Bitmask_and_Digit_DP/2.cpp"
+"26_Bitmask_and_Digit_DP/old/2_DigitSumDivisible.cpp"
 ],
 [
 "Topic_8/1.cpp",
@@ -48707,7 +48641,7 @@
 ],
 [
 "Topic_7/5.cpp",
-"26_Bitmask_and_Digit_DP/1.cpp"
+"26_Bitmask_and_Digit_DP/old/1_AssigningJobs.cpp"
 ],
 [
 "Topic_7/6.cpp",
@@ -48719,11 +48653,11 @@
 ],
 [
 "Topic_7/8.cpp",
-"26_Bitmask_and_Digit_DP/3.cpp"
+"26_Bitmask_and_Digit_DP/2.cpp"
 ],
 [
 "Topic_7/9.cpp",
-"26_Bitmask_and_Digit_DP/2.cpp"
+"26_Bitmask_and_Digit_DP/old/2_DigitSumDivisible.cpp"
 ],
 [
 "Topic_8/1.cpp",
@@ -49669,7 +49603,7 @@
 ],
 [
 "Topic_6/5.cpp",
-"26_Bitmask_and_Digit_DP/1.cpp"
+"26_Bitmask_and_Digit_DP/old/1_AssigningJobs.cpp"
 ],
 [
 "Topic_6/6.cpp",
@@ -49681,11 +49615,11 @@
 ],
 [
 "Topic_6/8.cpp",
-"26_Bitmask_and_Digit_DP/3.cpp"
+"26_Bitmask_and_Digit_DP/2.cpp"
 ],
 [
 "Topic_6/9.cpp",
-"26_Bitmask_and_Digit_DP/2.cpp"
+"26_Bitmask_and_Digit_DP/old/2_DigitSumDivisible.cpp"
 ],
 [
 "Topic_7/1.cpp",
@@ -50551,7 +50485,7 @@
 ],
 [
 "Topic_6/5.cpp",
-"26_Bitmask_and_Digit_DP/1.cpp"
+"26_Bitmask_and_Digit_DP/old/1_AssigningJobs.cpp"
 ],
 [
 "Topic_6/6.cpp",
@@ -50563,11 +50497,11 @@
 ],
 [
 "Topic_6/8.cpp",
-"26_Bitmask_and_Digit_DP/3.cpp"
+"26_Bitmask_and_Digit_DP/2.cpp"
 ],
 [
 "Topic_6/9.cpp",
-"26_Bitmask_and_Digit_DP/2.cpp"
+"26_Bitmask_and_Digit_DP/old/2_DigitSumDivisible.cpp"
 ],
 [
 "Topic_7/1.cpp",

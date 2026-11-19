@@ -2,7 +2,7 @@
 
 This repo is the source of the judge and test data that students run on their own computers for Camp 2 topic
 practice. **Version 4** has 519 problems in 33 topics, each topic ordered from easy to hard (★ easy, ★★ medium,
-★★★ challenging), in three groups:
+★★★ challenging; in the Advanced group ★ reads "เริ่มต้น", starting level), in three groups:
 
 - **Core** (01-14): the main content of Camp 2, 20 problems per topic.
 - **Intermediate** (15-25): the extended content, 12 problems per topic (15 Trees has 20, 17 Fenwick and Segment

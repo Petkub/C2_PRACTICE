@@ -2967,22 +2967,22 @@
   "samples": 5
  },
  "2601": {
-  "title": "แจกงานให้พนักงาน",
-  "en": "Assigning Jobs",
+  "title": "ยึดป้อมเก็บสะพาน",
+  "en": "Forts and Bridges",
   "tier": 1,
   "dir": "26_Bitmask_and_Digit_DP/1",
   "samples": 6
  },
  "2602": {
-  "title": "ผลรวมเลขโดดหารลงตัว",
-  "en": "Digit Sum Divisible",
-  "tier": 1,
-  "dir": "26_Bitmask_and_Digit_DP/2",
-  "samples": 6
- },
- "2603": {
   "title": "ส่งของให้ครบทุกเมือง",
   "en": "Visiting Every Town",
+  "tier": 1,
+  "dir": "26_Bitmask_and_Digit_DP/2",
+  "samples": 5
+ },
+ "2603": {
+  "title": "เลขนำโชคที่ซ่อนอยู่",
+  "en": "Hidden Lucky Sequence",
   "tier": 1,
   "dir": "26_Bitmask_and_Digit_DP/3",
   "samples": 5
