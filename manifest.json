@@ -137,7 +137,7 @@
 },
 "create_only": {},
 "files": {
-"CHANGELOG.txt": "ae434013860e9d4ef768241d77fc62e1f67b51ac4b327232ff131a9fdd25a9cb",
+"CHANGELOG.txt": "f802ec9edaffd2564ae96fda4e81155240d204b368e263bdd2035b7e841f001f",
 "README.txt": "0f3245582a7cb7e65d8828d01452d4b5403db42d3a13f1feca6c1b1c758b8e51",
 "include/bits/stdc++.h": "1545f1f4b55b3acb866effca73203f3a9131773f147331cbf4e983ebf36d6cc9",
 "judge.cmd": "84038f11038804a85edc6df3e3c64f10a72891fad6b98ac7a7ae08e358ed7f44",
@@ -19947,7 +19947,7 @@
 "problems/batch/33_Mo_Algorithm/9/manifest.json": "d4d8caf876cec13626aebb28bcd5054be6c002d43c40df6afd886c07d35f6ae2",
 "problems/batch/problems.json": "483679ec11cf29def5bc9834d80e4f0f02328ad0155568f11504dce55f2eff57",
 "problems/batch/sets.json": "6858a4cee17b568a1f9cdeeea64e6800edfb1879566d1fc6fbe3f0ccf2ca4815",
-"updater.py": "5a5e17e18036049d7168ac80056f64ff5ad7df812208c46536cdca4571241de0"
+"updater.py": "d7b2b8e763e1a94df25d5b9745dbb47f0ffc83c31f903094405a3e66d7bcfacd"
 },
 "managed": {
 ".vscode/settings.json": [
@@ -19959,7 +19959,7 @@
 "student/.vscode/tasks.json"
 ],
 "README.txt": [
-"aa0557e0525623aa9b0b29529217d7b6c37103d44a53365135901a3e8fd689c1",
+"0ce29d4f4a0ec4c5b6e14b6794bb9dd410c00103717e43b48f565f5288806949",
 "student/README.txt"
 ]
 },
@@ -26353,7 +26353,7 @@
 ]
 },
 "files": {
-"CHANGELOG.txt": "ae434013860e9d4ef768241d77fc62e1f67b51ac4b327232ff131a9fdd25a9cb",
+"CHANGELOG.txt": "f802ec9edaffd2564ae96fda4e81155240d204b368e263bdd2035b7e841f001f",
 "README.txt": "0f3245582a7cb7e65d8828d01452d4b5403db42d3a13f1feca6c1b1c758b8e51",
 "include/bits/stdc++.h": "1545f1f4b55b3acb866effca73203f3a9131773f147331cbf4e983ebf36d6cc9",
 "judge.cmd": "84038f11038804a85edc6df3e3c64f10a72891fad6b98ac7a7ae08e358ed7f44",
@@ -46163,7 +46163,7 @@
 "problems/batch/33_Mo_Algorithm/9/manifest.json": "d4d8caf876cec13626aebb28bcd5054be6c002d43c40df6afd886c07d35f6ae2",
 "problems/batch/problems.json": "483679ec11cf29def5bc9834d80e4f0f02328ad0155568f11504dce55f2eff57",
 "problems/batch/sets.json": "6858a4cee17b568a1f9cdeeea64e6800edfb1879566d1fc6fbe3f0ccf2ca4815",
-"updater.py": "5a5e17e18036049d7168ac80056f64ff5ad7df812208c46536cdca4571241de0"
+"updater.py": "d7b2b8e763e1a94df25d5b9745dbb47f0ffc83c31f903094405a3e66d7bcfacd"
 },
 "managed": {
 ".vscode/settings.json": [
@@ -46174,404 +46174,404 @@
 "db40c91d0e5497105c53741eb2262a83b9ac6303bf25c5dd0af7d127b349546a",
 "student/.vscode/tasks.json"
 ],
-"01_Brute_Force_and_Implementation/01_Brute_Force_and_Implementation.pdf": [
-"08d54cf6d30bd4747926dd3f1f66e8cfb85a952c413d09cd8f01fcbc8b849218",
-"student/01_Brute_Force_and_Implementation/01_Brute_Force_and_Implementation.pdf"
-],
 "01_Brute_Force_and_Implementation/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"01_Brute_Force_and_Implementation/Problems_01_Brute_Force_and_Implementation.pdf": [
+"3400b9a2eb7253ceabf5c940a25db87310d661357d133fa0c0e5673d0b4ca881",
+"student/01_Brute_Force_and_Implementation/Problems_01_Brute_Force_and_Implementation.pdf"
 ],
 "01_Brute_Force_and_Implementation/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"02_Strings_and_Parsing/02_Strings_and_Parsing.pdf": [
-"a7e1f8726074abac7c19275124a09b9945c347be7428477c5bed6e92c010e55b",
-"student/02_Strings_and_Parsing/02_Strings_and_Parsing.pdf"
-],
 "02_Strings_and_Parsing/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"02_Strings_and_Parsing/Problems_02_Strings_and_Parsing.pdf": [
+"4647fc7c287f82a8963398243dc48808d70993ea632ce75258d55c79226a965b",
+"student/02_Strings_and_Parsing/Problems_02_Strings_and_Parsing.pdf"
 ],
 "02_Strings_and_Parsing/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"03_Prefix_Sums_and_Two_Pointers/03_Prefix_Sums_and_Two_Pointers.pdf": [
-"10951363892bddc4c8dc4d071dd65f63f76bb6f8ba7c045fcb95487b67d3384b",
-"student/03_Prefix_Sums_and_Two_Pointers/03_Prefix_Sums_and_Two_Pointers.pdf"
-],
 "03_Prefix_Sums_and_Two_Pointers/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"03_Prefix_Sums_and_Two_Pointers/Problems_03_Prefix_Sums_and_Two_Pointers.pdf": [
+"8742c1862e5913f99377ea90c6c084b0e180d72cdd6496853bb8d21dfb97db5a",
+"student/03_Prefix_Sums_and_Two_Pointers/Problems_03_Prefix_Sums_and_Two_Pointers.pdf"
 ],
 "03_Prefix_Sums_and_Two_Pointers/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"04_Binary_Search/04_Binary_Search.pdf": [
-"6036637827cbafe2b4e2102d6ef367f5f978cf5546f7d41eed4a0d4823f50a5b",
-"student/04_Binary_Search/04_Binary_Search.pdf"
-],
 "04_Binary_Search/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"04_Binary_Search/Problems_04_Binary_Search.pdf": [
+"85ae93bf2082155080a287c2da7958d0a76f0b8f2d2ca7b4a294c61958d98ee0",
+"student/04_Binary_Search/Problems_04_Binary_Search.pdf"
 ],
 "04_Binary_Search/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"05_Greedy/05_Greedy.pdf": [
-"e0a1a4464b79947c8ae0021b55c9d79106fbc3c3dbc85b194759469e510c2a8b",
-"student/05_Greedy/05_Greedy.pdf"
-],
 "05_Greedy/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"05_Greedy/Problems_05_Greedy.pdf": [
+"55ea2b1941a2a93cd50dcfe0830049a5d874b7a79fce3127b657eeb778817ed0",
+"student/05_Greedy/Problems_05_Greedy.pdf"
 ],
 "05_Greedy/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"06_Sorting_and_Sweep_Line/06_Sorting_and_Sweep_Line.pdf": [
-"8f70c4b8ae79f427efdcef179ff138fcafe8284a4ac3a83d6394a30e047109f6",
-"student/06_Sorting_and_Sweep_Line/06_Sorting_and_Sweep_Line.pdf"
-],
 "06_Sorting_and_Sweep_Line/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"06_Sorting_and_Sweep_Line/Problems_06_Sorting_and_Sweep_Line.pdf": [
+"14500cd0c4cbef63396f495a569ce76acd8e70ce4f9a6ebda8f623bd638b14ad",
+"student/06_Sorting_and_Sweep_Line/Problems_06_Sorting_and_Sweep_Line.pdf"
 ],
 "06_Sorting_and_Sweep_Line/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"07_Number_Theory_and_Counting/07_Number_Theory_and_Counting.pdf": [
-"acbd4c6932260daea4841627f878b4a1dcc5a04ece8702f4016e6bab4d5deaf3",
-"student/07_Number_Theory_and_Counting/07_Number_Theory_and_Counting.pdf"
-],
 "07_Number_Theory_and_Counting/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"07_Number_Theory_and_Counting/Problems_07_Number_Theory_and_Counting.pdf": [
+"9594e86e7e34194e323574eda333501e75a231f5b089ee3cc2660f8e2eff3ffe",
+"student/07_Number_Theory_and_Counting/Problems_07_Number_Theory_and_Counting.pdf"
 ],
 "07_Number_Theory_and_Counting/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"08_Divide_and_Conquer/08_Divide_and_Conquer.pdf": [
-"9dec8d3bcaa67bc7d1a4bfc3eb7b172887ff41256c36ab59c1ec616c81b20398",
-"student/08_Divide_and_Conquer/08_Divide_and_Conquer.pdf"
-],
 "08_Divide_and_Conquer/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"08_Divide_and_Conquer/Problems_08_Divide_and_Conquer.pdf": [
+"09977d432a7560e62906cb164107830161f901123a99ca0a2bbb523e3654e025",
+"student/08_Divide_and_Conquer/Problems_08_Divide_and_Conquer.pdf"
 ],
 "08_Divide_and_Conquer/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"09_DP_I_Foundations/09_DP_I_Foundations.pdf": [
-"338a5dfcfe963cf166c9bf16b99a096d330241b60463e1256cd7a773f05efcac",
-"student/09_DP_I_Foundations/09_DP_I_Foundations.pdf"
-],
 "09_DP_I_Foundations/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"09_DP_I_Foundations/Problems_09_DP_I_Foundations.pdf": [
+"f9eea65e83901e7f1b9891e7093d6623ed242e25ee1c3e2d4605cee21f66acb5",
+"student/09_DP_I_Foundations/Problems_09_DP_I_Foundations.pdf"
 ],
 "09_DP_I_Foundations/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"10_DP_II_Classic_Patterns/10_DP_II_Classic_Patterns.pdf": [
-"792ae26e6c0e127a66c3fc2752730163e6aebe33193faafecc9b9bd5031aa430",
-"student/10_DP_II_Classic_Patterns/10_DP_II_Classic_Patterns.pdf"
-],
 "10_DP_II_Classic_Patterns/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"10_DP_II_Classic_Patterns/Problems_10_DP_II_Classic_Patterns.pdf": [
+"1a1fe044e73f02af3ede01f55cd53e4ad0a4f538351e404b4e29d1fbe86d090b",
+"student/10_DP_II_Classic_Patterns/Problems_10_DP_II_Classic_Patterns.pdf"
 ],
 "10_DP_II_Classic_Patterns/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"11_DP_III_Faster_Transitions/11_DP_III_Faster_Transitions.pdf": [
-"dd2e07d01d1c527739c6bbb0c4e31f586dee1d30854e5a8c0c1d1fc2e0632cfe",
-"student/11_DP_III_Faster_Transitions/11_DP_III_Faster_Transitions.pdf"
-],
 "11_DP_III_Faster_Transitions/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"11_DP_III_Faster_Transitions/Problems_11_DP_III_Faster_Transitions.pdf": [
+"a8a792ea42a03bc3a496a3fd64dab504ae676642118c1e88054bde1223acb168",
+"student/11_DP_III_Faster_Transitions/Problems_11_DP_III_Faster_Transitions.pdf"
 ],
 "11_DP_III_Faster_Transitions/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"12_Graph_Traversal/12_Graph_Traversal.pdf": [
-"aeb09f7a6e66759a2d83a9d2f134550d71ae7b6a2d0578960e41d534eab3b08f",
-"student/12_Graph_Traversal/12_Graph_Traversal.pdf"
-],
 "12_Graph_Traversal/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"12_Graph_Traversal/Problems_12_Graph_Traversal.pdf": [
+"1ca0e507cf95008fa87be310cecb92e9f7e9cf473ebf4c59c3bab97862df3f85",
+"student/12_Graph_Traversal/Problems_12_Graph_Traversal.pdf"
 ],
 "12_Graph_Traversal/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"13_Shortest_Paths/13_Shortest_Paths.pdf": [
-"6a98672c36caf8694b67176175f90db4a52eb9ad91cad7f97c2b5e2bdafb3f21",
-"student/13_Shortest_Paths/13_Shortest_Paths.pdf"
-],
 "13_Shortest_Paths/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"13_Shortest_Paths/Problems_13_Shortest_Paths.pdf": [
+"3d8f30c5a09b693a97a76181b61495d6ebd35fdcfa57d78beae73ef9e9dab18c",
+"student/13_Shortest_Paths/Problems_13_Shortest_Paths.pdf"
 ],
 "13_Shortest_Paths/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"14_DSU_and_MST/14_DSU_and_MST.pdf": [
-"7ad631374880c83d1229ad2b1ca218d9db38d9ce1bb8bbbbb1e562db0a11b050",
-"student/14_DSU_and_MST/14_DSU_and_MST.pdf"
-],
 "14_DSU_and_MST/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"14_DSU_and_MST/Problems_14_DSU_and_MST.pdf": [
+"8b2834b57421d7e637774b8a174d765fc9a614deb697cab4353e607798d2d9d5",
+"student/14_DSU_and_MST/Problems_14_DSU_and_MST.pdf"
 ],
 "14_DSU_and_MST/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"15_Trees/15_Trees.pdf": [
-"42503f07296fdf90cd24d98c78dbfa905d572a7ca4477f8f297deb779ba45815",
-"student/15_Trees/15_Trees.pdf"
-],
 "15_Trees/Makefile": [
 "5591d3359d116aca9f846652f1f5f3ff050527f81e3650b36196dc2066ed0c60",
 "student/set_files/Makefile"
+],
+"15_Trees/Problems_15_Trees.pdf": [
+"49c7320922e24b3b1da28c192e51b8f4a50f1fd5fc5864969b31fed0b3c29dd7",
+"student/15_Trees/Problems_15_Trees.pdf"
 ],
 "15_Trees/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"16_Monotonic_Stack_and_Queue/16_Monotonic_Stack_and_Queue.pdf": [
-"3a24969cb74ae6415739f91e6dee909c7be74d68e478f5ec979af1af35aed4eb",
-"student/16_Monotonic_Stack_and_Queue/16_Monotonic_Stack_and_Queue.pdf"
-],
 "16_Monotonic_Stack_and_Queue/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"16_Monotonic_Stack_and_Queue/Problems_16_Monotonic_Stack_and_Queue.pdf": [
+"c71a481927e18b9cd792421ab94b9283630df7e1b762f257b677e15908bf3188",
+"student/16_Monotonic_Stack_and_Queue/Problems_16_Monotonic_Stack_and_Queue.pdf"
 ],
 "16_Monotonic_Stack_and_Queue/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"17_Fenwick_and_Segment_Tree/17_Fenwick_and_Segment_Tree.pdf": [
-"17517c1de10e1dd455ad3946159a7575ecb252c757bd565a231b02811d66b9b4",
-"student/17_Fenwick_and_Segment_Tree/17_Fenwick_and_Segment_Tree.pdf"
-],
 "17_Fenwick_and_Segment_Tree/Makefile": [
 "ae3303f40640f701edb0b8f6d2e807f9151075185738e104ea08728452ea32ef",
 "student/set_files/Makefile_15"
+],
+"17_Fenwick_and_Segment_Tree/Problems_17_Fenwick_and_Segment_Tree.pdf": [
+"6d615ebd279ecbe0ed3113bfc625974587424c028501b07b0fc7f81e34c63cf0",
+"student/17_Fenwick_and_Segment_Tree/Problems_17_Fenwick_and_Segment_Tree.pdf"
 ],
 "17_Fenwick_and_Segment_Tree/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"18_Sparse_Table/18_Sparse_Table.pdf": [
-"e0a300da35fd4e2f8b3e85a0cca949fef52feddb9adb354d1a413e07ecf4f965",
-"student/18_Sparse_Table/18_Sparse_Table.pdf"
-],
 "18_Sparse_Table/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"18_Sparse_Table/Problems_18_Sparse_Table.pdf": [
+"b37624d96f3143fac10e60251248692310b7478960b8beaf5d23366fc0fb2e07",
+"student/18_Sparse_Table/Problems_18_Sparse_Table.pdf"
 ],
 "18_Sparse_Table/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"19_Lazy_Segment_Tree/19_Lazy_Segment_Tree.pdf": [
-"5a24604a7f83db245fe4f0ad045565bb1760da82b7610df7991afa7bf25655b5",
-"student/19_Lazy_Segment_Tree/19_Lazy_Segment_Tree.pdf"
-],
 "19_Lazy_Segment_Tree/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"19_Lazy_Segment_Tree/Problems_19_Lazy_Segment_Tree.pdf": [
+"58580c18da65a62c81c4e2a9309aa967122af40a66d63ac5693df5de79afa60b",
+"student/19_Lazy_Segment_Tree/Problems_19_Lazy_Segment_Tree.pdf"
 ],
 "19_Lazy_Segment_Tree/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"20_Tree_DP/20_Tree_DP.pdf": [
-"de3c0db46ff44eb5aeb7652cad4be305c3c6df3164e4996daef6eb5df8d3b8c7",
-"student/20_Tree_DP/20_Tree_DP.pdf"
-],
 "20_Tree_DP/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"20_Tree_DP/Problems_20_Tree_DP.pdf": [
+"728a1e99bc81620661baf4fedd55f02a6a35371ccadeac65df77414a8f0b4ec9",
+"student/20_Tree_DP/Problems_20_Tree_DP.pdf"
 ],
 "20_Tree_DP/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"21_Rerooting/21_Rerooting.pdf": [
-"9d3fcc6bfc727331ddca649f9f063a286680cad41ba2e66ed937cc62a226cdfc",
-"student/21_Rerooting/21_Rerooting.pdf"
-],
 "21_Rerooting/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"21_Rerooting/Problems_21_Rerooting.pdf": [
+"34ac1e9ab44408d89dcc15a094af68081c47feb7a9bebd821fa5bb7465c387e6",
+"student/21_Rerooting/Problems_21_Rerooting.pdf"
 ],
 "21_Rerooting/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"22_Euler_Tour/22_Euler_Tour.pdf": [
-"e810bc6ecf999f9a08e6c4003a5ea5252b192b11c0b9825664b1c4696f729219",
-"student/22_Euler_Tour/22_Euler_Tour.pdf"
-],
 "22_Euler_Tour/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"22_Euler_Tour/Problems_22_Euler_Tour.pdf": [
+"07201b70c018041d7ddc053aa603464edd198a910c8fd60dff41732746ddbf63",
+"student/22_Euler_Tour/Problems_22_Euler_Tour.pdf"
 ],
 "22_Euler_Tour/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"23_LCA_and_Binary_Lifting/23_LCA_and_Binary_Lifting.pdf": [
-"2cf5f125e2267c97873c47ca62682cc11a6d956d372c1a95abebf3a920a81b1e",
-"student/23_LCA_and_Binary_Lifting/23_LCA_and_Binary_Lifting.pdf"
-],
 "23_LCA_and_Binary_Lifting/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"23_LCA_and_Binary_Lifting/Problems_23_LCA_and_Binary_Lifting.pdf": [
+"4c90c6dc8022a4c134228eda225f78f0fa1e5b68322bdce2ccce279a308c4650",
+"student/23_LCA_and_Binary_Lifting/Problems_23_LCA_and_Binary_Lifting.pdf"
 ],
 "23_LCA_and_Binary_Lifting/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"24_SCC_Bridges_and_Articulation_Points/24_SCC_Bridges_and_Articulation_Points.pdf": [
-"782a394c8be8d058d875c2490c9f469c3b5ab8f3df12b2485e3565e0eb9cc8b3",
-"student/24_SCC_Bridges_and_Articulation_Points/24_SCC_Bridges_and_Articulation_Points.pdf"
-],
 "24_SCC_Bridges_and_Articulation_Points/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"24_SCC_Bridges_and_Articulation_Points/Problems_24_SCC_Bridges_and_Articulation_Points.pdf": [
+"49839e9a43ab269cb8ee507c7cd3b67729c688ae3bca12b4f55cbc65364a4592",
+"student/24_SCC_Bridges_and_Articulation_Points/Problems_24_SCC_Bridges_and_Articulation_Points.pdf"
 ],
 "24_SCC_Bridges_and_Articulation_Points/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"25_Trie/25_Trie.pdf": [
-"8c27ad02b088be92b09be878d728573b4b4cc53b74f35b4e94dabebfd56a108c",
-"student/25_Trie/25_Trie.pdf"
-],
 "25_Trie/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"25_Trie/Problems_25_Trie.pdf": [
+"6fd74529c7d83225eb8a79f4508b47b5a104d87b931b37c7e9a4ca13576be7e6",
+"student/25_Trie/Problems_25_Trie.pdf"
 ],
 "25_Trie/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"26_Bitmask_and_Digit_DP/26_Bitmask_and_Digit_DP.pdf": [
-"345d8ed4ca3db17f5de140fa70dce84267bf61392975a1a6d49b969e995f3703",
-"student/26_Bitmask_and_Digit_DP/26_Bitmask_and_Digit_DP.pdf"
-],
 "26_Bitmask_and_Digit_DP/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"26_Bitmask_and_Digit_DP/Problems_26_Bitmask_and_Digit_DP.pdf": [
+"43de7c069c276312f915c6225f4d100e2bd6c0458fc223e66fd3b0b999527a06",
+"student/26_Bitmask_and_Digit_DP/Problems_26_Bitmask_and_Digit_DP.pdf"
 ],
 "26_Bitmask_and_Digit_DP/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"27_DSU_on_Tree/27_DSU_on_Tree.pdf": [
-"ab7e3c7cfc8ad852be49a45078b928b9ad78a5e5b8b2281a93c2f822c6a4ccc8",
-"student/27_DSU_on_Tree/27_DSU_on_Tree.pdf"
-],
 "27_DSU_on_Tree/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"27_DSU_on_Tree/Problems_27_DSU_on_Tree.pdf": [
+"1172c5fe40d8c0792d3db594010fb0df386c65fba91af785002e85ed905fe553",
+"student/27_DSU_on_Tree/Problems_27_DSU_on_Tree.pdf"
 ],
 "27_DSU_on_Tree/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"28_Heavy_Light_Decomposition/28_Heavy_Light_Decomposition.pdf": [
-"0215784ad0fdb59d6e1151d1ecad5ccf4976430ad3e058c4d88bc27a65621ef8",
-"student/28_Heavy_Light_Decomposition/28_Heavy_Light_Decomposition.pdf"
-],
 "28_Heavy_Light_Decomposition/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"28_Heavy_Light_Decomposition/Problems_28_Heavy_Light_Decomposition.pdf": [
+"6cdf6e56a2c6e9dfac2adec2f6f6d023878fb9f5d86880f36b8787b7c2758d2d",
+"student/28_Heavy_Light_Decomposition/Problems_28_Heavy_Light_Decomposition.pdf"
 ],
 "28_Heavy_Light_Decomposition/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"29_Centroid_Decomposition/29_Centroid_Decomposition.pdf": [
-"1905b5287f426fba945f9a3d7ac9322e4a5279be832b95d07584a5e514770132",
-"student/29_Centroid_Decomposition/29_Centroid_Decomposition.pdf"
-],
 "29_Centroid_Decomposition/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"29_Centroid_Decomposition/Problems_29_Centroid_Decomposition.pdf": [
+"f973d1b2e67e0dfbcf2c399cbc6306227c9651541c89e925f87646c1c062aa0d",
+"student/29_Centroid_Decomposition/Problems_29_Centroid_Decomposition.pdf"
 ],
 "29_Centroid_Decomposition/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"30_Persistent_Segment_Tree/30_Persistent_Segment_Tree.pdf": [
-"a76c6a6f69056ceef74370dfce2aca65b16babf617376bff58cf8adb0404bc0f",
-"student/30_Persistent_Segment_Tree/30_Persistent_Segment_Tree.pdf"
-],
 "30_Persistent_Segment_Tree/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"30_Persistent_Segment_Tree/Problems_30_Persistent_Segment_Tree.pdf": [
+"3bb0eec235b3f1e5210c781b64f9769c789e6b17aa0ac25871cdac8b9c511067",
+"student/30_Persistent_Segment_Tree/Problems_30_Persistent_Segment_Tree.pdf"
 ],
 "30_Persistent_Segment_Tree/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"31_Convex_Hull/31_Convex_Hull.pdf": [
-"3ae001970794bb60039089a8d28a44728b02c7f0627fca33e3ad808196f73c62",
-"student/31_Convex_Hull/31_Convex_Hull.pdf"
-],
 "31_Convex_Hull/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"31_Convex_Hull/Problems_31_Convex_Hull.pdf": [
+"82429235f66a439ef7575e6befc091532578e969c4cf3266b1bd33c58715cb63",
+"student/31_Convex_Hull/Problems_31_Convex_Hull.pdf"
 ],
 "31_Convex_Hull/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"32_Convex_Hull_Trick_and_DP_Optimization/32_Convex_Hull_Trick_and_DP_Optimization.pdf": [
-"f46c021a42ab0fc0f594db93cc52fa9ac779a22dab22c4469659ba486561d213",
-"student/32_Convex_Hull_Trick_and_DP_Optimization/32_Convex_Hull_Trick_and_DP_Optimization.pdf"
-],
 "32_Convex_Hull_Trick_and_DP_Optimization/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"32_Convex_Hull_Trick_and_DP_Optimization/Problems_32_Convex_Hull_Trick_and_DP_Optimization.pdf": [
+"8b49f37a22c3ce975412cc049545055662eb48639f1cb11ab006a87b32c659e9",
+"student/32_Convex_Hull_Trick_and_DP_Optimization/Problems_32_Convex_Hull_Trick_and_DP_Optimization.pdf"
 ],
 "32_Convex_Hull_Trick_and_DP_Optimization/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
-"33_Mo_Algorithm/33_Mo_Algorithm.pdf": [
-"c6ddb67e73a8d2e375c38caa4019aefbac564137abe4e751bf726e10b56c91d1",
-"student/33_Mo_Algorithm/33_Mo_Algorithm.pdf"
-],
 "33_Mo_Algorithm/Makefile": [
 "2082a251662e7708247aff80db31cb2ae0797e036f35abe59ef7428c0daf259f",
 "student/set_files/Makefile_12"
+],
+"33_Mo_Algorithm/Problems_33_Mo_Algorithm.pdf": [
+"04603d4896e1e93c6460e45586ad0bd6fd02a2d99ba0c6bdfdbecb672449bb1b",
+"student/33_Mo_Algorithm/Problems_33_Mo_Algorithm.pdf"
 ],
 "33_Mo_Algorithm/judge.bat": [
 "70bc4bbdfc1d053accd43a71287642a0d5f5a9d48cf33450c6d240f691fa05d0",
 "student/set_files/judge.bat"
 ],
 "README.txt": [
-"aa0557e0525623aa9b0b29529217d7b6c37103d44a53365135901a3e8fd689c1",
+"0ce29d4f4a0ec4c5b6e14b6794bb9dd410c00103717e43b48f565f5288806949",
 "student/README.txt"
 ]
 },
@@ -50743,6 +50743,218 @@
 "Topic_9/9.cpp",
 "14_DSU_and_MST/old/9_WeightLimitedRoads.cpp"
 ]
+]
+},
+"retired": {
+"01_Brute_Force_and_Implementation/01_Brute_Force_and_Implementation.pdf": [
+"08d54cf6d30bd4747926dd3f1f66e8cfb85a952c413d09cd8f01fcbc8b849218",
+"14e3903dde0b45dc575b9c289331760df766fc1cef67cb155d825d83f7fe502f",
+"25e71bfcb8f0d137bff3c14e8a571a1795c02fa970f85d2fd964c00927003149",
+"38ee7863ba705f99683aff0ab7cb3a99db2ffcfe02da73b864fe35d54af315ff",
+"ebde442312cb4c6b4da9fce03ea8cd8723409ad05ca844f63f7bc5ec1f1600e6"
+],
+"02_Strings_and_Parsing/02_Strings_and_Parsing.pdf": [
+"08240379793fe3b0729716592a0961425b3165d3f618916768a5a7146a02102c",
+"91a6dbea92036ba909dd89822d4900865941a1ba8d0793c2f9a1dc4577a93a11",
+"a7e1f8726074abac7c19275124a09b9945c347be7428477c5bed6e92c010e55b",
+"b9ef5dab5036a99db9f4c784a799b8ac100211fabaafe39abdf06727d8a97d94",
+"c6cfa85200a838ae4d7e22657fe2c114348f083d924e93a004929f37980edf73"
+],
+"03_Prefix_Sums_and_Two_Pointers/03_Prefix_Sums_and_Two_Pointers.pdf": [
+"10951363892bddc4c8dc4d071dd65f63f76bb6f8ba7c045fcb95487b67d3384b",
+"26a6a2321919ff5049ca8cf9f40c44ebb5dbc48422ecee900139cfb05a8016a6",
+"a4557252657f4e2f1d962d2a11695538b3cb815fc4c5933a5b67e4222c8e4b50",
+"ab848a644094b2a24fef884571e458c5d46ac5ca0756a575d19f11e49cf2d322",
+"f0f541dabac614c1562741d97966060f3f57044404ecd886733a4b754b969ed2"
+],
+"04_Binary_Search/04_Binary_Search.pdf": [
+"6036637827cbafe2b4e2102d6ef367f5f978cf5546f7d41eed4a0d4823f50a5b",
+"be442c8ce35b668f30efe677c628c05e5765f86fd56b6e4f7b574eaa5ba58feb",
+"beb1baf2ab0f38320d8589b2e2e3b92a6e1fd7fe53170ecff66d0d8fdb0119a9",
+"dd881e64d3c14581d08a47591448857d3738f7e4c867d963edb844a70ee95997",
+"f30b8a3b00b60e9d6e2e934a90f00038d376755816193bad78c0a409d2ce4a42"
+],
+"05_Greedy/05_Greedy.pdf": [
+"5aca9fa5716348523b31e44c1a8c7c5fe281cfb422c0ca5b07396eb63fc1b2e8",
+"74460ffab848b4aea0b6ce006be02fbef1038641d970849256debb470dfb36e4",
+"ddb9be0ea0878c6cc0f9bb84d9d7ff93935f32b19cf8b85e967986b64a20205a",
+"e0a1a4464b79947c8ae0021b55c9d79106fbc3c3dbc85b194759469e510c2a8b",
+"fef50bb779cc0db98b98793b43193738ea7f017076ab15f6f63d8ba3f60acb44"
+],
+"06_Sorting_and_Sweep_Line/06_Sorting_and_Sweep_Line.pdf": [
+"3f71c82a2b53d708ba55992076342e8694fe8b71f51092eaf2b9d20302de34ce",
+"4ee8d8091726078553f3061846278944c854f22357c4d2074b24ecb698fe1b16",
+"57ca15f14ba12b90ec74bf2fe253c3fd349ae2af9af5dd7c70215aee74d5ff79",
+"8f70c4b8ae79f427efdcef179ff138fcafe8284a4ac3a83d6394a30e047109f6",
+"a5523556c5bb27cc49579b9f42e3389e52a30f298aad8a0d001dfd9899e9da6d"
+],
+"07_Number_Theory_and_Counting/07_Number_Theory_and_Counting.pdf": [
+"2aec1e8d6d38954c88f3999c52665b381086390397e83fa4c8eb86f1098c3c1f",
+"2d3a217ed10ae06fb625fc48de6dfd23d0bdaa1c7b2b98ebc38b3b74173428ff",
+"3937d28fe1b344e195fde1c24b2e1243a9a79398c792d9773e839d2a0494d23a",
+"4b16bb3fc4290ebad0d2880f9642b063a4274eae665d805397d486ac827d25e0",
+"acbd4c6932260daea4841627f878b4a1dcc5a04ece8702f4016e6bab4d5deaf3"
+],
+"08_Divide_and_Conquer/08_Divide_and_Conquer.pdf": [
+"2fd694e0eb8e1f773e0fc5e54e4badadfb277e5290fa2ca524702667465388b3",
+"81aa8f9e0321cde86979fb01f6b24df09ca37ea2fa54c01f16d231e3670d0ea3",
+"96bf0a3af2b111f30d6e329c5503b445f37fdeff16e8d2244ada5dc70881f521",
+"9dec8d3bcaa67bc7d1a4bfc3eb7b172887ff41256c36ab59c1ec616c81b20398",
+"e88c03559743ff2ec61abdc291f6815394640e325d4d18678e5965996473fc90"
+],
+"09_DP_I_Foundations/09_DP_I_Foundations.pdf": [
+"089fdc32c3c2f3cd9ef90e2699e57a2a9e988abd1fc2792a490a2ef897c7992b",
+"338a5dfcfe963cf166c9bf16b99a096d330241b60463e1256cd7a773f05efcac",
+"72486bdce86a29b622353bb93c2cd95f74fc443c1c699f270fc3476bf97a8e4b",
+"d27e741eb8d1612a7ff94897131c86ea0bb9a4d581f67b63ffa38ed307d4f70d",
+"eeacbbfcccdfc88358a1c8cedd8469f0260d7e0bee5136220a2ab0d3760e4498"
+],
+"10_DP_II_Classic_Patterns/10_DP_II_Classic_Patterns.pdf": [
+"07277d3b225e98034d9311eb80c71016860d96f012b7ef7c76ef05ff558f9034",
+"567e5bd8428ffe288b61ad660f3a094481b7a6a30a3957c6a2a5f924a5ca2d1d",
+"792ae26e6c0e127a66c3fc2752730163e6aebe33193faafecc9b9bd5031aa430",
+"ba6ba214e51d5298b8050da9f24d256abce432cba8759e3685b26eda32c360a4",
+"dbe3a611f6fea696ebb394e843f091e0bad64e4cd2cce367493dbdffa8cc6adb"
+],
+"11_DP_III_Faster_Transitions/11_DP_III_Faster_Transitions.pdf": [
+"939196e2897d411530bb7bdfd8f8759c3ee8da03a1895eca7a709c6fd81e07a3",
+"946f85e64beb00c0b34e2f37ff51d32ccffea9865138b8d4898fb3d8ff46e124",
+"dd2e07d01d1c527739c6bbb0c4e31f586dee1d30854e5a8c0c1d1fc2e0632cfe",
+"ded72a13761c7f5b6ea933e41cb3c36155446740808cc53f6aa4edaf11f12293",
+"e442800b08f9285911bfdbd270c5f51674ba068e3a3b7b4e8ffa81cae6faef5b"
+],
+"12_Graph_Traversal/12_Graph_Traversal.pdf": [
+"5ec7ae405ddbf26a5ec617bf62d8bb061c7e33679b79baacfb5dcb2d48ad7d6d",
+"93e2fb98bd4a5e3e74a6ec2c5eb7e4afc5a4ff4eaf5e7e2c6b5e96086b8b4ce2",
+"a661f8c4460ba113ced01c9e5063f020ffb232aff090343e3e2ebb9c75a3bb06",
+"aeb09f7a6e66759a2d83a9d2f134550d71ae7b6a2d0578960e41d534eab3b08f",
+"c780de97a5029862621d7eab1586ca36cd37a7c9c36a58b81237c837bc11b612"
+],
+"13_Shortest_Paths/13_Shortest_Paths.pdf": [
+"3ab7af8f0ff4a656387f3cca8ecad9e4b1da0f21b492626d1fcce6cca78b9c5a",
+"55b27f09db4cec0efb54ac5fd44df63b3868483e1ea843db7bc683eb24dc4412",
+"6a98672c36caf8694b67176175f90db4a52eb9ad91cad7f97c2b5e2bdafb3f21",
+"b1e401562370e201580a0c823a0a435af2e13bc3282d7c9168f9033651a4d2d0",
+"b2fbd0fbcefb3bc8d632151cc2b1a08a5a08bb134db319b2dfc9d6e6352b2272"
+],
+"14_DSU_and_MST/14_DSU_and_MST.pdf": [
+"6a37894c5226ccde1188d1922d9864f4a1844514067a4768b00eacc504f72906",
+"7a3c2aee18d643a5f68f9eb232e4d5d63f0212d73e999c5665602782b54ddc70",
+"7ad631374880c83d1229ad2b1ca218d9db38d9ce1bb8bbbbb1e562db0a11b050",
+"af210307ca6349e46acfbefbcf8b002f3a127662489f207fbd734307bd8f6efc",
+"c5efdc7655ccec04a756e894f975a91040d31b1cda5bad20f92b31fa285997aa"
+],
+"15_Trees/15_Trees.pdf": [
+"42503f07296fdf90cd24d98c78dbfa905d572a7ca4477f8f297deb779ba45815",
+"a4cf2fb758f306296dbb1e14e8a2243f2892fb9ee182a72a203578614322330d",
+"af06946080cdf3e8cc1536cb870d9b1655919f02f7b46340e921f2e3948ca17d",
+"d2b4930f59bc1122543c4d81dbd7263b59807e9783ccb15e58f4b4b334bdbec4",
+"d855c490d361ecdf9f5026d5689b57451c86852892c759799aae5f11d253d85a"
+],
+"16_Monotonic_Stack_and_Queue/16_Monotonic_Stack_and_Queue.pdf": [
+"0141c79f107f9e5c1fc9219d2f58db23d130729c8491f8537a90b35e7bb6287f",
+"1e0383819aa9f23eaa90f7e817bd324a29741882a85c74ae8c4a03bd577a4a29",
+"3a24969cb74ae6415739f91e6dee909c7be74d68e478f5ec979af1af35aed4eb",
+"c014b7d3d8c29d86acee397b67680ebc9a745f6ebfa7537b43150ce99ceaa649",
+"cbd29e3c7fb4e88a4a3562c4303a7967993e634a780e76bee66ed854d745d951"
+],
+"17_Fenwick_and_Segment_Tree/17_Fenwick_and_Segment_Tree.pdf": [
+"17517c1de10e1dd455ad3946159a7575ecb252c757bd565a231b02811d66b9b4",
+"27082e0508555ff2023a34b49dfd2f3f54fc694f7ecac52b62d0056ef890717f",
+"4d0a2bf88bac67396268d0a6850ff7b614c10016bc9f58035dce5ef5b8b774db",
+"7bcbe3b404e7973ac3a15f7e505a66903a1fb4d393ec9b89adcafc151350746d",
+"bba9c75cc7b7cf613b3de6c2474f2384dc0706944676eb98afdf56bd06407cb2"
+],
+"18_Sparse_Table/18_Sparse_Table.pdf": [
+"5c19acc9f970a7584c79bd8a99305af8deeebb4b860ece4aaf44926f2fc94e47",
+"98d72fceef4fd40c390ef7d4909674f5f3d90f8687f688e6b9dde6c9e761ea58",
+"d00df7037c1d274ea4bc5f040ba51d1e3cbc7504b548c63279d243a88d73b294",
+"dae5596ca88449e9ec54602406bd1619b50a8bd9844235910c0358f3a1670e11",
+"e0a300da35fd4e2f8b3e85a0cca949fef52feddb9adb354d1a413e07ecf4f965"
+],
+"19_Lazy_Segment_Tree/19_Lazy_Segment_Tree.pdf": [
+"2c7b9ac93a045bf71ca7ef21fe9db0449d42185d27596218a42f8211b98877fe",
+"5a24604a7f83db245fe4f0ad045565bb1760da82b7610df7991afa7bf25655b5",
+"5e5cede9ae197a3373fe264f3bbc466767da821ea05c0a710f1ce78995b2ddb6",
+"b134e6826f1cff148561b09a9f19be378dc1af85fbebfce10e4dd96df82eddfa",
+"c5b7af690dd2b86a36835e8aa95f9feae27c81dbfd00d5c9efaf0512a9bec15b"
+],
+"20_Tree_DP/20_Tree_DP.pdf": [
+"29ddca1d9cd9bf28bd632e647f8f2193985905af28da1149a4ba5105b90634d9",
+"4185953a836024638c83ed8c1da99e33bcad34bc9a74fb8e0dc8518e5a861688",
+"9111aae41f83c96b2361c62c2b2df69fedcdb159b6dea9a2e2a10a33b5ad305a",
+"cc6f5a3f7b0ceb5855419c71bf04d59e6384550ad25864862e8813712e031486",
+"de3c0db46ff44eb5aeb7652cad4be305c3c6df3164e4996daef6eb5df8d3b8c7"
+],
+"21_Rerooting/21_Rerooting.pdf": [
+"32311dc8fa0cc74b3bc1da895480b5546a4cce66e8c499aedeb738418e14f48d",
+"73c24aa9f91376a8da7a6bc7421bfd863af934751c53d6d1ffac2198fa75a3a7",
+"958247c804e2c9f3e1ea6ef51aaccb01c357565cb99f8a950ebe0e8ade8c94c5",
+"9d3fcc6bfc727331ddca649f9f063a286680cad41ba2e66ed937cc62a226cdfc",
+"f490064212da4ffb6110073abf1547f4661af33f28e3fcbb5e6af09b2db9abba"
+],
+"22_Euler_Tour/22_Euler_Tour.pdf": [
+"27884f5c41fcb760894e379c2bb22cb21ae2da01b7dfafbae162cd0969007376",
+"3e2b1152b8c1cdb00578cba57c31013ef9578afb29759b1275ed3126f473093c",
+"918368219d683546f58c62e96a213708af5cabb832e425f56c3519a5e9f21ab8",
+"c0cc99ac1fb3606c03fae24c2327d4c42a50e7071f67603618513cd7539485c8",
+"e810bc6ecf999f9a08e6c4003a5ea5252b192b11c0b9825664b1c4696f729219"
+],
+"23_LCA_and_Binary_Lifting/23_LCA_and_Binary_Lifting.pdf": [
+"0042ec9028a15303dba88dce78c6249db4e0b239d06eb0063934943725db7149",
+"2cf5f125e2267c97873c47ca62682cc11a6d956d372c1a95abebf3a920a81b1e",
+"36930f18f282d466a52781323f7aeab44c584afe9a6f3316d65c59296d2aa863",
+"6e1b11c0bfeaf81d4b651a46db3cdb8227965d1acd432755f12aae424729ebec",
+"bc78ef644c5b01490d3bff1c7e805f59482e292d925e1106bc825242eb19e321"
+],
+"24_SCC_Bridges_and_Articulation_Points/24_SCC_Bridges_and_Articulation_Points.pdf": [
+"02eb54b39fd241e5919e23eb72b08a99c2160ce56eaf7bbda4e644c7f2180345",
+"425f606abf81dbcb5bd27d234bb0a01b74dddc3cae18f053a148a671e1772866",
+"782a394c8be8d058d875c2490c9f469c3b5ab8f3df12b2485e3565e0eb9cc8b3",
+"7feaf7a9c483bcdad16287fab8a32055005bd1ac0661ad7ced706fe9aa1f0eb0",
+"c04f58fdf6eda7fe2550008583d07fd2c9c23436d87aab56e198cf55b9571ee1"
+],
+"25_Trie/25_Trie.pdf": [
+"25e3710c6a3e42eb67b0d9791138eabe35c65a65e6002a0aaa490853ffef5e7c",
+"2fd87766a8808d09992b24dda658fc1c9dafa03ed8fe1dbd5ed7c36cb4ccb5bd",
+"8c27ad02b088be92b09be878d728573b4b4cc53b74f35b4e94dabebfd56a108c",
+"c0e0984ebc1be1a3223d56122d3b196e07edde132f5af47d8c8a98b9f781962e",
+"eaffda32be15a6d0e19eb7dc897d64d2be2c2d8a9963e1d72f3ea0c2b8f43c0a"
+],
+"26_Bitmask_and_Digit_DP/26_Bitmask_and_Digit_DP.pdf": [
+"345d8ed4ca3db17f5de140fa70dce84267bf61392975a1a6d49b969e995f3703",
+"886483c2cb1d8ddec7dcd820fac20388373edb62bdb1a95b8a4ad74cc1d554d1",
+"89b2fc3badeb3090b113309b7cde31e871c1df1dbc7316682b720c7f181fd32d",
+"cb8a185bd30401de92cf5a156a8db019e9cc4bb71117f9d31f4d2255ce49d6e1",
+"df8e51ea3d2e48f5f0b15ff14ea542fc6a79ac8c13e04d90077c694bc34442e2"
+],
+"27_DSU_on_Tree/27_DSU_on_Tree.pdf": [
+"ab7e3c7cfc8ad852be49a45078b928b9ad78a5e5b8b2281a93c2f822c6a4ccc8",
+"f1fc514dcaac7360497baddc5cc9648b3eff1190e1166a0839b5588e4cff828d"
+],
+"28_Heavy_Light_Decomposition/28_Heavy_Light_Decomposition.pdf": [
+"0215784ad0fdb59d6e1151d1ecad5ccf4976430ad3e058c4d88bc27a65621ef8",
+"df942a25836c793872ff0ef32b142eb0102b052f0bb331d8ef527e19d1368000"
+],
+"29_Centroid_Decomposition/29_Centroid_Decomposition.pdf": [
+"1905b5287f426fba945f9a3d7ac9322e4a5279be832b95d07584a5e514770132",
+"bf90410b0fa7b72f9b379d710515bb7d04402cc34300757d8d940ec91b4f20b7"
+],
+"30_Persistent_Segment_Tree/30_Persistent_Segment_Tree.pdf": [
+"0e98a89271963072aacecaf90883c20c2b530880e91e339387ebac697c8583a6",
+"a76c6a6f69056ceef74370dfce2aca65b16babf617376bff58cf8adb0404bc0f"
+],
+"31_Convex_Hull/31_Convex_Hull.pdf": [
+"3a61f801d47cc1c5a7876a8587426e463a5bf36be5abbd37b6a474b4b5a800cf",
+"3ae001970794bb60039089a8d28a44728b02c7f0627fca33e3ad808196f73c62"
+],
+"32_Convex_Hull_Trick_and_DP_Optimization/32_Convex_Hull_Trick_and_DP_Optimization.pdf": [
+"a0d12f03f4d7296b7259e0f93ec07f68782f9b28568f4583351c153d2cd439d7",
+"f46c021a42ab0fc0f594db93cc52fa9ac779a22dab22c4469659ba486561d213"
+],
+"33_Mo_Algorithm/33_Mo_Algorithm.pdf": [
+"40a750a017b736fc222544c62825b3749303e2eceb4384ee129b6824499542af",
+"c6ddb67e73a8d2e375c38caa4019aefbac564137abe4e751bf726e10b56c91d1"
 ]
 },
 "sources": {

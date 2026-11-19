@@ -9,9 +9,10 @@ keeping the old version of each file in Judge/.backup/. Anything wrong (no netwo
 an odd path) means: keep the current version and say nothing. A failed update never stops the judge.
 
 Rules
-  - writes only inside Judge/ and only the files listed in the manifest; never deletes anything
+  - writes only inside Judge/ and only the files listed in the manifest; never deletes anything (a retired topic
+    PDF, below, goes to Judge/.backup/_package/, it is not deleted)
   - never reads or writes student files (<topic folder>/N.cpp), except the one-time moves below. Outside Judge/ it
-    only handles "managed" files the students do not edit (<topic>.pdf, Makefile, judge.bat, README.txt, Guide.pdf,
+    only handles "managed" files the students do not edit (Problems_<topic>.pdf, Makefile, judge.bat, README.txt, Guide.pdf,
     Progress.md, .vscode/) and "create-only" files (<topic folder>/N.cpp templates of a new topic, added only when
     missing). The old copy of every replaced file goes to Judge/.backup/ (package files under _package/)
   - updates only an installed package (Judge/judge.py and Judge/manifest.json exist), never the source repo
@@ -33,6 +34,11 @@ Manifest format 3 (v4.0): updaters before 4.0 reject the new folder names, so th
 and "full" (and the top level) is a bootstrap view: every Judge/ file but only the package files their path rules
 accept, with "bootstrap": true. An old judge installs it (so it gets this updater) and the new judge.py then calls
 check() again at once, which installs "full_v4".
+
+Retired PDFs (v4.0): the topic PDF was renamed from <topic>/<topic>.pdf to <topic>/Problems_<topic>.pdf (it sorts
+after the N.cpp files). The manifest lists "retired": {old package path: [sha256 of every version we shipped]}; an old
+PDF is moved to Judge/.backup/_package/ only when its bytes equal one of those versions and the new name is installed.
+A file with other bytes (the student's own) stays where it is.
 
 Recovery:  python3 ../Judge/updater.py      force a check and re-download changed or damaged files
 """
@@ -70,8 +76,9 @@ SET_FILE = re.compile(r"^" + TOPIC_DIR + r"/[0-9]+\.cpp$")                  # cr
 OLD_FILE = re.compile(r"^" + TOPIC_DIR + r"/old/[0-9]+_[A-Za-z0-9]+\.cpp$")  # where the file of a dropped problem goes
 MOVES_DONE = ".moves_done"          # Judge/.moves_done: hashes of the old problems.json whose moves were applied
 STARTER_BODY = "cin.tie(0);ios::sync_with_stdio(0);return0;}"
-MANAGED_FILE = re.compile(r"^(" + TOPIC_DIR + r"/(Makefile|judge\.bat|" + TOPIC_DIR + r"\.pdf)|Guide\.pdf|README\.txt"
-                          r"|Progress\.md|\.vscode/(tasks|settings)\.json)$")   # replaced when they change
+MANAGED_FILE = re.compile(r"^(" + TOPIC_DIR + r"/(Makefile|judge\.bat|(Problems_)?" + TOPIC_DIR + r"\.pdf)|Guide\.pdf"
+                          r"|README\.txt|Progress\.md|\.vscode/(tasks|settings)\.json)$")   # replaced when they change
+RETIRED_FILE = re.compile(r"^([0-9]{2}_[A-Za-z0-9_]+)/\1\.pdf$")   # the topic PDF's name before Problems_<topic>.pdf
 
 
 class Result:
@@ -254,6 +261,42 @@ def plan(judge_dir, remote, local, force):
         if not os.path.exists(os.path.join(base, p)):
             creates.append((p, spec[1], spec[0]))
     return updates, managed, creates
+
+
+def plan_retired(judge_dir, remote):
+    """Old-name topic PDFs to move to Judge/.backup/_package/: [path]. Only a file whose name matches RETIRED_FILE,
+    whose bytes are a version we shipped, and whose new name Problems_<topic>.pdf the manifest manages.
+    Raises ValueError when the manifest is not acceptable."""
+    retired = remote.get("retired") or {}
+    if not isinstance(retired, dict):
+        raise ValueError("bad retired list")
+    managed = remote.get("managed") or {}
+    base = os.path.dirname(judge_dir)
+    out = []
+    for rel, shas in retired.items():
+        m = RETIRED_FILE.match(rel) if isinstance(rel, str) else None
+        if m is None or not isinstance(shas, list) or not all(is_hash(h) for h in shas):
+            raise ValueError("bad retired entry: " + str(rel))
+        if f"{m.group(1)}/Problems_{m.group(1)}.pdf" not in managed:
+            continue
+        p = os.path.join(*rel.split("/"))
+        if os.path.isfile(os.path.join(base, p)) and file_sha(os.path.join(base, p)) in shas:
+            out.append(p)
+    return out
+
+
+def retire(judge_dir, paths):
+    """Move each retired PDF to Judge/.backup/_package/ (after the new name is in place). Never raises."""
+    base = os.path.dirname(judge_dir)
+    for p in paths:
+        new = os.path.join(os.path.dirname(p), "Problems_" + os.path.basename(p))
+        try:
+            if os.path.isfile(os.path.join(base, new)):
+                bak = os.path.join(judge_dir, BACKUP, "_package", p)
+                os.makedirs(os.path.dirname(bak), exist_ok=True)
+                os.replace(os.path.join(base, p), bak)
+        except OSError:
+            pass
 
 
 def from_bundles(items, url, fresh, bundles, pool):
@@ -525,7 +568,8 @@ def check(judge_dir=ROOT, force=False, notify=None):
         remote = view(json.loads(data.decode("utf-8")))
         updates, managed, creates = plan(judge_dir, remote, local, force)
         bundles = plan_bundles(remote)
-        if not updates and not managed and not creates and remote["version"] == version:
+        retired = plan_retired(judge_dir, remote)
+        if not updates and not managed and not creates and not retired and remote["version"] == version:
             return Result("current", f"Judge v{version} is up to date", version)
         count = len(updates) + len(managed) + len(creates)
         if notify is not None and count >= NOTIFY_MIN:
@@ -538,11 +582,13 @@ def check(judge_dir=ROOT, force=False, notify=None):
             download(creates, os.path.join(tmp, "_sets"), url, force, pool)
         test_new_judge(tmp)
         apply(judge_dir, updates, managed, creates, tmp)
+        retire(judge_dir, retired)
         with open(os.path.join(tmp, "manifest.json"), "w", encoding="utf-8") as f:
             json.dump(remote, f, indent=0, sort_keys=True)      # what is installed now (format 2: its "full" part)
             f.write("\n")
         os.replace(os.path.join(tmp, "manifest.json"), os.path.join(judge_dir, "manifest.json"))
         names = [p.replace(os.sep, "/") for p, _, _ in updates + managed + creates]
+        names += [p.replace(os.sep, "/") + " (old name, moved to Judge/.backup/_package/)" for p in retired]
         return Result("updated", f"updated to v{remote['version']} ({len(names)} files)", remote["version"], names)
     except Exception as ex:          # network, hash, bad manifest, read-only folder, ...: keep what we have
         return Result("failed", f"{type(ex).__name__}: {ex}", version)

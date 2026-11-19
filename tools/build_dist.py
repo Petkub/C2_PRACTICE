@@ -10,7 +10,8 @@ Layout produced:
   C2_Practice/README.txt, Guide.pdf, .vscode/    from student/
   C2_Practice/Judge/                             exactly the files listed in manifest.json (core/ + problems/),
                                                plus manifest.json itself (the installed version for updater.py)
-  C2_Practice/<NN_Name>/<NN_Name>.pdf          from student/<NN_Name>/ (e.g. 04_Binary_Search)
+  C2_Practice/<NN_Name>/Problems_<NN_Name>.pdf from student/<NN_Name>/ (e.g. 04_Binary_Search; the name sorts
+                                               after the N.cpp files)
   C2_Practice/<NN_Name>/Makefile, judge.bat     from student/set_files/ (Makefile_<n> for a topic of n != 20)
   C2_Practice/<NN_Name>/1.cpp ... n.cpp         empty template (student/set_files/template.cpp)
 The zip holds the contents of C2_Practice/ without the folder itself (see make_zip).

@@ -49,9 +49,9 @@ Students never clone this repo: they download `C2_Practice.zip` once from
 [Releases](https://github.com/Petkub/C2_PRACTICE/releases/latest), and from then on their judge **updates itself
 from this repo** every time you push to `main`.
 
-**Where the PDFs are:** `student/<folder>/<folder>.pdf`, one per topic (a cover with the problem list, then two
+**Where the PDFs are:** `student/<folder>/Problems_<folder>.pdf`, one per topic (a cover with the problem list, then two
 pages per problem: problem n is on pages 2n and 2n+1). In a student's package the same PDF is inside each topic
-folder.
+folder (the `Problems_` name sorts after the `N.cpp` files; the updater retires the old name `<folder>.pdf`).
 
 **What happens to files from older versions (`Topic_1` ... `Topic_15`):** on the first run after the update to
 4.0, a student's written `Topic_K/N.cpp` moves once to the new folder of the same problem (problems are matched by
@@ -78,7 +78,7 @@ the topic PDFs into this repo and writes `build/C2_Practice_Solutions.pdf`. Neve
 core/                  what students get inside Judge/   (judge.py, updater.py, include/, README.txt, CHANGELOG.txt)
 problems/batch/        test data: <NN_Name>/N/01.in, 01.out, ..., manifest.json (hashes), gen.py (rebuilds tests
                        > 64 KB on the student's computer)   + problems.json (problem bank) + sets.json (topics)
-student/               the rest of the student package: README.txt, .vscode/, <NN_Name>/<NN_Name>.pdf,
+student/               the rest of the student package: README.txt, .vscode/, <NN_Name>/Problems_<NN_Name>.pdf,
                        set_files/ (Makefile, judge.bat, template.cpp -> 1.cpp ... n.cpp)
 samples/               known-verdict programs used by the tests (expected.json says which verdict each must get)
 tests/run_regression.py   the test suite: run before every push
@@ -92,7 +92,7 @@ bundles/                  generated zips of each topic's test data (fast updates
 ```
 
 What a student has: `C2_Practice/Judge/` (= `core/` + `problems/` + `manifest.json`) and
-`C2_Practice/<NN_Name>/1.cpp ... n.cpp` with `<NN_Name>.pdf` (their code, which the updater never overwrites).
+`C2_Practice/<NN_Name>/1.cpp ... n.cpp` with `Problems_<NN_Name>.pdf` (their code, which the updater never overwrites).
 
 ## 2. One-time setup on a new computer
 
@@ -143,7 +143,7 @@ that students already have). Outputs always come from sol.cpp.
 ### 4c. Add a new topic (e.g. topic 27)
 1. Add it to `C2_PRACTICE_SRC/topics.json` and write `topics/27_Name/1..n/`; check each problem.
 2. `/usr/bin/python3 build.py all` writes `problems/batch/27_Name/`, the new entries of `problems.json` /
-   `sets.json` and `student/27_Name/27_Name.pdf`.
+   `sets.json` and `student/27_Name/Problems_27_Name.pdf`.
 3. Release. Existing students get the test data, the PDF, `Makefile`, `judge.bat`, and the updater **creates**
    `27_Name/1.cpp ... n.cpp` (templates are only ever created, never overwritten).
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Write manifest.json: the version (file VERSION) and the SHA-256 of every file the student package gets inside
-Judge/, the managed package files outside Judge/ (<topic>.pdf, Makefile, judge.bat, README.txt, Guide.pdf,
+Judge/, the managed package files outside Judge/ (Problems_<topic>.pdf, Makefile, judge.bat, README.txt, Guide.pdf,
 Progress.md, .vscode/: replaced on the students' computers when they change) and the create-only files
 (<topic folder>/N.cpp templates: added only when missing, never replaced).
 Judge/updater.py on the students' computers compares this file with what they have.
@@ -16,10 +16,14 @@ Format 1 (the real manifest):
   {"version": "4.0.0",
    "sources": {"problems/": "problems/", "": "core/"},        Judge/ path prefix -> repo folder
    "files": {"judge.py": "<sha256>", "problems/batch/04_Binary_Search/1/01.in": "<sha256>", ...},
-   "managed": {"04_Binary_Search/04_Binary_Search.pdf": ["<sha256>", "student/04_Binary_Search/04_Binary_Search.pdf"], ...},
+   "managed": {"04_Binary_Search/Problems_04_Binary_Search.pdf": ["<sha256>", "student/04_Binary_Search/Problems_04_Binary_Search.pdf"], ...},
    "create_only": {"04_Binary_Search/1.cpp": ["<sha256>", "student/set_files/template.cpp"], ...},
    "bundles": {"bundles/04_Binary_Search.zip": {"sha256": "<sha256>", "prefix": "problems/batch/04_Binary_Search/"}, ...},
-   "moves": {"<sha256 of an older release's problems.json>": [["Topic_3/5.cpp", "04_Binary_Search/5.cpp"], ...]}}
+   "moves": {"<sha256 of an older release's problems.json>": [["Topic_3/5.cpp", "04_Binary_Search/5.cpp"], ...]},
+   "retired": {"04_Binary_Search/04_Binary_Search.pdf": ["<sha256 of a version we shipped>", ...], ...}}
+"retired" (tools/retired.json): the topic PDF's name before Problems_<topic>.pdf (sorts after the N.cpp files) with the
+SHA-256 of every committed version; Judge/updater.py moves such a file to Judge/.backup/_package/ only when its bytes
+are one of them.
 Format 3 (v4.0; the same scheme as C2_MOCK v7.0): updaters before 4.0 reject the new folder names in managed and
 create-only paths, so the top level holds only the version, "full" is a bootstrap view for them ("bootstrap": true:
 every Judge/ file, only the package files their path rules accept) and "full_v4" is the real manifest. An old judge
@@ -109,8 +113,8 @@ def managed_files():
         n = len(s["problems"])
         out.append((f"{d}/Makefile", "student/set_files/Makefile" + ("" if n == 20 else f"_{n}")))
         out.append((f"{d}/judge.bat", "student/set_files/judge.bat"))
-        if os.path.exists(os.path.join(REPO, "student", d, f"{d}.pdf")):
-            out.append((f"{d}/{d}.pdf", f"student/{d}/{d}.pdf"))
+        if os.path.exists(os.path.join(REPO, "student", d, f"Problems_{d}.pdf")):
+            out.append((f"{d}/Problems_{d}.pdf", f"student/{d}/Problems_{d}.pdf"))
     return out
 
 
@@ -163,6 +167,7 @@ def bundles(pairs, files, write):
 
 MOVES = os.path.join(REPO, "tools", "moves")
 RENAMED = {}                        # old English title -> new title, if a problem is renamed between releases
+RETIRED_FILE = os.path.join(REPO, "tools", "retired.json")     # old topic PDF name -> sha256 of the shipped versions
 REPLACED_FILE = os.path.join(REPO, "tools", "replaced.json")   # old English title -> "NN_Name/n" (C2_PRACTICE_SRC bank/)
 
 
@@ -205,12 +210,20 @@ OLD_MANAGED_FILE = re.compile(r"^(Topic_[0-9]+/(Makefile|judge\.bat|Topic_[0-9]+
                               r"|Progress\.md|\.vscode/(tasks|settings)\.json)$")
 
 
+def retired():
+    if not os.path.exists(RETIRED_FILE):
+        return {}
+    with open(RETIRED_FILE, encoding="utf-8") as f:
+        return json.load(f)
+
+
 def bootstrap_view(full):
     """What updaters before 4.0 read ("full"): every Judge/ file (so they install the 4.0 updater and judge), only the
     package files their path rules accept, and "bootstrap": true so the new updater adds the rest at once."""
     view = dict(full)
     view["managed"] = {k: v for k, v in full["managed"].items() if OLD_MANAGED_FILE.match(k)}
     view["create_only"] = {k: v for k, v in full["create_only"].items() if OLD_SET_FILE.match(k)}
+    view.pop("retired", None)               # topic folders of the v4 layout: not there yet for an old package
     view["bootstrap"] = True
     return view
 
@@ -219,7 +232,7 @@ def build(write=True):
     pairs = judge_files()
     files = {rel: sha256_file(os.path.join(REPO, src)) for rel, src in pairs}
     full = {"version": version(), "sources": SOURCES, "files": files, "managed": with_hashes(managed_files()),
-            "create_only": with_hashes(set_files()), "bundles": bundles(pairs, files, write), "moves": moves()}
+            "create_only": with_hashes(set_files()), "bundles": bundles(pairs, files, write), "moves": moves(), "retired": retired()}
     return {"version": full["version"], "full": bootstrap_view(full), "full_v4": full}
 
 

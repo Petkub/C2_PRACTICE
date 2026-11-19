@@ -400,7 +400,7 @@ def test_fast_update():
         data = os.path.join(judge_dir, "problems", "batch", last)
         files = [f for _, _, fs in os.walk(data) for f in fs]
         check(p.returncode == 0 and len(files) > 50 and os.path.exists(os.path.join(root, last, "%d.cpp" % last_n))
-              and os.path.exists(os.path.join(root, last, last + ".pdf")) and len(log) <= 12,
+              and os.path.exists(os.path.join(root, last, "Problems_" + last + ".pdf")) and len(log) <= 12,
               f"updater installs {last} ({len(files)} files) in {len(log)} requests", f"{log}\n{out}")
         with open(os.path.join(judge_dir, "manifest.json"), encoding="utf-8") as f:
             installed = json.load(f)
@@ -421,6 +421,45 @@ def test_fast_update():
               and "marker-bundle" not in open(os.path.join(judge_dir, "judge.py"), encoding="utf-8").read(),
               "bad bundle: update refused, nothing installed", out)
         srv.shutdown()
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_retired_pdf():
+    """The topic PDF was renamed <topic>/<topic>.pdf -> <topic>/Problems_<topic>.pdf: an old-name file whose bytes are a
+    version we shipped ("retired" in the manifest) goes to Judge/.backup/_package/; any other file there stays."""
+    print("Retired topic PDF")
+    tmp = tempfile.mkdtemp(prefix="judge_retired_")
+    try:
+        subprocess.run([sys.executable, os.path.join(REPO, "tools", "build_dist.py"), "--out", tmp, "--no-zip"],
+                       check=True, stdout=subprocess.DEVNULL)
+        root = os.path.join(tmp, "C2_Practice")
+        judge_dir = os.path.join(root, "Judge")
+        a, b = [s["dir"] for s in judge.load_sets()][:2]
+        with open(os.path.join(REPO, "manifest.json"), encoding="utf-8") as f:
+            real = json.load(f)["full_v4"]
+        check(len(real.get("retired", {})) == len(judge.load_sets())
+              and all(k in real["retired"] for k in (f"{a}/{a}.pdf", f"{b}/{b}.pdf"))
+              and all(os.path.exists(os.path.join(root, d, f"Problems_{d}.pdf"))
+                      and not os.path.exists(os.path.join(root, d, f"{d}.pdf")) for d in (a, b)),
+              "the package has Problems_<topic>.pdf and the manifest retires every old name")
+        shipped, own = b"%PDF old name, as shipped", b"%PDF a file the student saved under the old name"
+        write(os.path.join(root, a, f"{a}.pdf"), shipped.decode())
+        write(os.path.join(root, b, f"{b}.pdf"), own.decode())
+        repo2 = make_repo2(tmp, "9.9", "marker-retired")
+        edit_manifest(repo2, lambda m: m.update(retired={f"{a}/{a}.pdf": [hashlib.sha256(shipped).hexdigest()],
+                                                         f"{b}/{b}.pdf": ["0" * 64]}))
+        srv, url = serve(repo2)
+        p = subprocess.run([sys.executable, os.path.join(judge_dir, "updater.py")],
+                           env=dict(os.environ, JUDGE_UPDATE_URL=url), cwd=root,
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = p.stdout.decode("utf-8", "replace")
+        srv.shutdown()
+        check(p.returncode == 0 and not os.path.exists(os.path.join(root, a, f"{a}.pdf"))
+              and read(os.path.join(judge_dir, ".backup", "_package", a, f"{a}.pdf")) == shipped.decode()
+              and os.path.exists(os.path.join(root, a, f"Problems_{a}.pdf")),
+              "a shipped old-name PDF moves to Judge/.backup/_package/", out)
+        check(read(os.path.join(root, b, f"{b}.pdf")) == own.decode(), "an old-name file with other bytes stays", out)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -697,6 +736,7 @@ def main():
     test_all_moves()
     test_updater()
     test_fast_update()
+    test_retired_pdf()
     test_crlf_generator()
     test_generated_tests()
     test_stale_tests()

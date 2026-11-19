@@ -32,11 +32,18 @@ Intermediate  (เนื้อหาเสริมของค่าย 2)
 
 Advanced (TOI)  (เกินค่าย 2: ระดับ TOI)
   26_Bitmask_and_Digit_DP                    Bitmask and Digit DP
+  27_DSU_on_Tree                             DSU on Tree
+  28_Heavy_Light_Decomposition               Heavy-Light Decomposition
+  29_Centroid_Decomposition                  Centroid Decomposition
+  30_Persistent_Segment_Tree                 Persistent Segment Tree
+  31_Convex_Hull                             Convex Hull
+  32_Convex_Hull_Trick_and_DP_Optimization   Convex Hull Trick and DP Optimization
+  33_Mo_Algorithm                            Mo's Algorithm
 
 โครงสร้างโฟลเดอร์
-  01_Brute_Force_and_Implementation ... 26_Bitmask_and_Digit_DP
-      <ชื่อโฟลเดอร์>.pdf   โจทย์ของเรื่อง (หน้าปก + โจทย์ทุกข้อ)
+  01_Brute_Force_and_Implementation ... 33_Mo_Algorithm
       1.cpp, 2.cpp, ...   ไฟล์คำตอบของแต่ละข้อ (เริ่มต้นเป็นไฟล์ว่าง เขียน code ลงไฟล์เหล่านี้ได้เลย)
+      Problems_<ชื่อโฟลเดอร์>.pdf   โจทย์ของเรื่อง (หน้าปก + โจทย์ทุกข้อ) อยู่ท้ายรายการไฟล์
   Judge            ตัวตรวจและชุดทดสอบ (ไม่ต้องแก้อะไรในโฟลเดอร์นี้)
 
 ย้ายจากเวอร์ชันเก่า (Topic_1 ... Topic_15): ไฟล์ที่เขียนไว้ย้ายไปอยู่กับโจทย์ของมันในโฟลเดอร์ใหม่ให้เองครั้งเดียว

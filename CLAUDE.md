@@ -54,7 +54,7 @@ C2_PRACTICE/
     interactive/<name>/{problem.json, interactor.cpp, tests/NN.in}
     communication/<name>/{problem.json, manager.cpp, stub/, tests/}
   student/                      # student-side files outside Judge/ (copied by build_dist.py)
-    README.txt, .vscode/, <NN_Name>/<NN_Name>.pdf
+    README.txt, .vscode/, <NN_Name>/Problems_<NN_Name>.pdf
     set_files/{Makefile, Makefile_<n>, judge.bat, template.cpp}   # in every topic folder (Makefile_<n> for n != 20
                                                                   # problems); template.cpp (empty) -> 1.cpp ... n.cpp
   samples/                      # known-verdict programs used as regression tests
@@ -137,10 +137,12 @@ Propose the design and wait for approval before writing it.
   -> write the new `Judge/manifest.json`. Any failure: remove the temp folder, keep the current version, silent.
 - Paths: only `Judge/`-relative, no absolute, no `..`, no `\`, no leading `.`, never `manifest.json` /
   `progress.json`. Outside `Judge/` only two kinds, each matched by a strict regex in `updater.py`:
-  *managed* files students do not edit (`<NN_Name>/<NN_Name>.pdf`, `Makefile`, `judge.bat`, `README.txt`, `Guide.pdf`,
+  *managed* files students do not edit (`<NN_Name>/Problems_<NN_Name>.pdf`, `Makefile`, `judge.bat`, `README.txt`, `Guide.pdf`,
   `Progress.md`, `.vscode/*.json`) are replaced when their hash changes (old copy in `Judge/.backup/_package/`);
   *create-only* files (`<NN_Name>/N.cpp` templates) are added only when missing. A `.cpp` can never be managed.
-  Nothing is ever deleted.
+  Nothing is ever deleted. One exception (v4.0, asked for by the teacher): the topic PDF was renamed from
+  `<NN_Name>/<NN_Name>.pdf`; the manifest's `retired` list (`tools/retired.json`: the SHA-256 of every shipped version)
+  lets the updater move an old-name PDF with exactly those bytes to `Judge/.backup/_package/` (`plan_retired`, `retire`).
 - Only an installed package updates (`Judge/judge.py` and `Judge/manifest.json` exist); `core/` in the repo never.
 - `--update` forces a check and prints the result; `--no-update` skips it; the header box shows `Judge vX.Y`
   (from `Judge/manifest.json`). Recovery when `judge.py` itself is broken: `python3 ../Judge/updater.py`.
