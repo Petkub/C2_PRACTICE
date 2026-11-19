@@ -6,14 +6,15 @@ Build the student package.
   python3 tools/build_dist.py --out DIR        writes DIR/C2_Practice/ (and DIR/C2_Practice.zip)
   python3 tools/build_dist.py --no-zip         folder only
 
-Layout produced:
+Layout produced (one folder per problem, tools/layout.py):
   C2_Practice/README.txt, Guide.pdf, .vscode/    from student/
   C2_Practice/Judge/                             exactly the files listed in manifest.json (core/ + problems/),
                                                plus manifest.json itself (the installed version for updater.py)
-  C2_Practice/<NN_Name>/Problems_<NN_Name>.pdf from student/<NN_Name>/ (e.g. 04_Binary_Search; the name sorts
-                                               after the N.cpp files)
+  C2_Practice/<NN_Name>/Problems_<NN_Name>.pdf from student/<NN_Name>/ (the whole topic; a Mixed set: M01/Problems_M01.pdf)
   C2_Practice/<NN_Name>/Makefile, judge.bat     from student/set_files/ (Makefile_<n> for a topic of n != 20)
-  C2_Practice/<NN_Name>/1.cpp ... n.cpp         empty template (student/set_files/template.cpp)
+  C2_Practice/<NN_Name>/05/04-05.cpp            the student's code file: empty (student/set_files/template.cpp)
+  C2_Practice/<NN_Name>/05/05_<Title>.pdf       the problem's own PDF, from student/<NN_Name>/05/
+  C2_Practice/<NN_Name>/05/Makefile, judge.bat  student/set_files/Makefile_problem, judge_problem.bat
 The zip holds the contents of C2_Practice/ without the folder itself (see make_zip).
 The manifest is rebuilt first, so the zip and manifest.json always agree.
 """

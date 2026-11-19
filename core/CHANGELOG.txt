@@ -1,24 +1,28 @@
 POSN Practice Judge - changes
 
-4.0.0  Topics reorganised (your code moves with its problem, once; nothing you wrote is deleted):
+4.0.0  The first release for students: 33 topics and 8 Mixed sets, one folder per problem.
        - English topic folders numbered in study order, basic to advanced: 01_Brute_Force_and_Implementation ...
          33_Mo_Algorithm, in three groups: Core (01-14), Intermediate (15-25), Advanced (TOI) (26-33).
-       - DP is now three core topics: 09 DP I Foundations, 10 DP II Classic Patterns, 11 DP III Faster Transitions
-         (old topics 6 and 7, plus new problems); bitmask and digit DP moved to 26.
-       - New intermediate topics: 16 Monotonic Stack and Queue, 18 Sparse Table, 19 Lazy Segment Tree (with the old
-         lazy problems), 20 Tree DP, 21 Rerooting, 22 Euler Tour, 23 LCA and Binary Lifting, 24 SCC, Bridges and
-         Articulation Points, 25 Trie.
-       - New advanced (TOI) topics, 12 problems each: 27 DSU on Tree, 28 Heavy-Light Decomposition, 29 Centroid
-         Decomposition, 30 Persistent Segment Tree, 31 Convex Hull, 32 Convex Hull Trick and DP Optimization,
-         33 Mo's Algorithm; 26 Bitmask and Digit DP gets 6 new problems.
-       - Statements in the Camp 2 mock-exam layout (one or two pages, one sample per row).
-       - An old Topic_K folder is removed only when nothing of yours is left in it; otherwise it gets README_MOVED.txt.
-       - 71 problems replaced by new, better problems (most repeated problems you already solved elsewhere).
-         Your code for a replaced problem is kept in <topic>/old/<n>_<OldTitle>.cpp, never under the new problem.
-       - Problems are ordered from easier to harder within each level (your file moves with its problem).
-       - Each topic's statements are in Problems_<topic>.pdf, listed after your 1.cpp, 2.cpp, ...
-       - New: 8 Mixed sets (folders M01 ... M08, 6 problems each) with problems from different topics; the topic
-         of a problem is not given. Judge them like a topic (inside M01: judge, or M01-3 for problem 3).
+       - DP is three core topics: 09 DP I Foundations, 10 DP II Classic Patterns, 11 DP III Faster Transitions;
+         bitmask and digit DP are topic 26.
+       - Intermediate topics: 15 Trees, 16 Monotonic Stack and Queue, 17 Fenwick and Segment Tree, 18 Sparse Table,
+         19 Lazy Segment Tree, 20 Tree DP, 21 Rerooting, 22 Euler Tour, 23 LCA and Binary Lifting, 24 SCC, Bridges
+         and Articulation Points, 25 Trie.
+       - Advanced (TOI) topics, 12 problems each: 26 Bitmask and Digit DP, 27 DSU on Tree, 28 Heavy-Light
+         Decomposition, 29 Centroid Decomposition, 30 Persistent Segment Tree, 31 Convex Hull, 32 Convex Hull Trick
+         and DP Optimization, 33 Mo's Algorithm.
+       - 8 Mixed sets (folders M01 ... M08, 6 problems each) with problems from different topics; the topic of a
+         problem is not given.
+       - Statements in the Camp 2 mock-exam layout (one or two pages, one sample per row). Problems are ordered
+         from easier to harder within each level.
+       - One folder per problem: 04_Binary_Search/05/ holds your code file 04-05.cpp (empty at first) and the
+         problem's own statement 05_<Title>.pdf. A Mixed set: M01/3/M01-3.cpp and 3_<Title>.pdf. The whole topic is
+         still in Problems_<topic>.pdf in the topic folder. Do not rename the folders or the .cpp files.
+       - Judging: Ctrl+Shift+B in VS Code on the open .cpp; in a problem folder: make (Windows: judge); in a topic
+         folder: make (the whole topic) or make 5 (Windows: judge, judge 5); anywhere:
+         python3 <path>/Judge/judge.py FILE.cpp. Programs are compiled in a temporary folder, not in your folders.
+       - Later updates: your written file moves with its problem; the file of a replaced problem is kept in
+         <topic>/old/<n>_<OldTitle>.cpp. Nothing you wrote is deleted or overwritten.
 3.0.1  New statement layout: all text in Sarabun (a looped Thai font), more space between lines and below
        headings, sample labels inside the sample boxes; every statement still fits on one A4 page.
        New sets come with empty 1.cpp, 2.cpp, ... (your existing files are never changed); judging an empty file says so.

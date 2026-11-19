@@ -25,16 +25,10 @@ def rnd(n, f, alo=0, ahi=None, blo=0, bhi=None):
     return a, b
 
 
-def halfway(f, n, k):
-    a, b = [], []
-    for _ in range(k):
-        x = ri(0, f - 1)
-        mid = (f + x + 1) // 2
-        a.append(x)
-        b.append(ri(mid, min(f - 1, mid + 3)))
-    for _ in range(n - k):
-        a.append(ri(f // 2, f - 1))
-        b.append(ri(0, f // 2))
+def mix(n, f, k):
+    a, b = rnd(k, f, f // 5, f // 2, f * 4 // 7, f * 4 // 5)
+    a2, b2 = rnd(n - k, f, f // 2, f - 1, 0, f // 2)
+    a, b = a + a2, b + b2
     random.shuffle(a)
     random.shuffle(b)
     return a, b
@@ -53,7 +47,7 @@ add(10, [0, 5], [8, 5])
 for n, f in [(6, 10), (8, 20), (10, 7), (40, 100), (150, 1000), (400, 10**9)]:
     a, b = rnd(n, f)
     add(f, a, b)
-a, b = halfway(10**6, 500, 300)
+a, b = mix(500, 10**6, 300)
 add(10**6, a, b)
 a, b = rnd(1000, 50)
 add(50, a, b)
@@ -64,9 +58,9 @@ a, b = rnd(N, MAXF)
 add(MAXF, a, b)
 a, b = rnd(N, MAXF, 0, MAXF - 1, MAXF // 2, MAXF - 1)
 add(MAXF, a, b)
-a, b = halfway(MAXF, N, N * 3 // 4)
+a, b = mix(N, MAXF, N * 3 // 4)
 add(MAXF, a, b)
-a, b = halfway(MAXF, N, N)
+a, b = rnd(N, MAXF, MAXF // 5, MAXF // 2, MAXF * 4 // 7, MAXF * 4 // 5)
 add(MAXF, a, b)
 add(MAXF, [MAXF - 2] * N, [MAXF - 1] * N)
 a = list(range(0, N))

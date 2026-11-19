@@ -55,16 +55,59 @@ Students never clone this repo: they download `C2_Practice.zip` once from
 [Releases](https://github.com/Petkub/C2_PRACTICE/releases/latest), and from then on their judge **updates itself
 from this repo** every time you push to `main`.
 
-**Where the PDFs are:** `student/<folder>/Problems_<folder>.pdf`, one per topic (a cover with the problem list, then two
-pages per problem: problem n is on pages 2n and 2n+1). In a student's package the same PDF is inside each topic
-folder (the `Problems_` name sorts after the `N.cpp` files; the updater retires the old name `<folder>.pdf`).
+**4.0.0 is the first release students get.** No student has an older package, so nothing in the code or in this
+guide handles older layouts.
 
-**What happens to files from older versions (`Topic_1` ... `Topic_15`):** on the first run after the update to
-4.0, a student's written `Topic_K/N.cpp` moves once to the new folder of the same problem (problems are matched by
-title, so the move is right even where problems were re-ordered). A file of a problem that v4 replaced goes to
-`<new topic>/old/<N>_<OldTitle>.cpp`; it is never put under the new problem. Empty starter files stay, nothing is
-deleted, and an old `Topic_K` folder is removed only when nothing of the student's is left in it (otherwise it
-gets `README_MOVED.txt`). `core/CHANGELOG.txt` tells students the same.
+**The student package: one folder per problem.** (The names are written down once, in `tools/layout.py`.)
+
+```
+C2_Practice/
+  README.txt, Guide.pdf, .vscode/
+  Judge/                                   the judge and the test data (= core/ + problems/ + manifest.json)
+  04_Binary_Search/                        a topic folder
+    Problems_04_Binary_Search.pdf          the whole topic: a cover with the problem list, then every problem
+    Makefile, judge.bat                    judge the whole topic, or one problem (make 5 / judge 5)
+    01/
+    ...
+    05/                                    problem 5: two digits in a topic (01 ... 20)
+      04-05.cpp                            the student's code: empty at first, created once, never replaced
+      05_Cutting_Ropes.pdf        this problem's own PDF (the same pages as in the topic PDF, no cover)
+      Makefile, judge.bat                  judge this problem
+    ...
+    20/
+    old/                                   only after an update that replaced a problem the student had written (below)
+  M01/                                     a Mixed set: slot folders have one digit (1 ... 6)
+    Problems_M01.pdf
+    3/
+      M01-3.cpp
+      3_Fresh_Bread_Only.pdf
+      Makefile, judge.bat
+```
+
+- A folder name and a code file name never change, also when a problem is replaced or re-titled. The code file
+  names are unique in the whole package (`04-05.cpp`, `27-12.cpp`, `M01-3.cpp`), so editor tabs are never ambiguous.
+- The problem PDF's name follows the English title: ASCII letters, digits and `_` only (spaces become `_`, other
+  characters are dropped), at most 60 characters.
+- Students must not rename the folders or the `.cpp` files: the judge finds the problem from the file name
+  (`04-05.cpp`) or from its folder (`04_Binary_Search/05/`). `student/README.txt` tells them so.
+- In the repo the PDFs are `student/<folder>/Problems_<folder>.pdf` and `student/<folder>/<slot>/<slot>_<Title>.pdf`
+  (both written by `C2_PRACTICE_SRC` `build.py all`).
+
+**How students judge** (binaries are compiled in a temporary folder, never in the problem folder):
+
+| where | command |
+|---|---|
+| VS Code, the `C2_Practice` folder open | `Ctrl+Shift+B` on the open `.cpp` judges that problem; *Run Task > Judge whole topic* |
+| a problem folder (`04_Binary_Search/05`) | `make` · Windows `judge` · `python3 ../../Judge/judge.py` |
+| a topic folder (`04_Binary_Search`) | `make` (whole topic), `make 5` or `make 05` · Windows `judge`, `judge 5` · `python3 ../Judge/judge.py`, `python3 ../Judge/judge.py 5` |
+| anywhere | `python3 <path>/Judge/judge.py FILE.cpp` (the problem comes from the file's name or folder), or `FILE.cpp K-P` to name the problem (`4-5`, `M01-3`) |
+
+`python3 ../Judge/judge.py --list` shows every topic and Mixed set with its folders and code file names (Mixed sets
+without any topic name).
+
+**What the updater does when a later release changes problems** (from 4.0.0 on; details in section 5): a
+student's written file follows its problem, a replaced problem's file goes to `<topic>/old/`, nothing is
+overwritten or deleted. `core/CHANGELOG.txt` and `student/README.txt` tell students the same.
 
 The Camp 2 mock exams live in [C2_MOCK](https://github.com/Petkub/C2_MOCK) and the Camp 1 practice in
 [C1_PRACTICE](https://github.com/Petkub/C1_PRACTICE); all of them share this judge (C2_MOCK's README lists the
@@ -84,28 +127,36 @@ the topic PDFs into this repo and writes `build/C2_Practice_Solutions.pdf`. Neve
 core/                  what students get inside Judge/   (judge.py, updater.py, include/, README.txt, CHANGELOG.txt)
 problems/batch/        test data: <NN_Name>/N/01.in, 01.out, ..., manifest.json (hashes), gen.py (rebuilds tests
                        > 64 KB on the student's computer)   + problems.json (problem bank) + sets.json (topics)
-student/               the rest of the student package: README.txt, .vscode/, <NN_Name>/Problems_<NN_Name>.pdf,
-                       set_files/ (Makefile, judge.bat, template.cpp -> 1.cpp ... n.cpp)
+student/               the rest of the student package: README.txt, .vscode/,
+                       <NN_Name>/Problems_<NN_Name>.pdf (the whole topic) and <NN_Name>/<slot>/<slot>_<Title>.pdf (one
+                       problem), both written by C2_PRACTICE_SRC build.py all,
+                       set_files/: Makefile (Makefile_<n> for a topic of n != 20 problems) and judge.bat for a topic
+                       folder, Makefile_problem and judge_problem.bat for a problem folder (shipped there as Makefile
+                       and judge.bat), template.cpp (empty) -> every <NN_Name>/<slot>/<no.>-<slot>.cpp
 samples/               known-verdict programs used by the tests (expected.json says which verdict each must get)
 tests/run_regression.py   the test suite: run before every push
+tools/layout.py           the names of the student package (folders, code files, PDFs): the one place for them
 tools/build_manifest.py   writes manifest.json (hashes of everything students get) and bundles/
 tools/build_dist.py       builds dist/C2_Practice.zip for new students (dist/ is not committed)
-tools/moves/              problems.json of the older releases: how students' files find their problems in v4
-tools/replaced.json       v3 problems that v4 replaced (their files go to <topic>/old/); written by build.py all
+tools/moves/              problems_<version>.json of earlier releases (from 4.0.0 on; none yet): how students' files
+                          find their problems after a release that moves them (section 4f)
+tools/replaced.json       titles of problems that were replaced by new ones (their files go to <topic>/old/);
+                          written by C2_PRACTICE_SRC build.py all
 VERSION                   the version students see ("Judge v4.0.0")
 manifest.json             generated, served to students by GitHub; never edit by hand
 bundles/                  generated zips of each topic's test data (fast updates); commit them with manifest.json
 ```
 
 What a student has: `C2_Practice/Judge/` (= `core/` + `problems/` + `manifest.json`) and
-`C2_Practice/<NN_Name>/1.cpp ... n.cpp` with `Problems_<NN_Name>.pdf` (their code, which the updater never overwrites).
+`C2_Practice/<NN_Name>/<slot>/<no.>-<slot>.cpp` (their code, which the updater never overwrites) next to that
+problem's PDF, with `Problems_<NN_Name>.pdf` in the topic folder (the tree at the top of this file).
 
 ## 2. One-time setup on a new computer
 
 ```bash
 git clone https://github.com/Petkub/C2_PRACTICE.git
 cd C2_PRACTICE
-python3 tests/run_regression.py        # needs python3 and g++; ~20 s; must end with "All regression tests passed."
+python3 tests/run_regression.py        # needs python3 and g++; ~20 min; must end with "All regression tests passed."
 ```
 Optional: `gh auth login` (GitHub CLI) if you want to publish releases from the terminal.
 
@@ -149,15 +200,15 @@ that students already have). Outputs always come from sol.cpp.
 ### 4c. Add a new topic (e.g. topic 27)
 1. Add it to `C2_PRACTICE_SRC/topics.json` and write `topics/27_Name/1..n/`; check each problem.
 2. `/usr/bin/python3 build.py all` writes `problems/batch/27_Name/`, the new entries of `problems.json` /
-   `sets.json` and `student/27_Name/Problems_27_Name.pdf`.
-3. Release. Existing students get the test data, the PDF, `Makefile`, `judge.bat`, and the updater **creates**
-   `27_Name/1.cpp ... n.cpp` (templates are only ever created, never overwritten).
+   `sets.json`, `student/27_Name/Problems_27_Name.pdf` and every `student/27_Name/<slot>/<slot>_<Title>.pdf`.
+3. Release. Existing students get the test data, the PDFs, `Makefile`, `judge.bat`, and the updater **creates**
+   `27_Name/01/27-01.cpp ...` (code files are only ever created, never overwritten).
 
 ### 4d. Change something students see outside Judge/ (README, Makefile, judge.bat, template)
 Edit it under `student/` and release. These are *managed* files: the updater replaces them on every student's
 computer when they change (the old copy goes to `Judge/.backup/_package/`), because students do not edit them.
-The only files that are never replaced are the `<NN_Name>/N.cpp` templates (created once, then the student's own)
-and `Judge/progress.json`.
+The only files that are never replaced are the code files `<NN_Name>/<slot>/<no.>-<slot>.cpp` (created once, empty,
+then the student's own) and `Judge/progress.json`.
 
 ### 4e. A new zip for new students
 ```bash
@@ -167,19 +218,44 @@ gh release create v4.0.0 dist/C2_Practice.zip --title "C2_Practice v4.0.0"
 The link <https://github.com/Petkub/C2_PRACTICE/releases/latest/download/C2_Practice.zip> always gives the newest
 release. You only need a new release for new students (or new sets); existing students update themselves.
 
+### 4f. Move, replace or re-title problems (any release after 4.0.0)
+The updater matches a problem of the installed release with a problem of the new one **by English title**, so it
+needs the `problems.json` students have now. Before you export the new problems:
+
+1. Save the released `problems/batch/problems.json` (exact bytes, e.g. `git show v4.0.0:problems/batch/problems.json`)
+   as `tools/moves/problems_<released version>.json`, e.g. `tools/moves/problems_4.0.0.json`. Keep the files of
+   earlier releases there: a student may update from any of them.
+2. If a problem only gets a new title, add it to `RENAMED` in `tools/build_manifest.py` (old title -> new title).
+   Without this line a re-titled problem counts as a replaced one, and written code goes to `old/`.
+3. Make the change in `C2_PRACTICE_SRC` and run `build.py all` (it also writes `tools/replaced.json` from its
+   `bank/`), then release as in section 3 (`tools/build_manifest.py` writes the `moves` into `manifest.json`).
+
+What students then see is in section 5. `tests/run_regression.py` ("A later release (fake 4.0.1 over local HTTP)")
+checks all of it on a fake release.
+
 ## 5. How the self-update works (so you can trust it)
 
 - `Judge/updater.py` fetches `manifest.json` from `raw.githubusercontent.com/Petkub/C2_PRACTICE/main/`, compares the
   SHA-256 of every file in `Judge/`, downloads the changed ones to a temp folder, verifies each hash, compiles
   the new `.py` files and test-runs the new `judge.py --help`, and only then swaps them in. The old file is kept
   in `Judge/.backup/`.
-- Outside `Judge/` it only replaces the managed files above and creates missing `<NN_Name>/N.cpp` templates; it
-  never deletes anything and never overwrites an existing `N.cpp`. The one exception is the one-time move of a
-  written file to its problem's new folder when topics are reorganised (4.0; see the top of this file).
+- Outside `Judge/` it only replaces the managed files above (PDFs, `Makefile`, `judge.bat`, `README.txt`,
+  `Guide.pdf`, `.vscode/`) and creates missing code files `<NN_Name>/<slot>/<no.>-<slot>.cpp`; it never deletes
+  anything and never overwrites an existing code file. Files it did not ship are never touched.
+- When a release moves, replaces or re-titles problems (section 4f), on the first run after the update:
+  - a **moved** problem: the student's written file follows it (same English title) to
+    `<topic>/<slot>/<no.>-<slot>.cpp`, and the place it left gets an empty code file again;
+  - a **replaced** problem: the written file goes to `<topic>/old/<n>_<OldTitle>.cpp`, never under the new problem;
+  - **nothing is overwritten**: if the new place already holds written code, the incoming file goes to
+    `<topic>/old/<name>_moved.cpp` and the judge says so;
+  - an empty (unwritten) code file is not moved;
+  - a problem PDF whose title changed: the new PDF is installed, and the old one is moved to
+    `Judge/.backup/_package/` only when its bytes are exactly the ones the updater installed. This needs no list:
+    the updater compares the installed `Judge/manifest.json` with the new one;
+  - the judge prints every move once; the second run is quiet.
 - No network, a slow network (> 2 s), a bad hash, a strange path: it keeps the current version and says nothing.
   A failed update never stops a student from judging.
-- A package older than 4.0 first installs a small bootstrap (the new updater), restarts, and then installs 4.0;
-  this needs no action from the student.
+- `manifest.json` is one plain view: `version`, `sources`, `files`, `managed`, `create_only`, `bundles`, `moves`.
 
 ## 6. Checking a student's problem report
 

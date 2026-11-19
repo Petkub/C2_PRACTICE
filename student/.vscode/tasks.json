@@ -3,24 +3,24 @@
   "tasks": [
     {
       "label": "Judge this problem",
-      "detail": "Ctrl+Shift+B (Cmd+Shift+B on Mac) while editing e.g. 04_Binary_Search/5.cpp",
+      "detail": "Ctrl+Shift+B (Cmd+Shift+B on Mac) while editing e.g. 04_Binary_Search/05/04-05.cpp",
       "type": "process",
       "command": "python3",
       "windows": { "command": "python" },
-      "args": ["${workspaceFolder}/Judge/judge.py", "${fileBasename}"],
+      "args": ["${workspaceFolder}/Judge/judge.py", "${file}"],
       "options": { "cwd": "${fileDirname}" },
       "group": { "kind": "build", "isDefault": true },
       "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
       "problemMatcher": []
     },
     {
-      "label": "Judge whole set",
-      "detail": "judge 1.cpp, 2.cpp, ... of the topic you are editing",
+      "label": "Judge whole topic",
+      "detail": "judge every problem of the topic (or Mixed set) you are editing",
       "type": "process",
       "command": "python3",
       "windows": { "command": "python" },
       "args": ["${workspaceFolder}/Judge/judge.py"],
-      "options": { "cwd": "${fileDirname}" },
+      "options": { "cwd": "${fileDirname}/.." },
       "group": "build",
       "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
       "problemMatcher": []
