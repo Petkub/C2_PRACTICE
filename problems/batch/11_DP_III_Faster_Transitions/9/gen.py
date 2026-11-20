@@ -1,65 +1,68 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(6012)
-MAXN, MAXV = 500_000, 10**9
+random.seed(110009)
+MAXN = 200000
+MAXC = 5
+MAXA = 10 ** 9
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(k, c, col, a):
+    n = len(col)
+    assert 1 <= n <= MAXN and 1 <= k <= n and 1 <= c <= MAXC
+    assert len(a) == n and all(1 <= x <= c for x in col) and all(0 <= x <= MAXA for x in a)
+    tests.append(f"{n} {k} {c}\n" + " ".join(map(str, col)) + "\n" + " ".join(map(str, a)) + "\n")
 
 
-def add(L, R, p):
-    n = len(p)
-    assert 2 <= n <= MAXN and 1 <= L <= R <= n - 1
-    assert all(-MAXV <= x <= MAXV for x in p)
-    tests.append(f"{n} {L} {R}\n" + " ".join(map(str, p)) + "\n")
+def runs(n, c, mean_run):
+    col = []
+    while len(col) < n:
+        e = random.randint(1, c)
+        if col and e == col[-1]:
+            continue
+        col += [e] * random.randint(1, 2 * mean_run - 1)
+    return col[:n]
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def gems(n, lo, hi):
+    return [random.randint(lo, hi) for _ in range(n)]
 
 
-add(1, 2, [3, -5, -2, 4, -1, 2])
-add(2, 2, [1, 2, 3, 4, 5, 6])
-add(1, 1, [-7, 4])
-add(1, 3, [-1, -8, -3, -9, -2, -6, -1])
-add(2, 3, [5, 9, -4, 1, -2, 8, -6, 3])
-add(3, 4, [6, -9, 7, -1, 2, 5, -3, 8, -5, 4])
+def falling(n):
+    return [max(0, MAXA - i * (MAXA // n) - random.randint(0, MAXA // n * 3)) for i in range(n)]
 
-add(1, 1, [MAXV, MAXV])
-add(1, 2, [-MAXV, -MAXV, -MAXV])
-add(2, 3, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-add(1, 17, rnd(18, -100, 100))
-add(1, 4, rnd(18, -MAXV, MAXV))
-add(2, 5, rnd(20, -10, 10))
-add(3, 3, rnd(16, -50, 50))
-add(3, 3, rnd(17, -50, 50))
-add(4, 9, rnd(22, -MAXV, MAXV))
-add(5, 7, rnd(9, 1, 9))
-add(1, 5, [-1] * 12)
 
-add(3, 40, rnd(2000, -MAXV, MAXV))
-add(1, 1000, rnd(5000, -1000, 100))
+add(2, 3, [3, 1, 1, 2, 2, 3, 2, 3], [9, 5, 5, 9, 9, 7, 8, 6])
+add(1, 2, [1, 2, 2, 1], [4, 6, 6, 4])
+add(1, 1, [1], [7])
+add(3, 3, [2, 2, 2, 1, 2, 1, 2], [3, 8, 4, 8, 9, 6, 3])
+add(2, 2, [2, 2, 1, 2, 2, 1], [2, 2, 5, 2, 2, 5])
 
-N = MAXN
-M = 200_000
-add(1, N - 1, rnd(N, -1000, 1000))
-add(1, N // 2, rnd(N, -1000, 0))
-add(N // 4, N // 2, rnd(N, -1000, 1000))
-add(1000, 100_000, rnd(M, -MAXV, MAXV // 10))
-add(1, 1, [MAXV] * M)
-add(1, M - 1, [-MAXV] * M)
-add(2, 2, rnd(N, -1000, 1000))
-add(3, 3, rnd(N - 1, -999, 999))
-add(7, 150_000, [MAXV - i for i in range(M)])
-add(1, M - 1, [-(MAXV - i) for i in range(M)])
-add(5, 300_000, rnd(N, -1000, 1000))
-add(49_999, 50_001, rnd(M, -MAXV, MAXV))
-add(1, 250_000, rnd(N, -10, 1))
-add(100_000, 400_000, rnd(N, -1000, 1000))
-add(2, 200_000, rnd(N, -MAXV // 10**6, MAXV // 10**6))
+add(1, 1, [1, 1], [1, 1])
+for n, k, c, mr in [(2, 1, 2, 1), (6, 2, 2, 2), (9, 3, 3, 2), (12, 4, 2, 3), (15, 5, 4, 3), (18, 6, 3, 4), (18, 17, 5, 2)]:
+    add(k, c, runs(n, c, mr), gems(n, 0, 30))
+
+add(60, 3, runs(3000, 3, 20), falling(3000))
+add(200, 5, runs(5000, 5, 60), gems(5000, 0, MAXA))
+
+add(60000, 3, runs(MAXN, 3, 9000), falling(MAXN))
+add(100000, 2, runs(MAXN, 2, 15000), falling(MAXN))
+add(50000, 5, runs(MAXN, 5, 4000), gems(MAXN, 0, MAXA))
+add(80000, 4, runs(MAXN, 4, 30000), falling(MAXN))
+add(MAXN - 1, 5, runs(MAXN, 5, 2), gems(MAXN, 0, MAXA))
+add(30000, 2, runs(MAXN, 2, 20000), gems(MAXN, 0, 1000))
+add(70000, 5, [random.randint(1, 5) for _ in range(MAXN)], falling(MAXN))
+add(40000, 3, runs(MAXN, 3, 25000), [MAXA] * MAXN)
+col = runs(MAXN, 3, 5000)
+for i in range(60000, 60000 + 2 * 40000 + 5):
+    col[i] = 1
+col[59999] = 2
+col[60000 + 80005] = 3
+add(40000, 3, col, gems(MAXN, 0, 999))
+add(90000, 2, runs(MAXN, 2, 40000), falling(MAXN))
+add(25000, 4, runs(MAXN, 4, 3000), falling(MAXN))
+add(120000, 3, runs(MAXN, 3, 50000), gems(MAXN, 0, MAXA))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

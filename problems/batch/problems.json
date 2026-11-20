@@ -567,8 +567,8 @@
   "samples": 6
  },
  "502": {
-  "title": "สองเมือง",
-  "en": "Two Cities",
+  "title": "nerf จนกว่าจะเข้าแถว",
+  "en": "Nerf Them Into Line",
   "tier": 1,
   "dir": "05_Greedy/2",
   "samples": 6
@@ -665,8 +665,8 @@
   "samples": 6
  },
  "516": {
-  "title": "ตัดแล้วทาสี",
-  "en": "Cut, Then Paint",
+  "title": "เคลียร์ป่าให้ไวที่สุด",
+  "en": "Fastest Jungle Clear",
   "tier": 2,
   "dir": "05_Greedy/16",
   "samples": 6
@@ -679,8 +679,8 @@
   "samples": 6
  },
  "518": {
-  "title": "ซื้อถูกขายแพง",
-  "en": "Buy Low, Sell High",
+  "title": "ซื้อให้ไวก่อนบอทกวาด",
+  "en": "Buy Before the Bots",
   "tier": 3,
   "dir": "05_Greedy/18",
   "samples": 6
@@ -1169,8 +1169,8 @@
   "samples": 6
  },
  "908": {
-  "title": "ตัดริบบิ้นขาย",
-  "en": "Ribbon Pieces",
+  "title": "เมนูค่ายเก็บตัว",
+  "en": "The Bootcamp Menu",
   "tier": 2,
   "dir": "09_DP_I_Foundations/8",
   "samples": 6
@@ -1183,11 +1183,11 @@
   "samples": 5
  },
  "910": {
-  "title": "คะแนนที่สูงขึ้น",
-  "en": "Rising Scores",
+  "title": "ขุดเพชรด้วยอีเต้อใกล้พัง",
+  "en": "Mining With a Worn Pickaxe",
   "tier": 2,
   "dir": "09_DP_I_Foundations/10",
-  "samples": 6
+  "samples": 5
  },
  "911": {
   "title": "ซื้อขายแล้วต้องพัก",
@@ -1337,15 +1337,15 @@
   "samples": 6
  },
  "1012": {
-  "title": "ตัดป้ายเป็น palindrome",
-  "en": "Palindrome Pieces",
+  "title": "แก้คำตอบของ AI ขี้มั่ว",
+  "en": "Fixing the Confident AI",
   "tier": 2,
   "dir": "10_DP_II_Classic_Patterns/12",
   "samples": 6
  },
  "1013": {
-  "title": "จัดย่อหน้าให้สวย",
-  "en": "Neat Paragraph",
+  "title": "บัตรเหมาผ่านด่าน",
+  "en": "The Toll Pass Bundle",
   "tier": 2,
   "dir": "10_DP_II_Classic_Patterns/13",
   "samples": 5
@@ -1421,8 +1421,8 @@
   "samples": 6
  },
  "1104": {
-  "title": "บัตรโดยสารรายช่วง",
-  "en": "Bus Passes",
+  "title": "กระโดดเฉียงลงขวา",
+  "en": "Diagonal Leaps",
   "tier": 1,
   "dir": "11_DP_III_Faster_Transitions/4",
   "samples": 6
@@ -1442,11 +1442,11 @@
   "samples": 6
  },
  "1107": {
-  "title": "กระโดดเฉียงลงขวา",
-  "en": "Diagonal Leaps",
+  "title": "กำแพงหยักใน BlockLand",
+  "en": "Jagged Walls of BlockLand",
   "tier": 1,
   "dir": "11_DP_III_Faster_Transitions/7",
-  "samples": 6
+  "samples": 5
  },
  "1108": {
   "title": "แบ่งลูกอม",
@@ -1456,11 +1456,11 @@
   "samples": 6
  },
  "1109": {
-  "title": "กระโดดเก็บแต้ม",
-  "en": "Hopping for Points",
+  "title": "กระโดดหินธาตุกลางทะเลสาบ",
+  "en": "Hopscotch on Elemental Stones",
   "tier": 2,
   "dir": "11_DP_III_Faster_Transitions/9",
-  "samples": 6
+  "samples": 5
  },
  "1110": {
   "title": "ข้อความที่ต่างกันไม่มาก",
@@ -3639,337 +3639,337 @@
   "samples": 5
  },
  "4101": {
-  "title": "ยุ้งข้าวพอเมื่อไร",
-  "en": "When Are the Barns Full Enough",
+  "title": "ขอลงจากดอยที",
+  "en": "Get Me Off This Hill",
   "tier": 0,
   "dir": "M01/1",
   "samples": 5
  },
  "4102": {
-  "title": "ข้ามลำธารด้วยก้อนหิน",
-  "en": "Crossing the Stream",
+  "title": "บึงพิษรอบที่ 9,999",
+  "en": "Poison Swamp Attempt 9999",
   "tier": 0,
   "dir": "M01/2",
   "samples": 5
  },
  "4103": {
-  "title": "ขนมปังต้องสด",
-  "en": "Fresh Bread Only",
+  "title": "อ่านฟรีไม่เติมเงิน",
+  "en": "Free Coins Only",
   "tier": 0,
   "dir": "M01/3",
   "samples": 5
  },
  "4104": {
-  "title": "ซองสติกเกอร์ของสองพี่น้อง",
-  "en": "Sticker Packs for Two",
+  "title": "โชว์แมตช์ 3 ต่อ 3 งบหมด",
+  "en": "The Budget 3v3 Showmatch",
   "tier": 0,
   "dir": "M01/4",
   "samples": 5
  },
  "4105": {
-  "title": "คอนโดบันไดแปลก",
-  "en": "The Odd Staircases",
+  "title": "ผู้กล้าที่เกลียดการเดิน",
+  "en": "The Hero Who Hates Walking",
   "tier": 0,
   "dir": "M01/5",
   "samples": 5
  },
  "4106": {
-  "title": "ไฟลามทุ่งหญ้า",
-  "en": "Grass Fire",
+  "title": "ขุดอีกแล้ว ท่วมอีกแล้ว",
+  "en": "Dug Again, Flooded Again",
   "tier": 0,
   "dir": "M01/6",
   "samples": 5
  },
  "4201": {
-  "title": "ซ่อมให้ทันก่อนร้านปิด",
-  "en": "Repairs Before Closing",
+  "title": "ไม่ได้ Sus แค่ AFK",
+  "en": "Not Sus, Just AFK",
   "tier": 0,
   "dir": "M02/1",
   "samples": 5
  },
  "4202": {
-  "title": "ต่อเพลงให้เนียน",
-  "en": "Smooth Song Changes",
+  "title": "ตะโกนเชียร์คั่นเพลง",
+  "en": "Chant Between the Songs",
   "tier": 0,
   "dir": "M02/2",
   "samples": 5
  },
  "4203": {
-  "title": "เตาย่างในค่ายพักแรม",
-  "en": "Grills at the Camp",
+  "title": "ขุดเหรียญก่อนโดนตัดไฟ",
+  "en": "Mine Before the Power Cut",
   "tier": 0,
   "dir": "M02/3",
   "samples": 5
  },
  "4204": {
-  "title": "กุญแจในตู้ล็อกเกอร์",
-  "en": "Keys in the Lockers",
+  "title": "สกิลเดียวที่ได้คือตัดผนึก",
+  "en": "My Only Skill Is Seal Breaking",
   "tier": 0,
   "dir": "M02/4",
   "samples": 5
  },
  "4205": {
-  "title": "กังหันลมบนสันเขา",
-  "en": "Wind Turbines on the Ridge",
+  "title": "เงินไม่พอซื้อปืนอีกแล้ว",
+  "en": "Broke Again Before the Round",
   "tier": 0,
   "dir": "M02/5",
-  "samples": 6
+  "samples": 5
  },
  "4206": {
-  "title": "ลูกเหล็กกับแผ่นกระจก",
-  "en": "The Ball and the Glass Panels",
+  "title": "ไฟนอลพัก รอเน็ตกลับมา",
+  "en": "While the Final Is Paused",
   "tier": 0,
   "dir": "M02/6",
   "samples": 5
  },
  "4301": {
-  "title": "ลูกเต่าลงทะเล",
-  "en": "Hatchlings to the Sea",
+  "title": "สกินเริ่มต้นทั้งเซิร์ฟ",
+  "en": "Everyone Wears the Default Skin",
   "tier": 0,
   "dir": "M03/1",
   "samples": 5
  },
  "4302": {
-  "title": "จดหมายในห้องเรียน",
-  "en": "Letters in the Classroom",
+  "title": "เหรียญปั่นตามกัน",
+  "en": "Coins That Pump Together",
   "tier": 0,
   "dir": "M03/2",
   "samples": 5
  },
  "4303": {
-  "title": "นักร้องประสานเสียง",
-  "en": "Singers in Tune",
+  "title": "ข้ามตอน filler ไปเลย",
+  "en": "Skip the Filler Episodes",
   "tier": 0,
   "dir": "M03/3",
   "samples": 5
  },
  "4304": {
-  "title": "แจกันดอกไม้หลายพันธุ์",
-  "en": "Vases of Many Kinds",
+  "title": "รวมดาวห้ามซ้ำทีม",
+  "en": "All Stars Without Teammates",
   "tier": 0,
   "dir": "M03/4",
   "samples": 5
  },
  "4305": {
-  "title": "กันสาดหน้าร้าน",
-  "en": "Awnings Along the Street",
+  "title": "กันสาดไวนิลแลกคะแนน",
+  "en": "Vinyl Awnings for Votes",
   "tier": 0,
   "dir": "M03/5",
   "samples": 5
  },
  "4306": {
-  "title": "พาหมาดื้อไปเดินเล่น",
-  "en": "Walking the Stubborn Dog",
+  "title": "เดินตามไฟลูกศร",
+  "en": "Follow the Floor Arrows",
   "tier": 0,
   "dir": "M03/6",
   "samples": 5
  },
  "4401": {
-  "title": "เดินกระดานสะสมแต้ม",
-  "en": "Walking the Board for Points",
+  "title": "ไล่ทองนำให้ถึงเป้า",
+  "en": "Chasing the Gold Lead",
   "tier": 0,
   "dir": "M04/1",
   "samples": 5
  },
  "4402": {
-  "title": "คะแนนเปลี่ยนหลังแข่ง",
-  "en": "Score Changes After the Contest",
+  "title": "แรงก์ช็อกหลังจบคัพ",
+  "en": "Rating Shock After the Cup",
   "tier": 0,
   "dir": "M04/2",
   "samples": 5
  },
  "4403": {
-  "title": "ตั้งวงดนตรีให้ครบเครื่อง",
-  "en": "Gearing Up the Band",
+  "title": "สเปกคอมที่ไม่เคยครบ",
+  "en": "The Parts List Keeps Growing",
   "tier": 0,
   "dir": "M04/3",
   "samples": 5
  },
  "4404": {
-  "title": "ถาดข้าวกล่องหมุนได้",
-  "en": "The Spinning Lunch Tray",
+  "title": "เกิดใหม่เป็นถาดหมุนในโรงเตี๊ยม",
+  "en": "Reincarnated as a Lazy Susan",
   "tier": 0,
   "dir": "M04/4",
   "samples": 6
  },
  "4405": {
-  "title": "ฝากหนังสือข้ามชมรม",
-  "en": "Passing a Book Through the Clubs",
+  "title": "ส่งเรื่องต่อให้กรรมการ",
+  "en": "Passed to Another Committee",
   "tier": 0,
   "dir": "M04/5",
   "samples": 5
  },
  "4406": {
-  "title": "ร้อยลูกปัดตัวเลข",
-  "en": "Stringing Number Beads",
+  "title": "แถวแฟนคลับเลขนำโชค",
+  "en": "Lucky Palindrome Fan Line",
   "tier": 0,
   "dir": "M04/6",
   "samples": 6
  },
  "4501": {
-  "title": "เรียงแฟ้มตามรหัสสัน",
-  "en": "Filing by Spine Codes",
+  "title": "AI เรียงไฟล์อย่างมั่นใจ",
+  "en": "The Confidently Sorted Files",
   "tier": 0,
   "dir": "M05/1",
   "samples": 5
  },
  "4502": {
-  "title": "กล่องของขวัญราคาใกล้เป้า",
-  "en": "The Gift Box Closest to the Voucher",
+  "title": "ชุดลงทุน Stonks and Pray",
+  "en": "The Stonks and Pray Bundle",
   "tier": 0,
   "dir": "M05/2",
   "samples": 6
  },
  "4503": {
-  "title": "ประตูทางเข้าสวน",
-  "en": "The Garden's Entrances",
+  "title": "ประตูกินกุญแจ",
+  "en": "The Key-Eating Doors",
   "tier": 0,
   "dir": "M05/3",
-  "samples": 5
+  "samples": 6
  },
  "4504": {
-  "title": "ธงราวบนเสาเว้นระยะ",
-  "en": "Bunting on Every T-th Post",
+  "title": "ตารางไลฟ์ของสตรีมเมอร์ขี้แลค",
+  "en": "The Laggy Streamer's Schedule",
   "tier": 0,
   "dir": "M05/4",
   "samples": 5
  },
  "4505": {
-  "title": "โอทีปลายปี",
-  "en": "Year-End Overtime",
+  "title": "ศิษย์ถือเป้าทั้งสำนัก",
+  "en": "The Whole Dojo Holds Targets",
   "tier": 0,
   "dir": "M05/5",
   "samples": 6
  },
  "4506": {
-  "title": "ถนนเลนด่วนสายเดียว",
-  "en": "One Fast Lane",
+  "title": "ส่งของให้ทันงานมีตแฟน",
+  "en": "Deliveries Before the Fan Meet",
   "tier": 0,
   "dir": "M05/6",
   "samples": 5
  },
  "4601": {
-  "title": "รอเรียกหน้าห้องตรวจ",
-  "en": "Waiting Outside the Examination Room",
+  "title": "ห้องรอคิวกดบัตรคอนเสิร์ต",
+  "en": "Stuck in the Concert Ticket Queue",
   "tier": 0,
   "dir": "M06/1",
   "samples": 5
  },
  "4602": {
-  "title": "แต้มล่ามอนสเตอร์",
-  "en": "Points for the Monster Hunt",
+  "title": "ตายบ่อยแต่ฟาร์มไว",
+  "en": "Dies Often, Farms Fast",
   "tier": 0,
   "dir": "M06/2",
   "samples": 5
  },
  "4603": {
-  "title": "แข่งเรือยาวที่เห็นสองครั้ง",
-  "en": "The Boat Race Seen Twice",
+  "title": "ตัดเข้าโฆษณาตอนเข้าเส้นชัย",
+  "en": "Ad Break at the Finish Line",
   "tier": 0,
   "dir": "M06/3",
   "samples": 5
  },
  "4604": {
-  "title": "ขายปลาเป็นบิล",
-  "en": "Selling Fish by the Bill",
+  "title": "สามเหรียญกับการ์ดจอใบเดียว",
+  "en": "Three Coins, One Tired GPU",
   "tier": 0,
   "dir": "M06/4",
   "samples": 5
  },
  "4605": {
-  "title": "เครนสลับลังสินค้า",
-  "en": "The Crate-Swapping Crane",
+  "title": "เดี๋ยวก่อน ขอสลับวาระ",
+  "en": "Hold On, Reorder the Agenda",
   "tier": 0,
   "dir": "M06/5",
   "samples": 5
  },
  "4606": {
-  "title": "เดินป่าหลายภูมิประเทศ",
-  "en": "Jungle Trek Courses",
+  "title": "สกิลรีเซ็ตทุกเควสต์",
+  "en": "Skills Reset Every Quest",
   "tier": 0,
   "dir": "M06/6",
   "samples": 5
  },
  "4701": {
-  "title": "ยามหลับบนแนวกำแพง",
-  "en": "Dozing Guards Along the Wall",
+  "title": "เมื่อ router งีบกลางระเบียง",
+  "en": "Routers Napping in the Hallway",
   "tier": 0,
   "dir": "M07/1",
   "samples": 5
  },
  "4702": {
-  "title": "ลานหินตะไคร่",
-  "en": "The Mossy Courtyard",
+  "title": "ลานน้ำแข็งเหนือบ่อลาวา",
+  "en": "Ice Floor Above the Lava",
   "tier": 0,
   "dir": "M07/2",
   "samples": 5
  },
  "4703": {
-  "title": "วัตถุดิบกับเครื่องปรุง",
-  "en": "Ingredients and Seasonings",
+  "title": "พรสองกองของผู้กล้าต่างโลก",
+  "en": "Two Piles of Isekai Blessings",
   "tier": 0,
   "dir": "M07/3",
   "samples": 5
  },
  "4704": {
-  "title": "มุกตลกแพร่ไปทั่ว",
-  "en": "The Joke Goes Around",
+  "title": "ตอนใหม่มาแล้ว บอกต่อด่วน",
+  "en": "Word of the New Chapter Spreads",
   "tier": 0,
   "dir": "M07/4",
   "samples": 5
  },
  "4705": {
-  "title": "ขยับที่นั่งบนม้านั่งยาว",
-  "en": "Sliding Along the Bench",
+  "title": "ยื้อประชุมทีละเก้าอี้",
+  "en": "Stalling the Meeting Seat by Seat",
   "tier": 0,
   "dir": "M07/5",
   "samples": 5
  },
  "4706": {
-  "title": "รถตู้ไปตลาดน้ำ",
-  "en": "The Van to the Floating Market",
+  "title": "รอในล็อบบี้จนไฟมอด",
+  "en": "Lobby Wait Kills the Hype",
   "tier": 0,
   "dir": "M07/6",
   "samples": 5
  },
  "4801": {
-  "title": "ไพ่ตัวเลขสองถุง",
-  "en": "Two Bags of Number Cards",
+  "title": "เครื่องคิดกำไรในฝัน",
+  "en": "The Dream Profit Calculator",
   "tier": 0,
   "dir": "M08/1",
   "samples": 5
  },
  "4802": {
-  "title": "สะพานทางเดียวทีละสาย",
-  "en": "One-Way Bridges, One by One",
+  "title": "ลูกโซ่น้ำอุ่นในกลุ่มผู้ปกครอง",
+  "en": "The Warm Water Chain Message",
   "tier": 0,
   "dir": "M08/2",
   "samples": 5
  },
  "4803": {
-  "title": "เลขมงคล 727",
-  "en": "The Lucky 727",
+  "title": "727 เลขประจำคู่",
+  "en": "The Ship Number 727",
   "tier": 0,
   "dir": "M08/3",
   "samples": 5
  },
  "4804": {
-  "title": "ประภาคารริมแหลม",
-  "en": "Lighthouses Along the Cape",
+  "title": "ธงบนยอดเขาบล็อก",
+  "en": "Flags on the Block Peaks",
   "tier": 0,
   "dir": "M08/4",
   "samples": 5
  },
  "4805": {
-  "title": "ไต่อันดับด้วยการ์ดโอนแต้ม",
-  "en": "Climbing with Transfer Cards",
+  "title": "สูตรเข้ารอบของแฟนกะเพรา",
+  "en": "Copium Math for the Playoffs",
   "tier": 0,
   "dir": "M08/5",
   "samples": 5
  },
  "4806": {
-  "title": "ตัดต่อรายการประกวดดาวเด่น",
-  "en": "Editing the Talent Show",
+  "title": "ตัดต่ออนิเมะตอนงบหมด",
+  "en": "Editing Anime on Zero Budget",
   "tier": 0,
   "dir": "M08/6",
   "samples": 5

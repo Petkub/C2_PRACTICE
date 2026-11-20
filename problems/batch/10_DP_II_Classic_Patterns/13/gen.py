@@ -1,101 +1,85 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(10016)
-MAXN, MAXW, MAXLETTERS = 100000, 100, 10**6
+random.seed(100013)
+MAXN = 50000
+MAXM = 100000
+MAXL = 50
+MAXW = 10 ** 9
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(n, p, l, edges, shuffle=True):
+    assert 2 <= n <= MAXN and 1 <= len(edges) <= MAXM and 1 <= p <= MAXW and 1 <= l <= MAXL
+    assert all(1 <= u < v <= n and 1 <= w <= MAXW for u, v, w in edges)
+    edges = list(edges)
+    if shuffle:
+        random.shuffle(edges)
+    tests.append(f"{n} {len(edges)} {p} {l}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges))
 
 
-def add(w, words):
-    n = len(words)
-    assert 1 <= n <= MAXN and 1 <= w <= MAXW
-    assert all(1 <= len(s) <= w and s.isalpha() and s.islower() for s in words)
-    assert sum(map(len, words)) <= MAXLETTERS
-    tests.append(f"{n} {w}\n" + " ".join(words) + "\n")
+def rnd_dag(n, m, reach, wlo, whi):
+    e = [(u, u + 1, random.randint(wlo, whi)) for u in range(1, n)]
+    while len(e) < m:
+        u = random.randint(1, n - 1)
+        e.append((u, random.randint(u + 1, min(n, u + reach)), random.randint(wlo, whi)))
+    return e
 
 
-LET = "abcdefghijklmnopqrstuvwxyz"
+def stages(l, count, p, extra=0):
+    e, a, n = [], 1, 1
+    for _ in range(count):
+        cheap = random.randint(p // (l + 2) + 1, p // (l + 1))
+        heavy = random.randint(((l + 1) * cheap) // l + 1, ((l + 1) * cheap) // l + 1 + p // 50)
+        hw = [a] + [n + i for i in range(1, l)]
+        n += l - 1
+        side = [a] + [n + i for i in range(1, l + 1)]
+        n += l
+        b = n + 1
+        n = b
+        hw.append(b)
+        side.append(b)
+        e += [(hw[i], hw[i + 1], heavy) for i in range(l)]
+        e += [(side[i], side[i + 1], cheap + random.randint(0, 3)) for i in range(l + 1)]
+        a = b
+    for _ in range(extra):
+        u = random.randint(1, n - 1)
+        e.append((u, random.randint(u + 1, min(n, u + 2 * l)), random.randint(MAXW // 2, MAXW)))
+    return n, e
 
 
-def word(k):
-    return "".join(random.choices(LET, k=k))
+add(5, 6, 2, [(1, 2, 6), (2, 5, 6), (1, 3, 2), (3, 4, 3), (4, 5, 8)], False)
+add(4, 100, 1, [(1, 2, 7), (3, 4, 2)], False)
+add(3, 10, 3, [(1, 2, 8), (2, 3, 9), (1, 3, 20)], False)
+add(6, 9, 2, [(1, 2, 6), (2, 3, 6), (3, 4, 6), (4, 5, 6), (5, 6, 6), (1, 6, 25)], False)
+add(2, 1, 1, [(1, 2, 1000000000)], False)
 
+for n, m, p, l in [(2, 1, 3, 1), (4, 5, 7, 2), (6, 9, 15, 2), (7, 12, 10, 3), (8, 14, 25, 1), (9, 16, 12, 4)]:
+    add(n, p, l, rnd_dag(n, m, 3, 1, 20))
+n, e = stages(3, 2, 60)
+add(n, 60, 3, e)
 
-def words(n, lo, hi):
-    return [word(ri(lo, hi)) for _ in range(n)]
+add(2000, 3000, 6, rnd_dag(2000, 5000, 30, 1, 1000))
+n, e = stages(8, 100, 10 ** 7, 300)
+add(n, 10 ** 7, 8, e)
 
-
-T10_W21 = "11321123223122121313121312231333121113122"
-T11_W11 = "322133322231313111112113331233321113321312331"
-T11_W13 = ("2211112121112222222222222121121122221111121122221121111222222121122121122211121112212211221211"
-           "11221121")
-T11_W15 = ("2132433214312113411212243124112321414432114321414132213131121422143342342442312334231242111123"
-           "32313431121322211322224314414222231123222214431241124132233231212322333223313")
-T10_W25 = ("4232342313434244432344123132122413124142443213112322111123242432313421432322421144433114424342"
-           "1214322321141114142123131112333233441322323432332233443221432443424214212323134213223211434244"
-           "3331433233421212214122212142134312311341242322431233342143343123241333314421144333224123222123"
-           "3112424234441133213441124331331211243243134413231244131214313314142112343311232211411423214434"
-           "334213212231213433243234123241212242331441231112314211341144132232221")
-
-
-F_W17 = "1122323221232133112111213122111312213331213221"
-F_W30 = "121221133312313221311132122332312211331223211121222133312232"
-F_W50 = ("3554143115533224422552314313431524444411213245425453525144131411254143525514452212152141432522"
-         "335143214513")
-F_W64 = ("1135536365411526526264155241222653132332512345362355365214362422545265331124443342625256633551"
-         "25416465161342262111634")
-F_W10 = ("2211332332311233323111233221212113132231232323123133313133313221123132111122121233231322311123"
-         "233133132322113111223123")
-S_W10 = "13232223221222323231322312111112222233123213321123112232133122123312311"
-S_W11 = "33444241234242234114421141442322423422314232213144222323423222313433124121324223"
-
-
-def from_lengths(code):
-    return [word(int(ch)) for ch in code]
-
-
-def tie_trap(w, n, code, hi):
-    tail = from_lengths(code)
-    return words(n - len(tail) - 1, 1, hi) + [word(w)] + tail
-
-
-add(6, ["sun", "a", "go", "rain"])
-add(5, ["aa", "bb", "cc", "dd", "e", "ffff"])
-add(5, ["hello"])
-add(12, ["this", "is", "a", "test", "of", "a", "neat", "paragraph"])
-add(4, ["x", "y", "z", "w", "v", "u", "t"])
-
-add(1, ["q"])
-add(3, ["a", "b", "c", "d", "e", "f", "g", "h", "i"])
-add(8, words(14, 1, 4))
-add(10, words(16, 1, 6))
-add(7, ["aa"] * 18)
-add(17, from_lengths(F_W17))
-add(10, from_lengths(S_W10))
-add(21, from_lengths(T10_W21))
-add(11, from_lengths(T11_W11))
-
-N = MAXN
-add(100, words(N, 1, 10))
-add(10, tie_trap(10, N, S_W10, 3))
-add(50, tie_trap(50, N, F_W50, 8))
-add(30, tie_trap(30, N, F_W30, 4))
-add(11, ["ab"] * (N - len(S_W11) - 1) + [word(11)] + from_lengths(S_W11))
-add(100, words(N - 10000, 5, 15))
-add(100, [word(ri(90, 100)) if k % 13 == 0 else word(ri(1, 3)) for k in range(N)])
-add(64, tie_trap(64, N, F_W64, 3))
-add(99, words(N, 1, 17))
-add(10, tie_trap(10, N, F_W10, 10))
-add(97, words(N, 3, 6))
-add(100, words(N, 8, 11))
-add(25, tie_trap(25, N, T10_W25, 4))
-add(13, tie_trap(13, N, T11_W13, 2))
-add(15, tie_trap(15, N, T11_W15, 4))
-add(11, tie_trap(11, N, T11_W11, 3))
+n, e = stages(50, 495, 10 ** 9 - 7, 0)
+add(n, 10 ** 9 - 7, 50, e)
+n, e = stages(20, 1240, 5 * 10 ** 8, 40000)
+add(n, 5 * 10 ** 8, 20, e)
+n, e = stages(5, 4900, 10 ** 8, 30000)
+add(n, 10 ** 8, 5, e)
+add(MAXN, 3 * 10 ** 9 // 10, 50, rnd_dag(MAXN, MAXM, 60, 1, MAXW))
+add(MAXN, 10 ** 9, 10, rnd_dag(MAXN, MAXM, 8, 1, MAXW))
+add(MAXN, 5 * 10 ** 8, 1, rnd_dag(MAXN, MAXM, 4, 1, MAXW))
+add(MAXN, 1, 50, rnd_dag(MAXN, MAXM, 100, 1, MAXW))
+add(MAXN, MAXW, 50, rnd_dag(MAXN, MAXM, 3, 1, 1000))
+add(MAXN, MAXW, 50, [(u, u + 1, MAXW) for u in range(1, MAXN)] + [(u, u + 2, MAXW) for u in range(1, MAXN - 1)])
+add(MAXN, 7 * 10 ** 8, 37, rnd_dag(MAXN, MAXM, 40, 10 ** 7, MAXW))
+e = [(u, v, w) for u, v, w in rnd_dag(MAXN, MAXM, 20, 1, MAXW) if not (u <= 25000 < v)]
+add(MAXN, 10 ** 6, 50, e)
+n, e = stages(30, 830, 9 * 10 ** 8, 20000)
+add(n, 9 * 10 ** 8, 30, e)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

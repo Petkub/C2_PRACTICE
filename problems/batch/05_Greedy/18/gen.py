@@ -1,10 +1,10 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(30317)
+random.seed(51818)
 MAXN = 200_000
-MAXP = 10**9
-MAXF = 10**9
+MAXC = 10**9
+MAXB = 10**15
 tests = []
 
 
@@ -12,73 +12,68 @@ def ri(lo, hi):
     return lo + int(random.random() * (hi - lo + 1))
 
 
-def add(F, p):
-    n = len(p)
-    assert 1 <= n <= MAXN
-    assert 0 <= F <= MAXF
-    assert all(1 <= x <= MAXP for x in p)
-    tests.append(f"{n} {F}\n" + " ".join(map(str, p)) + "\n")
+def add(k, b, c):
+    n = len(c)
+    assert 1 <= k <= n <= MAXN and 1 <= b <= MAXB
+    assert all(1 <= x <= MAXC for x in c)
+    tests.append(f"{n} {k} {b}\n" + " ".join(map(str, c)) + "\n")
 
 
-def rnd(n, lo, hi):
-    return [ri(lo, hi) for _ in range(n)]
+def cheapest(c, k):
+    return sum(sorted(c)[:k])
 
 
-def walk(n, start, step, lo, hi):
-    res, x = [], start
-    for _ in range(n):
-        x = min(hi, max(lo, x + ri(-step, step)))
-        res.append(x)
-    return res
+def tight(k, c, slack=0):
+    add(k, max(1, cheapest(c, k) + slack), c)
 
 
-def waves(n, period, lo, hi, jitter):
-    res = []
-    for i in range(n):
-        t = i % period
-        frac = abs(2 * t - period) / period
-        v = lo + int((hi - lo) * frac) + ri(-jitter, jitter)
-        res.append(min(hi, max(lo, v)))
-    return res
+def cheap_end(n, share):
+    cut = int(n * (1 - share))
+    return [ri(MAXC // 2, MAXC) for _ in range(cut)] + [ri(1, MAXC // 1000) for _ in range(n - cut)]
 
 
-add(1, [2, 8, 8, 3, 9, 9])
-add(3, [5, 7, 4, 8])
-add(1, [9, 7, 7, 4, 2])
-add(0, [3, 1, 4, 1, 5, 9, 2, 6])
-add(2, [10, 1, 7, 3, 9, 4, 12])
-add(4, [6, 6, 6, 10, 10, 10])
+def waves(n, w):
+    return [ri(1, MAXC // 100) if (i // w) % 2 else ri(MAXC // 10, MAXC) for i in range(n)]
 
-add(0, [1])
-add(MAXF, [1, MAXP])
-add(MAXF - 2, [1, MAXP, 1, MAXP])
-add(0, rnd(10, 1, 10))
-add(3, rnd(12, 1, 10))
-add(5, waves(40, 10, 1, 30, 2))
-add(100, rnd(300, 1, 1000))
-add(10**6, walk(2000, 5 * 10**8, 10**7, 1, MAXP))
-add(50, waves(5000, 1000, 1, 10**4, 30))
-add(7, walk(20_000, 5000, 20, 1, 10**4))
-add(0, rnd(20_000, 1, MAXP))
 
-N = MAXN
-add(ri(0, 10**7), rnd(N, 1, MAXP))
-add(0, rnd(N, 1, 10**6))
-add(1000, walk(N, 5 * 10**5, 3000, 1, 10**6))
-add(0, list(range(N // 2, 0, -1)) + list(range(1, N // 2 + 1)))
-add(10, waves(N, 50_000, 1, 10**6, 5))
-add(0, [MAXP if i % 2 else 1 for i in range(N)])
-add(MAXP - 1, [MAXP if i % 2 else 1 for i in range(N)])
-add(1, list(range(1, N + 1)))
-add(0, [5] * (N - 1) + [MAXP])
-add(500, waves(N, 2000, 1, 10**6, 400))
-add(ri(10**5, 10**6), walk(N, 5 * 10**8, 10**6, 1, MAXP))
-add(3, list(range(N, 0, -1)))
-add(20, [ri(1, 50) if i < N // 2 else ri(10**6 - 50, 10**6) for i in range(N)])
+def lonely_cheap(n, every):
+    return [ri(1, 10) if i % every == every - 1 else ri(MAXC // 2, MAXC) for i in range(n)]
+
+
+add(2, 7, [8, 5, 6, 4, 7, 1])
+add(2, 6, [8, 7, 1, 4, 2, 4])
+add(3, 10, [5, 4, 3, 6])
+add(3, 10, [3, 3, 4])
+add(3, 7, [8, 5, 5, 4, 5, 1, 1])
+add(1, 5, [5])
+
+add(1, 4, [5])
+add(2, 9, [5, 6, 3, 1])
+tight(4, [9, 1, 8, 2, 7, 3, 6, 4, 5, 5, 4, 6, 3, 7, 2, 8], 1)
+tight(5, [ri(1, 30) for _ in range(14)], 3)
+tight(3, [20, 1, 1, 1, 20, 20, 2, 2, 2, 20, 20, 1], 0)
+add(5, 24, [ri(5, 9) for _ in range(12)])
+
+tight(1000, [ri(1, MAXC) for _ in range(2500)], 10**6)
+tight(700, cheap_end(3000, 0.4))
+tight(1, [ri(1, MAXC) for _ in range(3000)], 0)
+
+c = [ri(1, MAXC) for _ in range(MAXN)]
+tight(MAXN // 2, c, 0)
+tight(MAXN // 2, c, 10**12)
+tight(60_000, cheap_end(MAXN, 0.4))
+tight(100_000, cheap_end(MAXN, 0.6), 5 * 10**8)
+tight(50_000, waves(MAXN, 1000))
+tight(30_000, lonely_cheap(MAXN, 5), 10**9)
+tight(39_000, lonely_cheap(MAXN, 5), 0)
+tight(150_000, list(range(MAXC, MAXC - MAXN * 4000, -4000)))
+add(MAXN, MAXN * MAXC, [MAXC] * MAXN)
+tight(MAXN - 5, [ri(MAXC - 10, MAXC) for _ in range(MAXN)], 0)
+c = [ri(1, MAXC) for _ in range(MAXN)]
+add(80_000, cheapest(c, 80_000) - 1, c)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
-print("total bytes", sum(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

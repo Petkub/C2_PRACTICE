@@ -1,65 +1,61 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(45004)
-MAXN, MAXQ, MAXA, MAXT = 200_000, 200_000, 10**6, 10**9
+random.seed(450004)
+MAXN = 6000
+MAXK = 2500
+MAXA = 10 ** 6
+MAXB = 10 ** 4
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(k, a, b):
+    n = len(a)
+    assert 1 <= n <= MAXN and 1 <= k <= MAXK and len(b) == k
+    assert all(-MAXA <= x <= MAXA for x in a) and all(1 <= x <= MAXB for x in b)
+    tests.append(f"{n} {k}\n{' '.join(map(str, a))}\n{' '.join(map(str, b))}\n")
 
 
-def add(a, ts):
-    n, q = len(a), len(ts)
-    assert 1 <= n <= MAXN and 1 <= q <= MAXQ
-    assert all(-MAXA <= v <= MAXA for v in a)
-    assert all(1 <= t <= MAXT for t in ts)
-    tests.append(f"{n} {q}\n" + " ".join(map(str, a)) + "\n" + "".join(f"{t}\n" for t in ts))
+def ra(n, lo=-MAXA, hi=MAXA):
+    return [random.randint(lo, hi) for _ in range(n)]
 
 
-def mixed_queries(n, q, small, far=0.05):
-    ts = []
-    for _ in range(q):
-        r = random.random()
-        if r < small:
-            ts.append(ri(1, 3))
-        elif r < small + far:
-            ts.append(ri(n + 1, MAXT))
-        elif r < small + far + 0.15:
-            ts.append(ri(max(1, n // 2), n))
-        else:
-            ts.append(ri(1, n))
-    return ts
+def rb(k, lo=1, hi=MAXB):
+    return [random.randint(lo, hi) for _ in range(k)]
 
 
-add([3, -1, 4, -6, 2, 5, -2, 7], [2, 1, 3])
-add([-4, 6, -1, -3, 5, -8], [2, 9, 2, 1, 5])
-add([-5], [2])
-add([10, -20, 30, -40, 50, 60, 70], [1, 2, 3, 7, 8, 1])
-add([2, 2, -9, 2, 2, -9, 2, 2, -9, 2], [1, 5, 2, 4])
+add(2, [5, 7, 6, 3, -6, -4, -4], [1, 4])
+add(2, [0, 2, 0, -6, -5, -5], [4, 3])
+add(3, [6, 6, 4, 2, 4, 6], [3, 1, 3])
+add(1, [-5], [7])
+add(3, [9, -5, -2, -1, -6, 8, -4, -3], [3, 2, 1])
 
-add([-1], [1, 1, 2])
-add([MAXA], [1, MAXT])
-add([-3, -1, -2, -5, -4], [1, 2, 3, 4, 5, 6])
-for n, q in [(10, 15), (30, 30), (100, 60), (500, 200)]:
-    add([ri(-20, 20) for _ in range(n)], mixed_queries(n, q, 0.2, 0.1))
-add([ri(-MAXA, MAXA) for _ in range(2000)], mixed_queries(2000, 2000, 0.3))
-add([ri(-MAXA // 2, MAXA) for _ in range(20_000)], mixed_queries(20_000, 20_000, 0.3))
+add(1, [4, -3], [2])
+add(5, ra(12, -9, 9), rb(5, 1, 9))
+add(3, ra(18, -20, 30), sorted(rb(3, 1, 20)))
+add(4, ra(20, -50, 20), rb(4, 1, 50))
+add(20, ra(16, -5, 9), rb(20, 1, 9))
+add(2, [-MAXA] * 20, [MAXB, MAXB])
 
-N, Q = MAXN, MAXQ
-add([ri(-MAXA, MAXA) for _ in range(N)], [1] * Q)
-add([ri(-MAXA // 2, MAXA) for _ in range(N)], mixed_queries(N, Q, 0.5))
-add([MAXA] * N, mixed_queries(N, Q, 0.5))
-add([-ri(1, MAXA) for _ in range(N)], mixed_queries(N, Q, 0.5))
-add([ri(-MAXA, MAXA // 3) for _ in range(N)], mixed_queries(N, Q, 0.5, 0.2))
-add([MAXA if i % 2 else -MAXA for i in range(N)], mixed_queries(N, Q, 0.5))
-add([ri(-MAXA, MAXA // 2) * ri(-1, 1) for _ in range(N)], [ri(1, 2) for _ in range(Q // 2)] + [ri(1, N) for _ in range(Q - Q // 2)])
-a = [ri(0, MAXA) for _ in range(N)]
-a[N // 2] = -MAXA
-add(a, mixed_queries(N, Q, 0.6))
-add([ri(-5, 6) for _ in range(N)], mixed_queries(N, Q, 0.5))
-add([ri(-MAXA // 3, MAXA) for _ in range(N)], [1 if i % 2 else MAXT for i in range(Q)])
+add(40, ra(2000, -1000, 1000), rb(40, 1, 100))
+add(30, ra(1500), sorted(rb(30)))
+add(60, ra(2500, -MAXA, MAXA // 3), sorted(rb(60), reverse=True))
+
+add(MAXK, ra(MAXN), rb(MAXK))
+add(MAXK, [MAXA] * MAXN, [MAXB] * MAXK)
+add(MAXK, [-MAXA] * MAXN, rb(MAXK))
+add(MAXK, [random.randint(0, MAXA) if random.random() < 0.9 else -MAXA for _ in range(MAXN)],
+    sorted(rb(MAXK)))
+add(MAXK, ra(MAXN, -MAXA // 10, MAXA), sorted(rb(MAXK), reverse=True))
+add(MAXK, ra(MAXN, -5, 5), rb(MAXK, MAXB - 100, MAXB))
+add(MAXK, ra(MAXN, -MAXA // 4, MAXA), [1] * (MAXK - 1) + [MAXB])
+add(MAXK, [random.choice([MAXA, MAXA // 2, -MAXA]) for _ in range(MAXN)], rb(MAXK))
+add(MAXK, ra(MAXN, -MAXA, MAXA // 3), rb(MAXK))
+add(MAXK, [random.randint(-3, 3) * random.randint(0, MAXA // 3) for _ in range(MAXN)], rb(MAXK))
+add(MAXK, [0 if random.random() < 0.8 else random.randint(-MAXA, MAXA) for _ in range(MAXN)], rb(MAXK))
+add(MAXK, [MAXA - random.randint(0, 10)] * MAXN, rb(MAXK, 1, MAXB))
+add(MAXK, [random.randint(1, MAXA) if (i // 7) % 2 == 0 else -random.randint(1, MAXA) for i in range(MAXN)],
+    rb(MAXK))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

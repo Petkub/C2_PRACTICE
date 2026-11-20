@@ -1,71 +1,79 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(11005)
-MAXN, MAXM, MAXT, MAXC = 200_000, 20, 10**9, 10**9
+random.seed(11007)
+MAXS = 3000
+MAXM = 200000
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(R, C, K, rocks):
+    assert 1 <= R <= MAXS and 1 <= C <= MAXS and 1 <= K <= MAXS
+    assert 0 <= len(rocks) <= MAXM and len(set(rocks)) == len(rocks)
+    assert all(1 <= r <= R and 1 <= c <= C for r, c in rocks)
+    assert (1, 1) not in rocks and (R, C) not in rocks
+    lines = [f"{R} {C} {K} {len(rocks)}"] + [f"{r} {c}" for r, c in rocks]
+    tests.append("\n".join(lines) + "\n")
 
 
-def add(t, passes):
-    n, m = len(t), len(passes)
-    assert 1 <= n <= MAXN and 1 <= m <= MAXM
-    assert all(1 <= x <= MAXT for x in t) and all(t[i] < t[i + 1] for i in range(n - 1))
-    assert all(1 <= d <= MAXT and 1 <= c <= MAXC for d, c in passes)
-    tests.append(f"{n} {m}\n" + " ".join(map(str, t)) + "\n" + "".join(f"{d} {c}\n" for d, c in passes))
+def from_grid(K, grid):
+    R, C = len(grid), len(grid[0])
+    assert all(len(row) == C and set(row) <= set(".#") for row in grid)
+    add(R, C, K, [(r + 1, c + 1) for r in range(R) for c in range(C) if grid[r][c] == "#"])
 
 
-def days(n, hi):
-    assert n <= hi
-    if hi <= 4 * n:
-        return sorted(random.sample(range(1, hi + 1), n))
-    s = set()
-    while len(s) < n:
-        s.add(ri(1, hi))
-    return sorted(s)
+def rand_p(R, C, K, p):
+    rocks = [(r, c) for r in range(1, R + 1) for c in range(1, C + 1)
+             if random.random() < p and (r, c) != (1, 1) and (r, c) != (R, C)]
+    random.shuffle(rocks)
+    add(R, C, K, rocks)
 
 
-def rpasses(m, dlo, dhi, clo, chi):
-    return [(ri(dlo, dhi), ri(clo, chi)) for _ in range(m)]
+def rand_m(R, C, K, M):
+    cells = random.sample(range(1, R * C - 1), M)
+    add(R, C, K, [(x // C + 1, x % C + 1) for x in cells])
 
 
-add([2, 3, 5, 9, 10, 15], [(1, 3), (5, 8)])
-add([2, 5, 6, 8, 9, 21], [(1, 2), (7, 7), (30, 16)])
-add([100], [(1, 50), (1000, 10)])
-add([1, 2, 3, 4, 5, 6, 7, 8], [(3, 5), (2, 4)])
-add([1, 1000000000], [(999999999, 7), (1000000000, 9), (1, 5)])
-add([3, 5, 8, 13, 21, 34, 55], [(4, 6), (11, 13), (25, 24)])
+from_grid(2, ["....", ".#..", "....", "...."])
+from_grid(1, ["...", "...", "..."])
+from_grid(3, ["....", ".#..", "...."])
+from_grid(2, [".....", ".....", "..#..", ".....", "....."])
+from_grid(5, [".#.", "#.#", ".#."])
+from_grid(3, ["." * 6] * 5)
 
-add([1], [(1, 1)])
-add([5, 6], [(2, 1000000000), (1, 1)])
-add(days(15, 40), rpasses(3, 1, 10, 1, 20))
-add(days(20, 100), rpasses(5, 1, 30, 1, 100))
-add(days(18, 25), rpasses(4, 1, 8, 1, 10))
-add(days(25, 1000), rpasses(20, 1, 300, 1, 1000))
-add(list(range(1, 31)), [(1, 2), (2, 3), (3, 5), (4, 6)])
+add(1, 1, 1, [])
+add(1, 7, 4, [])
+rand_p(50, 60, 8, 0.2)
+rand_p(8, 9, 3, 0.2)
+rand_p(10, 10, 10, 0.1)
+rand_p(12, 7, 2, 0.3)
+add(4, 10, 4, [(1, c) for c in range(2, 11)] + [(r, c) for r in (2, 3) for c in range(1, 11)]
+    + [(4, c) for c in range(1, 10)])
+add(300, 300, 1, [])
+add(300, 299, 2, [])
+add(300, 300, 3, [(r + 1, c + 1) for r in range(300) for c in range(300)
+                  if abs((r - c) - 3) <= 1 and 5 < r < 295])
 
-add(days(3000, 1_000_000), rpasses(10, 1, 50_000, 1, 10**6))
-add(days(5000, 6000), rpasses(6, 1, 300, 5 * 10**8, MAXC))
-add(list(range(1, 5001)), [(1, MAXC)])
+rand_p(80, 90, 20, 0.15)
+rand_p(400, 400, 150, 0.35)
+rand_p(500, 450, 60, 0.6)
 
-N = MAXN
-add(list(range(1, N + 1)), rpasses(MAXM, N // 50, N // 5, 6 * 10**8, MAXC))
-add(days(N, MAXT), [(d * 40_000_000, d * 3 + 1) for d in range(1, MAXM + 1)])
-add(days(N, MAXT), rpasses(MAXM, 1, MAXT, 1, MAXC))
-add(days(N, MAXT), rpasses(MAXM, 5 * 10**6, 3 * 10**7, 5 * 10**8, MAXC))
-add(days(N, MAXT // 2), rpasses(MAXM, 10**6, 5 * 10**7, 3 * 10**8, MAXC))
-add(days(N, 10 * N), [(10**9, 10**9)] + rpasses(MAXM - 1, 1, 50, 1, 1000))
-add([MAXT - N + 1 + i for i in range(N)], [(1, MAXC)] + rpasses(MAXM - 1, 1000, 10_000, MAXC - 10**6, MAXC))
-add(days(N, 20 * N), [(1, MAXC), (2, MAXC)] + rpasses(MAXM - 2, 20_000, 100_000, MAXC - 100, MAXC))
-add(list(range(1, N + 1)), [(N, MAXC), (N - 1, 1)] + rpasses(MAXM - 2, 1, N, 10**8, MAXC))
-add(days(N, MAXT), [(4 * 10**7 * k, 6 * k + 5) for k in range(1, MAXM + 1)])
-add(days(N, 5 * N), [(1000 * k, 6 * k + 5) for k in range(1, MAXM + 1)])
+M = MAXS
+add(M, M, M, [])
+add(M, M, M // 2, [])
+add(M, M - 1, 2400, [])
+rand_m(M, M, 2000, MAXM)
+rand_m(M, M, 1500, 100000)
+rand_m(M, M, M, MAXM)
+rand_m(M - 1, M, M - 1, MAXM)
+rand_m(M, M, 1800, 50000)
+add(M, M, 2500, [(r, c) for r in range(1301, 1701) for c in range(1201, 1701)])
+add(M, M, 1700, [(r, c) for r in range(2, M, 2) for c in range((50 - r % 50) % 50 or 50, M + 1, 50)])
+
+rand_m(M, M, 1000, MAXM)
 
 for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
+    assert t.endswith("\n") and " \n" not in t
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:
