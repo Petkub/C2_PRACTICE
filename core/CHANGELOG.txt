@@ -11,14 +11,17 @@ POSN Practice Judge - changes
        - Advanced (TOI) topics, 12 problems each: 26 Bitmask and Digit DP, 27 DSU on Tree, 28 Heavy-Light
          Decomposition, 29 Centroid Decomposition, 30 Persistent Segment Tree, 31 Convex Hull, 32 Convex Hull Trick
          and DP Optimization, 33 Mo's Algorithm.
-       - 8 Mixed sets (folders M01 ... M08, 6 problems each) with problems from different topics; the topic of a
-         problem is not given.
+       - 8 Mixed sets (folders 00_Mixed/M01 ... 00_Mixed/M08, 6 problems each) with problems from different topics;
+         the topic of a problem is not given.
+       - ชุดฝึกรวมอยู่ในโฟลเดอร์ 00_Mixed (บนสุด)
        - Statements in the Camp 2 mock-exam layout (one or two pages, one sample per row). Problems are ordered
          from easier to harder within each level.
        - One folder per problem: 04_Binary_Search/05/ holds your code file 04-05.cpp (empty at first) and the
-         problem's own statement 05_<Title>.pdf. A Mixed set: M01/3/M01-3.cpp and 3_<Title>.pdf. The whole topic is
-         still in Problems_<topic>.pdf in the topic folder. Do not rename the folders or the .cpp files.
-       - A problem folder holds exactly those two files: Makefile and judge.bat are in the topic folder only.
+         problem's own statement 05_<Title>.pdf. A Mixed set: 00_Mixed/M01/3/M01-3.cpp and 3_<Title>.pdf. The
+         whole topic is still in Problems_<topic>.pdf in the topic folder. Do not rename the folders or the .cpp
+         files.
+       - A problem folder holds exactly those two files: Makefile and judge.bat are in the topic folder (or the
+         Mixed set folder, e.g. 00_Mixed/M01) only.
        - Judging: Ctrl+Shift+B in VS Code on the open .cpp; in a topic folder: make 5 for problem 5, make for the
          whole topic (Windows: judge 5, judge); in a problem folder: python3 ../../Judge/judge.py; anywhere:
          python3 <path>/Judge/judge.py FILE.cpp. Programs are compiled in Judge/.build/ (removed after the run),

@@ -166,6 +166,198 @@
 }
 },
 "create_only": {
+"00_Mixed/M01/1/M01-1.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M01/2/M01-2.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M01/3/M01-3.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M01/4/M01-4.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M01/5/M01-5.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M01/6/M01-6.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M02/1/M02-1.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M02/2/M02-2.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M02/3/M02-3.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M02/4/M02-4.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M02/5/M02-5.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M02/6/M02-6.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M03/1/M03-1.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M03/2/M03-2.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M03/3/M03-3.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M03/4/M03-4.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M03/5/M03-5.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M03/6/M03-6.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M04/1/M04-1.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M04/2/M04-2.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M04/3/M04-3.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M04/4/M04-4.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M04/5/M04-5.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M04/6/M04-6.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M05/1/M05-1.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M05/2/M05-2.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M05/3/M05-3.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M05/4/M05-4.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M05/5/M05-5.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M05/6/M05-6.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M06/1/M06-1.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M06/2/M06-2.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M06/3/M06-3.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M06/4/M06-4.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M06/5/M06-5.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M06/6/M06-6.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M07/1/M07-1.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M07/2/M07-2.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M07/3/M07-3.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M07/4/M07-4.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M07/5/M07-5.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M07/6/M07-6.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M08/1/M08-1.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M08/2/M08-2.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M08/3/M08-3.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M08/4/M08-4.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M08/5/M08-5.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
+"00_Mixed/M08/6/M08-6.cpp": [
+"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+"student/set_files/template.cpp"
+],
 "01_Brute_Force_and_Implementation/01/01-01.cpp": [
 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
 "student/set_files/template.cpp"
@@ -2241,206 +2433,14 @@
 "33_Mo_Algorithm/12/33-12.cpp": [
 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
 "student/set_files/template.cpp"
-],
-"M01/1/M01-1.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M01/2/M01-2.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M01/3/M01-3.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M01/4/M01-4.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M01/5/M01-5.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M01/6/M01-6.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M02/1/M02-1.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M02/2/M02-2.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M02/3/M02-3.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M02/4/M02-4.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M02/5/M02-5.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M02/6/M02-6.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M03/1/M03-1.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M03/2/M03-2.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M03/3/M03-3.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M03/4/M03-4.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M03/5/M03-5.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M03/6/M03-6.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M04/1/M04-1.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M04/2/M04-2.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M04/3/M04-3.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M04/4/M04-4.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M04/5/M04-5.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M04/6/M04-6.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M05/1/M05-1.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M05/2/M05-2.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M05/3/M05-3.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M05/4/M05-4.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M05/5/M05-5.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M05/6/M05-6.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M06/1/M06-1.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M06/2/M06-2.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M06/3/M06-3.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M06/4/M06-4.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M06/5/M06-5.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M06/6/M06-6.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M07/1/M07-1.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M07/2/M07-2.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M07/3/M07-3.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M07/4/M07-4.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M07/5/M07-5.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M07/6/M07-6.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M08/1/M08-1.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M08/2/M08-2.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M08/3/M08-3.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M08/4/M08-4.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M08/5/M08-5.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
-],
-"M08/6/M08-6.cpp": [
-"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-"student/set_files/template.cpp"
 ]
 },
 "files": {
-"CHANGELOG.txt": "3f506fcfe3b02a8f1c92f76c7b4719e7db5b295f3111a6940a923d388e4d19f1",
-"README.txt": "ac1f4ddf64c82136ab00d42d3a4d3569f8bb9f2d9700cdd280aeef769100f6f5",
+"CHANGELOG.txt": "0eb1e8b2195b73c6c0f2a0f6c8e86e7c1dd3d56b8efb7270d63ee296050831be",
+"README.txt": "8c3bafc6ec002a6c202498855b92f833ea0a20199976c819d0465629fb88dfaa",
 "include/bits/stdc++.h": "1545f1f4b55b3acb866effca73203f3a9131773f147331cbf4e983ebf36d6cc9",
 "judge.cmd": "84038f11038804a85edc6df3e3c64f10a72891fad6b98ac7a7ae08e358ed7f44",
-"judge.py": "898914ff840b081a24758e6ff63b24ff60fad0cd1c2e9b4618a4d5f696b3ebde",
+"judge.py": "f3108fad3644850569e86b9abb1572aa88168f02d19a4341df607c28af5bace5",
 "problems/batch/01_Brute_Force_and_Implementation/1/01.in": "76b37cc965f7642a384db409f0488b3bbdb206623f778241267c40077449f1ff",
 "problems/batch/01_Brute_Force_and_Implementation/1/01.out": "3f217ac65c309a4ab4b9f5b3a4b4e636408e9d21f98a12f3c60f53c5870f154d",
 "problems/batch/01_Brute_Force_and_Implementation/1/02.in": "dad1ff401e596d5076123e82bc66868360c50f9d71b19cc217d13dc09487b0df",
@@ -24149,7 +24149,7 @@
 "problems/batch/M08/6/manifest.json": "dceae3c4cbe61666fcc86da9b82afe6be1da683da33f34e004b0a052cd0a4bf1",
 "problems/batch/problems.json": "6c29ade09e5a3f2fc4b7bfb460e0d5c2c6382d4c9d0392456b81d133098abaac",
 "problems/batch/sets.json": "c7a4f2e220e947891c8eef74b721c7134112d6450c5d09ce787d0be654b6066c",
-"updater.py": "b7bfa0f33fb5eea96449db64cd1f89a0fcc90adbea055684cb02fff2d0a2cde0"
+"updater.py": "ced9cc5f9b4c52457742f97f7faf899e2f914c285150838d7e7fc4bdb04ea997"
 },
 "managed": {
 ".vscode/settings.json": [
@@ -24159,6 +24159,298 @@
 ".vscode/tasks.json": [
 "cf2d2e161573e4420a0ad43a2bb80451b997fa6e0c13e5b47b6c0652ad8c565a",
 "student/.vscode/tasks.json"
+],
+"00_Mixed/M01/1/1_Get_Me_Off_This_Hill.pdf": [
+"aeb4b09d7206af8c2c6504ecba4b6ac9f02d125bdef6d7ca12e47aa8fbcabc70",
+"student/00_Mixed/M01/1/1_Get_Me_Off_This_Hill.pdf"
+],
+"00_Mixed/M01/2/2_Poison_Swamp_Attempt_9999.pdf": [
+"95cd2ccf3545e92ebdd3c9a24b3af36255e36e65b558ac257014182101404c6d",
+"student/00_Mixed/M01/2/2_Poison_Swamp_Attempt_9999.pdf"
+],
+"00_Mixed/M01/3/3_Free_Coins_Only.pdf": [
+"62744876764870a6f36ebcc10cf35e865e8d756dc31be5af12d0b1afa5abe1ed",
+"student/00_Mixed/M01/3/3_Free_Coins_Only.pdf"
+],
+"00_Mixed/M01/4/4_The_Budget_3v3_Showmatch.pdf": [
+"416306e644538b024793ec7902b8337b79e08d9d4efb85b048d2e38205463517",
+"student/00_Mixed/M01/4/4_The_Budget_3v3_Showmatch.pdf"
+],
+"00_Mixed/M01/5/5_The_Hero_Who_Hates_Walking.pdf": [
+"85f7bdff8c59a2f867e132bef69929546a7a9a6e51bed41ac21942f6a782828d",
+"student/00_Mixed/M01/5/5_The_Hero_Who_Hates_Walking.pdf"
+],
+"00_Mixed/M01/6/6_Dug_Again_Flooded_Again.pdf": [
+"4c2e2ff3cc9d01b290bd9c27308eecd0042a9e7f5d2a5c18561639391878bad2",
+"student/00_Mixed/M01/6/6_Dug_Again_Flooded_Again.pdf"
+],
+"00_Mixed/M01/Makefile": [
+"cfbdd583392b39dc94a0e6a56b4021f4e0344a490d8c1c9842158d5e79c9edd6",
+"student/set_files/Makefile_6"
+],
+"00_Mixed/M01/Problems_M01.pdf": [
+"c9f44b840d4b5255fb23b1edd669cec777455e09de185935477765549121d20b",
+"student/00_Mixed/M01/Problems_M01.pdf"
+],
+"00_Mixed/M01/judge.bat": [
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
+"student/set_files/judge.bat"
+],
+"00_Mixed/M02/1/1_Not_Sus_Just_AFK.pdf": [
+"27fdb2f2b0c5a889980f16b4025f607540871df189c8fd163d89289ab47ca525",
+"student/00_Mixed/M02/1/1_Not_Sus_Just_AFK.pdf"
+],
+"00_Mixed/M02/2/2_Chant_Between_the_Songs.pdf": [
+"2dc682cbdea0bfa9de2170bd8e97280680b0224fd571e8591553587fa1fac4b4",
+"student/00_Mixed/M02/2/2_Chant_Between_the_Songs.pdf"
+],
+"00_Mixed/M02/3/3_Mine_Before_the_Power_Cut.pdf": [
+"00b15719ba291591cc4df5a456e9491c6e4606484e98f4a840d6743827e00892",
+"student/00_Mixed/M02/3/3_Mine_Before_the_Power_Cut.pdf"
+],
+"00_Mixed/M02/4/4_My_Only_Skill_Is_Seal_Breaking.pdf": [
+"5d91d3a065700db77fb63a0b04152fd1b570cf9630aeafd44bdf1417751071d0",
+"student/00_Mixed/M02/4/4_My_Only_Skill_Is_Seal_Breaking.pdf"
+],
+"00_Mixed/M02/5/5_Broke_Again_Before_the_Round.pdf": [
+"421159a9dbef1cedd4a1b53b7177e82a58513e375be54b8b06ae1e22c0d84298",
+"student/00_Mixed/M02/5/5_Broke_Again_Before_the_Round.pdf"
+],
+"00_Mixed/M02/6/6_While_the_Final_Is_Paused.pdf": [
+"f42ae5f128d1de0d5235e847f5cdeb940f110b884129dd9e9bcc9c2f46029cc6",
+"student/00_Mixed/M02/6/6_While_the_Final_Is_Paused.pdf"
+],
+"00_Mixed/M02/Makefile": [
+"cfbdd583392b39dc94a0e6a56b4021f4e0344a490d8c1c9842158d5e79c9edd6",
+"student/set_files/Makefile_6"
+],
+"00_Mixed/M02/Problems_M02.pdf": [
+"6b1488244b961b2a91a4ebca5f4eaf54f0f1f8639c04aa38d93f013279ec8d04",
+"student/00_Mixed/M02/Problems_M02.pdf"
+],
+"00_Mixed/M02/judge.bat": [
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
+"student/set_files/judge.bat"
+],
+"00_Mixed/M03/1/1_Everyone_Wears_the_Default_Skin.pdf": [
+"541c7adbb114c51ba5eee72339058c8e68f078a5249c76610331108acc08265f",
+"student/00_Mixed/M03/1/1_Everyone_Wears_the_Default_Skin.pdf"
+],
+"00_Mixed/M03/2/2_Coins_That_Pump_Together.pdf": [
+"2b925204c33c9f95f555cf217cccc1c4f38a297ad2118c91936eb7867ab74b37",
+"student/00_Mixed/M03/2/2_Coins_That_Pump_Together.pdf"
+],
+"00_Mixed/M03/3/3_Skip_the_Filler_Episodes.pdf": [
+"158173578fa69970714539de030f1527a653437821adc40b85253bbd22936674",
+"student/00_Mixed/M03/3/3_Skip_the_Filler_Episodes.pdf"
+],
+"00_Mixed/M03/4/4_All_Stars_Without_Teammates.pdf": [
+"97cf98e47d147621e405857af869074231c748711bbae12557bbb0a4cff4ee6b",
+"student/00_Mixed/M03/4/4_All_Stars_Without_Teammates.pdf"
+],
+"00_Mixed/M03/5/5_Vinyl_Awnings_for_Votes.pdf": [
+"a22dfa91ec1973e268d3b7596b5f8905f8e08174160c479494665e84e47cfa1b",
+"student/00_Mixed/M03/5/5_Vinyl_Awnings_for_Votes.pdf"
+],
+"00_Mixed/M03/6/6_Follow_the_Floor_Arrows.pdf": [
+"f9e569680789c90e3a78587579ead52467b88e307c2add04c27a8cfe23fa5eee",
+"student/00_Mixed/M03/6/6_Follow_the_Floor_Arrows.pdf"
+],
+"00_Mixed/M03/Makefile": [
+"cfbdd583392b39dc94a0e6a56b4021f4e0344a490d8c1c9842158d5e79c9edd6",
+"student/set_files/Makefile_6"
+],
+"00_Mixed/M03/Problems_M03.pdf": [
+"e4a9b94d8c56b93a105d5475a03ca945661e19fe687e57d3792079eb1ac938f9",
+"student/00_Mixed/M03/Problems_M03.pdf"
+],
+"00_Mixed/M03/judge.bat": [
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
+"student/set_files/judge.bat"
+],
+"00_Mixed/M04/1/1_Chasing_the_Gold_Lead.pdf": [
+"c1a32e34cc3fe7ce14728b2b6924a0fdbfe28ce94fecfd6ce9e95a25d039396c",
+"student/00_Mixed/M04/1/1_Chasing_the_Gold_Lead.pdf"
+],
+"00_Mixed/M04/2/2_Rating_Shock_After_the_Cup.pdf": [
+"2c2e559614c95dd64073b004cfe816b9d5e51b4b36f3cec71c6719a55cf875c6",
+"student/00_Mixed/M04/2/2_Rating_Shock_After_the_Cup.pdf"
+],
+"00_Mixed/M04/3/3_The_Parts_List_Keeps_Growing.pdf": [
+"da9f13ce771778121e2a08ee58627ecdb60f07118a566f45e732a956c2c9d8c3",
+"student/00_Mixed/M04/3/3_The_Parts_List_Keeps_Growing.pdf"
+],
+"00_Mixed/M04/4/4_Reincarnated_as_a_Lazy_Susan.pdf": [
+"20628fba361e3c4fd0229900eb3ed3e5f14c037a80399051c8392cd8fc471dc9",
+"student/00_Mixed/M04/4/4_Reincarnated_as_a_Lazy_Susan.pdf"
+],
+"00_Mixed/M04/5/5_Passed_to_Another_Committee.pdf": [
+"f5c1406fde65d253548026cb3ddca707523f757c7117469f146188516f52b796",
+"student/00_Mixed/M04/5/5_Passed_to_Another_Committee.pdf"
+],
+"00_Mixed/M04/6/6_Lucky_Palindrome_Fan_Line.pdf": [
+"4863d44cde7422e5e0b567cd58ae1fde1580e735501f6afae04d415553833fe9",
+"student/00_Mixed/M04/6/6_Lucky_Palindrome_Fan_Line.pdf"
+],
+"00_Mixed/M04/Makefile": [
+"cfbdd583392b39dc94a0e6a56b4021f4e0344a490d8c1c9842158d5e79c9edd6",
+"student/set_files/Makefile_6"
+],
+"00_Mixed/M04/Problems_M04.pdf": [
+"87eac6c3fd542cfe672df06ca83af108f9ef75d71d3aa70cfac1f7e1256bf707",
+"student/00_Mixed/M04/Problems_M04.pdf"
+],
+"00_Mixed/M04/judge.bat": [
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
+"student/set_files/judge.bat"
+],
+"00_Mixed/M05/1/1_The_Confidently_Sorted_Files.pdf": [
+"3392c4c48c951b388ae9d828f19a956aaaa019cd4bbf053161c4ccee28416a7f",
+"student/00_Mixed/M05/1/1_The_Confidently_Sorted_Files.pdf"
+],
+"00_Mixed/M05/2/2_The_Stonks_and_Pray_Bundle.pdf": [
+"948c93847aa9eabe5ba8b3615b0a8b3010532943aec7753a743b7fb5ef3037a6",
+"student/00_Mixed/M05/2/2_The_Stonks_and_Pray_Bundle.pdf"
+],
+"00_Mixed/M05/3/3_The_KeyEating_Doors.pdf": [
+"0d100cbfed73650be6545e6bbb180f80c31f63439ce149470f8d26f2740e7672",
+"student/00_Mixed/M05/3/3_The_KeyEating_Doors.pdf"
+],
+"00_Mixed/M05/4/4_The_Laggy_Streamers_Schedule.pdf": [
+"fc0ab8bfa6600244d405fd09545413a4b3e23c016369ca7f0750dc243d9aa792",
+"student/00_Mixed/M05/4/4_The_Laggy_Streamers_Schedule.pdf"
+],
+"00_Mixed/M05/5/5_The_Whole_Dojo_Holds_Targets.pdf": [
+"75c2a8f1426c5147bf5b005e5af6098e3b4b7efa97c69b62ab104e11877e1562",
+"student/00_Mixed/M05/5/5_The_Whole_Dojo_Holds_Targets.pdf"
+],
+"00_Mixed/M05/6/6_Deliveries_Before_the_Fan_Meet.pdf": [
+"38b0411d0be35953c8c511fe44e61bed5b27d1677083d3bace78c22de58eec76",
+"student/00_Mixed/M05/6/6_Deliveries_Before_the_Fan_Meet.pdf"
+],
+"00_Mixed/M05/Makefile": [
+"cfbdd583392b39dc94a0e6a56b4021f4e0344a490d8c1c9842158d5e79c9edd6",
+"student/set_files/Makefile_6"
+],
+"00_Mixed/M05/Problems_M05.pdf": [
+"f6675e49db0ea16ee4eff525adf1b8d5b19bec57802d4e276a8a4e8a50f7fc27",
+"student/00_Mixed/M05/Problems_M05.pdf"
+],
+"00_Mixed/M05/judge.bat": [
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
+"student/set_files/judge.bat"
+],
+"00_Mixed/M06/1/1_Stuck_in_the_Concert_Ticket_Queue.pdf": [
+"e95d072deaaf49ff8b2db93026c19046fb84e03611a1fa5e50869ede58c9d722",
+"student/00_Mixed/M06/1/1_Stuck_in_the_Concert_Ticket_Queue.pdf"
+],
+"00_Mixed/M06/2/2_Dies_Often_Farms_Fast.pdf": [
+"05594716f3ddd1e578f80e3095ec69b2fbbfd909a709ac38dd1ceb818e58b8fe",
+"student/00_Mixed/M06/2/2_Dies_Often_Farms_Fast.pdf"
+],
+"00_Mixed/M06/3/3_Ad_Break_at_the_Finish_Line.pdf": [
+"bb4f204417a4c81c8f201994c176fe3a129977d2d4ed4465577eaf3faa52fc90",
+"student/00_Mixed/M06/3/3_Ad_Break_at_the_Finish_Line.pdf"
+],
+"00_Mixed/M06/4/4_Three_Coins_One_Tired_GPU.pdf": [
+"781a043bd4d24361eff2e26a7470b9276d86fb4dc2ab2bc238dd073bf57fc8c1",
+"student/00_Mixed/M06/4/4_Three_Coins_One_Tired_GPU.pdf"
+],
+"00_Mixed/M06/5/5_Hold_On_Reorder_the_Agenda.pdf": [
+"86484d523bd199636412fca9422f1cd85b85578214721ff53619e2eda1803ec6",
+"student/00_Mixed/M06/5/5_Hold_On_Reorder_the_Agenda.pdf"
+],
+"00_Mixed/M06/6/6_Skills_Reset_Every_Quest.pdf": [
+"89475a185152929ef034d5802527dc2b76ed5c433dd035c087c2c7cc6bcbadc1",
+"student/00_Mixed/M06/6/6_Skills_Reset_Every_Quest.pdf"
+],
+"00_Mixed/M06/Makefile": [
+"cfbdd583392b39dc94a0e6a56b4021f4e0344a490d8c1c9842158d5e79c9edd6",
+"student/set_files/Makefile_6"
+],
+"00_Mixed/M06/Problems_M06.pdf": [
+"e8bed100e8e7af54d08a08ce4d68f2b153e1ba5c03acc15b45292752fec3b4d5",
+"student/00_Mixed/M06/Problems_M06.pdf"
+],
+"00_Mixed/M06/judge.bat": [
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
+"student/set_files/judge.bat"
+],
+"00_Mixed/M07/1/1_Routers_Napping_in_the_Hallway.pdf": [
+"62f054335672d5e3ed908b5821d5f65fea5581ce0b86d41678c8ac70545925b4",
+"student/00_Mixed/M07/1/1_Routers_Napping_in_the_Hallway.pdf"
+],
+"00_Mixed/M07/2/2_Ice_Floor_Above_the_Lava.pdf": [
+"d07dae5622a5fae5368a78261fcca8f7f73a080d0207724b2654010cb0d93599",
+"student/00_Mixed/M07/2/2_Ice_Floor_Above_the_Lava.pdf"
+],
+"00_Mixed/M07/3/3_Two_Piles_of_Isekai_Blessings.pdf": [
+"02e632a46bef8e9c334ff0b650a8b0a63911f8495842cf444c23761d343832b8",
+"student/00_Mixed/M07/3/3_Two_Piles_of_Isekai_Blessings.pdf"
+],
+"00_Mixed/M07/4/4_Word_of_the_New_Chapter_Spreads.pdf": [
+"4f895e9a10e7a7180f251890694f631a4c46434efbe98a957109eb986029ef67",
+"student/00_Mixed/M07/4/4_Word_of_the_New_Chapter_Spreads.pdf"
+],
+"00_Mixed/M07/5/5_Stalling_the_Meeting_Seat_by_Seat.pdf": [
+"45e2e9f1984fd088281aec470c471c64f9c3d5a6bbfd399cc7020840f046430c",
+"student/00_Mixed/M07/5/5_Stalling_the_Meeting_Seat_by_Seat.pdf"
+],
+"00_Mixed/M07/6/6_Lobby_Wait_Kills_the_Hype.pdf": [
+"716baebfc1b745868504aa99f322b90f765be4d0a1435bce3d3363d6b804babc",
+"student/00_Mixed/M07/6/6_Lobby_Wait_Kills_the_Hype.pdf"
+],
+"00_Mixed/M07/Makefile": [
+"cfbdd583392b39dc94a0e6a56b4021f4e0344a490d8c1c9842158d5e79c9edd6",
+"student/set_files/Makefile_6"
+],
+"00_Mixed/M07/Problems_M07.pdf": [
+"750bea0ef663ee89e0e6dc8c9290c61c640c0cb4058de60d7bc038a21b36394b",
+"student/00_Mixed/M07/Problems_M07.pdf"
+],
+"00_Mixed/M07/judge.bat": [
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
+"student/set_files/judge.bat"
+],
+"00_Mixed/M08/1/1_The_Dream_Profit_Calculator.pdf": [
+"38397455b6a8e89f8f2e04f7f8dc7f439884d1b2a41cd2a655811218ef3efd05",
+"student/00_Mixed/M08/1/1_The_Dream_Profit_Calculator.pdf"
+],
+"00_Mixed/M08/2/2_The_Warm_Water_Chain_Message.pdf": [
+"f5ac342ffedff6962adf9418a7914e36a7b35bb6ffb93c3935e8600b9a72a6d2",
+"student/00_Mixed/M08/2/2_The_Warm_Water_Chain_Message.pdf"
+],
+"00_Mixed/M08/3/3_The_Ship_Number_727.pdf": [
+"8a61d7648945c0aa865ddb9c0f99b1dd3fe4b441f268dbb988318811f61a25de",
+"student/00_Mixed/M08/3/3_The_Ship_Number_727.pdf"
+],
+"00_Mixed/M08/4/4_Flags_on_the_Block_Peaks.pdf": [
+"ba3ccf4066dce98a6852564c1d8ba06123caca816a05378e90ca37ea00534661",
+"student/00_Mixed/M08/4/4_Flags_on_the_Block_Peaks.pdf"
+],
+"00_Mixed/M08/5/5_Copium_Math_for_the_Playoffs.pdf": [
+"6f73ee48c5d6cd7ff8bfbb9d4729c87a5970e475c4c9886e30523eea2bb7d753",
+"student/00_Mixed/M08/5/5_Copium_Math_for_the_Playoffs.pdf"
+],
+"00_Mixed/M08/6/6_Editing_Anime_on_Zero_Budget.pdf": [
+"0631daaac6a2258f5c15fdc99c45704cce93352056611952c12e20a5cf6df7c5",
+"student/00_Mixed/M08/6/6_Editing_Anime_on_Zero_Budget.pdf"
+],
+"00_Mixed/M08/Makefile": [
+"cfbdd583392b39dc94a0e6a56b4021f4e0344a490d8c1c9842158d5e79c9edd6",
+"student/set_files/Makefile_6"
+],
+"00_Mixed/M08/Problems_M08.pdf": [
+"d9b8e04352a950b971951c207b52fddf88524506c5418d883662a148186f729e",
+"student/00_Mixed/M08/Problems_M08.pdf"
+],
+"00_Mixed/M08/judge.bat": [
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
+"student/set_files/judge.bat"
+],
+"00_Mixed/README.txt": [
+"c9c3995d102a2e675ec189b3042faccc963aedfeadfdf77d6b4318cff365dbf0",
+"student/00_Mixed/README.txt"
 ],
 "01_Brute_Force_and_Implementation/01/01_Party_Guest_List.pdf": [
 "f4fa03fa1324823ec51874b26eae4c845fd2961cbdeb99dc904ccfec99caede6",
@@ -24241,7 +24533,7 @@
 "student/01_Brute_Force_and_Implementation/20/20_Largest_Friendly_Group.pdf"
 ],
 "01_Brute_Force_and_Implementation/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "01_Brute_Force_and_Implementation/Problems_01_Brute_Force_and_Implementation.pdf": [
@@ -24249,7 +24541,7 @@
 "student/01_Brute_Force_and_Implementation/Problems_01_Brute_Force_and_Implementation.pdf"
 ],
 "01_Brute_Force_and_Implementation/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "02_Strings_and_Parsing/01/01_Cave_Routes.pdf": [
@@ -24333,7 +24625,7 @@
 "student/02_Strings_and_Parsing/20/20_Similar_Passages.pdf"
 ],
 "02_Strings_and_Parsing/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "02_Strings_and_Parsing/Problems_02_Strings_and_Parsing.pdf": [
@@ -24341,7 +24633,7 @@
 "student/02_Strings_and_Parsing/Problems_02_Strings_and_Parsing.pdf"
 ],
 "02_Strings_and_Parsing/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "03_Prefix_Sums_and_Two_Pointers/01/01_Sums_in_a_Product_Grid.pdf": [
@@ -24425,7 +24717,7 @@
 "student/03_Prefix_Sums_and_Two_Pointers/20/20_TargetSum_Rectangles.pdf"
 ],
 "03_Prefix_Sums_and_Two_Pointers/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "03_Prefix_Sums_and_Two_Pointers/Problems_03_Prefix_Sums_and_Two_Pointers.pdf": [
@@ -24433,7 +24725,7 @@
 "student/03_Prefix_Sums_and_Two_Pointers/Problems_03_Prefix_Sums_and_Two_Pointers.pdf"
 ],
 "03_Prefix_Sums_and_Two_Pointers/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "04_Binary_Search/01/01_Shows_at_Minute_t.pdf": [
@@ -24517,7 +24809,7 @@
 "student/04_Binary_Search/20/20_Drones_That_Fly_Straight.pdf"
 ],
 "04_Binary_Search/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "04_Binary_Search/Problems_04_Binary_Search.pdf": [
@@ -24525,7 +24817,7 @@
 "student/04_Binary_Search/Problems_04_Binary_Search.pdf"
 ],
 "04_Binary_Search/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "05_Greedy/01/01_Joining_Ropes.pdf": [
@@ -24609,7 +24901,7 @@
 "student/05_Greedy/20/20_Fixing_the_Stairs.pdf"
 ],
 "05_Greedy/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "05_Greedy/Problems_05_Greedy.pdf": [
@@ -24617,7 +24909,7 @@
 "student/05_Greedy/Problems_05_Greedy.pdf"
 ],
 "05_Greedy/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "06_Sorting_and_Sweep_Line/01/01_Work_Sessions.pdf": [
@@ -24701,7 +24993,7 @@
 "student/06_Sorting_and_Sweep_Line/20/20_Outline_of_the_Posters.pdf"
 ],
 "06_Sorting_and_Sweep_Line/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "06_Sorting_and_Sweep_Line/Problems_06_Sorting_and_Sweep_Line.pdf": [
@@ -24709,7 +25001,7 @@
 "student/06_Sorting_and_Sweep_Line/Problems_06_Sorting_and_Sweep_Line.pdf"
 ],
 "06_Sorting_and_Sweep_Line/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "07_Number_Theory_and_Counting/01/01_Pairs_That_Share_the_Bill.pdf": [
@@ -24793,7 +25085,7 @@
 "student/07_Number_Theory_and_Counting/20/20_WholeNumber_Distances.pdf"
 ],
 "07_Number_Theory_and_Counting/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "07_Number_Theory_and_Counting/Problems_07_Number_Theory_and_Counting.pdf": [
@@ -24801,7 +25093,7 @@
 "student/07_Number_Theory_and_Counting/Problems_07_Number_Theory_and_Counting.pdf"
 ],
 "07_Number_Theory_and_Counting/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "08_Divide_and_Conquer/01/01_Rightmost_Nonzero_Digits.pdf": [
@@ -24885,7 +25177,7 @@
 "student/08_Divide_and_Conquer/20/20_Consecutive_Ranks.pdf"
 ],
 "08_Divide_and_Conquer/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "08_Divide_and_Conquer/Problems_08_Divide_and_Conquer.pdf": [
@@ -24893,7 +25185,7 @@
 "student/08_Divide_and_Conquer/Problems_08_Divide_and_Conquer.pdf"
 ],
 "08_Divide_and_Conquer/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "09_DP_I_Foundations/01/01_Orchard_Path.pdf": [
@@ -24977,7 +25269,7 @@
 "student/09_DP_I_Foundations/20/20_Distinct_Codes_of_Length_K.pdf"
 ],
 "09_DP_I_Foundations/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "09_DP_I_Foundations/Problems_09_DP_I_Foundations.pdf": [
@@ -24985,7 +25277,7 @@
 "student/09_DP_I_Foundations/Problems_09_DP_I_Foundations.pdf"
 ],
 "09_DP_I_Foundations/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "10_DP_II_Classic_Patterns/01/01_Most_Valuable_Common_Thread.pdf": [
@@ -25069,7 +25361,7 @@
 "student/10_DP_II_Classic_Patterns/20/20_Essential_Checkpoints.pdf"
 ],
 "10_DP_II_Classic_Patterns/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "10_DP_II_Classic_Patterns/Problems_10_DP_II_Classic_Patterns.pdf": [
@@ -25077,7 +25369,7 @@
 "student/10_DP_II_Classic_Patterns/Problems_10_DP_II_Classic_Patterns.pdf"
 ],
 "10_DP_II_Classic_Patterns/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "11_DP_III_Faster_Transitions/01/01_No_Long_Streaks.pdf": [
@@ -25161,7 +25453,7 @@
 "student/11_DP_III_Faster_Transitions/20/20_Flower_Pots_Without_Long_Runs.pdf"
 ],
 "11_DP_III_Faster_Transitions/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "11_DP_III_Faster_Transitions/Problems_11_DP_III_Faster_Transitions.pdf": [
@@ -25169,7 +25461,7 @@
 "student/11_DP_III_Faster_Transitions/Problems_11_DP_III_Faster_Transitions.pdf"
 ],
 "11_DP_III_Faster_Transitions/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "12_Graph_Traversal/01/01_Driving_Home.pdf": [
@@ -25253,7 +25545,7 @@
 "student/12_Graph_Traversal/20/20_Guards_on_Patrol.pdf"
 ],
 "12_Graph_Traversal/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "12_Graph_Traversal/Problems_12_Graph_Traversal.pdf": [
@@ -25261,7 +25553,7 @@
 "student/12_Graph_Traversal/Problems_12_Graph_Traversal.pdf"
 ],
 "12_Graph_Traversal/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "13_Shortest_Paths/01/01_Muddy_Field.pdf": [
@@ -25345,7 +25637,7 @@
 "student/13_Shortest_Paths/20/20_Restricted_Transfers.pdf"
 ],
 "13_Shortest_Paths/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "13_Shortest_Paths/Problems_13_Shortest_Paths.pdf": [
@@ -25353,7 +25645,7 @@
 "student/13_Shortest_Paths/Problems_13_Shortest_Paths.pdf"
 ],
 "13_Shortest_Paths/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "14_DSU_and_MST/01/01_The_Top_Owner.pdf": [
@@ -25437,7 +25729,7 @@
 "student/14_DSU_and_MST/20/20_One_Cycle_Allowed.pdf"
 ],
 "14_DSU_and_MST/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "14_DSU_and_MST/Problems_14_DSU_and_MST.pdf": [
@@ -25445,7 +25737,7 @@
 "student/14_DSU_and_MST/Problems_14_DSU_and_MST.pdf"
 ],
 "14_DSU_and_MST/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "15_Trees/01/01_Family_Generations.pdf": [
@@ -25529,7 +25821,7 @@
 "student/15_Trees/20/20_One_City_Closed.pdf"
 ],
 "15_Trees/Makefile": [
-"14343c432223168918718a902db1413e24301d854b2a7a6e049e0139ae3c69ec",
+"837bb8fb80fb64f17d653f77e3af6d4bc052f4ce9d7e930667675ff264ba2066",
 "student/set_files/Makefile"
 ],
 "15_Trees/Problems_15_Trees.pdf": [
@@ -25537,7 +25829,7 @@
 "student/15_Trees/Problems_15_Trees.pdf"
 ],
 "15_Trees/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "16_Monotonic_Stack_and_Queue/01/01_Shunting_on_a_DeadEnd_Track.pdf": [
@@ -25589,7 +25881,7 @@
 "student/16_Monotonic_Stack_and_Queue/12/12_Shortest_Stretch_to_the_Target.pdf"
 ],
 "16_Monotonic_Stack_and_Queue/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "16_Monotonic_Stack_and_Queue/Problems_16_Monotonic_Stack_and_Queue.pdf": [
@@ -25597,7 +25889,7 @@
 "student/16_Monotonic_Stack_and_Queue/Problems_16_Monotonic_Stack_and_Queue.pdf"
 ],
 "16_Monotonic_Stack_and_Queue/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "17_Fenwick_and_Segment_Tree/01/01_EverGrowing_Bamboo.pdf": [
@@ -25661,7 +25953,7 @@
 "student/17_Fenwick_and_Segment_Tree/15/15_ThreeLane_Expressway.pdf"
 ],
 "17_Fenwick_and_Segment_Tree/Makefile": [
-"b84bd5220c40a4d1075397f718a952fb83ff8231e937be0badc3ba603acd7286",
+"b5b6b80348d6140a893b3722eff4253263c51c64c12dbbdbae26ae5b04ed0123",
 "student/set_files/Makefile_15"
 ],
 "17_Fenwick_and_Segment_Tree/Problems_17_Fenwick_and_Segment_Tree.pdf": [
@@ -25669,7 +25961,7 @@
 "student/17_Fenwick_and_Segment_Tree/Problems_17_Fenwick_and_Segment_Tree.pdf"
 ],
 "17_Fenwick_and_Segment_Tree/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "18_Sparse_Table/01/01_Equal_Pieces.pdf": [
@@ -25721,7 +26013,7 @@
 "student/18_Sparse_Table/12/12_Evenly_Spaced_Cards.pdf"
 ],
 "18_Sparse_Table/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "18_Sparse_Table/Problems_18_Sparse_Table.pdf": [
@@ -25729,7 +26021,7 @@
 "student/18_Sparse_Table/Problems_18_Sparse_Table.pdf"
 ],
 "18_Sparse_Table/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "19_Lazy_Segment_Tree/01/01_Booking_Train_Seats.pdf": [
@@ -25781,7 +26073,7 @@
 "student/19_Lazy_Segment_Tree/12/12_Add_Multiply_Sum.pdf"
 ],
 "19_Lazy_Segment_Tree/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "19_Lazy_Segment_Tree/Problems_19_Lazy_Segment_Tree.pdf": [
@@ -25789,7 +26081,7 @@
 "student/19_Lazy_Segment_Tree/Problems_19_Lazy_Segment_Tree.pdf"
 ],
 "19_Lazy_Segment_Tree/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "20_Tree_DP/01/01_Best_Scenic_Trail.pdf": [
@@ -25841,7 +26133,7 @@
 "student/20_Tree_DP/12/12_Factories_and_Shops.pdf"
 ],
 "20_Tree_DP/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "20_Tree_DP/Problems_20_Tree_DP.pdf": [
@@ -25849,7 +26141,7 @@
 "student/20_Tree_DP/Problems_20_Tree_DP.pdf"
 ],
 "20_Tree_DP/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "21_Rerooting/01/01_Groups_in_the_Black.pdf": [
@@ -25901,7 +26193,7 @@
 "student/21_Rerooting/12/12_Ring_Road_Villages.pdf"
 ],
 "21_Rerooting/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "21_Rerooting/Problems_21_Rerooting.pdf": [
@@ -25909,7 +26201,7 @@
 "student/21_Rerooting/Problems_21_Rerooting.pdf"
 ],
 "21_Rerooting/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "22_Euler_Tour/01/01_Weakest_First_to_Training.pdf": [
@@ -25961,7 +26253,7 @@
 "student/22_Euler_Tour/12/12_Varieties_on_Both_Sides.pdf"
 ],
 "22_Euler_Tour/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "22_Euler_Tour/Problems_22_Euler_Tour.pdf": [
@@ -25969,7 +26261,7 @@
 "student/22_Euler_Tour/Problems_22_Euler_Tour.pdf"
 ],
 "22_Euler_Tour/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "23_LCA_and_Binary_Lifting/01/01_On_the_Way.pdf": [
@@ -26021,7 +26313,7 @@
 "student/23_LCA_and_Binary_Lifting/12/12_First_Cheap_Station_on_the_Way.pdf"
 ],
 "23_LCA_and_Binary_Lifting/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "23_LCA_and_Binary_Lifting/Problems_23_LCA_and_Binary_Lifting.pdf": [
@@ -26029,7 +26321,7 @@
 "student/23_LCA_and_Binary_Lifting/Problems_23_LCA_and_Binary_Lifting.pdf"
 ],
 "23_LCA_and_Binary_Lifting/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "24_SCC_Bridges_and_Articulation_Points/01/01_Mutual_Followers.pdf": [
@@ -26081,7 +26373,7 @@
 "student/24_SCC_Bridges_and_Articulation_Points/12/12_Street_Directions.pdf"
 ],
 "24_SCC_Bridges_and_Articulation_Points/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "24_SCC_Bridges_and_Articulation_Points/Problems_24_SCC_Bridges_and_Articulation_Points.pdf": [
@@ -26089,7 +26381,7 @@
 "student/24_SCC_Bridges_and_Articulation_Points/Problems_24_SCC_Bridges_and_Articulation_Points.pdf"
 ],
 "24_SCC_Bridges_and_Articulation_Points/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "25_Trie/01/01_Word_Box.pdf": [
@@ -26141,7 +26433,7 @@
 "student/25_Trie/12/12_Mex_After_Flips.pdf"
 ],
 "25_Trie/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "25_Trie/Problems_25_Trie.pdf": [
@@ -26149,7 +26441,7 @@
 "student/25_Trie/Problems_25_Trie.pdf"
 ],
 "25_Trie/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "26_Bitmask_and_Digit_DP/01/01_Forts_and_Bridges.pdf": [
@@ -26201,7 +26493,7 @@
 "student/26_Bitmask_and_Digit_DP/12/12_Divisible_by_Its_Own_Digit_Sum.pdf"
 ],
 "26_Bitmask_and_Digit_DP/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "26_Bitmask_and_Digit_DP/Problems_26_Bitmask_and_Digit_DP.pdf": [
@@ -26209,7 +26501,7 @@
 "student/26_Bitmask_and_Digit_DP/Problems_26_Bitmask_and_Digit_DP.pdf"
 ],
 "26_Bitmask_and_Digit_DP/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "27_DSU_on_Tree/01/01_Classmates_from_One_Province.pdf": [
@@ -26261,7 +26553,7 @@
 "student/27_DSU_on_Tree/12/12_Equal_Fares_to_Every_Terminal.pdf"
 ],
 "27_DSU_on_Tree/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "27_DSU_on_Tree/Problems_27_DSU_on_Tree.pdf": [
@@ -26269,7 +26561,7 @@
 "student/27_DSU_on_Tree/Problems_27_DSU_on_Tree.pdf"
 ],
 "27_DSU_on_Tree/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "28_Heavy_Light_Decomposition/01/01_Tallest_Lookout_on_the_Trail.pdf": [
@@ -26321,7 +26613,7 @@
 "student/28_Heavy_Light_Decomposition/12/12_Paved_Roads_Dug_Roads.pdf"
 ],
 "28_Heavy_Light_Decomposition/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "28_Heavy_Light_Decomposition/Problems_28_Heavy_Light_Decomposition.pdf": [
@@ -26329,7 +26621,7 @@
 "student/28_Heavy_Light_Decomposition/Problems_28_Heavy_Light_Decomposition.pdf"
 ],
 "28_Heavy_Light_Decomposition/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "29_Centroid_Decomposition/01/01_Chain_of_Command.pdf": [
@@ -26381,7 +26673,7 @@
 "student/29_Centroid_Decomposition/12/12_Trips_Past_My_House.pdf"
 ],
 "29_Centroid_Decomposition/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "29_Centroid_Decomposition/Problems_29_Centroid_Decomposition.pdf": [
@@ -26389,7 +26681,7 @@
 "student/29_Centroid_Decomposition/Problems_29_Centroid_Decomposition.pdf"
 ],
 "29_Centroid_Decomposition/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "30_Persistent_Segment_Tree/01/01_Save_Slots.pdf": [
@@ -26441,7 +26733,7 @@
 "student/30_Persistent_Segment_Tree/12/12_The_First_Club_Without_a_Fitting_Slot.pdf"
 ],
 "30_Persistent_Segment_Tree/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "30_Persistent_Segment_Tree/Problems_30_Persistent_Segment_Tree.pdf": [
@@ -26449,7 +26741,7 @@
 "student/30_Persistent_Segment_Tree/Problems_30_Persistent_Segment_Tree.pdf"
 ],
 "30_Persistent_Segment_Tree/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "31_Convex_Hull/01/01_Posts_on_the_Fence_Line.pdf": [
@@ -26501,7 +26793,7 @@
 "student/31_Convex_Hull/12/12_One_More_Peg.pdf"
 ],
 "31_Convex_Hull/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "31_Convex_Hull/Problems_31_Convex_Hull.pdf": [
@@ -26509,7 +26801,7 @@
 "student/31_Convex_Hull/Problems_31_Convex_Hull.pdf"
 ],
 "31_Convex_Hull/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "32_Convex_Hull_Trick_and_DP_Optimization/01/01_Water_From_the_Wells.pdf": [
@@ -26561,7 +26853,7 @@
 "student/32_Convex_Hull_Trick_and_DP_Optimization/12/12_Staircase_Through_the_Field.pdf"
 ],
 "32_Convex_Hull_Trick_and_DP_Optimization/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "32_Convex_Hull_Trick_and_DP_Optimization/Problems_32_Convex_Hull_Trick_and_DP_Optimization.pdf": [
@@ -26569,7 +26861,7 @@
 "student/32_Convex_Hull_Trick_and_DP_Optimization/Problems_32_Convex_Hull_Trick_and_DP_Optimization.pdf"
 ],
 "32_Convex_Hull_Trick_and_DP_Optimization/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "33_Mo_Algorithm/01/01_Each_Copy_Costs_More.pdf": [
@@ -26621,7 +26913,7 @@
 "student/33_Mo_Algorithm/12/12_Even_Display_Shelf.pdf"
 ],
 "33_Mo_Algorithm/Makefile": [
-"de448135a68dd736ba411ca871fa82b57c62fc3cf3734b327ee6998a86b01ab4",
+"459d4d8a2001e425bae3095ba3c920f4451e28579b8621743ba0736eb51901c0",
 "student/set_files/Makefile_12"
 ],
 "33_Mo_Algorithm/Problems_33_Mo_Algorithm.pdf": [
@@ -26629,299 +26921,11 @@
 "student/33_Mo_Algorithm/Problems_33_Mo_Algorithm.pdf"
 ],
 "33_Mo_Algorithm/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
-"student/set_files/judge.bat"
-],
-"M01/1/1_Get_Me_Off_This_Hill.pdf": [
-"aeb4b09d7206af8c2c6504ecba4b6ac9f02d125bdef6d7ca12e47aa8fbcabc70",
-"student/M01/1/1_Get_Me_Off_This_Hill.pdf"
-],
-"M01/2/2_Poison_Swamp_Attempt_9999.pdf": [
-"95cd2ccf3545e92ebdd3c9a24b3af36255e36e65b558ac257014182101404c6d",
-"student/M01/2/2_Poison_Swamp_Attempt_9999.pdf"
-],
-"M01/3/3_Free_Coins_Only.pdf": [
-"62744876764870a6f36ebcc10cf35e865e8d756dc31be5af12d0b1afa5abe1ed",
-"student/M01/3/3_Free_Coins_Only.pdf"
-],
-"M01/4/4_The_Budget_3v3_Showmatch.pdf": [
-"416306e644538b024793ec7902b8337b79e08d9d4efb85b048d2e38205463517",
-"student/M01/4/4_The_Budget_3v3_Showmatch.pdf"
-],
-"M01/5/5_The_Hero_Who_Hates_Walking.pdf": [
-"85f7bdff8c59a2f867e132bef69929546a7a9a6e51bed41ac21942f6a782828d",
-"student/M01/5/5_The_Hero_Who_Hates_Walking.pdf"
-],
-"M01/6/6_Dug_Again_Flooded_Again.pdf": [
-"4c2e2ff3cc9d01b290bd9c27308eecd0042a9e7f5d2a5c18561639391878bad2",
-"student/M01/6/6_Dug_Again_Flooded_Again.pdf"
-],
-"M01/Makefile": [
-"7f694c4cfa69a309b3dba0149e607ea5e889d00bf86d68c53643ee2a20ab385e",
-"student/set_files/Makefile_6"
-],
-"M01/Problems_M01.pdf": [
-"c9f44b840d4b5255fb23b1edd669cec777455e09de185935477765549121d20b",
-"student/M01/Problems_M01.pdf"
-],
-"M01/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
-"student/set_files/judge.bat"
-],
-"M02/1/1_Not_Sus_Just_AFK.pdf": [
-"27fdb2f2b0c5a889980f16b4025f607540871df189c8fd163d89289ab47ca525",
-"student/M02/1/1_Not_Sus_Just_AFK.pdf"
-],
-"M02/2/2_Chant_Between_the_Songs.pdf": [
-"2dc682cbdea0bfa9de2170bd8e97280680b0224fd571e8591553587fa1fac4b4",
-"student/M02/2/2_Chant_Between_the_Songs.pdf"
-],
-"M02/3/3_Mine_Before_the_Power_Cut.pdf": [
-"00b15719ba291591cc4df5a456e9491c6e4606484e98f4a840d6743827e00892",
-"student/M02/3/3_Mine_Before_the_Power_Cut.pdf"
-],
-"M02/4/4_My_Only_Skill_Is_Seal_Breaking.pdf": [
-"5d91d3a065700db77fb63a0b04152fd1b570cf9630aeafd44bdf1417751071d0",
-"student/M02/4/4_My_Only_Skill_Is_Seal_Breaking.pdf"
-],
-"M02/5/5_Broke_Again_Before_the_Round.pdf": [
-"421159a9dbef1cedd4a1b53b7177e82a58513e375be54b8b06ae1e22c0d84298",
-"student/M02/5/5_Broke_Again_Before_the_Round.pdf"
-],
-"M02/6/6_While_the_Final_Is_Paused.pdf": [
-"f42ae5f128d1de0d5235e847f5cdeb940f110b884129dd9e9bcc9c2f46029cc6",
-"student/M02/6/6_While_the_Final_Is_Paused.pdf"
-],
-"M02/Makefile": [
-"7f694c4cfa69a309b3dba0149e607ea5e889d00bf86d68c53643ee2a20ab385e",
-"student/set_files/Makefile_6"
-],
-"M02/Problems_M02.pdf": [
-"6b1488244b961b2a91a4ebca5f4eaf54f0f1f8639c04aa38d93f013279ec8d04",
-"student/M02/Problems_M02.pdf"
-],
-"M02/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
-"student/set_files/judge.bat"
-],
-"M03/1/1_Everyone_Wears_the_Default_Skin.pdf": [
-"541c7adbb114c51ba5eee72339058c8e68f078a5249c76610331108acc08265f",
-"student/M03/1/1_Everyone_Wears_the_Default_Skin.pdf"
-],
-"M03/2/2_Coins_That_Pump_Together.pdf": [
-"2b925204c33c9f95f555cf217cccc1c4f38a297ad2118c91936eb7867ab74b37",
-"student/M03/2/2_Coins_That_Pump_Together.pdf"
-],
-"M03/3/3_Skip_the_Filler_Episodes.pdf": [
-"158173578fa69970714539de030f1527a653437821adc40b85253bbd22936674",
-"student/M03/3/3_Skip_the_Filler_Episodes.pdf"
-],
-"M03/4/4_All_Stars_Without_Teammates.pdf": [
-"97cf98e47d147621e405857af869074231c748711bbae12557bbb0a4cff4ee6b",
-"student/M03/4/4_All_Stars_Without_Teammates.pdf"
-],
-"M03/5/5_Vinyl_Awnings_for_Votes.pdf": [
-"a22dfa91ec1973e268d3b7596b5f8905f8e08174160c479494665e84e47cfa1b",
-"student/M03/5/5_Vinyl_Awnings_for_Votes.pdf"
-],
-"M03/6/6_Follow_the_Floor_Arrows.pdf": [
-"f9e569680789c90e3a78587579ead52467b88e307c2add04c27a8cfe23fa5eee",
-"student/M03/6/6_Follow_the_Floor_Arrows.pdf"
-],
-"M03/Makefile": [
-"7f694c4cfa69a309b3dba0149e607ea5e889d00bf86d68c53643ee2a20ab385e",
-"student/set_files/Makefile_6"
-],
-"M03/Problems_M03.pdf": [
-"e4a9b94d8c56b93a105d5475a03ca945661e19fe687e57d3792079eb1ac938f9",
-"student/M03/Problems_M03.pdf"
-],
-"M03/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
-"student/set_files/judge.bat"
-],
-"M04/1/1_Chasing_the_Gold_Lead.pdf": [
-"c1a32e34cc3fe7ce14728b2b6924a0fdbfe28ce94fecfd6ce9e95a25d039396c",
-"student/M04/1/1_Chasing_the_Gold_Lead.pdf"
-],
-"M04/2/2_Rating_Shock_After_the_Cup.pdf": [
-"2c2e559614c95dd64073b004cfe816b9d5e51b4b36f3cec71c6719a55cf875c6",
-"student/M04/2/2_Rating_Shock_After_the_Cup.pdf"
-],
-"M04/3/3_The_Parts_List_Keeps_Growing.pdf": [
-"da9f13ce771778121e2a08ee58627ecdb60f07118a566f45e732a956c2c9d8c3",
-"student/M04/3/3_The_Parts_List_Keeps_Growing.pdf"
-],
-"M04/4/4_Reincarnated_as_a_Lazy_Susan.pdf": [
-"20628fba361e3c4fd0229900eb3ed3e5f14c037a80399051c8392cd8fc471dc9",
-"student/M04/4/4_Reincarnated_as_a_Lazy_Susan.pdf"
-],
-"M04/5/5_Passed_to_Another_Committee.pdf": [
-"f5c1406fde65d253548026cb3ddca707523f757c7117469f146188516f52b796",
-"student/M04/5/5_Passed_to_Another_Committee.pdf"
-],
-"M04/6/6_Lucky_Palindrome_Fan_Line.pdf": [
-"4863d44cde7422e5e0b567cd58ae1fde1580e735501f6afae04d415553833fe9",
-"student/M04/6/6_Lucky_Palindrome_Fan_Line.pdf"
-],
-"M04/Makefile": [
-"7f694c4cfa69a309b3dba0149e607ea5e889d00bf86d68c53643ee2a20ab385e",
-"student/set_files/Makefile_6"
-],
-"M04/Problems_M04.pdf": [
-"87eac6c3fd542cfe672df06ca83af108f9ef75d71d3aa70cfac1f7e1256bf707",
-"student/M04/Problems_M04.pdf"
-],
-"M04/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
-"student/set_files/judge.bat"
-],
-"M05/1/1_The_Confidently_Sorted_Files.pdf": [
-"3392c4c48c951b388ae9d828f19a956aaaa019cd4bbf053161c4ccee28416a7f",
-"student/M05/1/1_The_Confidently_Sorted_Files.pdf"
-],
-"M05/2/2_The_Stonks_and_Pray_Bundle.pdf": [
-"948c93847aa9eabe5ba8b3615b0a8b3010532943aec7753a743b7fb5ef3037a6",
-"student/M05/2/2_The_Stonks_and_Pray_Bundle.pdf"
-],
-"M05/3/3_The_KeyEating_Doors.pdf": [
-"0d100cbfed73650be6545e6bbb180f80c31f63439ce149470f8d26f2740e7672",
-"student/M05/3/3_The_KeyEating_Doors.pdf"
-],
-"M05/4/4_The_Laggy_Streamers_Schedule.pdf": [
-"fc0ab8bfa6600244d405fd09545413a4b3e23c016369ca7f0750dc243d9aa792",
-"student/M05/4/4_The_Laggy_Streamers_Schedule.pdf"
-],
-"M05/5/5_The_Whole_Dojo_Holds_Targets.pdf": [
-"75c2a8f1426c5147bf5b005e5af6098e3b4b7efa97c69b62ab104e11877e1562",
-"student/M05/5/5_The_Whole_Dojo_Holds_Targets.pdf"
-],
-"M05/6/6_Deliveries_Before_the_Fan_Meet.pdf": [
-"38b0411d0be35953c8c511fe44e61bed5b27d1677083d3bace78c22de58eec76",
-"student/M05/6/6_Deliveries_Before_the_Fan_Meet.pdf"
-],
-"M05/Makefile": [
-"7f694c4cfa69a309b3dba0149e607ea5e889d00bf86d68c53643ee2a20ab385e",
-"student/set_files/Makefile_6"
-],
-"M05/Problems_M05.pdf": [
-"f6675e49db0ea16ee4eff525adf1b8d5b19bec57802d4e276a8a4e8a50f7fc27",
-"student/M05/Problems_M05.pdf"
-],
-"M05/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
-"student/set_files/judge.bat"
-],
-"M06/1/1_Stuck_in_the_Concert_Ticket_Queue.pdf": [
-"e95d072deaaf49ff8b2db93026c19046fb84e03611a1fa5e50869ede58c9d722",
-"student/M06/1/1_Stuck_in_the_Concert_Ticket_Queue.pdf"
-],
-"M06/2/2_Dies_Often_Farms_Fast.pdf": [
-"05594716f3ddd1e578f80e3095ec69b2fbbfd909a709ac38dd1ceb818e58b8fe",
-"student/M06/2/2_Dies_Often_Farms_Fast.pdf"
-],
-"M06/3/3_Ad_Break_at_the_Finish_Line.pdf": [
-"bb4f204417a4c81c8f201994c176fe3a129977d2d4ed4465577eaf3faa52fc90",
-"student/M06/3/3_Ad_Break_at_the_Finish_Line.pdf"
-],
-"M06/4/4_Three_Coins_One_Tired_GPU.pdf": [
-"781a043bd4d24361eff2e26a7470b9276d86fb4dc2ab2bc238dd073bf57fc8c1",
-"student/M06/4/4_Three_Coins_One_Tired_GPU.pdf"
-],
-"M06/5/5_Hold_On_Reorder_the_Agenda.pdf": [
-"86484d523bd199636412fca9422f1cd85b85578214721ff53619e2eda1803ec6",
-"student/M06/5/5_Hold_On_Reorder_the_Agenda.pdf"
-],
-"M06/6/6_Skills_Reset_Every_Quest.pdf": [
-"89475a185152929ef034d5802527dc2b76ed5c433dd035c087c2c7cc6bcbadc1",
-"student/M06/6/6_Skills_Reset_Every_Quest.pdf"
-],
-"M06/Makefile": [
-"7f694c4cfa69a309b3dba0149e607ea5e889d00bf86d68c53643ee2a20ab385e",
-"student/set_files/Makefile_6"
-],
-"M06/Problems_M06.pdf": [
-"e8bed100e8e7af54d08a08ce4d68f2b153e1ba5c03acc15b45292752fec3b4d5",
-"student/M06/Problems_M06.pdf"
-],
-"M06/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
-"student/set_files/judge.bat"
-],
-"M07/1/1_Routers_Napping_in_the_Hallway.pdf": [
-"62f054335672d5e3ed908b5821d5f65fea5581ce0b86d41678c8ac70545925b4",
-"student/M07/1/1_Routers_Napping_in_the_Hallway.pdf"
-],
-"M07/2/2_Ice_Floor_Above_the_Lava.pdf": [
-"d07dae5622a5fae5368a78261fcca8f7f73a080d0207724b2654010cb0d93599",
-"student/M07/2/2_Ice_Floor_Above_the_Lava.pdf"
-],
-"M07/3/3_Two_Piles_of_Isekai_Blessings.pdf": [
-"02e632a46bef8e9c334ff0b650a8b0a63911f8495842cf444c23761d343832b8",
-"student/M07/3/3_Two_Piles_of_Isekai_Blessings.pdf"
-],
-"M07/4/4_Word_of_the_New_Chapter_Spreads.pdf": [
-"4f895e9a10e7a7180f251890694f631a4c46434efbe98a957109eb986029ef67",
-"student/M07/4/4_Word_of_the_New_Chapter_Spreads.pdf"
-],
-"M07/5/5_Stalling_the_Meeting_Seat_by_Seat.pdf": [
-"45e2e9f1984fd088281aec470c471c64f9c3d5a6bbfd399cc7020840f046430c",
-"student/M07/5/5_Stalling_the_Meeting_Seat_by_Seat.pdf"
-],
-"M07/6/6_Lobby_Wait_Kills_the_Hype.pdf": [
-"716baebfc1b745868504aa99f322b90f765be4d0a1435bce3d3363d6b804babc",
-"student/M07/6/6_Lobby_Wait_Kills_the_Hype.pdf"
-],
-"M07/Makefile": [
-"7f694c4cfa69a309b3dba0149e607ea5e889d00bf86d68c53643ee2a20ab385e",
-"student/set_files/Makefile_6"
-],
-"M07/Problems_M07.pdf": [
-"750bea0ef663ee89e0e6dc8c9290c61c640c0cb4058de60d7bc038a21b36394b",
-"student/M07/Problems_M07.pdf"
-],
-"M07/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
-"student/set_files/judge.bat"
-],
-"M08/1/1_The_Dream_Profit_Calculator.pdf": [
-"38397455b6a8e89f8f2e04f7f8dc7f439884d1b2a41cd2a655811218ef3efd05",
-"student/M08/1/1_The_Dream_Profit_Calculator.pdf"
-],
-"M08/2/2_The_Warm_Water_Chain_Message.pdf": [
-"f5ac342ffedff6962adf9418a7914e36a7b35bb6ffb93c3935e8600b9a72a6d2",
-"student/M08/2/2_The_Warm_Water_Chain_Message.pdf"
-],
-"M08/3/3_The_Ship_Number_727.pdf": [
-"8a61d7648945c0aa865ddb9c0f99b1dd3fe4b441f268dbb988318811f61a25de",
-"student/M08/3/3_The_Ship_Number_727.pdf"
-],
-"M08/4/4_Flags_on_the_Block_Peaks.pdf": [
-"ba3ccf4066dce98a6852564c1d8ba06123caca816a05378e90ca37ea00534661",
-"student/M08/4/4_Flags_on_the_Block_Peaks.pdf"
-],
-"M08/5/5_Copium_Math_for_the_Playoffs.pdf": [
-"6f73ee48c5d6cd7ff8bfbb9d4729c87a5970e475c4c9886e30523eea2bb7d753",
-"student/M08/5/5_Copium_Math_for_the_Playoffs.pdf"
-],
-"M08/6/6_Editing_Anime_on_Zero_Budget.pdf": [
-"0631daaac6a2258f5c15fdc99c45704cce93352056611952c12e20a5cf6df7c5",
-"student/M08/6/6_Editing_Anime_on_Zero_Budget.pdf"
-],
-"M08/Makefile": [
-"7f694c4cfa69a309b3dba0149e607ea5e889d00bf86d68c53643ee2a20ab385e",
-"student/set_files/Makefile_6"
-],
-"M08/Problems_M08.pdf": [
-"d9b8e04352a950b971951c207b52fddf88524506c5418d883662a148186f729e",
-"student/M08/Problems_M08.pdf"
-],
-"M08/judge.bat": [
-"f5c7ae27bcfb0334d89320d059e16c2d41c567d9c4e71c12794e87d3e29e39fd",
+"1d544e1da38eb0d709cca7c7a2505d2563854827c4e963fdc18c56172a13a72e",
 "student/set_files/judge.bat"
 ],
 "README.txt": [
-"6a1f405181886dede0ed8a9e0b772f20868d4aeb816f64144a70fe26e3bb2dec",
+"6a9fe476e038e5708271a97bba4d98c1d047de431eebbcc6158c28e6d8e10275",
 "student/README.txt"
 ]
 },

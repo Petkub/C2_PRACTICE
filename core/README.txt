@@ -4,7 +4,8 @@ Requirements: Python 3.7+ and g++ in PATH (Linux / macOS / Windows; on Windows t
 macOS: g++ is Apple clang without <bits/stdc++.h>; the judge adds include/ (a fallback header) automatically.
 
 One folder per problem: 04_Binary_Search/05/04-05.cpp (your code) and 05_<Title>.pdf (the statement); a Mixed set:
-M01/3/M01-3.cpp. A problem folder holds only these two files; Makefile and judge.bat are in the topic folder.
+00_Mixed/M01/3/M01-3.cpp. A problem folder holds only these two files; Makefile and judge.bat are in the topic
+folder (and in each Mixed set folder, e.g. 00_Mixed/M01).
 Do not rename the folders or the .cpp files: the judge finds the problem from them.
 
 Inside a problem folder (e.g. 04_Binary_Search/05):
@@ -12,6 +13,9 @@ Inside a problem folder (e.g. 04_Binary_Search/05):
 Inside a topic folder (e.g. 04_Binary_Search):
   python3 ../Judge/judge.py               judge the whole topic              (also: make, judge)
   python3 ../Judge/judge.py 5             judge problem 5 (05 works too)     (also: make 5, judge 5)
+Inside a Mixed set folder (e.g. 00_Mixed/M01), one level deeper:
+  python3 ../../Judge/judge.py [3]        the whole set, or problem 3          (also: make [3], judge [3])
+  (in a Mixed problem folder such as 00_Mixed/M01/3: python3 ../../../Judge/judge.py)
 Anywhere:
   python3 <path>/Judge/judge.py FILE.cpp  the problem comes from the file's name (04-05.cpp) or its folder (.../05/)
   python3 <path>/Judge/judge.py my.cpp 4-5    judge any file as topic 4, problem 5 (Mixed sets: M01-3)

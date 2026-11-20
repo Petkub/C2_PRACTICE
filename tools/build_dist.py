@@ -10,15 +10,18 @@ Layout produced (one folder per problem, tools/layout.py):
   C2_Practice/README.txt, Guide.pdf, .vscode/    from student/
   C2_Practice/Judge/                             exactly the files listed in manifest.json (core/ + problems/),
                                                plus manifest.json itself (the installed version for updater.py)
-  C2_Practice/<NN_Name>/Problems_<NN_Name>.pdf from student/<NN_Name>/ (the whole topic; a Mixed set: M01/Problems_M01.pdf)
+  C2_Practice/00_Mixed/README.txt, 00_Mixed/M01/ ...   the Mixed sets (from student/00_Mixed/), laid out like a topic
+                                               folder (00_Mixed/M01/Problems_M01.pdf, 00_Mixed/M01/3/M01-3.cpp ...)
+  C2_Practice/<NN_Name>/Problems_<NN_Name>.pdf from student/<NN_Name>/ (the whole topic)
   C2_Practice/<NN_Name>/Makefile, judge.bat     from student/set_files/ (Makefile_<n> for a topic of n != 20)
   C2_Practice/<NN_Name>/05/04-05.cpp            the student's code file: empty (student/set_files/template.cpp)
   C2_Practice/<NN_Name>/05/05_<Title>.pdf       the problem's own PDF, from student/<NN_Name>/05/
                                                (a problem folder holds exactly these two files)
-The zip holds the contents of C2_Practice/ without the folder itself (see make_zip).
+The zip holds the contents of C2_Practice/ without the folder itself (see make_zip); 00_Mixed/ comes first.
 The manifest is rebuilt first, so the zip and manifest.json always agree.
 """
 import os
+import re
 import shutil
 import sys
 import zipfile
@@ -26,6 +29,7 @@ import zipfile
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build_manifest  # noqa: E402
+import layout  # noqa: E402
 
 REPO = build_manifest.REPO
 STUDENT = os.path.join(REPO, "student")
@@ -65,22 +69,26 @@ def copy_package_files(root):
     for rel, src in pairs:
         copy_file(os.path.join(REPO, src), os.path.join(root, *rel.split("/")))
     tops = {rel.split("/")[0] for rel, _ in pairs}
-    return (len([d for d in tops if d[:2].isdigit()]),
-            len([d for d in tops if len(d) == 3 and d[0] == "M" and d[1:].isdigit()]))
+    sets = {"/".join(rel.split("/")[:2]) for rel, _ in pairs if rel.startswith(layout.MIXED_ROOT + "/")}
+    return (len([d for d in tops if d[:2].isdigit() and d != layout.MIXED_ROOT]),
+            len([d for d in sets if re.fullmatch(layout.MIXED_ROOT + r"/M[0-9]{2}", d)]))
 
 
 def make_zip(root):
     """No top-level folder in the zip: Windows "Extract All" already makes C2_Practice/, and a top-level folder gave
-    C2_Practice/C2_Practice/, where VS Code opened on the outer folder finds no .vscode/tasks.json (no Ctrl+Shift+B)."""
+    C2_Practice/C2_Practice/, where VS Code opened on the outer folder finds no .vscode/tasks.json (no Ctrl+Shift+B).
+    The entries of 00_Mixed/ come first (it is the top folder on disk too), then everything else in sorted order."""
     path = root + ".zip"
+    names = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames.sort()
+        for name in sorted(filenames):
+            if name != MARKER:
+                names.append(os.path.relpath(os.path.join(dirpath, name), root).replace(os.sep, "/"))
+    names.sort(key=lambda rel: not rel.startswith(layout.MIXED_ROOT + "/"))     # stable: walk order otherwise
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
-        for dirpath, dirnames, filenames in os.walk(root):
-            dirnames.sort()
-            for name in sorted(filenames):
-                if name == MARKER:
-                    continue
-                full = os.path.join(dirpath, name)
-                z.write(full, os.path.relpath(full, root).replace(os.sep, "/"))
+        for rel in names:
+            z.write(os.path.join(root, *rel.split("/")), rel)
     return path
 
 

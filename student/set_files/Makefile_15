@@ -2,7 +2,9 @@
 #   make      judge the whole topic (problem folders 01 ... 15)
 #   make 5    judge problem 5 only   (make 05 works too)
 PYTHON ?= python3
-JUDGE  := $(PYTHON) ../Judge/judge.py
+# Judge/ is in the package root: ../Judge from a topic folder, ../../Judge from a Mixed set (00_Mixed/M01)
+JUDGE_PY := $(or $(firstword $(wildcard ../Judge/judge.py ../../Judge/judge.py)),../Judge/judge.py)
+JUDGE  := $(PYTHON) $(JUDGE_PY)
 
 all:
 	@$(JUDGE)

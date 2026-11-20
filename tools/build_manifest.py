@@ -2,8 +2,8 @@
 """
 Write manifest.json: the version (file VERSION) and the SHA-256 of every file the student package gets inside
 Judge/, the managed package files outside Judge/ (the PDFs, a topic folder's Makefile and judge.bat, README.txt,
-Guide.pdf, Progress.md, .vscode/: replaced on the students' computers when they change) and the create-only files
-(the empty code file of every problem: added only when missing, never replaced).
+00_Mixed/README.txt, Guide.pdf, Progress.md, .vscode/: replaced on the students' computers when they change) and
+the create-only files (the empty code file of every problem: added only when missing, never replaced).
 Judge/updater.py on the students' computers compares this file with what they have.
 
   python3 tools/build_manifest.py            write manifest.json (run after changing core/, problems/, student/)
@@ -12,7 +12,7 @@ Judge/updater.py on the students' computers compares this file with what they ha
 It also writes bundles/<folder>.zip: every shipped file of one topic folder (problems/batch/<folder>/), so the
 updater fetches a new topic in a few requests. A bundle is rewritten only when its content changes.
 
-The package layout (one folder per problem) is in tools/layout.py.
+The package layout (one folder per problem; the Mixed sets in 00_Mixed/M01 ...) is in tools/layout.py.
 
 Format:
   {"version": "4.0.0",
@@ -21,7 +21,8 @@ Format:
    "managed": {"04_Binary_Search/Problems_04_Binary_Search.pdf": ["<sha256>", "student/04_Binary_Search/Problems_04_Binary_Search.pdf"],
                "04_Binary_Search/05/05_<Title>.pdf": ["<sha256>", "student/04_Binary_Search/05/05_<Title>.pdf"],
                "04_Binary_Search/Makefile": ["<sha256>", "student/set_files/Makefile"], ...},
-   "create_only": {"04_Binary_Search/05/04-05.cpp": ["<sha256>", "student/set_files/template.cpp"], ...},
+   "create_only": {"04_Binary_Search/05/04-05.cpp": ["<sha256>", "student/set_files/template.cpp"],
+                   "00_Mixed/M01/3/M01-3.cpp": ["<sha256>", "student/set_files/template.cpp"], ...},
    "bundles": {"bundles/04_Binary_Search.zip": {"sha256": "<sha256>", "prefix": "problems/batch/04_Binary_Search/"}, ...},
    "moves": {"<sha256 of an earlier release's problems.json>": [["04_Binary_Search/05/04-05.cpp", "05_Greedy/07/05-07.cpp"], ...]}}
 
@@ -125,16 +126,19 @@ def managed_files():
     """Managed package files outside Judge/ as (package path, repo-relative source path). A problem folder holds
     exactly its code file and its PDF: Makefile and judge.bat exist in the topic / Mixed-set folders only."""
     out = []
-    for name in ("README.txt", "Guide.pdf", "Progress.md", ".vscode/tasks.json", ".vscode/settings.json"):
+    sets = load_sets()
+    for name in ("README.txt", "Guide.pdf", "Progress.md", ".vscode/tasks.json", ".vscode/settings.json") + (
+            (layout.MIXED_README,) if any(layout.mixed(s) for s in sets) else ()):
         if os.path.exists(os.path.join(REPO, "student", *name.split("/"))):
             out.append((name, "student/" + name))
-    for s in load_sets():
-        d = s["dir"]
+    for s in sets:
+        d = layout.folder(s)            # 04_Binary_Search, 00_Mixed/M01
         n = len(s["problems"])
         out.append((f"{d}/Makefile", "student/set_files/Makefile" + ("" if n == 20 else f"_{n}")))
         out.append((f"{d}/judge.bat", "student/set_files/judge.bat"))
-        if os.path.exists(os.path.join(REPO, "student", d, f"Problems_{d}.pdf")):
-            out.append((f"{d}/Problems_{d}.pdf", f"student/{d}/Problems_{d}.pdf"))
+        pdf = layout.topic_pdf_path(s)
+        if os.path.exists(os.path.join(REPO, "student", *pdf.split("/"))):
+            out.append((pdf, "student/" + pdf))
     return out + problem_pdfs()
 
 
@@ -213,9 +217,9 @@ def moves(now=None, replaced=None, folder=MOVES):
                 if here[title] != src:
                     pairs.append([src, here[title]])
             elif title in replaced:                 # its slot holds a new problem: park it in that topic's old/
-                pairs.append([src, f"{replaced[title].split('/')[0]}/old/{layout.old_name(n, e['en'])}"])
+                pairs.append([src, f"{layout.dir_folder(replaced[title].split('/')[0])}/old/{layout.old_name(n, e['en'])}"])
             else:
-                pairs.append([src, f"{e['dir'].split('/')[0]}/old/{layout.old_name(n, e['en'])}"])
+                pairs.append([src, f"{layout.dir_folder(e['dir'].split('/')[0])}/old/{layout.old_name(n, e['en'])}"])
         out[sha256_file(path)] = pairs
     return out
 

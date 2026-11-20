@@ -13,13 +13,14 @@ Rules
     PDF, below, goes to Judge/.backup/_package/, it is not deleted)
   - never reads or writes student files (<topic>/<problem>/<topic no.>-<problem>.cpp), except the moves below.
     Outside Judge/ it only handles "managed" files the students do not edit (the PDFs, a topic folder's Makefile
-    and judge.bat, README.txt, Guide.pdf, Progress.md, .vscode/) and "create-only" files (the empty code file of a
-    problem, added only when missing). The old copy of every replaced file goes to Judge/.backup/ (package files under _package/)
+    and judge.bat, README.txt, 00_Mixed/README.txt, Guide.pdf, Progress.md, .vscode/) and "create-only" files (the
+    empty code file of a problem, added only when missing). The old copy of every replaced file goes to Judge/.backup/ (package files under _package/)
   - updates only an installed package (Judge/judge.py and Judge/manifest.json exist), never the source repo
 
 Package layout (v4.0, one folder per problem; tools/layout.py in the repo):
   04_Binary_Search/Problems_04_Binary_Search.pdf, Makefile, judge.bat
-  04_Binary_Search/05/04-05.cpp, 05_<English_Title>.pdf     nothing else in a problem folder (Mixed: M01/3/M01-3.cpp)
+  04_Binary_Search/05/04-05.cpp, 05_<English_Title>.pdf     nothing else in a problem folder
+  00_Mixed/README.txt, 00_Mixed/M01/Problems_M01.pdf, Makefile, judge.bat, 00_Mixed/M01/3/M01-3.cpp, 3_<Title>.pdf
 
 Speed: files are downloaded in parallel (each one retried), and a whole problem folder comes as one zip ("bundle")
 when many of its files are needed, so a new set of problems takes a few requests instead of thousands. Every file
@@ -69,20 +70,22 @@ STAMP = ".update_check"             # Judge/.update_check: time of the last chec
 BACKUP = ".backup"
 TMP = ".update_tmp"
 NEVER_UPDATE = {"manifest.json", "progress.json", "progress.json.tmp"}
-TOPIC = r"[0-9]{2}_[A-Za-z0-9_]+"            # a topic folder: 04_Binary_Search
-MIXED = r"M[0-9]{2}"                         # a Mixed set folder: M01
+TOPIC = r"(?!00_)[0-9]{2}_[A-Za-z0-9_]+"      # a topic folder: 04_Binary_Search (never 00_Mixed)
+MIXED_ROOT = "00_Mixed"                      # the folder of all Mixed sets (tools/layout.py MIXED_ROOT)
+MIXED = MIXED_ROOT + r"/M[0-9]{2}"           # a Mixed set folder: 00_Mixed/M01 (never M01 at the package root)
 # create-only: a student's own file, <topic>/<slot>/<topic no.>-<slot>.cpp (the numbers must agree)
-SET_FILE = re.compile(r"^(?:(?P<k>[0-9]{2})_[A-Za-z0-9_]+/(?P<n>[0-9]{2})/(?P=k)-(?P=n)"
-                      r"|(?P<m>" + MIXED + r")/(?P<i>[1-9])/(?P=m)-(?P=i))\.cpp$")
+SET_FILE = re.compile(r"^(?:(?!00_)(?P<k>[0-9]{2})_[A-Za-z0-9_]+/(?P<n>[0-9]{2})/(?P=k)-(?P=n)"
+                      r"|" + MIXED_ROOT + r"/(?P<m>M[0-9]{2})/(?P<i>[1-9])/(?P=m)-(?P=i))\.cpp$")
 OLD_FILE = re.compile(r"^(?:" + TOPIC + "|" + MIXED + r")/old/[0-9A-Za-z_-]+\.cpp$")   # where a replaced problem's file goes
 MOVES_DONE = ".moves_done"          # Judge/.moves_done: hashes of the old problems.json whose moves were applied
 STARTER_BODY = "cin.tie(0);ios::sync_with_stdio(0);return0;}"
 PDF_TITLE = r"[A-Za-z0-9_]{1,60}"
 PROBLEM_PDF = re.compile(r"^(?:" + TOPIC + r"/(?P<n>[0-9]{2})|" + MIXED + r"/(?P<i>[1-9]))/(?P<s>[0-9]{1,2})_"
-                         + PDF_TITLE + r"\.pdf$")           # 04_Binary_Search/05/05_<Title>.pdf
+                         + PDF_TITLE + r"\.pdf$")           # 04_Binary_Search/05/05_<Title>.pdf, 00_Mixed/M01/3/3_<Title>.pdf
 MANAGED_FILE = re.compile(                                  # replaced when they change
-    r"^(?:(?P<d>" + TOPIC + "|" + MIXED + r")/(?:Makefile|judge\.bat|Problems_(?P=d)\.pdf)"
-    r"|Guide\.pdf|README\.txt|Progress\.md|\.vscode/(?:tasks|settings)\.json)$")
+    r"^(?:(?:(?P<d>" + TOPIC + r")|" + MIXED_ROOT + r"/(?P<m>M[0-9]{2}))"
+    r"/(?:Makefile|judge\.bat|Problems_(?:(?P=d)|(?P=m))\.pdf)"
+    r"|Guide\.pdf|README\.txt|" + MIXED_ROOT + r"/README\.txt|Progress\.md|\.vscode/(?:tasks|settings)\.json)$")
 
 
 class Result:
@@ -439,7 +442,8 @@ def apply_moves(base, pairs):
             if OLD_FILE.match(dst):              # that name in old/ is taken: the next free one
                 d = free_name(d)
             else:                                # the place holds written code: the incoming file goes to old/
-                d = free_name(os.path.join(base, dst.split("/")[0], "old", src.split("/")[-1][:-4] + "_moved.cpp"))
+                top = dst.split("/")[:-2]         # the topic / Mixed-set folder: 04_Binary_Search, 00_Mixed/M01
+                d = free_name(os.path.join(base, *top, "old", src.split("/")[-1][:-4] + "_moved.cpp"))
                 clash = True
         os.makedirs(os.path.dirname(d), exist_ok=True)
         os.replace(t, d)

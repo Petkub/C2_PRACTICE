@@ -13,7 +13,7 @@ Regression tests for the POSN Practice Judge.
 4. Self-update: a local HTTP server serves a modified copy of the repo as v9.9; a package must update itself
    (hashes, backups, restart, create-only code files), and must refuse bad hashes, bad paths and no network.
 5. A later release (a fake 4.0.1 made here) over local HTTP: a re-titled, a replaced and a moved problem, a clash,
-   files the updater did not ship, and a quiet second run.
+   files the updater did not ship, a new Mixed set 00_Mixed/M09 and a re-titled Mixed problem, and a quiet second run.
 6. manifest.json is up to date.
 """
 import contextlib
@@ -43,6 +43,7 @@ sys.dont_write_bytecode = True     # no __pycache__ inside core/ (it ships to st
 import judge  # noqa: E402
 sys.path.insert(0, os.path.join(REPO, "tools"))
 import layout  # noqa: E402     tools/layout.py: the names of the student package
+import updater  # noqa: E402    core/updater.py: its path rules must agree with tools/layout.py
 
 FAILED = []
 STUDENT_JUDGE = os.path.join(os.pardir, "Judge", "judge.py")     # a package's judge, run from a topic folder
@@ -197,7 +198,7 @@ def test_student_package():
         check(judge.is_template(old), "the old main() starter still counts as untouched")
         os.remove(old)
         test_judging(root, tmp)
-        test_mixed_sets(root, STUDENT_JUDGE)
+        test_mixed_sets(root)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -205,29 +206,53 @@ def test_student_package():
 def test_layout(root):
     """The package is laid out as tools/layout.py says, and judge.py names the files the same way."""
     sets, meta = judge.load_sets(), problems_json()
-    bad, agree, count = [], True, 0
+    bad, agree, rules, count = [], True, [], 0
     for s in sets:
-        top = os.path.join(root, s["dir"])
+        folder = layout.folder(s)                       # 04_Binary_Search, 00_Mixed/M01
+        top = os.path.join(root, *folder.split("/"))
         want_top = {"Makefile", "judge.bat", f"Problems_{s['dir']}.pdf"} | {layout.slot(s, i) for i in range(1, len(s["problems"]) + 1)}
-        if set(os.listdir(top)) != want_top:
-            bad.append(f"{s['dir']}: {sorted(set(os.listdir(top)) ^ want_top)}")
+        got_top = set(os.listdir(top)) if os.path.isdir(top) else set()
+        if got_top != want_top:
+            bad.append(f"{folder}: {sorted(got_top ^ want_top)}")
+        agree = agree and judge.set_folder(s) == folder
+        for rel in (f"{folder}/Makefile", f"{folder}/judge.bat", layout.topic_pdf_path(s)):
+            if not updater.managed_path(rel):
+                rules.append(rel)
         for i, pid in enumerate(s["problems"], 1):
             count += 1
             agree = agree and judge.code_name(s, i) == layout.code_name(s, i) and judge.slot_name(s, i) == layout.slot(s, i)
+            if not updater.set_path(layout.code_path(s, i)) or not updater.managed_path(layout.pdf_path(s, i, meta[str(pid)]["en"])):
+                rules.append(layout.code_path(s, i))
             d = os.path.join(top, layout.slot(s, i))
             want = {layout.code_name(s, i), layout.pdf_name(s, i, meta[str(pid)]["en"])}
             got = set(os.listdir(d)) if os.path.isdir(d) else set()
             if got != want:
-                bad.append(f"{s['dir']}/{layout.slot(s, i)}: {sorted(got ^ want)}")
+                bad.append(f"{folder}/{layout.slot(s, i)}: {sorted(got ^ want)}")
             elif os.path.getsize(os.path.join(d, layout.code_name(s, i))) != 0:
-                bad.append(f"{s['dir']}/{layout.slot(s, i)}: the code file is not empty")
+                bad.append(f"{folder}/{layout.slot(s, i)}: the code file is not empty")
             else:
                 with open(os.path.join(d, layout.pdf_name(s, i, meta[str(pid)]["en"])), "rb") as f:
                     if f.read(5) != b"%PDF-":
-                        bad.append(f"{s['dir']}/{layout.slot(s, i)}: not a PDF")
+                        bad.append(f"{folder}/{layout.slot(s, i)}: not a PDF")
     check(not bad, f"every problem folder ({count}) holds exactly its empty code file and its PDF; "
           "every topic folder its PDF, Makefile, judge.bat and the problem folders", "\n".join(bad[:8]))
-    check(agree, "judge.py and tools/layout.py name the problem folders and code files the same way")
+    check(agree, "judge.py and tools/layout.py name the topic / set folders, problem folders and code files the same way")
+    check(not rules, "updater.py accepts every code file (create-only), PDF, Makefile and judge.bat of tools/layout.py",
+          str(rules[:5]))
+    mixed = [s for s in sets if judge.is_mixed(s)]
+    if mixed:
+        old_root = [f"{s['dir']}/3/{s['dir']}-3.cpp" for s in mixed] + [f"{s['dir']}/Makefile" for s in mixed] + [
+            f"{s['dir']}/Problems_{s['dir']}.pdf" for s in mixed] + [f"{layout.MIXED_ROOT}/Makefile",
+                                                                   f"{layout.MIXED_ROOT}/01/00-01.cpp"]
+        check(not any(updater.set_path(r) or updater.managed_path(r) or updater.OLD_FILE.match(r) for r in old_root)
+              and updater.managed_path(layout.MIXED_README),
+              "updater.py: Mixed paths only under 00_Mixed/ (M01/... at the package root is refused), 00_Mixed/README.txt managed")
+        visible = sorted(n for n in os.listdir(root) if not n.startswith("."))
+        inner = sorted(os.listdir(os.path.join(root, layout.MIXED_ROOT))) if os.path.isdir(os.path.join(root, layout.MIXED_ROOT)) else []
+        check(visible[:1] == [layout.MIXED_ROOT] and not any(re.fullmatch(r"M[0-9]{2}", n) for n in visible)
+              and inner == sorted(["README.txt"] + [s["dir"] for s in mixed]),
+              "00_Mixed/ is the first folder of the package and holds README.txt and the Mixed sets (none at the top)",
+              f"{visible[:4]} {inner}")
     names = [n for _, _, fs in os.walk(root) for n in fs] + [n for _, ds, _ in os.walk(root) for n in ds]
     check(all(n.isascii() and " " not in n for n in names), "every file and folder name is ASCII without spaces")
     pdfs = [layout.pdf_name(s, i, meta[str(pid)]["en"]) for s in sets for i, pid in enumerate(s["problems"], 1)]
@@ -297,9 +322,10 @@ def test_judging(root, tmp):
               out[-600:])
     with open(os.path.join(set1, "judge.bat"), "rb") as f:
         topic_bat = f.read()
-    check(b'"..\\Judge\\judge.py" %1' in topic_bat and b'cd /d "%~dp0"' in topic_bat
+    check(b'"%JUDGE%" %1' in topic_bat and b'set "JUDGE=..\\Judge\\judge.py"' in topic_bat
+          and b'"..\\..\\Judge\\judge.py"' in topic_bat and b'cd /d "%~dp0"' in topic_bat
           and topic_bat.count(b"\r\n") == topic_bat.count(b"\n") > 5,
-          "judge.bat (topic folder): quoted paths, runs from its own folder, passes %1, CRLF")
+          "judge.bat (topic / Mixed-set folder): finds ..\\Judge or ..\\..\\Judge, quoted, runs from its own folder, passes %1, CRLF")
     with open(os.path.join(root, ".vscode", "tasks.json"), encoding="utf-8") as f:
         tasks = json.load(f)["tasks"]
     check(tasks[0]["args"][-1] == "${file}" and tasks[0]["group"].get("isDefault") and "/.." in tasks[1]["options"]["cwd"],
@@ -328,9 +354,12 @@ TECHNIQUE_WORDS = ("dp", "dynamic", "greedy", "binary search", "prefix", "two po
                    "sieve", "number theory", "combinator", "implementation", "tree")
 
 
-def test_mixed_sets(root, student_judge):
-    """Mixed sets (folders M01 ...): judged like a topic, and nothing a student sees names a topic or a technique:
-    the folder, the PDF name, sets.json and the judge's headers say only "Mixed M01" (titles are story names)."""
+def test_mixed_sets(root):
+    """Mixed sets (folders 00_Mixed/M01 ...): judged like a topic, and nothing a student sees names a topic or a
+    technique: the folders, the PDF name, 00_Mixed/README.txt, sets.json and the judge's headers say only "Mixed M01"
+    (titles are story names). Every way of judging works one folder deeper than in a topic (plans/V4_MIXED_FOLDER.md):
+    Ctrl+Shift+B (the tasks.json command line), make / make 3 / judge.py 3 in the set folder, judge.py in a problem
+    folder, judge.py FILE from anywhere, by name and by folder; --list shows the Mixed sets first."""
     mixed = [s for s in judge.load_sets() if judge.is_mixed(s)]
     if not mixed:
         return
@@ -338,34 +367,78 @@ def test_mixed_sets(root, student_judge):
           and [s["dir"] for s in mixed] == sorted(s["dir"] for s in mixed),
           f"{len(mixed)} Mixed sets M01 ... of 6 problems")
     texts = [s.get("level_en", "") + " " + s.get("group", "") for s in mixed]
-    check(not any(w in t.lower() for t in texts for w in TECHNIQUE_WORDS), "sets.json names no technique for a Mixed set",
-          str(texts))
-    name = mixed[0]["dir"]
-    m1 = os.path.join(root, name)
+    readme = read(os.path.join(root, *layout.MIXED_README.split("/"))) or ""
+    check(not any(w in t.lower() for t in texts + [readme] for w in TECHNIQUE_WORDS),
+          "sets.json and 00_Mixed/README.txt name no technique for a Mixed set", str(texts))
+    check(readme.startswith("ชุดฝึกรวม ไม่บอกหัวข้อ") and f"M01 → {mixed[-1]['dir']}" in readme and len(readme.splitlines()) <= 3,
+          "00_Mixed/README.txt: short and neutral (order of the sets, easy to hard)", readme)
+    s1 = mixed[0]
+    name = s1["dir"]
+    m1 = os.path.join(root, *layout.folder(s1).split("/"))          # 00_Mixed/M01
+    set_judge = os.path.join(os.pardir, os.pardir, "Judge", "judge.py")
     names = sorted(os.listdir(m1)) if os.path.isdir(m1) else []
     check(names == sorted([str(i) for i in range(1, 7)] + ["Makefile", "judge.bat", f"Problems_{name}.pdf"])
           and os.path.isfile(os.path.join(m1, "3", f"{name}-3.cpp")),
-          f"{name}/ holds the folders 1 ... 6 (with {name}-3.cpp ...), Makefile, judge.bat and Problems_{name}.pdf", str(names))
-    code, out, _ = run_judge(["--no-color"], cwd=m1, judge_path=student_judge)
+          f"00_Mixed/{name}/ holds the folders 1 ... 6 (with {name}-3.cpp ...), Makefile, judge.bat and Problems_{name}.pdf",
+          str(names))
+    code, out, _ = run_judge(["--no-color"], cwd=m1, judge_path=set_judge)
     check(code == 0 and f"Mixed {name}" in out and "Topic" not in out and "Problem 6" in out
-          and out.count("still empty - skipped") == 6, f"inside {name}: judge.py (whole set), no topic shown",
+          and out.count("still empty - skipped") == 6, f"inside 00_Mixed/{name}: ../../Judge/judge.py (whole set), no topic shown",
           f"exit {code}\n{out}")
     src = os.path.join(m1, "3", f"{name}-3.cpp")
     with open(src, "w") as f:
         f.write("int main() { return 0; }\n")
-    code, out, _ = run_judge(["3", "--no-color"], cwd=m1, judge_path=student_judge)
+    code, out, _ = run_judge(["3", "--no-color"], cwd=m1, judge_path=set_judge)
     check(code == 0 and f"Mixed {name}" in out and "Topic" not in out and "Problem not found" not in out
-          and "Result" in out, f"inside {name}: judge.py 3", f"exit {code}\n{out}")
-    code, out, _ = run_judge(["--no-color"], cwd=os.path.join(m1, "3"),
-                             judge_path=os.path.join(os.pardir, os.pardir, "Judge", "judge.py"))
+          and "Result" in out, f"inside 00_Mixed/{name}: judge.py 3", f"exit {code}\n{out}")
+    prob = os.path.join(m1, "3")
+    code, out, _ = run_judge(["--no-color"], cwd=prob, judge_path=os.path.join(os.pardir, os.pardir, os.pardir, "Judge", "judge.py"))
     check(code == 0 and f"Mixed {name}" in out and "Topic" not in out and "Result" in out,
-          f"inside {name}/3: judge.py (no arguments)", f"exit {code}\n{out}")
+          f"inside 00_Mixed/{name}/3: ../../../Judge/judge.py (no arguments)", f"exit {code}\n{out}")
+    with open(os.path.join(root, ".vscode", "tasks.json"), encoding="utf-8") as f:
+        tasks = json.load(f)["tasks"]
+
+    def task(t, path):          # the command line VS Code runs for a task on the open file `path`
+        ws, fdir = root, os.path.dirname(path)
+        args = [a.replace("${workspaceFolder}", ws).replace("${file}", path).replace("${fileDirname}", fdir) for a in t["args"]]
+        cwd = os.path.normpath(t["options"]["cwd"].replace("${workspaceFolder}", ws).replace("${fileDirname}", fdir))
+        return run_judge(args[1:] + ["--no-color"], cwd=cwd, judge_path=args[0])
+    code, out, _ = task(tasks[0], src)
+    check(code == 0 and f"Mixed {name}" in out and "Result" in out and "Problem not found" not in out,
+          f"Ctrl+Shift+B (tasks.json) on 00_Mixed/{name}/3/{name}-3.cpp", f"exit {code}\n{out}")
+    code, out, _ = task(tasks[1], src)
+    check(code == 0 and f"Mixed {name}" in out and "Problem 6" in out and "Total" in out,
+          f"Run Task > Judge whole topic on 00_Mixed/{name}/3/{name}-3.cpp: the whole set", f"exit {code}\n{out}")
     code, out, _ = run_judge([src, f"{name}-3", "--no-color"], cwd=root, judge_path=os.path.join("Judge", "judge.py"))
     check(code == 0 and "Problem not found" not in out, f"judge.py FILE {name}-3", f"exit {code}\n{out}")
+    away = os.path.join(os.path.dirname(root), "mixed_elsewhere")
+    os.makedirs(away, exist_ok=True)
+    shutil.copy(src, os.path.join(away, f"{name}-3.cpp"))
+    shutil.copy(src, os.path.join(prob, "try2.cpp"))
+    full = os.path.join(root, "Judge", "judge.py")
+    code, out, _ = run_judge([os.path.join(away, f"{name}-3.cpp"), "--no-color"], cwd=away, judge_path=full)
+    check(code == 0 and f"Mixed {name}" in out and "Result" in out, f"by file name alone: {name}-3.cpp in another folder",
+          f"exit {code}\n{out}")
+    code, out, _ = run_judge([os.path.join(prob, "try2.cpp"), "--no-color"], cwd=away, judge_path=full)
+    check(code == 0 and f"Mixed {name}" in out and "Result" in out, f"by folder alone: another .cpp in 00_Mixed/{name}/3",
+          f"exit {code}\n{out}")
+    os.remove(os.path.join(prob, "try2.cpp"))
+    shutil.rmtree(away, ignore_errors=True)
+    if os.name != "nt" and shutil.which("make"):
+        env = dict(os.environ, PYTHON=sys.executable, NO_COLOR="1")
+        r = subprocess.run(["make", "3"], cwd=m1, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = r.stdout.decode("utf-8", "replace")
+        check(r.returncode == 0 and f"Mixed {name}" in out and "Result" in out, f"make 3 in 00_Mixed/{name}", out[-600:])
+        r = subprocess.run(["make"], cwd=m1, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = r.stdout.decode("utf-8", "replace")
+        check(r.returncode == 0 and "Total" in out and " / 600" in out, f"make in 00_Mixed/{name} (whole set)", out[-600:])
     code, out, _ = run_judge(["--list", "--no-color"], cwd=root, judge_path=os.path.join("Judge", "judge.py"))
+    first_topic = out.find("Topic 1 ")
     check(code == 0 and f"Mixed {mixed[-1]['dir']}" in out and f"Topic {mixed[0]['set']}" not in out
-          and f"{len(mixed)} mixed sets" in out and f"{name}-3 " in out, "judge.py --list shows the Mixed sets by name",
-          f"exit {code}\n{out[-600:]}")
+          and f"{len(mixed)} mixed sets" in out and f"{name}-3 " in out and f"00_Mixed/{name}/1 ... 6" in out
+          and 0 <= out.find(f"Mixed {mixed[-1]['dir']}") < first_topic,
+          "judge.py --list shows the Mixed sets by name (00_Mixed/M01/1 ... 6), first, then the topics",
+          f"exit {code}\n{out[:900]}")
     open(src, "w").close()
 
 
@@ -411,9 +484,11 @@ def make_repo2(tmp, version, marker):
         f.write(f"\n# {marker}\n")
     with open(os.path.join(repo2, "core", "README.txt"), "a") as f:
         f.write(f"{marker}\n")
-    for name in (("student", "README.txt"), ("student", "set_files", "Makefile")):     # managed package files
-        with open(os.path.join(repo2, *name), "a", encoding="utf-8") as f:
-            f.write(f"\n# {marker}\n")
+    for name in (("student", "README.txt"), ("student", "set_files", "Makefile"), ("student", "set_files", "Makefile_6"),
+                 ("student", *layout.MIXED_README.split("/"))):     # managed package files
+        if os.path.exists(os.path.join(repo2, *name)):
+            with open(os.path.join(repo2, *name), "a", encoding="utf-8") as f:
+                f.write(f"\n# {marker}\n")
     rebuild_manifest(repo2)
     return repo2
 
@@ -433,11 +508,12 @@ def edit_manifest(repo2, fn):
         json.dump(m, f)
 
 
-def run_student(args, cwd, url):
+def run_student(args, cwd, url, judge_path=None):
+    """Run the package's judge from a topic folder (../Judge/judge.py, or judge_path) with updates from url."""
     env = dict(os.environ, JUDGE_UPDATE_URL=url)
     env.pop("JUDGE_NO_UPDATE", None)
     t0 = time.time()
-    p = subprocess.run([sys.executable, os.path.join(os.pardir, "Judge", "judge.py")] + args, cwd=cwd, env=env,
+    p = subprocess.run([sys.executable, judge_path or os.path.join(os.pardir, "Judge", "judge.py")] + args, cwd=cwd, env=env,
                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=300)
     return p.returncode, p.stdout.decode("utf-8", "replace"), time.time() - t0
 
@@ -474,6 +550,11 @@ def test_updater():
         check("marker-v9.9" in readme and "marker-v9.9" in makefile
               and os.path.exists(os.path.join(judge_dir, ".backup", "_package", TOPIC3, "Makefile")),
               "managed files README.txt and the topic Makefile replaced, old copies in Judge/.backup/_package/")
+        m1 = layout.folder(next(s for s in judge.load_sets() if judge.is_mixed(s)))
+        check("marker-v9.9" in (read(os.path.join(root, *m1.split("/"), "Makefile")) or "")
+              and "marker-v9.9" in (read(os.path.join(root, *layout.MIXED_README.split("/"))) or "")
+              and os.path.exists(os.path.join(judge_dir, ".backup", "_package", *m1.split("/"), "Makefile")),
+              f"managed files {m1}/Makefile and 00_Mixed/README.txt replaced too")
         check(sha(os.path.join(set1, one)) == student_hash and sha(os.path.join(set1, two)) == template,
               "student files untouched")
         check(os.path.exists(os.path.join(set1, new)) and sha(os.path.join(set1, new)) == template,
@@ -519,7 +600,8 @@ def test_updater():
             check(code == 1 and "bad managed entry" in out and not os.path.exists(os.path.join(set1, "01", name)),
                   f"a managed {name} inside a problem folder ({TOPIC3}/01/{name}) is refused", f"exit {code}\n{out}")
         for n, rel in enumerate((TOPIC3 + "/1.cpp", TOPIC3 + "/01/04-01.cpp", TOPIC3 + "/01/03-02.cpp", "M01/3/M02-3.cpp",
-                                 TOPIC3 + "/old/1_X.cpp", "Judge/x.cpp")):
+                                 TOPIC3 + "/old/1_X.cpp", "Judge/x.cpp", "M01/3/M01-3.cpp", "00_Mixed/M01/3/M02-3.cpp",
+                                 "00_Mixed/01/00-01.cpp")):
             rebuild_manifest(repo2)
             edit_manifest(repo2, lambda m: m["create_only"].update(
                 {rel: [sha(os.path.join(repo2, "student", "set_files", "template.cpp")), "student/set_files/template.cpp"]})
@@ -527,6 +609,14 @@ def test_updater():
             code, out, _ = run_student(["--update", "--no-color"], set1, url)
             check(code == 1 and "bad create-only entry" in out and not os.path.exists(os.path.join(root, *rel.split("/"))),
                   f"a create-only path that is not <topic>/<slot>/<no.>-<slot>.cpp is refused ({rel})", f"exit {code}\n{out}")
+        for n, rel in enumerate(("M01/Makefile", "M01/Problems_M01.pdf", "00_Mixed/Makefile")):    # Mixed: only in 00_Mixed/M01
+            rebuild_manifest(repo2)
+            edit_manifest(repo2, lambda m: m["managed"].update(
+                {rel: [sha(os.path.join(repo2, "student", "set_files", "Makefile")), "student/set_files/Makefile"]})
+                or m.update(version=f"9.3{n}"))
+            code, out, _ = run_student(["--update", "--no-color"], set1, url)
+            check(code == 1 and "bad managed entry" in out and not os.path.exists(os.path.join(root, *rel.split("/"))),
+                  f"a managed path outside 00_Mixed/M01 ... ({rel}) is refused", f"exit {code}\n{out}")
 
         # e) recovery: a damaged file is re-downloaded by python Judge/updater.py
         rebuild_manifest(repo2)
@@ -645,7 +735,9 @@ def outside_judge(root):
 
 def make_next_release(tmp, version="4.0.1"):
     """A copy of the repo as a later release that changes topic 3: problems 2 and 9 are re-titled, 3, 6 and 8 are
-    replaced by new problems, 4 and 5 swap places, and the old problem 6 moves to a new slot 21.
+    replaced by new problems, 4 and 5 swap places, and the old problem 6 moves to a new slot 21. In the Mixed sets
+    (plans/V4_MIXED_FOLDER.md): a new set after the last one (00_Mixed/M09, a copy of M08's data and PDFs with new
+    titles) and problem 4 of the second set re-titled.
     Returns (repo2, the old English titles {slot: title})."""
     repo2 = make_repo2(tmp, version, "marker-" + version)
     batch = os.path.join(repo2, "problems", "batch")
@@ -670,6 +762,27 @@ def make_next_release(tmp, version="4.0.1"):
         P[str(300 + i)]["en"] = title
     s3 = next(s for s in S if s["set"] == 3)
     s3["problems"].append(321)
+    mixed = [s for s in S if s.get("group") == "Mixed"]
+    if mixed:                                                              # a new Mixed set and a re-titled Mixed problem
+        last, m2 = mixed[-1], mixed[1]
+        new = dict(last, set=last["set"] + 1, dir=f"M{int(last['dir'][1:]) + 1:02d}",
+                   problems=[100 * (last["set"] + 1) + n for n in range(1, 7)])
+        for n, pid in enumerate(new["problems"], 1):
+            P[str(pid)] = dict(P[str(last["problems"][n - 1])], en=f"Next Set Problem {n}", dir=f"{new['dir']}/{n}")
+            shutil.copytree(os.path.join(batch, last["dir"], str(n)), os.path.join(batch, new["dir"], str(n)))
+            d = os.path.join(repo2, "student", *layout.folder(new).split("/"), str(n))
+            os.makedirs(d)
+            shutil.copy(glob.glob(os.path.join(repo2, "student", *layout.folder(last).split("/"), str(n), "*.pdf"))[0],
+                        os.path.join(d, layout.pdf_name(new, n, P[str(pid)]["en"])))
+        shutil.copy(os.path.join(repo2, "student", *layout.topic_pdf_path(last).split("/")),
+                    os.path.join(repo2, "student", *layout.topic_pdf_path(new).split("/")))
+        S.append(new)
+        pid4 = str(m2["problems"][3])
+        renamed[P[pid4]["en"]] = "Renamed Mixed Four"
+        d4m = os.path.join(repo2, "student", *layout.folder(m2).split("/"), "4")
+        os.rename(os.path.join(d4m, layout.pdf_name(m2, 4, P[pid4]["en"])),
+                  os.path.join(d4m, layout.pdf_name(m2, 4, "Renamed Mixed Four")))
+        P[pid4]["en"] = "Renamed Mixed Four"
     with open(os.path.join(batch, "problems.json"), "w", encoding="utf-8") as f:
         json.dump(P, f, ensure_ascii=False, indent=1)
     with open(os.path.join(batch, "sets.json"), "w", encoding="utf-8") as f:
@@ -727,6 +840,16 @@ def test_future_update(root=None):
         for path, text in own.items():
             write(path, text)
         shipped2 = sha(old_pdf(2))
+        mixed = [s for s in judge.load_sets() if judge.is_mixed(s)]
+        m2 = mixed[1] if mixed else None
+        if m2:                                  # the student's Mixed work: the re-titled problem and another one
+            meta0 = problems_json()
+            mcode = {i: os.path.join(root, *layout.code_path(m2, i).split("/")) for i in (3, 4)}
+            mwritten = {i: f"// my Mixed code {i}\nint main() {{ return 0; }}\n" for i in mcode}
+            for i in mcode:
+                write(mcode[i], mwritten[i])
+            m4_old = os.path.join(root, *layout.pdf_path(m2, 4, meta0[str(m2["problems"][3])]["en"]).split("/"))
+            m4_shipped = sha(m4_old)
         with open(old_pdf(9), "ab") as f:
             f.write(b"\n% a note the student saved into this PDF\n")
         changed9 = sha(old_pdf(9))
@@ -777,6 +900,38 @@ def test_future_update(root=None):
         folder21 = sorted(os.listdir(os.path.join(set1, "21")))
         check(folder21 == ["03-21.cpp", os.path.basename(new_pdf(21))],
               "a new problem folder (21) holds exactly the code file and its PDF", str(folder21))
+        if m2:                                  # Mixed sets in 00_Mixed/ (plans/V4_MIXED_FOLDER.md)
+            sets_after = json.load(open(os.path.join(judge_dir, "problems", "batch", "sets.json"), encoding="utf-8"))
+            meta1 = json.load(open(os.path.join(judge_dir, "problems", "batch", "problems.json"), encoding="utf-8"))
+            m9 = next((s for s in sets_after if s["set"] == mixed[-1]["set"] + 1), None)
+            bad = ["no new set in sets.json"] if m9 is None else []
+            if m9 is not None:
+                top = os.path.join(root, *layout.folder(m9).split("/"))
+                want = sorted([str(n) for n in range(1, 7)] + ["Makefile", "judge.bat", f"Problems_{m9['dir']}.pdf"])
+                if not os.path.isdir(top) or sorted(os.listdir(top)) != want:
+                    bad.append(f"{layout.folder(m9)}: {sorted(os.listdir(top)) if os.path.isdir(top) else None}")
+                for n, pid in enumerate(m9["problems"], 1):
+                    d = os.path.join(top, str(n))
+                    w = sorted([layout.code_name(m9, n), layout.pdf_name(m9, n, meta1[str(pid)]["en"])])
+                    if not os.path.isdir(d) or sorted(os.listdir(d)) != w or read(os.path.join(d, layout.code_name(m9, n))) != "":
+                        bad.append(f"{layout.folder(m9)}/{n}")
+            check(not bad and m9["dir"] == "M09" and not os.path.exists(os.path.join(root, m9["dir"])),
+                  "a new Mixed set appears as 00_Mixed/M09/ (Makefile, judge.bat, Problems_M09.pdf, 1 ... 6 with an "
+                  "empty code file and its PDF each), nothing at the package root", str(bad))
+            m4_new = os.path.join(root, *layout.pdf_path(m2, 4, "Renamed Mixed Four").split("/"))
+            bak4 = os.path.join(judge_dir, ".backup", "_package", *os.path.relpath(m4_old, root).split(os.sep))
+            check(os.path.isfile(m4_new) and not os.path.exists(m4_old) and os.path.isfile(bak4) and sha(bak4) == m4_shipped
+                  and sorted(os.listdir(os.path.dirname(m4_new))) == sorted([layout.code_name(m2, 4), os.path.basename(m4_new)]),
+                  f"a re-titled Mixed problem ({layout.folder(m2)}/4): the new PDF appears, the old-title PDF is retired "
+                  "to Judge/.backup/_package/", str(os.listdir(os.path.dirname(m4_new))))
+            check(all(read(mcode[i]) == mwritten[i] for i in mcode)
+                  and not os.path.exists(os.path.join(root, *layout.folder(m2).split("/"), "old")),
+                  "the student's Mixed .cpp files are untouched (nothing moved to old/)")
+            code_, outm, _ = run_student(["--no-color"], os.path.join(root, *layout.folder(m9).split("/")) if m9 else root,
+                                         url, judge_path=os.path.join(os.pardir, os.pardir, "Judge", "judge.py"))
+            check(code_ == 0 and f"Mixed {m9['dir'] if m9 else ''}" in outm and outm.count("still empty - skipped") == 6
+                  and "moved" not in outm and "restarting" not in outm,
+                  "the new set is judged in 00_Mixed/M09 (whole set); this second run is quiet", outm)
         # the second run is quiet and changes nothing
         snap = outside_judge(root)
         code_, out2, _ = run_student([P31, "--no-color"], set1, url)

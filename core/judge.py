@@ -4,12 +4,13 @@ POSN Camp 2 Practice Judge
 ==========================
 
 Layout of the package: one folder per problem, holding its code file and its statement PDF
-  04_Binary_Search/05/04-05.cpp      topic 4, problem 5      (Mixed sets: M01/3/M01-3.cpp)
+  04_Binary_Search/05/04-05.cpp      topic 4, problem 5      (Mixed sets: 00_Mixed/M01/3/M01-3.cpp)
 
 Usage (the judge is in Judge/ next to the topic folders)
   python3 ../../Judge/judge.py                 inside a problem folder (04_Binary_Search/05): judge that problem
   python3 ../Judge/judge.py                    inside a topic folder: judge the whole topic
   python3 ../Judge/judge.py 5                  inside a topic folder: judge problem 5 (also 05)
+  (a Mixed set is one folder deeper: python3 ../../Judge/judge.py in 00_Mixed/M01, ../../../ in 00_Mixed/M01/3)
   python3 <path>/Judge/judge.py FILE.cpp       anywhere: the problem comes from the file's name (04-05.cpp) or from
                                                its folder (04_Binary_Search/05/)
 
@@ -18,8 +19,8 @@ Usage (anywhere)
   python3 judge.py --set K FOLDER              judge a whole practice topic (FOLDER laid out like a topic folder)
   python3 judge.py --set K                     show the problems of practice topic K
   python3 judge.py --list                      list all topics and problems
-Mixed sets (folders M01, M02, ...: problems from different topics, the topic is not given) work the same way;
-their numbers are K = 41, 42, ... (M01-3 or 41-3 names problem 3 of M01).
+Mixed sets (folders 00_Mixed/M01, 00_Mixed/M02, ...: problems from different topics, the topic is not given) work
+the same way; their numbers are K = 41, 42, ... (M01-3 or 41-3 names problem 3 of M01).
 
 Options
   --tl SECONDS     time limit per test (default 1.0)
@@ -236,8 +237,16 @@ def set_of(k, sets=None):
 
 
 def is_mixed(s):
-    """A Mixed set (sets.json "group": "Mixed", folder M01 ...): problems of different topics, no topic shown."""
+    """A Mixed set (sets.json "group": "Mixed", folder 00_Mixed/M01 ...): problems of different topics, no topic shown."""
     return s.get("group") == "Mixed"
+
+
+MIXED_ROOT = "00_Mixed"     # the package folder of all Mixed sets (sorts first); sets.json "dir" is M01 ...
+
+
+def set_folder(s):
+    """The package folder of a topic or Mixed set: 04_Binary_Search, 00_Mixed/M01 (tools/layout.py folder)."""
+    return f"{MIXED_ROOT}/{s.get('dir')}" if is_mixed(s) else str(s.get("dir", f"Topic_{s['set']}"))
 
 
 def set_label(s):
@@ -254,7 +263,7 @@ def load_sets():
 
 
 # One folder per problem (v4.0): <topic folder>/<slot>/<prefix>-<slot>.cpp, e.g. 04_Binary_Search/05/04-05.cpp and
-# M01/3/M01-3.cpp. The slot is the problem's number in the topic: two digits in a topic, one digit in a Mixed set.
+# 00_Mixed/M01/3/M01-3.cpp. The slot is the problem's number in the topic: two digits in a topic, one digit in a Mixed set.
 # tools/layout.py in the repo builds the package with the same names (the regression test compares them).
 CODE_NAME = re.compile(r"^([0-9]{1,2}|[Mm][0-9]{1,2})-([0-9]{1,2})\.cpp$")
 
@@ -294,7 +303,7 @@ def problem_of_name(name):
 
 
 def problem_of_folder(folder):
-    """(set, i) when folder is a problem folder (04_Binary_Search/05, M01/3; "5" works too), else None."""
+    """(set, i) when folder is a problem folder (04_Binary_Search/05, 00_Mixed/M01/3; "5" works too), else None."""
     d = os.path.abspath(folder).rstrip("/\\")
     base = os.path.basename(d)
     if not base.isdecimal():
@@ -1294,6 +1303,7 @@ def summary(st, passed, total, results, tl):
 
 def cmd_list(meta, st):
     sets = load_sets()
+    sets = [s for s in sets if is_mixed(s)] + [s for s in sets if not is_mixed(s)]     # as on disk: 00_Mixed first
     mixed = sum(1 for s in sets if is_mixed(s))
     box(st, [st.bold(st.cyan("POSN Camp 2 · Practice topics")),
              f"{len(sets) - mixed} topics" + (f" · {mixed} mixed sets" if mixed else "")
@@ -1301,7 +1311,7 @@ def cmd_list(meta, st):
     for s in sets:
         print()
         print("  " + st.bold(set_label(s)) + st.dim(f"  {s.get('level_en', '')}")
-              + st.dim(f"   {s.get('dir', '')}/{slot_name(s, 1)} ... {slot_name(s, len(s['problems']))}"))
+              + st.dim(f"   {set_folder(s)}/{slot_name(s, 1)} ... {slot_name(s, len(s['problems']))}"))
         for i, n in enumerate(s["problems"], 1):
             m = meta.get(n, {})
             print(f"    {code_name(s, i)[:-4]:<6} {stars(st, m.get('tier', 0))}  {m.get('en', '?')}")
@@ -1357,7 +1367,7 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
         if student_layout():
             print(st.dim(f"  Each problem has its folder: write problem 1 in {topic_folder(k)}/{slot_name(s, 1)}/{code_name(s, 1)}"))
             print(st.dim(f"  (... {code_name(s, len(probs))}), then run in the folder {topic_folder(k)}:"))
-            print(f"  {PY} ../Judge/judge.py")
+            print(f"  {PY} {'../' * len(topic_folder(k).split('/'))}Judge/judge.py")
         else:
             print(st.dim(f"  Lay FOLDER out like a topic folder ({slot_name(s, 1)}/{code_name(s, 1)} ...), then run:"))
             print(f"  {PY} judge.py --set {k} FOLDER")
@@ -1430,14 +1440,13 @@ def max_topic(sets):
 
 
 def topic_folder(k):
-    """The folder name of topic k (sets.json "dir", e.g. 04_Binary_Search)."""
-    sets = load_sets()
+    """The package folder of topic k (04_Binary_Search; a Mixed set: 00_Mixed/M01)."""
     s = set_of(k)
-    return s.get("dir", f"Topic_{k}") if s is not None else f"Topic_{k}"
+    return set_folder(s) if s is not None else f"Topic_{k}"
 
 
 def topic_set_of(folder):
-    """Topic number K of a topic folder (04_Binary_Search -> 4, M01 -> its set number), else None."""
+    """Topic number K of a topic folder (04_Binary_Search -> 4, 00_Mixed/M01 -> its set number), else None."""
     base = os.path.basename(os.path.abspath(folder).rstrip("/\\"))
     mx = MIXED_DIR.match(base)
     if mx:                              # M01 -> the set whose folder (sets.json "dir") is M01

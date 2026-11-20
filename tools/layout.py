@@ -4,7 +4,9 @@ Names of the student package (v4.0: one folder per problem). The one place the l
 build tools; Judge/judge.py and Judge/updater.py hold the same rules for the students' side (the regression test
 compares them).
 
-  04_Binary_Search/                      topic folder (sets.json "dir"); a Mixed set: M01
+  00_Mixed/                              all Mixed sets, first in the package (README.txt: neutral, no topic)
+    M01/                                 a Mixed set (sets.json "dir": M01; package folder 00_Mixed/M01)
+  04_Binary_Search/                      topic folder (sets.json "dir")
     Problems_04_Binary_Search.pdf        the whole topic
     Makefile, judge.bat                  the whole topic, or one problem: make 5 / judge 5
     05/                                  problem 5: two digits in a topic (01 ... 20), one digit in a Mixed set (1 ... 6)
@@ -17,11 +19,24 @@ A folder name never changes when a problem is replaced or re-titled; the PDF's n
 import re
 
 TITLE_MAX = 60          # characters of the title kept in a PDF's file name
+MIXED_ROOT = "00_Mixed"  # the folder that holds every Mixed set (00_ sorts it first); it names no topic
+MIXED_README = MIXED_ROOT + "/README.txt"     # short and neutral (written by C2_PRACTICE_SRC build.py all)
 
 
 def mixed(s):
     """s: an entry of sets.json. A Mixed set has "group": "Mixed" and folder M01 ... (no topic shown)."""
     return s.get("group") == "Mixed"
+
+
+def folder(s):
+    """Package path of a topic / Mixed-set folder: 04_Binary_Search, 00_Mixed/M01 (sets.json "dir" is M01)."""
+    return f"{MIXED_ROOT}/{s['dir']}" if mixed(s) else s["dir"]
+
+
+def topic_pdf_path(s):
+    """Package path of the whole topic's / set's PDF: 04_Binary_Search/Problems_04_Binary_Search.pdf,
+    00_Mixed/M01/Problems_M01.pdf."""
+    return f"{folder(s)}/Problems_{s['dir']}.pdf"
 
 
 def prefix(s):
@@ -39,8 +54,8 @@ def code_name(s, i):
 
 
 def code_path(s, i):
-    """Package path of problem i's code file: 04_Binary_Search/05/04-05.cpp."""
-    return f"{s['dir']}/{slot(s, i)}/{code_name(s, i)}"
+    """Package path of problem i's code file: 04_Binary_Search/05/04-05.cpp, 00_Mixed/M01/3/M01-3.cpp."""
+    return f"{folder(s)}/{slot(s, i)}/{code_name(s, i)}"
 
 
 def title_slug(title):
@@ -59,7 +74,7 @@ def pdf_name(s, i, title):
 
 
 def pdf_path(s, i, title):
-    return f"{s['dir']}/{slot(s, i)}/{pdf_name(s, i, title)}"
+    return f"{folder(s)}/{slot(s, i)}/{pdf_name(s, i, title)}"
 
 
 def old_name(i, title):
@@ -68,8 +83,14 @@ def old_name(i, title):
     return f"{i}_{''.join(w[:1].upper() + w[1:] for w in words)}.cpp"
 
 
+def dir_folder(d):
+    """Package folder of a sets.json "dir" (also the first part of a problems.json "dir"): M01 -> 00_Mixed/M01."""
+    return f"{MIXED_ROOT}/{d}" if re.match(r"^M[0-9]{2}$", d) else d
+
+
 def entry_set(pid, e):
-    """The sets.json-like view of a problems.json entry (id = 100 * set + n, "dir": "<topic folder>/<n>")."""
+    """The sets.json-like view of a problems.json entry (id = 100 * set + n, "dir": "<topic folder>/<n>", a Mixed
+    set's "M01/<n>": the test data stays in problems/batch/M01/<n>; only the package folder is 00_Mixed/M01)."""
     d = e["dir"].split("/")[0]
     return {"set": int(pid) // 100, "dir": d, "group": "Mixed" if re.match(r"^M[0-9]{2}$", d) else ""}
 

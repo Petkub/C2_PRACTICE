@@ -8,9 +8,9 @@ practice. **Version 4** has 567 problems: 519 in 33 topics, each topic ordered f
 - **Intermediate** (15-25): the extended content, 12 problems per topic (15 Trees has 20, 17 Fenwick and Segment
   Tree has 15).
 - **Advanced (TOI)** (26-33): beyond Camp 2, 12 problems per topic.
-- **Mixed** (folders `M01` ... `M08`, set numbers 41-48 in the judge): 8 sets of 6 problems from different Camp 2
+- **Mixed** (folders `00_Mixed/M01` ... `00_Mixed/M08`, set numbers 41-48 in the judge): 8 sets of 6 problems from different Camp 2
   topics, for practising which technique a problem needs. **Nothing a student sees names the topic or the
-  technique** (folder, PDF `Problems_M01.pdf`, cover "ชุดฝึกรวม · 6 ข้อ", titles, `--list`); there is no level, time
+  technique** (folders, `00_Mixed/README.txt`, PDF `Problems_M01.pdf`, cover "ชุดฝึกรวม · 6 ข้อ", titles, `--list`); there is no level, time
   limit or target score. The techniques are only in the teacher's solution book and in
   `C2_PRACTICE_SRC/plans/V4_MIXED_STATUS.md`. Used after the vjudge MUST list and before the timed mock exams.
 
@@ -49,7 +49,7 @@ practice. **Version 4** has 567 problems: 519 in 33 topics, each topic ordered f
 | 31 | `31_Convex_Hull` | Advanced (TOI) | 12 |
 | 32 | `32_Convex_Hull_Trick_and_DP_Optimization` | Advanced (TOI) | 12 |
 | 33 | `33_Mo_Algorithm` | Advanced (TOI) | 12 |
-| 41-48 | `M01` ... `M08` | Mixed | 6 each |
+| 41-48 | `00_Mixed/M01` ... `00_Mixed/M08` | Mixed | 6 each |
 
 Students never clone this repo: they download `C2_Practice.zip` once from
 [Releases](https://github.com/Petkub/C2_PRACTICE/releases/latest), and from then on their judge **updates itself
@@ -62,8 +62,16 @@ guide handles older layouts.
 
 ```
 C2_Practice/
-  README.txt, Guide.pdf, .vscode/
-  Judge/                                   the judge and the test data (= core/ + problems/ + manifest.json)
+  00_Mixed/                                all Mixed sets, on top (00_ sorts first); names no topic
+    README.txt                             one neutral line: the order of the sets, easy to hard inside a set
+    M01/                                   a Mixed set: laid out like a topic folder, slot folders have one digit (1 ... 6)
+      Problems_M01.pdf
+      Makefile, judge.bat                  find Judge/ two levels up (../../Judge)
+      3/
+        M01-3.cpp
+        3_Free_Coins_Only.pdf
+    ...
+    M08/
   04_Binary_Search/                        a topic folder
     Problems_04_Binary_Search.pdf          the whole topic: a cover with the problem list, then every problem
     Makefile, judge.bat                    judge the whole topic, or one problem (make 5 / judge 5)
@@ -75,11 +83,8 @@ C2_Practice/
     ...
     20/
     old/                                   only after an update that replaced a problem the student had written (below)
-  M01/                                     a Mixed set: slot folders have one digit (1 ... 6)
-    Problems_M01.pdf
-    3/
-      M01-3.cpp
-      3_Fresh_Bread_Only.pdf
+  Judge/                                   the judge and the test data (= core/ + problems/ + manifest.json)
+  README.txt, Guide.pdf, .vscode/
 ```
 
 - A problem folder holds **exactly its code file and its PDF**. `Makefile` and `judge.bat` exist in the topic and
@@ -92,7 +97,9 @@ C2_Practice/
 - Students must not rename the folders or the `.cpp` files: the judge finds the problem from the file name
   (`04-05.cpp`) or from its folder (`04_Binary_Search/05/`). `student/README.txt` tells them so.
 - In the repo the PDFs are `student/<folder>/Problems_<folder>.pdf` and `student/<folder>/<slot>/<slot>_<Title>.pdf`
-  (both written by `C2_PRACTICE_SRC` `build.py all`).
+  (`<folder>` = `04_Binary_Search` or `00_Mixed/M01`; both written by `C2_PRACTICE_SRC` `build.py all`, which also
+  writes `student/00_Mixed/README.txt`). The test data of a Mixed set stays in `problems/batch/M01/` (sets.json
+  `"dir": "M01"`); only the package folder is `00_Mixed/M01` (`layout.folder`).
 
 **How students judge** (binaries are compiled in `Judge/.build/<new folder>`, removed after the run, like C2_MOCK;
 in the system temp folder when `Judge/` cannot be written; never in a topic or problem folder):
@@ -100,12 +107,13 @@ in the system temp folder when `Judge/` cannot be written; never in a topic or p
 | where | command |
 |---|---|
 | VS Code, the `C2_Practice` folder open | `Ctrl+Shift+B` on the open `.cpp` judges that problem; *Run Task > Judge whole topic* |
-| a problem folder (`04_Binary_Search/05`) | `python3 ../../Judge/judge.py` (no `make` / `judge` here: the folder has no Makefile or judge.bat) |
+| a problem folder (`04_Binary_Search/05`) | `python3 ../../Judge/judge.py` (no `make` / `judge` here: the folder has no Makefile or judge.bat); in a Mixed set (`00_Mixed/M03/2`) `python3 ../../../Judge/judge.py` |
 | a topic folder (`04_Binary_Search`) | `make 5` or `make 05` (one problem), `make` (whole topic) · Windows `judge 5`, `judge` · `python3 ../Judge/judge.py`, `python3 ../Judge/judge.py 5` |
+| a Mixed set folder (`00_Mixed/M03`) | `make 2`, `make` · Windows `judge 2`, `judge` (Makefile and judge.bat find `../../Judge`) · `python3 ../../Judge/judge.py`, `python3 ../../Judge/judge.py 2` |
 | anywhere | `python3 <path>/Judge/judge.py FILE.cpp` (the problem comes from the file's name or folder), or `FILE.cpp K-P` to name the problem (`4-5`, `M01-3`) |
 
-`python3 ../Judge/judge.py --list` shows every topic and Mixed set with its folders and code file names (Mixed sets
-without any topic name).
+`python3 ../Judge/judge.py --list` shows the Mixed sets first (as on disk), then every topic, with their folders and
+code file names (Mixed sets without any topic name).
 
 **What the updater does when a later release changes problems** (from 4.0.0 on; details in section 5): a
 student's written file follows its problem, a replaced problem's file goes to `<topic>/old/`, nothing is
@@ -131,7 +139,8 @@ problems/batch/        test data: <NN_Name>/N/01.in, 01.out, ..., manifest.json 
                        > 64 KB on the student's computer)   + problems.json (problem bank) + sets.json (topics)
 student/               the rest of the student package: README.txt, .vscode/,
                        <NN_Name>/Problems_<NN_Name>.pdf (the whole topic) and <NN_Name>/<slot>/<slot>_<Title>.pdf (one
-                       problem), both written by C2_PRACTICE_SRC build.py all,
+                       problem), the same for a Mixed set under 00_Mixed/M01/, and 00_Mixed/README.txt, all written by
+                       C2_PRACTICE_SRC build.py all,
                        set_files/: Makefile (Makefile_<n> for a topic of n != 20 problems) and judge.bat for a topic
                        folder (none for a problem folder), template.cpp (empty) -> every
                        <NN_Name>/<slot>/<no.>-<slot>.cpp
@@ -241,8 +250,10 @@ checks all of it on a fake release.
   SHA-256 of every file in `Judge/`, downloads the changed ones to a temp folder, verifies each hash, compiles
   the new `.py` files and test-runs the new `judge.py --help`, and only then swaps them in. The old file is kept
   in `Judge/.backup/`.
-- Outside `Judge/` it only replaces the managed files above (PDFs, a topic folder's `Makefile` and `judge.bat`,
-  `README.txt`, `Guide.pdf`, `.vscode/`) and creates missing code files `<NN_Name>/<slot>/<no.>-<slot>.cpp`; it never deletes
+- Outside `Judge/` it only replaces the managed files above (PDFs, a topic or Mixed-set folder's `Makefile` and
+  `judge.bat`, `README.txt`, `00_Mixed/README.txt`, `Guide.pdf`, `.vscode/`) and creates missing code files
+  `<NN_Name>/<slot>/<no.>-<slot>.cpp` (`00_Mixed/M01/<slot>/M01-<slot>.cpp`); Mixed paths are accepted only under
+  `00_Mixed/` (a root-level `M01/...` is refused); it never deletes
   anything and never overwrites an existing code file. Files it did not ship are never touched.
 - When a release moves, replaces or re-titles problems (section 4f), on the first run after the update:
   - a **moved** problem: the student's written file follows it (same English title) to

@@ -5,14 +5,17 @@ organised by topic. **4.0.0 is the first release students get** (no student has 
 code for older layouts; plans `C2_PRACTICE_SRC/plans/V4_RESTRUCTURE.md` and `V4_LAYOUT.md`): English numbered topic
 folders in study order (`01_Brute_Force_and_Implementation` ... `33_Mo_Algorithm`), in three groups (Core 01-14 with
 20 problems, Intermediate 15-25 with 12 (15 has 20, 17 has 15), Advanced (TOI) 26-33 with 12), plus the
-group **Mixed**: 8 sets of 6 problems with no topic label (student folders `M01` ... `M08`, set numbers 41-48,
-`sets.json` "group": "Mixed", tier 0 = no level shown; nothing a student sees may name a topic or technique:
-`is_mixed`, `set_label`, `MIXED_DIR` in `judge.py`; regression `test_mixed_sets`). Problem id =
+group **Mixed**: 8 sets of 6 problems with no topic label (student folders `00_Mixed/M01` ... `00_Mixed/M08`: one
+folder `00_Mixed/` at the top of the package, plans `V4_MIXED_FOLDER.md`; `sets.json` "dir" stays `M01` and the test
+data stays in `problems/batch/M01/`; set numbers 41-48, `sets.json` "group": "Mixed", tier 0 = no level shown;
+nothing a student sees may name a topic or technique, `00_Mixed/README.txt` included: `is_mixed`, `set_label`,
+`set_folder`, `MIXED_ROOT`, `MIXED_DIR` in `judge.py`; regression `test_mixed_sets`). Problem id =
 100 * topic + n. `sets.json` gives each topic's `set` number, `dir`, `group` and problem ids; the judge looks a topic
 up by its number and recognises a topic folder by its two-digit prefix. In the judge, the data files and options keep
 the mock-exam names (`sets.json`, `--set K`): a "set" here is a topic.
 The student package has **one folder per problem**: `04_Binary_Search/05/04-05.cpp` (the student's code) and
-`04_Binary_Search/05/05_<English_Title>.pdf` (that problem's PDF); a Mixed set: `M01/3/M01-3.cpp`, `M01/3/3_<Title>.pdf`
+`04_Binary_Search/05/05_<English_Title>.pdf` (that problem's PDF); a Mixed set: `00_Mixed/M01/3/M01-3.cpp`,
+`00_Mixed/M01/3/3_<Title>.pdf`
 (slot folders: two digits `01` ... `20` in a topic, one digit `1` ... `6` in a Mixed set). Folder and code-file names
 never change; the PDF's name follows the English title (letters, digits and `_` only, at most 60 characters).
 **`tools/layout.py` is the one place for these names** (build tools); `core/judge.py` and `core/updater.py` hold the
@@ -68,12 +71,14 @@ C2_PRACTICE/
     communication/<name>/{problem.json, manager.cpp, stub/, tests/}
   student/                      # student-side files outside Judge/ (copied by build_dist.py)
     README.txt, .vscode/
-    <NN_Name>/Problems_<NN_Name>.pdf, M01/Problems_M01.pdf        # the whole topic / Mixed set
-    <NN_Name>/<slot>/<slot>_<Title>.pdf, M01/3/3_<Title>.pdf      # one problem; all PDFs are written by
+    00_Mixed/README.txt                                           # one neutral line (build.py all writes it)
+    <NN_Name>/Problems_<NN_Name>.pdf, 00_Mixed/M01/Problems_M01.pdf   # the whole topic / Mixed set
+    <NN_Name>/<slot>/<slot>_<Title>.pdf, 00_Mixed/M01/3/3_<Title>.pdf # one problem; all PDFs are written by
                                                                   # C2_PRACTICE_SRC build.py all
-    set_files/{Makefile, Makefile_<n>, judge.bat}                 # in every topic folder (Makefile_<n> for n != 20
-                                                                  # problems): whole topic, `make 5` / `judge 5`;
-                                                                  # a problem folder gets neither
+    set_files/{Makefile, Makefile_<n>, judge.bat}                 # in every topic / Mixed-set folder (Makefile_<n>
+                                                                  # for n != 20 problems): whole topic, `make 5` /
+                                                                  # `judge 5`; they find ../Judge or ../../Judge
+                                                                  # (Mixed); a problem folder gets neither
     set_files/template.cpp                                        # (empty) -> <NN_Name>/<slot>/<no.>-<slot>.cpp
   samples/                      # known-verdict programs used as regression tests
     batch/grid_ok.cpp, grid_int.cpp, grid_loop.cpp, grid_crash.cpp, grid_syntax.cpp      # problem 3-1
@@ -95,7 +100,8 @@ C2_PRACTICE/
 ```
 
 Student-side layout (what `build_dist.py` produces): `C2_Practice/Judge/` = `core/` + `problems/`,
-and `C2_Practice/<NN_Name>/<slot>/` = one problem: **exactly** the student's `<no.>-<slot>.cpp` (empty at first) and
+`C2_Practice/00_Mixed/` (first entry of the zip and first folder on disk: `README.txt` and the sets `M01/` ...,
+each laid out like a topic folder), and `C2_Practice/<NN_Name>/<slot>/` (or `00_Mixed/M01/<slot>/`) = one problem: **exactly** the student's `<no.>-<slot>.cpp` (empty at first) and
 `<slot>_<Title>.pdf` (teacher's decision: no `Makefile` / `judge.bat` in a problem folder; the updater refuses them
 there, `test_layout` and `test_updater` check it); the topic folder holds `Problems_<NN_Name>.pdf`, `Makefile`,
 `judge.bat` and the problem folders (and `old/` after an update that replaced a problem the student had written).
@@ -169,10 +175,12 @@ Propose the design and wait for approval before writing it.
 - Paths: only `Judge/`-relative, no absolute, no `..`, no `\`, no leading `.`, never `manifest.json` /
   `progress.json`. Outside `Judge/` only two kinds, each matched by a strict regex in `updater.py`:
   *managed* files students do not edit (`<NN_Name>/Problems_<NN_Name>.pdf`, `<NN_Name>/<slot>/<slot>_<Title>.pdf`,
-  `Makefile` and `judge.bat` of a topic / Mixed-set folder (never of a problem folder), `README.txt`, `Guide.pdf`, `Progress.md`,
-  `.vscode/*.json`) are replaced when their hash changes (old copy in `Judge/.backup/_package/`);
-  *create-only* files (`<NN_Name>/<slot>/<no.>-<slot>.cpp`, `M01/3/M01-3.cpp`: the numbers in the name must agree
-  with the folders, `SET_FILE`) are added only when missing. A `.cpp` can never be managed. Nothing is ever deleted.
+  `Makefile` and `judge.bat` of a topic / Mixed-set folder (never of a problem folder), `README.txt`,
+  `00_Mixed/README.txt`, `Guide.pdf`, `Progress.md`, `.vscode/*.json`) are replaced when their hash changes (old copy
+  in `Judge/.backup/_package/`);
+  *create-only* files (`<NN_Name>/<slot>/<no.>-<slot>.cpp`, `00_Mixed/M01/3/M01-3.cpp`: the numbers in the name must
+  agree with the folders, `SET_FILE`) are added only when missing. Mixed paths only under `00_Mixed/` (`MIXED`;
+  `TOPIC` never matches `00_Mixed`); a root-level `M01/...` is refused. A `.cpp` can never be managed. Nothing is ever deleted.
 - Retired PDFs: a problem PDF is named after its English title, so a re-titled problem gets a new PDF name and
   the new manifest no longer lists the old one. The updater moves the old PDF to `Judge/.backup/_package/` only when
   its bytes are exactly what it installed (the hash in the installed `Judge/manifest.json`) and the new manifest
@@ -226,10 +234,12 @@ In a student package (`dist/C2_Practice/`):
 ```
 python3 ../../Judge/judge.py             # in a problem folder (04_Binary_Search/05): that problem (no make / judge there)
 python3 ../Judge/judge.py                # in a topic folder: the whole topic; also `make`, `judge`
+python3 ../../Judge/judge.py [2]         # in a Mixed set folder (00_Mixed/M03); also `make [2]`, `judge [2]`
+python3 ../../../Judge/judge.py          # in a Mixed problem folder (00_Mixed/M03/2)
 python3 ../Judge/judge.py 5              # in a topic folder: problem 5 (05 too); also `make 5`, `make 05`, `judge 5`
 python3 <path>/Judge/judge.py FILE.cpp   # anywhere: the problem from the file's name or folder (Ctrl+Shift+B does this)
 python3 <path>/Judge/judge.py FILE.cpp K-P   # name the problem yourself (4-5, M01-3)
-python3 ../Judge/judge.py --list         # topics and Mixed sets with their folders and code names
+python3 ../Judge/judge.py --list         # Mixed sets first (as on disk), then the topics, with folders and code names
 ```
 
 ## Working rules for Claude Code
