@@ -4,10 +4,11 @@ Requirements: Python 3.7+ and g++ in PATH (Linux / macOS / Windows; on Windows t
 macOS: g++ is Apple clang without <bits/stdc++.h>; the judge adds include/ (a fallback header) automatically.
 
 One folder per problem: 04_Binary_Search/05/04-05.cpp (your code) and 05_<Title>.pdf (the statement); a Mixed set:
-M01/3/M01-3.cpp. Do not rename the folders or the .cpp files: the judge finds the problem from them.
+M01/3/M01-3.cpp. A problem folder holds only these two files; Makefile and judge.bat are in the topic folder.
+Do not rename the folders or the .cpp files: the judge finds the problem from them.
 
 Inside a problem folder (e.g. 04_Binary_Search/05):
-  python3 ../../Judge/judge.py            judge this problem                 (also: make, or judge on Windows)
+  python3 ../../Judge/judge.py            judge this problem                 (or Ctrl+Shift+B in VS Code)
 Inside a topic folder (e.g. 04_Binary_Search):
   python3 ../Judge/judge.py               judge the whole topic              (also: make, judge)
   python3 ../Judge/judge.py 5             judge problem 5 (05 works too)     (also: make 5, judge 5)
@@ -23,7 +24,7 @@ From the Judge folder (or use ../Judge/judge.py from a topic folder):
 Options: --tl SECONDS  --ml MB (default 256)  --diff N  --stop  --ascii  --no-color
 Test data: problems/batch/<topic folder>/P/*.in|out (the first 5 or 6 tests are the samples shown in the statement).
 Windows: VS Code's Ctrl+Shift+B runs judge.cmd (uses the py launcher if installed, else python).
-Programs are compiled in a temporary folder, never in the problem folder.
+Programs are compiled in Judge/.build/ (removed after the run), never in the topic or problem folder.
 Updates: the judge updates itself from GitHub when online (checked at most once every 10 minutes; your .cpp files
 are never changed or deleted). When an update moves a problem, your written file moves with it; when it replaces a
 problem, your file goes to <topic>/old/<n>_<OldTitle>.cpp; the judge prints every move.

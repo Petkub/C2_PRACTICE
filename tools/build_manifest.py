@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Write manifest.json: the version (file VERSION) and the SHA-256 of every file the student package gets inside
-Judge/, the managed package files outside Judge/ (the PDFs, Makefile, judge.bat, README.txt, Guide.pdf,
-Progress.md, .vscode/: replaced on the students' computers when they change) and the create-only files (the empty
-code file of every problem: added only when missing, never replaced).
+Judge/, the managed package files outside Judge/ (the PDFs, a topic folder's Makefile and judge.bat, README.txt,
+Guide.pdf, Progress.md, .vscode/: replaced on the students' computers when they change) and the create-only files
+(the empty code file of every problem: added only when missing, never replaced).
 Judge/updater.py on the students' computers compares this file with what they have.
 
   python3 tools/build_manifest.py            write manifest.json (run after changing core/, problems/, student/)
@@ -20,7 +20,7 @@ Format:
    "files": {"judge.py": "<sha256>", "problems/batch/04_Binary_Search/1/01.in": "<sha256>", ...},
    "managed": {"04_Binary_Search/Problems_04_Binary_Search.pdf": ["<sha256>", "student/04_Binary_Search/Problems_04_Binary_Search.pdf"],
                "04_Binary_Search/05/05_<Title>.pdf": ["<sha256>", "student/04_Binary_Search/05/05_<Title>.pdf"],
-               "04_Binary_Search/05/Makefile": ["<sha256>", "student/set_files/Makefile_problem"], ...},
+               "04_Binary_Search/Makefile": ["<sha256>", "student/set_files/Makefile"], ...},
    "create_only": {"04_Binary_Search/05/04-05.cpp": ["<sha256>", "student/set_files/template.cpp"], ...},
    "bundles": {"bundles/04_Binary_Search.zip": {"sha256": "<sha256>", "prefix": "problems/batch/04_Binary_Search/"}, ...},
    "moves": {"<sha256 of an earlier release's problems.json>": [["04_Binary_Search/05/04-05.cpp", "05_Greedy/07/05-07.cpp"], ...]}}
@@ -121,14 +121,9 @@ def problem_pdfs():
     return out
 
 
-# True: every problem folder also gets Makefile and judge.bat, so `make` / double-clicking judge.bat judges the problem
-# from its own folder (plans/V4_LAYOUT.md section 2). False: a problem folder holds only its .cpp and its PDF; then
-# judge from the topic folder (make 5) or with Ctrl+Shift+B.
-PROBLEM_FOLDER_TOOLS = True
-
-
 def managed_files():
-    """Managed package files outside Judge/ as (package path, repo-relative source path)."""
+    """Managed package files outside Judge/ as (package path, repo-relative source path). A problem folder holds
+    exactly its code file and its PDF: Makefile and judge.bat exist in the topic / Mixed-set folders only."""
     out = []
     for name in ("README.txt", "Guide.pdf", "Progress.md", ".vscode/tasks.json", ".vscode/settings.json"):
         if os.path.exists(os.path.join(REPO, "student", *name.split("/"))):
@@ -140,9 +135,6 @@ def managed_files():
         out.append((f"{d}/judge.bat", "student/set_files/judge.bat"))
         if os.path.exists(os.path.join(REPO, "student", d, f"Problems_{d}.pdf")):
             out.append((f"{d}/Problems_{d}.pdf", f"student/{d}/Problems_{d}.pdf"))
-        for i in range(1, n + 1) if PROBLEM_FOLDER_TOOLS else ():
-            out.append((f"{d}/{layout.slot(s, i)}/Makefile", "student/set_files/Makefile_problem"))
-            out.append((f"{d}/{layout.slot(s, i)}/judge.bat", "student/set_files/judge_problem.bat"))
     return out + problem_pdfs()
 
 

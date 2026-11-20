@@ -48,13 +48,12 @@ Advanced (TOI)  (เกินค่าย 2: ระดับ TOI)
     Judge/                                 ตัวตรวจและชุดทดสอบ (ไม่ต้องแก้อะไรในโฟลเดอร์นี้)
     04_Binary_Search/                      โฟลเดอร์เรื่อง
       Problems_04_Binary_Search.pdf        โจทย์ทั้งเรื่อง (หน้าปก + โจทย์ทุกข้อ)
-      Makefile, judge.bat                  ใช้ตรวจทั้งเรื่อง
+      Makefile, judge.bat                  ใช้ตรวจทั้งเรื่อง หรือตรวจทีละข้อ (make 5 / judge 5)
       01/
       ...
       05/                                  โฟลเดอร์ของข้อ 5
         04-05.cpp                          ไฟล์คำตอบของข้อนี้ (เรื่อง 04 ข้อ 05) เริ่มต้นเป็นไฟล์ว่าง เขียน code ลงไฟล์นี้ได้เลย
-        05_<ชื่อโจทย์ภาษาอังกฤษ>.pdf         โจทย์ของข้อนี้ข้อเดียว
-        Makefile, judge.bat                ใช้ตรวจข้อนี้
+        05_<ชื่อโจทย์ภาษาอังกฤษ>.pdf         โจทย์ของข้อนี้ข้อเดียว (ในโฟลเดอร์ของข้อมีแค่สองไฟล์นี้)
       ...
       20/                                  (บางเรื่องมี 12 หรือ 15 ข้อ)
     M01/                                   ชุดฝึกรวม: โฟลเดอร์ข้อเป็นเลขหลักเดียว 1 ... 6
@@ -77,20 +76,19 @@ Advanced (TOI)  (เกินค่าย 2: ระดับ TOI)
      ถ้ากด Ctrl+Shift+B แล้วขึ้นรายการ g++ / gcc ให้เลือกแทนการตรวจ แปลว่าเปิดผิดโฟลเดอร์
      เปิดไฟล์ที่ทำ เช่น 04_Binary_Search/05/04-05.cpp แล้วกด Ctrl+Shift+B (Mac: Cmd+Shift+B) = ตรวจข้อนั้น
      ตรวจทั้งเรื่อง: Terminal > Run Task... > Judge whole topic
-  ข) terminal ในโฟลเดอร์ของข้อที่ทำ (เช่น cd 04_Binary_Search/05)
-       Linux / macOS     make          (ตรวจข้อนี้)
-       Windows           judge         (PowerShell: .\judge)   หรือดับเบิลคลิก judge.bat ในโฟลเดอร์ข้อนั้น
-  ค) terminal ในโฟลเดอร์เรื่อง (เช่น cd 04_Binary_Search)
-       Linux / macOS     make          (ทั้งเรื่อง)   make 5          (เฉพาะข้อ 5 พิมพ์ make 05 ก็ได้)
-       Windows           judge         (ทั้งเรื่อง)   judge 5         (PowerShell: .\judge 5)
+  ข) terminal ในโฟลเดอร์เรื่อง (เช่น cd 04_Binary_Search)
+       Linux / macOS     make 5        (เฉพาะข้อ 5 พิมพ์ make 05 ก็ได้)   make            (ทั้งเรื่อง)
+       Windows           judge 5       (PowerShell: .\judge 5)          judge           (ทั้งเรื่อง)
      หรือดับเบิลคลิก judge.bat ในโฟลเดอร์เรื่องนั้น (Windows) เพื่อตรวจทั้งเรื่อง
      (ถ้าไม่มีคำสั่ง make: Linux ใช้ sudo apt install make · macOS มากับ xcode-select --install)
-  ง) เรียก judge ตรง ๆ (ทุกระบบ)
+     ในโฟลเดอร์ของข้อไม่มี Makefile และ judge.bat จึงสั่ง make หรือ judge ในนั้นไม่ได้ ให้สั่งจากโฟลเดอร์เรื่องตามนี้
+     หรือใช้วิธี ก) หรือ ค)
+  ค) เรียก judge ตรง ๆ (ทุกระบบ)
        ในโฟลเดอร์ข้อ      python3 ../../Judge/judge.py
        ในโฟลเดอร์เรื่อง    python3 ../Judge/judge.py   (ทั้งเรื่อง)   หรือ   python3 ../Judge/judge.py 5   (เฉพาะข้อ 5)
        จากที่ใดก็ได้       python3 <ที่อยู่ของ C2_Practice>/Judge/judge.py <ไฟล์ .cpp>
      Windows ใช้ python แทน python3
-  ไฟล์ที่ compile แล้วอยู่ในโฟลเดอร์ชั่วคราวของเครื่อง ไม่มีไฟล์ใดเพิ่มในโฟลเดอร์ของข้อ
+  ไฟล์ที่ compile แล้วอยู่ใน Judge/.build/ ชั่วคราวและถูกลบเมื่อตรวจเสร็จ ไม่มีไฟล์ใดเพิ่มในโฟลเดอร์ของข้อ
 
 macOS (ทำครั้งเดียว)
   - ติดตั้ง compiler + Python:  xcode-select --install

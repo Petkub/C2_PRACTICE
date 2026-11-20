@@ -18,9 +18,11 @@ POSN Practice Judge - changes
        - One folder per problem: 04_Binary_Search/05/ holds your code file 04-05.cpp (empty at first) and the
          problem's own statement 05_<Title>.pdf. A Mixed set: M01/3/M01-3.cpp and 3_<Title>.pdf. The whole topic is
          still in Problems_<topic>.pdf in the topic folder. Do not rename the folders or the .cpp files.
-       - Judging: Ctrl+Shift+B in VS Code on the open .cpp; in a problem folder: make (Windows: judge); in a topic
-         folder: make (the whole topic) or make 5 (Windows: judge, judge 5); anywhere:
-         python3 <path>/Judge/judge.py FILE.cpp. Programs are compiled in a temporary folder, not in your folders.
+       - A problem folder holds exactly those two files: Makefile and judge.bat are in the topic folder only.
+       - Judging: Ctrl+Shift+B in VS Code on the open .cpp; in a topic folder: make 5 for problem 5, make for the
+         whole topic (Windows: judge 5, judge); in a problem folder: python3 ../../Judge/judge.py; anywhere:
+         python3 <path>/Judge/judge.py FILE.cpp. Programs are compiled in Judge/.build/ (removed after the run),
+         not in your folders.
        - Later updates: your written file moves with its problem; the file of a replaced problem is kept in
          <topic>/old/<n>_<OldTitle>.cpp. Nothing you wrote is deleted or overwritten.
 3.0.1  New statement layout: all text in Sarabun (a looped Thai font), more space between lines and below

@@ -1,8 +1,0 @@
-# Linux / macOS, inside this problem folder:
-#   make      judge this problem (the .cpp file of this folder)
-PYTHON ?= python3
-
-all:
-	@$(PYTHON) ../../Judge/judge.py
-
-.PHONY: all

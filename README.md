@@ -71,8 +71,7 @@ C2_Practice/
     ...
     05/                                    problem 5: two digits in a topic (01 ... 20)
       04-05.cpp                            the student's code: empty at first, created once, never replaced
-      05_Cutting_Ropes.pdf        this problem's own PDF (the same pages as in the topic PDF, no cover)
-      Makefile, judge.bat                  judge this problem
+      05_Cutting_Ropes.pdf                 this problem's own PDF (the same pages as in the topic PDF, no cover)
     ...
     20/
     old/                                   only after an update that replaced a problem the student had written (below)
@@ -81,8 +80,10 @@ C2_Practice/
     3/
       M01-3.cpp
       3_Fresh_Bread_Only.pdf
-      Makefile, judge.bat
 ```
+
+- A problem folder holds **exactly its code file and its PDF**. `Makefile` and `judge.bat` exist in the topic and
+  Mixed-set folders only (`make 5` / `judge 5` there judges one problem); the updater refuses them in a problem folder.
 
 - A folder name and a code file name never change, also when a problem is replaced or re-titled. The code file
   names are unique in the whole package (`04-05.cpp`, `27-12.cpp`, `M01-3.cpp`), so editor tabs are never ambiguous.
@@ -93,13 +94,14 @@ C2_Practice/
 - In the repo the PDFs are `student/<folder>/Problems_<folder>.pdf` and `student/<folder>/<slot>/<slot>_<Title>.pdf`
   (both written by `C2_PRACTICE_SRC` `build.py all`).
 
-**How students judge** (binaries are compiled in a temporary folder, never in the problem folder):
+**How students judge** (binaries are compiled in `Judge/.build/<new folder>`, removed after the run, like C2_MOCK;
+in the system temp folder when `Judge/` cannot be written; never in a topic or problem folder):
 
 | where | command |
 |---|---|
 | VS Code, the `C2_Practice` folder open | `Ctrl+Shift+B` on the open `.cpp` judges that problem; *Run Task > Judge whole topic* |
-| a problem folder (`04_Binary_Search/05`) | `make` · Windows `judge` · `python3 ../../Judge/judge.py` |
-| a topic folder (`04_Binary_Search`) | `make` (whole topic), `make 5` or `make 05` · Windows `judge`, `judge 5` · `python3 ../Judge/judge.py`, `python3 ../Judge/judge.py 5` |
+| a problem folder (`04_Binary_Search/05`) | `python3 ../../Judge/judge.py` (no `make` / `judge` here: the folder has no Makefile or judge.bat) |
+| a topic folder (`04_Binary_Search`) | `make 5` or `make 05` (one problem), `make` (whole topic) · Windows `judge 5`, `judge` · `python3 ../Judge/judge.py`, `python3 ../Judge/judge.py 5` |
 | anywhere | `python3 <path>/Judge/judge.py FILE.cpp` (the problem comes from the file's name or folder), or `FILE.cpp K-P` to name the problem (`4-5`, `M01-3`) |
 
 `python3 ../Judge/judge.py --list` shows every topic and Mixed set with its folders and code file names (Mixed sets
@@ -131,8 +133,8 @@ student/               the rest of the student package: README.txt, .vscode/,
                        <NN_Name>/Problems_<NN_Name>.pdf (the whole topic) and <NN_Name>/<slot>/<slot>_<Title>.pdf (one
                        problem), both written by C2_PRACTICE_SRC build.py all,
                        set_files/: Makefile (Makefile_<n> for a topic of n != 20 problems) and judge.bat for a topic
-                       folder, Makefile_problem and judge_problem.bat for a problem folder (shipped there as Makefile
-                       and judge.bat), template.cpp (empty) -> every <NN_Name>/<slot>/<no.>-<slot>.cpp
+                       folder (none for a problem folder), template.cpp (empty) -> every
+                       <NN_Name>/<slot>/<no.>-<slot>.cpp
 samples/               known-verdict programs used by the tests (expected.json says which verdict each must get)
 tests/run_regression.py   the test suite: run before every push
 tools/layout.py           the names of the student package (folders, code files, PDFs): the one place for them
@@ -201,8 +203,8 @@ that students already have). Outputs always come from sol.cpp.
 1. Add it to `C2_PRACTICE_SRC/topics.json` and write `topics/27_Name/1..n/`; check each problem.
 2. `/usr/bin/python3 build.py all` writes `problems/batch/27_Name/`, the new entries of `problems.json` /
    `sets.json`, `student/27_Name/Problems_27_Name.pdf` and every `student/27_Name/<slot>/<slot>_<Title>.pdf`.
-3. Release. Existing students get the test data, the PDFs, `Makefile`, `judge.bat`, and the updater **creates**
-   `27_Name/01/27-01.cpp ...` (code files are only ever created, never overwritten).
+3. Release. Existing students get the test data, the PDFs, the topic's `Makefile` and `judge.bat`, and the updater
+   **creates** `27_Name/01/27-01.cpp ...` (code files are only ever created, never overwritten).
 
 ### 4d. Change something students see outside Judge/ (README, Makefile, judge.bat, template)
 Edit it under `student/` and release. These are *managed* files: the updater replaces them on every student's
@@ -239,8 +241,8 @@ checks all of it on a fake release.
   SHA-256 of every file in `Judge/`, downloads the changed ones to a temp folder, verifies each hash, compiles
   the new `.py` files and test-runs the new `judge.py --help`, and only then swaps them in. The old file is kept
   in `Judge/.backup/`.
-- Outside `Judge/` it only replaces the managed files above (PDFs, `Makefile`, `judge.bat`, `README.txt`,
-  `Guide.pdf`, `.vscode/`) and creates missing code files `<NN_Name>/<slot>/<no.>-<slot>.cpp`; it never deletes
+- Outside `Judge/` it only replaces the managed files above (PDFs, a topic folder's `Makefile` and `judge.bat`,
+  `README.txt`, `Guide.pdf`, `.vscode/`) and creates missing code files `<NN_Name>/<slot>/<no.>-<slot>.cpp`; it never deletes
   anything and never overwrites an existing code file. Files it did not ship are never touched.
 - When a release moves, replaces or re-titles problems (section 4f), on the first run after the update:
   - a **moved** problem: the student's written file follows it (same English title) to

@@ -14,7 +14,7 @@ Layout produced (one folder per problem, tools/layout.py):
   C2_Practice/<NN_Name>/Makefile, judge.bat     from student/set_files/ (Makefile_<n> for a topic of n != 20)
   C2_Practice/<NN_Name>/05/04-05.cpp            the student's code file: empty (student/set_files/template.cpp)
   C2_Practice/<NN_Name>/05/05_<Title>.pdf       the problem's own PDF, from student/<NN_Name>/05/
-  C2_Practice/<NN_Name>/05/Makefile, judge.bat  student/set_files/Makefile_problem, judge_problem.bat
+                                               (a problem folder holds exactly these two files)
 The zip holds the contents of C2_Practice/ without the folder itself (see make_zip).
 The manifest is rebuilt first, so the zip and manifest.json always agree.
 """

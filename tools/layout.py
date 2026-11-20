@@ -6,12 +6,12 @@ compares them).
 
   04_Binary_Search/                      topic folder (sets.json "dir"); a Mixed set: M01
     Problems_04_Binary_Search.pdf        the whole topic
-    Makefile, judge.bat
+    Makefile, judge.bat                  the whole topic, or one problem: make 5 / judge 5
     05/                                  problem 5: two digits in a topic (01 ... 20), one digit in a Mixed set (1 ... 6)
       04-05.cpp                          the student's code (create-only: empty at first, never replaced)
-      05_Cutting_Ropes.pdf      the statement of this problem alone (managed: replaced when it changes)
-      Makefile, judge.bat                judge this problem from its own folder
+      05_Cutting_Ropes.pdf               the statement of this problem alone (managed: replaced when it changes)
 
+A problem folder holds exactly these two files (no Makefile, no judge.bat).
 A folder name never changes when a problem is replaced or re-titled; the PDF's name follows the English title.
 """
 import re

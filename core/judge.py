@@ -34,6 +34,7 @@ Options
 Requirements: Python 3.7+ and g++ in PATH (Linux / macOS / Windows).
 Output comparison: line by line, ignoring trailing spaces and trailing empty lines.
 Score: share of tests passed (with subtasks: each subtask's points x share of its tests passed).
+Compiled programs go to Judge/.build/ (removed after the run), never into a topic or problem folder.
 """
 import glob
 import hashlib
@@ -598,6 +599,24 @@ def compile_source(src, outdir):
                    "(<iostream>, <vector>, ...) or install GNU g++.", ""] + msg
         return None, dt, msg or [f"g++ exited with code {p.returncode}"], []
     return exe, dt, [], [ln for ln in text.splitlines() if ": warning:" in ln]
+
+
+BUILD_DIR = os.path.join(ROOT, ".build")    # Judge/.build/: compiled programs of the run in progress
+BUILD_KEEP = 24 * 3600                      # seconds; an older sub-folder was left by a run that was killed
+
+
+def make_build_dir():
+    """A fresh folder for this run's compiled program: Judge/.build/<new>, or one in the system temp folder when
+    Judge/ cannot be written. Nothing is ever compiled into a topic or problem folder."""
+    try:
+        os.makedirs(BUILD_DIR, exist_ok=True)
+        for name in os.listdir(BUILD_DIR):          # left-overs of a run that was killed
+            d = os.path.join(BUILD_DIR, name)
+            if time.time() - os.path.getmtime(d) > BUILD_KEEP:
+                shutil.rmtree(d, ignore_errors=True)
+        return tempfile.mkdtemp(prefix="run_", dir=BUILD_DIR)
+    except OSError:
+        return tempfile.mkdtemp(prefix="judge_")
 
 
 def compiler_text(out, src_abs):
@@ -1203,7 +1222,7 @@ def judge_one(src, pdir, num, meta, st, tl, show_diff, stop):
         print()
         return 0
     print("  " + st.dim("Compiling ..."), end="" if st.tty else "\n", flush=True)
-    tmp = tempfile.mkdtemp(prefix="judge_")
+    tmp = make_build_dir()
     try:
         exe, ct, msg, warns = compile_source(src, tmp)
         print("\r  " if st.tty else "  ", end="")
@@ -1366,7 +1385,7 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
             print("  " + st.red(f"Test data for problem {n} not found - skipped"))
             scores.append(0)
             continue
-        tmp = tempfile.mkdtemp(prefix="judge_")
+        tmp = make_build_dir()
         try:
             exe, _, msg, warns = compile_source(src, tmp)
             if not exe:

@@ -12,14 +12,14 @@ Rules
   - writes only inside Judge/ and only the files listed in the manifest; never deletes anything (a retired problem
     PDF, below, goes to Judge/.backup/_package/, it is not deleted)
   - never reads or writes student files (<topic>/<problem>/<topic no.>-<problem>.cpp), except the moves below.
-    Outside Judge/ it only handles "managed" files the students do not edit (the PDFs, Makefile, judge.bat,
-    README.txt, Guide.pdf, Progress.md, .vscode/) and "create-only" files (the empty code file of a problem, added
-    only when missing). The old copy of every replaced file goes to Judge/.backup/ (package files under _package/)
+    Outside Judge/ it only handles "managed" files the students do not edit (the PDFs, a topic folder's Makefile
+    and judge.bat, README.txt, Guide.pdf, Progress.md, .vscode/) and "create-only" files (the empty code file of a
+    problem, added only when missing). The old copy of every replaced file goes to Judge/.backup/ (package files under _package/)
   - updates only an installed package (Judge/judge.py and Judge/manifest.json exist), never the source repo
 
 Package layout (v4.0, one folder per problem; tools/layout.py in the repo):
   04_Binary_Search/Problems_04_Binary_Search.pdf, Makefile, judge.bat
-  04_Binary_Search/05/04-05.cpp, 05_<English_Title>.pdf, Makefile, judge.bat          (Mixed sets: M01/3/M01-3.cpp)
+  04_Binary_Search/05/04-05.cpp, 05_<English_Title>.pdf     nothing else in a problem folder (Mixed: M01/3/M01-3.cpp)
 
 Speed: files are downloaded in parallel (each one retried), and a whole problem folder comes as one zip ("bundle")
 when many of its files are needed, so a new set of problems takes a few requests instead of thousands. Every file
@@ -82,7 +82,6 @@ PROBLEM_PDF = re.compile(r"^(?:" + TOPIC + r"/(?P<n>[0-9]{2})|" + MIXED + r"/(?P
                          + PDF_TITLE + r"\.pdf$")           # 04_Binary_Search/05/05_<Title>.pdf
 MANAGED_FILE = re.compile(                                  # replaced when they change
     r"^(?:(?P<d>" + TOPIC + "|" + MIXED + r")/(?:Makefile|judge\.bat|Problems_(?P=d)\.pdf)"
-    r"|(?:" + TOPIC + r"/[0-9]{2}|" + MIXED + r"/[1-9])/(?:Makefile|judge\.bat)"
     r"|Guide\.pdf|README\.txt|Progress\.md|\.vscode/(?:tasks|settings)\.json)$")
 
 

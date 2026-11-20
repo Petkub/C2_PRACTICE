@@ -32,7 +32,8 @@ and it updates itself from this GitHub repo so bugs can be fixed without re-send
 2. **Student machines run Windows, macOS and Linux.** Every change must work on all three.
    Use `os.name == "nt"` guards like `judge.py` does. Never assume `/tmp`, `fork`, `resource`, or bash.
 3. **Never touch student code.** The updater writes only files listed in `manifest.json`: inside `Judge/`,
-   plus the managed package files students do not edit (PDFs, Makefile, judge.bat, READMEs, `.vscode/`) and
+   plus the managed package files students do not edit (PDFs, a topic folder's Makefile and judge.bat, READMEs,
+   `.vscode/`) and
    missing code files `<topic>/<slot>/<no.>-<slot>.cpp` (empty, create-only). It must never read, move, delete or
    overwrite an existing student `.cpp` or `progress.json`, and never touch a file it did not ship. One exception,
    asked for by the teacher (plans/V4_LAYOUT.md section 3): when a release after 4.0.0 moves or replaces problems,
@@ -71,8 +72,8 @@ C2_PRACTICE/
     <NN_Name>/<slot>/<slot>_<Title>.pdf, M01/3/3_<Title>.pdf      # one problem; all PDFs are written by
                                                                   # C2_PRACTICE_SRC build.py all
     set_files/{Makefile, Makefile_<n>, judge.bat}                 # in every topic folder (Makefile_<n> for n != 20
-                                                                  # problems): whole topic, `make 5` / `judge 5`
-    set_files/{Makefile_problem, judge_problem.bat}               # in every problem folder, as Makefile / judge.bat
+                                                                  # problems): whole topic, `make 5` / `judge 5`;
+                                                                  # a problem folder gets neither
     set_files/template.cpp                                        # (empty) -> <NN_Name>/<slot>/<no.>-<slot>.cpp
   samples/                      # known-verdict programs used as regression tests
     batch/grid_ok.cpp, grid_int.cpp, grid_loop.cpp, grid_crash.cpp, grid_syntax.cpp      # problem 3-1
@@ -94,12 +95,17 @@ C2_PRACTICE/
 ```
 
 Student-side layout (what `build_dist.py` produces): `C2_Practice/Judge/` = `core/` + `problems/`,
-and `C2_Practice/<NN_Name>/<slot>/` = one problem: the student's `<no.>-<slot>.cpp` (empty at first), `<slot>_<Title>.pdf`,
-`Makefile`, `judge.bat`; the topic folder also holds `Problems_<NN_Name>.pdf`, `Makefile`, `judge.bat` (and `old/`
-after an update that replaced a problem the student had written). The repo layout is **not** the student layout.
+and `C2_Practice/<NN_Name>/<slot>/` = one problem: **exactly** the student's `<no.>-<slot>.cpp` (empty at first) and
+`<slot>_<Title>.pdf` (teacher's decision: no `Makefile` / `judge.bat` in a problem folder; the updater refuses them
+there, `test_layout` and `test_updater` check it); the topic folder holds `Problems_<NN_Name>.pdf`, `Makefile`,
+`judge.bat` and the problem folders (and `old/` after an update that replaced a problem the student had written).
+The repo layout is **not** the student layout.
 The judge finds the problem from the code file's name (`04-05.cpp`, `M01-3.cpp`: `problem_of_name`) or from its
-folder (`04_Binary_Search/05/`: `problem_of_folder`); both must keep working. Binaries are compiled in a temporary
-folder (`tempfile.mkdtemp`), never in the problem folder (`test_judging` checks that nothing is left behind).
+folder (`04_Binary_Search/05/`: `problem_of_folder`); both must keep working.
+Binaries are compiled in `Judge/.build/<new folder>` (`make_build_dir`, the same as C2_MOCK: removed after the run;
+a sub-folder older than a day, left by a killed run, is removed at the next run; the system temp folder when
+`Judge/` cannot be written), never in a topic or problem folder (`test_judging` checks that nothing is left behind and that `Judge/.build/` is empty). In the repo
+that folder is `core/.build/` (git-ignored, never shipped: `build_manifest.py` skips names that start with `.`).
 `judge.py` finds batch data in the first existing of `Judge/problems/batch/` (student package),
 `../problems/batch/` (repo, run from `core/`) and `Judge/tests/` (older zips, JSON files next to judge.py).
 
@@ -163,7 +169,7 @@ Propose the design and wait for approval before writing it.
 - Paths: only `Judge/`-relative, no absolute, no `..`, no `\`, no leading `.`, never `manifest.json` /
   `progress.json`. Outside `Judge/` only two kinds, each matched by a strict regex in `updater.py`:
   *managed* files students do not edit (`<NN_Name>/Problems_<NN_Name>.pdf`, `<NN_Name>/<slot>/<slot>_<Title>.pdf`,
-  `Makefile` and `judge.bat` of a topic folder and of a problem folder, `README.txt`, `Guide.pdf`, `Progress.md`,
+  `Makefile` and `judge.bat` of a topic / Mixed-set folder (never of a problem folder), `README.txt`, `Guide.pdf`, `Progress.md`,
   `.vscode/*.json`) are replaced when their hash changes (old copy in `Judge/.backup/_package/`);
   *create-only* files (`<NN_Name>/<slot>/<no.>-<slot>.cpp`, `M01/3/M01-3.cpp`: the numbers in the name must agree
   with the folders, `SET_FILE`) are added only when missing. A `.cpp` can never be managed. Nothing is ever deleted.
@@ -218,7 +224,7 @@ python3 core/interactive_judge.py guess samples/interactive/guess_ok.cpp
 ```
 In a student package (`dist/C2_Practice/`):
 ```
-python3 ../../Judge/judge.py             # in a problem folder (04_Binary_Search/05): that problem; also `make`, `judge`
+python3 ../../Judge/judge.py             # in a problem folder (04_Binary_Search/05): that problem (no make / judge there)
 python3 ../Judge/judge.py                # in a topic folder: the whole topic; also `make`, `judge`
 python3 ../Judge/judge.py 5              # in a topic folder: problem 5 (05 too); also `make 5`, `make 05`, `judge 5`
 python3 <path>/Judge/judge.py FILE.cpp   # anywhere: the problem from the file's name or folder (Ctrl+Shift+B does this)

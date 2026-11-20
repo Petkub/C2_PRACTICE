@@ -215,7 +215,7 @@ def test_layout(root):
             count += 1
             agree = agree and judge.code_name(s, i) == layout.code_name(s, i) and judge.slot_name(s, i) == layout.slot(s, i)
             d = os.path.join(top, layout.slot(s, i))
-            want = {layout.code_name(s, i), layout.pdf_name(s, i, meta[str(pid)]["en"]), "Makefile", "judge.bat"}
+            want = {layout.code_name(s, i), layout.pdf_name(s, i, meta[str(pid)]["en"])}
             got = set(os.listdir(d)) if os.path.isdir(d) else set()
             if got != want:
                 bad.append(f"{s['dir']}/{layout.slot(s, i)}: {sorted(got ^ want)}")
@@ -225,7 +225,7 @@ def test_layout(root):
                 with open(os.path.join(d, layout.pdf_name(s, i, meta[str(pid)]["en"])), "rb") as f:
                     if f.read(5) != b"%PDF-":
                         bad.append(f"{s['dir']}/{layout.slot(s, i)}: not a PDF")
-    check(not bad, f"every problem folder ({count}) holds its empty code file, its PDF, Makefile and judge.bat; "
+    check(not bad, f"every problem folder ({count}) holds exactly its empty code file and its PDF; "
           "every topic folder its PDF, Makefile, judge.bat and the problem folders", "\n".join(bad[:8]))
     check(agree, "judge.py and tools/layout.py name the problem folders and code files the same way")
     names = [n for _, _, fs in os.walk(root) for n in fs] + [n for _, ds, _ in os.walk(root) for n in ds]
@@ -242,7 +242,8 @@ def test_layout(root):
 
 
 def test_judging(root, tmp):
-    """Judging from the problem folder, from the topic folder and by file name; nothing is left in the folders."""
+    """Judging from the problem folder, from the topic folder and by file name; nothing is left in the folders,
+    and Judge/.build/ (where the programs are compiled) is empty afterwards."""
     set1 = os.path.join(root, TOPIC3)
     prob = os.path.join(set1, "01")
     ok_cpp = os.path.join(SAMPLES, "batch", "grid_ok.cpp")
@@ -286,18 +287,19 @@ def test_judging(root, tmp):
     check(code != 0 and "Traceback" not in out, "inside the topic folder: judge.py 99 is refused", f"exit {code}\n{out}")
     if os.name != "nt" and shutil.which("make"):
         env = dict(os.environ, PYTHON=sys.executable, NO_COLOR="1")
-        for cwd, args, what in ((prob, [], "make in the problem folder"), (set1, ["1"], "make 1 in the topic folder"),
-                                (set1, ["01"], "make 01 in the topic folder")):
-            r = subprocess.run(["make"] + args, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        for args, what in ((["1"], "make 1 in the topic folder"), (["01"], "make 01 in the topic folder")):
+            r = subprocess.run(["make"] + args, cwd=set1, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             out = r.stdout.decode("utf-8", "replace")
             check(r.returncode == 0 and "ACCEPTED" in out, what, out[-600:])
+        r = subprocess.run(["make"], cwd=set1, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = r.stdout.decode("utf-8", "replace")
+        check(r.returncode == 0 and "Total" in out and " 100 / 2000" in out, "make in the topic folder (whole topic)",
+              out[-600:])
     with open(os.path.join(set1, "judge.bat"), "rb") as f:
         topic_bat = f.read()
-    with open(os.path.join(prob, "judge.bat"), "rb") as f:
-        prob_bat = f.read()
-    check(b'"..\\Judge\\judge.py" %1' in topic_bat and b'"..\\..\\Judge\\judge.py"' in prob_bat
-          and b'cd /d "%~dp0"' in topic_bat and b'cd /d "%~dp0"' in prob_bat and b"\r\n" in prob_bat,
-          "judge.bat (topic and problem folder): quoted paths, runs from its own folder, CRLF")
+    check(b'"..\\Judge\\judge.py" %1' in topic_bat and b'cd /d "%~dp0"' in topic_bat
+          and topic_bat.count(b"\r\n") == topic_bat.count(b"\n") > 5,
+          "judge.bat (topic folder): quoted paths, runs from its own folder, passes %1, CRLF")
     with open(os.path.join(root, ".vscode", "tasks.json"), encoding="utf-8") as f:
         tasks = json.load(f)["tasks"]
     check(tasks[0]["args"][-1] == "${file}" and tasks[0]["group"].get("isDefault") and "/.." in tasks[1]["options"]["cwd"],
@@ -305,6 +307,17 @@ def test_judging(root, tmp):
     after = {dp: sorted(fs) for dp, _, fs in os.walk(set1)}
     check(after == before, "judging leaves no binary or temporary file in the topic or problem folders",
           str([(k, v) for k, v in after.items() if before.get(k) != v][:3]))
+    build = os.path.join(root, "Judge", ".build")
+    check(os.path.isdir(build) and os.listdir(build) == [], "programs are compiled in Judge/.build/, which is empty afterwards",
+          str(os.listdir(build)) if os.path.isdir(build) else "no Judge/.build")
+    os.chmod(build, 0o500)
+    try:
+        if os.name != "nt" and not os.access(build, os.W_OK):       # (root can always write: skipped then)
+            code, out, _ = run_judge(["--no-color"], cwd=prob, judge_path=deep)
+            check(code == 0 and "ACCEPTED" in out and os.listdir(build) == [],
+                  "Judge/.build/ not writable: the judge compiles in the system temp folder instead", f"exit {code}\n{out}")
+    finally:
+        os.chmod(build, 0o700)
     code, out, _ = run_judge(["--list", "--no-color"], cwd=root, judge_path=os.path.join("Judge", "judge.py"))
     check(code == 0 and "03-01 " in out and f"{TOPIC3}/01 ... 20" in out, "judge.py --list shows the folders and code names",
           f"exit {code}\n{out[:900]}")
@@ -497,6 +510,14 @@ def test_updater():
         code, out, _ = run_student(["--update", "--no-color"], set1, url)
         check(code == 1 and "bad managed entry" in out and sha(os.path.join(set1, one)) == student_hash,
               "a .cpp listed as managed: refused, student file untouched", f"exit {code}\n{out}")
+        for n, name in enumerate(("Makefile", "judge.bat")):     # a problem folder holds its code file and its PDF only
+            rebuild_manifest(repo2)
+            edit_manifest(repo2, lambda m: m["managed"].update(
+                {f"{TOPIC3}/01/{name}": [sha(os.path.join(repo2, "student", "set_files", name)), "student/set_files/" + name]})
+                or m.update(version=f"9.1{5 + n}"))
+            code, out, _ = run_student(["--update", "--no-color"], set1, url)
+            check(code == 1 and "bad managed entry" in out and not os.path.exists(os.path.join(set1, "01", name)),
+                  f"a managed {name} inside a problem folder ({TOPIC3}/01/{name}) is refused", f"exit {code}\n{out}")
         for n, rel in enumerate((TOPIC3 + "/1.cpp", TOPIC3 + "/01/04-01.cpp", TOPIC3 + "/01/03-02.cpp", "M01/3/M02-3.cpp",
                                  TOPIC3 + "/old/1_X.cpp", "Judge/x.cpp")):
             rebuild_manifest(repo2)
@@ -532,7 +553,7 @@ def test_updater():
 
 def test_fast_update():
     """A package from a release before the newest topic gets that whole topic in a few requests (a bundle for the
-    test data, one template for all the code files, one Makefile and one judge.bat for all the problem folders)."""
+    test data, one template for all the code files, the topic's Makefile and judge.bat, and the PDFs)."""
     print("Fast update")
     tmp = tempfile.mkdtemp(prefix="judge_fast_")
     try:
@@ -566,7 +587,7 @@ def test_fast_update():
         check(p.returncode == 0 and len(files) > 50
               and os.path.exists(os.path.join(root, *layout.code_path(last_set, last_n).split("/")))
               and os.path.exists(os.path.join(root, last, "Problems_" + last + ".pdf"))
-              and len(glob.glob(os.path.join(root, last, "*", "*.pdf"))) == last_n and len(log) <= 12 + last_n,
+              and len(glob.glob(os.path.join(root, last, "*", "*.pdf"))) == last_n and len(log) <= 10 + last_n,
               f"updater installs {last} ({len(files)} files) in {len(log)} requests", f"{log}\n{out}")
         with open(os.path.join(judge_dir, "manifest.json"), encoding="utf-8") as f:
             installed = json.load(f)
@@ -750,10 +771,12 @@ def test_future_update(root=None):
         lines = [ln for ln in out.splitlines() if " -> " in ln]
         check(len(lines) == 4 and "moved with their problems" in out, "every move is printed once", "\n".join(lines))
         folder8 = sorted(os.listdir(os.path.join(set1, "08")))
-        check(folder8 == sorted(["03-08.cpp", "08_Brand_New_Eight.pdf", "Makefile", "judge.bat"]),
-              "a replaced problem's folder holds the new PDF only (the old shipped one is retired)", str(folder8))
-        check(os.path.isfile(os.path.join(set1, "21", "Makefile")) and os.path.isfile(new_pdf(21)),
-              "a new problem folder (21) gets its PDF, Makefile and judge.bat")
+        check(folder8 == ["03-08.cpp", "08_Brand_New_Eight.pdf"],
+              "a replaced problem's folder holds exactly its code file and the new PDF (the old shipped one is retired)",
+              str(folder8))
+        folder21 = sorted(os.listdir(os.path.join(set1, "21")))
+        check(folder21 == ["03-21.cpp", os.path.basename(new_pdf(21))],
+              "a new problem folder (21) holds exactly the code file and its PDF", str(folder21))
         # the second run is quiet and changes nothing
         snap = outside_judge(root)
         code_, out2, _ = run_student([P31, "--no-color"], set1, url)
