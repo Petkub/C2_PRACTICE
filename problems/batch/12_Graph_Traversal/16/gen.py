@@ -1,83 +1,95 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(81010)
-MAXN, MAXS = 100000, 10**9
+random.seed(120016)
+MAXN, MAXM, MAXL = 500, 1000, 250000
 tests = []
 
 
-def add(tr):
-    n = len(tr)
-    assert 1 <= n <= MAXN
-    assert all(len(t) == 3 and min(t) >= 1 and max(t) <= MAXS for t in tr)
-    tests.append(f"{n}\n" + "\n".join(map("%d %d %d".__mod__, tr)) + "\n")
+def add(m, lists):
+    n = len(lists)
+    assert 1 <= n <= MAXN and n <= m <= MAXM
+    assert sum(len(w) for w in lists) <= MAXL
+    for i, w in enumerate(lists, 1):
+        assert len(set(w)) == len(w) and all(1 <= g <= m and g != i for g in w)
+    tests.append(f"{n} {m}\n" + "".join(" ".join(map(str, [len(w)] + w)) + "\n" for w in lists))
 
 
-def shuffle(a):
-    rnd = random.random
-    for i in range(len(a) - 1, 0, -1):
-        j = int(rnd() * (i + 1))
-        a[i], a[j] = a[j], a[i]
-    return a
+def relabel(m, lists):
+    n = len(lists)
+    perm = list(range(1, n + 1))
+    random.shuffle(perm)
+    spare = list(range(n + 1, m + 1))
+    random.shuffle(spare)
+    new = {g: perm[g - 1] for g in range(1, n + 1)}
+    new.update({g: spare[g - n - 1] for g in range(n + 1, m + 1)})
+    out = [None] * n
+    for i, w in enumerate(lists, 1):
+        out[new[i] - 1] = [new[g] for g in w]
+    return out
 
 
-def triples(s):
-    return [(s[i], s[i + 1], s[i + 2]) for i in range(len(s) - 2)]
+def rnd(n, m, dens):
+    lists = []
+    for i in range(1, n + 1):
+        w = [g for g in range(1, m + 1) if g != i and random.random() < dens]
+        random.shuffle(w)
+        lists.append(w)
+    return lists
 
 
-def route(n, stops):
-    k = len(stops)
-    rnd = random.random
-    return [stops[int(rnd() * k)] for _ in range(n + 2)]
+def blocks(sizes, m, fwd, inner, spare_p, spare_cnt, last_dag=False, seq0=0):
+    n = sum(sizes)
+    assert n <= m
+    start, bl = [], []
+    s = 0
+    for b, z in enumerate(sizes):
+        start.append(s)
+        bl += [b] * z
+        s += z
+    spares = list(range(n + 1, m + 1))
+    lists = []
+    for i in range(1, n + 1):
+        b = bl[i - 1]
+        lo, hi = start[b] + 1, start[b] + sizes[b]
+        later = list(range(hi + 1, n + 1))
+        w = random.sample(later, min(fwd, len(later)))
+        own = [g for g in range(lo, hi + 1) if g != i and (not last_dag or b < len(sizes) - 1 or g > i)]
+        w += random.sample(own, min(inner[b], len(own)))
+        if b == 0 and spares and random.random() < spare_p:
+            w += random.sample(spares, min(spare_cnt, len(spares)))
+        lists.append(w)
+    for k in range(seq0):
+        i = k + 1
+        keep = [g for g in lists[i - 1] if g <= n and bl[g - 1] > 0]
+        lists[i - 1] = keep + [i + 1 if k + 1 < seq0 else spares[0]]
+    return lists
 
 
-def log(s):
-    return shuffle(triples(s))
+add(5, [[2, 3], [3], [1], [1, 5]])
+add(4, [[3, 4], [3]])
+add(3, [[2], [3], []])
+add(1, [[]])
+add(7, [[6, 2], [3, 1], [4], [2, 5], [6], [1], [5]])
+add(6, [[2, 3], [1], [6], [5, 3]])
 
+add(4, [[2], [3], [4], []])
+for n, extra, dens in ((6, 0, 0.5), (7, 3, 0.3), (8, 2, 0.25), (12, 5, 0.2), (30, 10, 0.1)):
+    add(n + extra, rnd(n, n + extra, dens))
+add(9, relabel(9, blocks([5, 4], 9, 2, [2, 2], 0.0, 0)))
+add(16, relabel(16, blocks([8, 4, 3], 16, 3, [2, 2, 2], 0.3, 1, last_dag=True, seq0=5)))
+add(60, relabel(60, blocks([20, 15, 15], 60, 10, [4, 4, 12], 0.2, 2, last_dag=True, seq0=8)))
 
-add([(2, 3, 2), (1, 2, 3), (2, 3, 1), (3, 2, 3)])
-add([(9, 5, 7), (7, 5, 9), (5, 9, 5), (5, 7, 5)])
-add([(1, 2, 1), (3, 4, 3), (2, 1, 2), (4, 3, 4)])
-add([(7, 7, 7)])
-add([(1, 1, 2), (1, 1, 1), (2, 1, 1), (1, 2, 1), (1, 1, 1)])
-add([(3, 1000000000, 3), (1000000000, 3, 5), (1000000000, 3, 1000000000)])
-
-add([(1, 2, 3), (3, 4, 5)])
-add([(MAXS, MAXS, MAXS)] * 6)
-add(log(route(7, [1, 2])))
-add(shuffle(triples([1, 2, 2, 1, 2, 1]) + [(1, 3, 1), (3, 1, 3)]))
-add([(3, 3, 3), (1, 1, 1), (2, 2, 2)])
-
-add(log(route(300, [1, 2, 3])))
-s = route(400, list(range(1, 21)))
-add(log(s + s[:2]))
-add(log(route(200, [10, 20])) + [(20, 20, 20)])
-add(log(route(150, [1, 2])) + log([3, 4] * 80))
-add(shuffle(triples(route(500, list(range(1, 21)))) + [(21, 21, 21), (22, 22, 22)]))
-c = route(98, [6, 7])
-add(shuffle(triples(route(500, [1, 2, 3, 4, 5])) + triples(c + c[:2])))
-
-N = MAXN
-add(log(route(N, [1, 2, 3])))
-add(log(route(N, list(range(1, 11)))))
-add(log(route(N, list(range(MAXS - 299, MAXS + 1)))))
-add(log(route(N, random.sample(range(1, MAXS + 1), 50000))))
-add([(MAXS, MAXS, MAXS)] * (N - 10000))
-s = route(N - 2, [7, 8, 9])
-add(log(s + s[:2]))
-s = [random.choice([1, 2]) for _ in range(30)]
-s = (s * (N // 30 + 3))[13:13 + N + 2]
-add(log(s))
-add(log(list(range(MAXS, MAXS - N - 2, -1))))
-add(log(route(N, [1, MAXS])))
-s = route(N - 1000, [1, 2])
-add(shuffle(triples(s) + triples([1, 3] * 501)))
-a = route(N // 2 - 2, [1, 2, 3])
-b = route(N // 2 - 2, [4, 5, 6])
-add(shuffle(triples(a + a[:2]) + triples(b + b[:2])))
-c = route(998, [8, 9])
-add(shuffle(triples(route(N - 1000, [1, 2, 3, 4])) + triples(c + c[:2])))
-add(shuffle([(x, x, x) for x in random.sample(range(1, MAXS + 1), N)]))
+add(MAXM, relabel(MAXM, blocks([250, 250], MAXM, 250, [6, 240], 0.05, 2, seq0=40)))
+add(MAXM, relabel(MAXM, blocks([150, 350], MAXM, 350, [10, 300], 0.1, 3, seq0=120)))
+add(MAXN, relabel(MAXN, blocks([250, 250], MAXN, 240, [8, 240], 0.0, 0)))
+add(700, relabel(700, blocks([150, 200, 150], 700, 280, [5, 199, 149], 0.03, 1, seq0=100)))
+add(MAXM, relabel(MAXM, blocks([100, 400], MAXM, 360, [4, 380], 0.0, 0)))
+add(800, relabel(800, blocks([200, 300], 800, 300, [30, 250], 0.02, 2, seq0=150)))
+add(MAXN, relabel(MAXN, blocks([MAXN], MAXN, 0, [MAXN - 1], 0.0, 0, last_dag=True)))
+add(MAXM, relabel(MAXM, blocks([250, 250], MAXM, 230, [40, 249], 0.01, 1, seq0=200)))
+add(MAXM, relabel(MAXM, blocks([180, 320], MAXM, 300, [120, 280], 0.005, 1, seq0=170)))
+add(MAXM, relabel(MAXM, blocks([120, 380], MAXM, 380, [60, 370], 0.2, 2, seq0=100)))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

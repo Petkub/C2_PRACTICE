@@ -1,81 +1,94 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(11501)
-MAXN = 1500
-MAXS = 10**8
-DIG = "0123456789"
+random.seed(31503)
+MAXN = 100_000
+MAXC = 10 ** 9
 tests = []
 
 
-def add(s, g):
-    r, c = len(g), len(g[0])
-    assert 1 <= r <= MAXN and 1 <= c <= MAXN
-    assert 0 <= s <= MAXS
-    assert all(len(row) == c and all(ch in DIG for ch in row) for row in g)
-    tests.append(f"{r} {c} {s}\n" + "\n".join(g) + "\n")
+def ri(lo, hi):
+    return lo + int(random.random() * (hi - lo + 1))
 
 
-def rnd(r, c, digits=DIG):
-    return ["".join(random.choices(digits, k=c)) for _ in range(r)]
+def add(pts):
+    n = len(pts)
+    assert 2 <= n <= MAXN
+    assert all(0 <= a <= MAXC and 0 <= b <= MAXC for a, b in pts)
+    assert len(set(pts)) == n
+    tests.append(f"{n}\n" + " ".join(str(a) for a, b in pts) + "\n" + " ".join(str(b) for a, b in pts) + "\n")
 
 
-def const(r, c, d):
-    return [d * c] * r
+def shuffled(pts):
+    pts = sorted(set(pts))
+    random.shuffle(pts)
+    return pts
 
 
-def plant(g, r, c, k, d):
-    for i in range(r, r + k):
-        g[i] = g[i][:c] + d * k + g[i][c + k:]
+def fill(n, make):
+    seen = set()
+    out = []
+    while len(out) < n:
+        p = make()
+        if p not in seen:
+            seen.add(p)
+            out.append(p)
+    return shuffled(out)
 
 
-add(13, ["31415", "92653", "58979", "32384"])
-add(0, ["123", "456"])
-add(4, ["9119", "1111", "9119"])
-add(5, ["000", "000", "000", "000"])
-add(7, ["7"])
-add(20, ["5555", "5555", "5555"])
+def box(x1, x2, y1, y2):
+    return lambda: (ri(x1, x2), ri(y1, y2))
 
-add(0, ["0"])
-add(8, ["9"])
-add(0, rnd(1, 30, "0123"))
-g = rnd(12, 9, "01")
-add(6, g)
-g = const(8, 8, "9")
-plant(g, 5, 0, 3, "1")
-plant(g, 0, 5, 3, "1")
-plant(g, 4, 4, 3, "1")
-add(9, g)
-add(35, rnd(40, 50))
-add(400, rnd(60, 45, "0123"))
-add(25, rnd(100, 100, "0000000009"))
-add(0, rnd(150, 120, "0000000000001"))
 
-add(0, const(MAXN, MAXN, "0"))
-add(8, const(MAXN, MAXN, "9"))
-add(9 * MAXN * MAXN, const(MAXN, MAXN, "9"))
-add(9 * 1000 * 1000 - 1, const(MAXN, MAXN, "9"))
-add(MAXS, rnd(MAXN, MAXN))
-add(900_000, rnd(MAXN, MAXN))
-add(200_000, rnd(MAXN, MAXN, "01"))
-add(3, rnd(MAXN, MAXN, "0000000123456789"))
-g = const(MAXN, MAXN, "9")
-plant(g, 1100, 10, 100, "1")
-plant(g, 799, 1090, 100, "1")
-plant(g, 799, 300, 100, "1")
-plant(g, 799, 299, 1, "8")
-add(10_000, g)
-add(300_000, rnd(MAXN, MAXN, "0001"))
-add(50, rnd(MAXN, MAXN, "0000000001"))
-g = rnd(MAXN - 1, MAXN, "0123456789")
-add(5_000, g)
-add(0, rnd(MAXN, MAXN, "0" + "123456789" * 2))
-g = const(MAXN, MAXN, "0")
-for i in range(MAXN):
-    g[i] = g[i][:i] + "1" + g[i][i + 1:]
-add(0, g)
-add(10, ["".join(random.choices(DIG, k=MAXN))])
-add(10, ["".join(random.choices(DIG, k=1)) for _ in range(MAXN)])
+def mix(parts):
+    def make():
+        r = random.random()
+        for w, f in parts:
+            if r < w:
+                return f()
+            r -= w
+        return parts[-1][1]()
+    return make
+
+
+add([(8, 4), (2, 5), (7, 1), (5, 2), (6, 8)])
+add([(5, 2), (2, 5), (1, 1), (3, 4)])
+add([(12, 3), (5, 12), (4, 4), (3, 9), (2, 8), (8, 6), (7, 7)])
+add([(300_000_000, 100_000_000), (100_000_000, 600_000_000), (MAXC, 700_000_000), (0, 0)])
+add([(3, 1), (3, 9)])
+
+
+add([(0, 0), (MAXC, MAXC)])
+add(shuffled([(3, i * 2 + ri(0, 1)) for i in range(14)]))
+add(fill(14, mix([(0.5, box(0, 5, 0, 5)), (1.0, box(6, 11, 6, 11))])))
+add(fill(14, mix([(0.5, box(0, 5, 7, 12)), (1.0, box(6, 11, 0, 6))])))
+add(shuffled([(ri(0, 10 ** 6) * 7 + i, 500) for i in range(15)]))
+add(shuffled([(i, i) for i in range(1, 14)]))
+add(fill(16, box(0, 2, 0, 20)))
+add(shuffled([(i, 20 - i) for i in range(1, 14)]))
+add(fill(13, mix([(0.5, lambda: (7, ri(0, 30))), (1.0, lambda: (ri(0, 30), 7))])))
+
+
+add(fill(3000, box(0, 2000, 0, 2000)))
+add(fill(4000, mix([(0.5, box(0, 10 ** 6, 2 * 10 ** 6, 3 * 10 ** 6)), (1.0, box(2 * 10 ** 6, 3 * 10 ** 6, 0, 10 ** 6))])))
+add(shuffled([(123_456, i * 3 + ri(0, 2)) for i in range(5000)]))
+
+
+N = MAXN
+H = MAXC // 2
+add(fill(N, box(0, MAXC, 0, MAXC)))
+add(fill(N, mix([(0.6, box(0, H - 1, 0, H - 1)), (1.0, box(H, MAXC, H, MAXC))])))
+add(fill(N, mix([(0.45, box(0, H - 1, H, MAXC)), (1.0, box(H, MAXC, 0, H - 1))])))
+add(shuffled([(i * 10_000, i * 10_000) for i in range(N - 1)]))
+add(shuffled([(i * 10_000, MAXC - i * 10_000) for i in range(N - 1)]))
+add(shuffled([(i * 10_000 + ri(0, 9_000), 777_777_777) for i in range(N)]))
+add(shuffled([(MAXC, i * 10_000 + ri(0, 9_999)) for i in range(N)]))
+add(fill(N, lambda: (ri(0, 9) * (MAXC // 9), ri(0, MAXC))))
+add(fill(N, box(0, 49_999, 0, 49_999)))
+add(fill(N, mix([(0.7, box(0, 6 * 10 ** 8, 4 * 10 ** 8, MAXC)), (1.0, box(6 * 10 ** 8 + 1, MAXC, 0, 4 * 10 ** 8 - 1))])))
+add(fill(N, mix([(0.5, lambda: (H, ri(0, MAXC))), (1.0, lambda: (ri(0, MAXC), H))])))
+add(shuffled([(x, 0) for x in random.sample(range(MAXC + 1), N)]))
+add(fill(N, mix([(0.5, lambda: (0, ri(1, MAXC))), (1.0, lambda: (ri(1, MAXC), 0))])))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

@@ -1,86 +1,73 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(91301)
-MAXN, MAXK, MAXL, MAXCH = 100_000, 200_000, 20, 2_000_000
-OK = set("abcdefghijklmnopqrstuvwxyz0123456789@.")
+random.seed(140010)
+MAXN = MAXM = 200000
 tests = []
 
 
-def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+def add(m, cs):
+    n = len(cs)
+    assert 1 <= n <= MAXN and 2 <= m <= MAXM
+    assert all(1 <= a <= m and 1 <= b <= m and a != b for a, b in cs)
+    tests.append(f"{n} {m}\n" + "".join(f"{a} {b}\n" for a, b in cs))
 
 
-def add(accs):
-    n = len(accs)
-    assert 1 <= n <= MAXN and all(len(a) >= 1 for a in accs)
-    assert sum(len(a) for a in accs) <= MAXK
-    assert sum(len(e) for a in accs for e in a) <= MAXCH
-    assert all(1 <= len(e) <= MAXL and set(e) <= OK for a in accs for e in a)
-    tests.append(f"{n}\n" + "".join(f"{len(a)} " + " ".join(a) + "\n" for a in accs))
+def pair(lo, hi):
+    a = random.randint(lo, hi)
+    b = random.randint(lo, hi - 1)
+    return (a, b + (b >= a))
 
 
-DOMS = ["a.com", "m.th", "x.co", "p.net", "ac.th", "q.org"]
-LET = "abcdefghijklmnopqrstuvwxyz0123456789"
+def rnd(n, m):
+    return [pair(1, m) for _ in range(n)]
 
 
-def email(i, long=False):
-    s, x = "", i + 1
-    while x:
-        s += LET[x % 36]
-        x //= 36
-    if long:
-        return (s + ".abcdefgh")[:13] + "@" + DOMS[0]
-    return s + "@" + DOMS[i % len(DOMS)]
+def clusters(n, m, size):
+    blocks = m // size
+    return [pair(k * size + 1, (k + 1) * size) for k in sorted(random.randrange(blocks) for _ in range(n))]
 
 
-def shuffled(accs):
-    accs = [list(a) for a in accs]
-    for a in accs:
-        random.shuffle(a)
-    random.shuffle(accs)
-    return accs
+def relabel(m, cs):
+    p = list(range(1, m + 1))
+    random.shuffle(p)
+    return [(p[a - 1], p[b - 1]) for a, b in cs]
 
 
-def from_pool(n, total, pool, long=False):
-    ks = [1] * n
-    for _ in range(total - n):
-        ks[ri(0, n - 1)] += 1
-    return [[email(ri(0, pool - 1), long) for _ in range(k)] for k in ks]
+add(4, [(1, 2), (2, 3), (1, 3), (1, 2), (3, 4)])
+add(6, [(1, 2), (3, 4), (5, 6), (2, 3), (4, 5), (6, 1), (1, 4)])
+add(2, [(1, 2)])
+add(2, [(1, 2), (2, 1), (1, 2)])
+add(200000, [(200000, 1), (1, 200000), (199999, 200000), (1, 199999)])
+add(3, [(2, 1), (1, 2), (2, 3), (3, 1), (1, 3)])
 
+for n, m in ((5, 3), (8, 6), (10, 4), (20, 25), (40, 30), (200, 150)):
+    add(m, rnd(n, m))
+add(10, clusters(30, 10, 3))
+cs = [(i, i + 1) for i in range(1, 50)] + [(50, 1)] + rnd(20, 50)
+add(50, cs)
 
-add([["ann@a.com", "ann.k@b.org"], ["bob@a.com"], ["ann.k@b.org", "kk@c.net"], ["kk@c.net"]])
-add([["a@x"], ["b@x"], ["b@x", "a@x"]])
-add([["p@q", "p@q", "r@s"], ["t@u"]])
-add([["m1@y.th"], ["m2@y.th"], ["m3@y.th", "m1@y.th"], ["m4@y.th"], ["m2@y.th", "m4@y.th"]])
-add([["z@z"], ["c@c", "d@d"], ["e@e"], ["d@d", "e@e"], ["z@z", "f@f"], ["f@f", "g@g"]])
-
-add([["x"]])
-add([["a@b"], ["a@b"]])
-add(from_pool(8, 14, 10))
-add(from_pool(30, 50, 40))
-add(from_pool(200, 400, 300))
-add(shuffled([[email(i), email(i + 1)] for i in range(500)]))
-add(from_pool(2000, 3000, 2500))
-
-N, K = MAXN, MAXK
-add([[email(0), email(i + 1)] for i in range(N)])
-add([[email(i + 1), email(0)] for i in range(N)])
-add([[email(i), email(i + 1)] for i in range(N)])
-add([[email(i), email(i + 1)] for i in range(N)][::-1])
-add(shuffled([[email(i), email(i + 1)] for i in range(N)]))
-add([[email(i)] * 2 for i in range(N)])
-add(from_pool(N, K, N))
-add(from_pool(N, K, 3 * N))
-add(from_pool(N // 2, K // 2, 200_000, long=True))
-accs = []
-for i in range(N):
-    g = i % 20
-    accs.append([email(10**6 + g), email(i)] if random.random() < 0.5 else [email(i), email(10**6 + g)])
-add(accs)
-add([[email(ri(0, 29))] for _ in range(N)])
-accs = [[email(5 * (i // 5) + j) for j in range(2)] for i in range(N)]
-add(shuffled(accs))
+add(MAXM, rnd(MAXN, MAXM))
+add(MAXM, rnd(MAXN, MAXM // 2 * 2))
+add(1000, rnd(MAXN, 1000))
+add(MAXM, clusters(MAXN, MAXM, 5))
+add(MAXM, relabel(MAXM, clusters(MAXN, MAXM, 40)))
+cs = [(i, i + 1) for i in range(1, MAXM)]
+random.shuffle(cs)
+add(MAXM, relabel(MAXM, cs[:150000] + rnd(50000, MAXM)))
+cs = [(i, i + 1) for i in range(1, 100001)]
+cs += [pair(100002 + 3 * k, 100004 + 3 * k) for k in range(30000)]
+cs += rnd(MAXN - len(cs), MAXM)
+random.shuffle(cs)
+add(MAXM, cs)
+add(2, [(1, 2) if random.random() < 0.5 else (2, 1) for _ in range(MAXN)])
+cs = []
+for k in range(MAXN // 4):
+    base = 4 * (k % (MAXM // 4))
+    cs.append(pair(base + 1, base + 4))
+add(MAXM, relabel(MAXM, cs + clusters(MAXN - len(cs), MAXM, 4)))
+add(MAXM, [pair(1, 50000) if i % 2 else pair(150001, 200000) for i in range(MAXN)])
+add(MAXM, sorted(rnd(MAXN, MAXM), key=lambda x: -x[0]))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

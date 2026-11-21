@@ -5,9 +5,9 @@ organised by topic. **4.0.0 is the first release students get** (no student has 
 code for older layouts; plans `C2_PRACTICE_SRC/plans/V4_RESTRUCTURE.md` and `V4_LAYOUT.md`): English numbered topic
 folders in study order (`01_Brute_Force_and_Implementation` ... `33_Mo_Algorithm`), in three groups (Core 01-14 with
 20 problems, Intermediate 15-25 with 12 (15 has 20, 17 has 15), Advanced (TOI) 26-33 with 12), plus the
-group **Mixed**: 8 sets of 6 problems with no topic label (student folders `00_Mixed/M01` ... `00_Mixed/M08`: one
+group **Mixed**: 11 sets of 6 problems with no topic label (student folders `00_Mixed/M01` ... `00_Mixed/M11`: one
 folder `00_Mixed/` at the top of the package, plans `V4_MIXED_FOLDER.md`; `sets.json` "dir" stays `M01` and the test
-data stays in `problems/batch/M01/`; set numbers 41-48, `sets.json` "group": "Mixed", tier 0 = no level shown;
+data stays in `problems/batch/M01/`; set numbers 41-51, `sets.json` "group": "Mixed", tier 0 = no level shown;
 nothing a student sees may name a topic or technique, `00_Mixed/README.txt` included: `is_mixed`, `set_label`,
 `set_folder`, `MIXED_ROOT`, `MIXED_DIR` in `judge.py`; regression `test_mixed_sets`). Problem id =
 100 * topic + n. `sets.json` gives each topic's `set` number, `dir`, `group` and problem ids; the judge looks a topic

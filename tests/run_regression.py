@@ -13,7 +13,7 @@ Regression tests for the POSN Practice Judge.
 4. Self-update: a local HTTP server serves a modified copy of the repo as v9.9; a package must update itself
    (hashes, backups, restart, create-only code files), and must refuse bad hashes, bad paths and no network.
 5. A later release (a fake 4.0.1 made here) over local HTTP: a re-titled, a replaced and a moved problem, a clash,
-   files the updater did not ship, a new Mixed set 00_Mixed/M09 and a re-titled Mixed problem, and a quiet second run.
+   files the updater did not ship, a new Mixed set 00_Mixed/M<last + 1> and a re-titled Mixed problem, and a quiet second run.
 6. manifest.json is up to date.
 """
 import contextlib
@@ -736,8 +736,8 @@ def outside_judge(root):
 def make_next_release(tmp, version="4.0.1"):
     """A copy of the repo as a later release that changes topic 3: problems 2 and 9 are re-titled, 3, 6 and 8 are
     replaced by new problems, 4 and 5 swap places, and the old problem 6 moves to a new slot 21. In the Mixed sets
-    (plans/V4_MIXED_FOLDER.md): a new set after the last one (00_Mixed/M09, a copy of M08's data and PDFs with new
-    titles) and problem 4 of the second set re-titled.
+    (plans/V4_MIXED_FOLDER.md): a new set after the last one (now 00_Mixed/M12, a copy of M11's data and PDFs with
+    new titles) and problem 4 of the second set re-titled.
     Returns (repo2, the old English titles {slot: title})."""
     repo2 = make_repo2(tmp, version, "marker-" + version)
     batch = os.path.join(repo2, "problems", "batch")
@@ -915,8 +915,8 @@ def test_future_update(root=None):
                     w = sorted([layout.code_name(m9, n), layout.pdf_name(m9, n, meta1[str(pid)]["en"])])
                     if not os.path.isdir(d) or sorted(os.listdir(d)) != w or read(os.path.join(d, layout.code_name(m9, n))) != "":
                         bad.append(f"{layout.folder(m9)}/{n}")
-            check(not bad and m9["dir"] == "M09" and not os.path.exists(os.path.join(root, m9["dir"])),
-                  "a new Mixed set appears as 00_Mixed/M09/ (Makefile, judge.bat, Problems_M09.pdf, 1 ... 6 with an "
+            check(not bad and m9["dir"] == f"M{int(mixed[-1]['dir'][1:]) + 1:02d}" and not os.path.exists(os.path.join(root, m9["dir"])),
+                  "a new Mixed set appears as 00_Mixed/M<last + 1>/ (Makefile, judge.bat, Problems_M<last + 1>.pdf, 1 ... 6 with an "
                   "empty code file and its PDF each), nothing at the package root", str(bad))
             m4_new = os.path.join(root, *layout.pdf_path(m2, 4, "Renamed Mixed Four").split("/"))
             bak4 = os.path.join(judge_dir, ".backup", "_package", *os.path.relpath(m4_old, root).split(os.sep))
@@ -931,7 +931,7 @@ def test_future_update(root=None):
                                          url, judge_path=os.path.join(os.pardir, os.pardir, "Judge", "judge.py"))
             check(code_ == 0 and f"Mixed {m9['dir'] if m9 else ''}" in outm and outm.count("still empty - skipped") == 6
                   and "moved" not in outm and "restarting" not in outm,
-                  "the new set is judged in 00_Mixed/M09 (whole set); this second run is quiet", outm)
+                  "the new set is judged in 00_Mixed/M<last + 1> (whole set); this second run is quiet", outm)
         # the second run is quiet and changes nothing
         snap = outside_judge(root)
         code_, out2, _ = run_student([P31, "--no-color"], set1, url)

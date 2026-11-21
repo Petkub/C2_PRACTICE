@@ -1,82 +1,89 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(30319)
-MAXN = 200_000
-MAXH = 10**9
-MAXD = 10**4
+random.seed(52006)
+MAXN = 100_000
+MAXV = 10 ** 9
 tests = []
+rnd = random.random
 
 
 def ri(lo, hi):
-    return lo + int(random.random() * (hi - lo + 1))
+    return lo + int(rnd() * (hi - lo + 1))
 
 
-def add(D, h):
-    n = len(h)
-    assert 1 <= n <= MAXN
-    assert 0 <= D <= MAXD
-    assert all(0 <= x <= MAXH for x in h)
-    tests.append(f"{n} {D}\n" + " ".join(map(str, h)) + "\n")
+def add(e, s, b):
+    n = len(e)
+    assert 1 <= n <= MAXN and len(s) == n and len(b) == n
+    assert all(c in "HL" for c in s)
+    assert all(1 <= v <= MAXV for v in e) and all(1 <= v <= MAXV for v in b)
+    tests.append(f"{n}\n{' '.join(map(str, e))}\n{s}\n{' '.join(map(str, b))}\n")
 
 
-def rnd(n, lo, hi):
+def vals(n, lo, hi):
     return [ri(lo, hi) for _ in range(n)]
 
 
-def clip(x):
-    return min(MAXH, max(0, x))
+def rules(n, ph=0.5):
+    return "".join("H" if rnd() < ph else "L" for _ in range(n))
 
 
-def near(n, D, base, noise):
-    return [clip(base + i * D + ri(-noise, noise)) for i in range(n)]
+def near(a, d):
+    return [min(MAXV, max(1, v + ri(-d, d))) for v in a]
 
 
-def walk(n, start, step):
-    res, x = [], start
-    for _ in range(n):
-        x = clip(x + ri(-step, step))
-        res.append(x)
-    return res
+def strong(s, lo, mid, hi):
+    return [ri(mid, hi) if ch == "H" else ri(lo, mid) for ch in s]
 
 
-add(0, [3, 1, 2, 5, 4])
-add(2, [5, 5, 5, 5])
-add(1, [1, 2, 4, 8, 16])
-add(7, [42])
-add(1, [4, 9, 2, 6, 3, 8, 7])
-add(3, [10, 0, 10, 0, 10, 0])
+def copy_of(e, d):
+    b = near(e, d)
+    random.shuffle(b)
+    return b
 
-add(MAXD, [MAXH, 0])
-add(0, [MAXH, 0])
-add(0, rnd(10, 0, 5))
-add(1, rnd(10, 0, 20))
-add(2, near(12, 2, 3, 3))
-add(5, rnd(60, 0, 100))
-add(0, rnd(300, 0, MAXH))
-add(37, walk(2000, 10**5, 300))
-add(MAXD, rnd(3000, 0, MAXH))
-add(1, near(5000, 1, 10**6, 20))
-add(0, rnd(20_000, 0, 1000))
+
+add([4, 4, 2, 1, 4], "HHLLL", [5, 2, 6, 4, 3])
+add([2, 2, 2], "HHL", [2, 2, 2])
+add([10, 10, 10, 1, 1, 1], "HHHLLL", [1, 1, 1, 10, 10, 10])
+add([7], "H", [3])
+add([5, 3, 4, 1, 5], "HHLLH", [6, 3, 3, 1, 4])
+add([5, 4, 3, 4, 4, 3, 1, 1], "HLHHHLLL", [2, 6, 6, 4, 1, 4, 1, 5])
+
+
+add([1], "L", [1])
+add([MAXV, 1], "LH", [1, MAXV])
+add(vals(7, 1, 3), rules(7), vals(7, 1, 3))
+add(vals(8, 1, 4), "HHHHHHHH", vals(8, 1, 4))
+add(vals(8, 1, 3), "LLLLLLLL", vals(8, 1, 3))
+add(vals(8, 2, 5), rules(8, 0.3), vals(8, 1, 4))
+
+
+for n, v, ph in ((300, 3, 0.5), (350, 6, 0.7)):
+    add(vals(n, 1, v), rules(n, ph), vals(n, 1, v))
+for n, v, ph, d in ((400, 20, 0.4, 1), (400, 8, 0.5, 2)):
+    s = rules(n, ph)
+    e = strong(s, 1, v // 2, v)
+    add(e, s, copy_of(e, d))
+
 
 N = MAXN
-add(0, rnd(N, 0, MAXH))
-add(1, rnd(N, 0, MAXH))
-add(MAXD, rnd(N, 0, MAXH))
-add(0, list(range(MAXH, MAXH - N, -1)))
-add(MAXD, [MAXH] * N)
-add(MAXD, [0] * (N // 2) + [MAXH] * (N - N // 2))
-add(MAXD, [MAXH - i * 4000 for i in range(N)])
-add(3, near(N, 3, 1000, 50))
-add(5000, near(N, 4999, 0, 10**6))
-add(0, walk(N, MAXH // 2, 10**6))
-add(0, [MAXH if i % 2 else 0 for i in range(N)])
-add(1, rnd(N, 0, 10))
-add(100, sorted(rnd(N, 0, MAXH)))
+add(vals(N, 1, 3), rules(N), vals(N, 1, 3))
+add(vals(N, 1, 10), "H" * N, vals(N, 1, 10))
+add(vals(N, 1, 100), "L" * N, vals(N, 1, 100))
+add(vals(N, 1, 5), "H" * N, vals(N, 1, 5))
+add(vals(N, 300, 1000), rules(N, 0.5), vals(N, 1, 700))
+add(vals(N, 1, 4), rules(N, 0.25), vals(N, 2, 5))
+add(vals(N, 1, 30), "L" * N, vals(N, 1, 30))
+for v, ph, d in ((10, 0.5, 1), (50, 0.6, 2), (1000, 0.5, 3), (MAXV, 0.5, 2), (30, 0.8, 1), (200, 0.5, 1)):
+    s = rules(N, ph)
+    e = strong(s, 1, v // 2, v) if v < MAXV else strong(s, MAXV - 50, MAXV - 25, MAXV)
+    add(e, s, copy_of(e, d))
+s = "H" * (N // 2) + "L" * (N - N // 2)
+e = strong(s, 1, 10, 20)
+add(e, s, copy_of(e, 0))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
-print("total bytes", sum(len(t) for t in tests))
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
     with open(f"tests/{i:02d}.in", "w") as f:

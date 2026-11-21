@@ -893,5 +893,47 @@
    4805,
    4806
   ]
+ },
+ {
+  "set": 49,
+  "dir": "M09",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   4901,
+   4902,
+   4903,
+   4904,
+   4905,
+   4906
+  ]
+ },
+ {
+  "set": 50,
+  "dir": "M10",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   5001,
+   5002,
+   5003,
+   5004,
+   5005,
+   5006
+  ]
+ },
+ {
+  "set": 51,
+  "dir": "M11",
+  "group": "Mixed",
+  "level_en": "Mixed practice",
+  "problems": [
+   5101,
+   5102,
+   5103,
+   5104,
+   5105,
+   5106
+  ]
  }
 ]

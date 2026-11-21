@@ -1,6 +1,6 @@
 POSN Practice Judge - changes
 
-4.0.0  The first release for students: 33 topics and 8 Mixed sets, one folder per problem.
+4.0.0  The first release for students: 33 topics and 11 Mixed sets, one folder per problem.
        - English topic folders numbered in study order, basic to advanced: 01_Brute_Force_and_Implementation ...
          33_Mo_Algorithm, in three groups: Core (01-14), Intermediate (15-25), Advanced (TOI) (26-33).
        - DP is three core topics: 09 DP I Foundations, 10 DP II Classic Patterns, 11 DP III Faster Transitions;
@@ -11,9 +11,10 @@ POSN Practice Judge - changes
        - Advanced (TOI) topics, 12 problems each: 26 Bitmask and Digit DP, 27 DSU on Tree, 28 Heavy-Light
          Decomposition, 29 Centroid Decomposition, 30 Persistent Segment Tree, 31 Convex Hull, 32 Convex Hull Trick
          and DP Optimization, 33 Mo's Algorithm.
-       - 8 Mixed sets (folders 00_Mixed/M01 ... 00_Mixed/M08, 6 problems each) with problems from different topics;
+       - 11 Mixed sets (folders 00_Mixed/M01 ... 00_Mixed/M11, 6 problems each) with problems from different topics;
          the topic of a problem is not given.
        - ชุดฝึกรวมอยู่ในโฟลเดอร์ 00_Mixed (บนสุด)
+       - เพิ่มชุดฝึกรวม M09-M11 · ปรับโจทย์ 11 ข้อ
        - Statements in the Camp 2 mock-exam layout (one or two pages, one sample per row). Problems are ordered
          from easier to harder within each level.
        - One folder per problem: 04_Binary_Search/05/ holds your code file 04-05.cpp (empty at first) and the

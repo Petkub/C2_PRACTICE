@@ -378,11 +378,11 @@
   "samples": 6
  },
  "315": {
-  "title": "ที่ดินสี่เหลี่ยมจัตุรัส",
-  "en": "Largest Affordable Square",
+  "title": "สองคอกในฟาร์มบล็อก",
+  "en": "Two Pens in BlockLand",
   "tier": 2,
   "dir": "03_Prefix_Sums_and_Two_Pointers/15",
-  "samples": 6
+  "samples": 5
  },
  "316": {
   "title": "เรียงใหม่เป็น palindrome",
@@ -497,11 +497,11 @@
   "samples": 6
  },
  "412": {
-  "title": "รถโดยสารออกตรงชั่วโมง",
-  "en": "Buses Leave on the Hour",
+  "title": "ผมทำภารกิจอยู่ตลอดนะ",
+  "en": "I Was Doing My Task",
   "tier": 2,
   "dir": "04_Binary_Search/12",
-  "samples": 6
+  "samples": 5
  },
  "413": {
   "title": "พายเรือผ่านประตู",
@@ -693,8 +693,8 @@
   "samples": 6
  },
  "520": {
-  "title": "ซ่อมบันได",
-  "en": "Fixing the Stairs",
+  "title": "ไพ่สูงต่ำกับสตรีมเมอร์",
+  "en": "High or Low Against the Streamer",
   "tier": 3,
   "dir": "05_Greedy/20",
   "samples": 6
@@ -791,11 +791,11 @@
   "samples": 6
  },
  "614": {
-  "title": "งานสั้นได้ก่อน",
-  "en": "Shortest Job First",
+  "title": "ปุ่มจัดกระเป๋าที่ช้าที่สุด",
+  "en": "The Slowest Sort Button",
   "tier": 2,
   "dir": "06_Sorting_and_Sweep_Line/14",
-  "samples": 5
+  "samples": 6
  },
  "615": {
   "title": "ทางจักรยานแคบ",
@@ -826,8 +826,8 @@
   "samples": 5
  },
  "619": {
-  "title": "นั่งห่างกันไว้",
-  "en": "Keeping Distance",
+  "title": "ฐานบ้านเรียบใน BlockLand",
+  "en": "A Flat Base in BlockLand",
   "tier": 3,
   "dir": "06_Sorting_and_Sweep_Line/19",
   "samples": 5
@@ -1379,8 +1379,8 @@
   "samples": 6
  },
  "1018": {
-  "title": "รอบเดินเครื่องสูบน้ำ",
-  "en": "Pump Rota",
+  "title": "ไวนิลเก่า สโลแกนใหม่",
+  "en": "Old Vinyl, New Slogan",
   "tier": 3,
   "dir": "10_DP_II_Classic_Patterns/18",
   "samples": 5
@@ -1582,8 +1582,8 @@
   "samples": 6
  },
  "1207": {
-  "title": "วาดรูปเส้นเดียว",
-  "en": "One-Stroke Drawing",
+  "title": "วิทยุส่งต่อเป็นทอด ๆ",
+  "en": "Relaying the Radio Call",
   "tier": 1,
   "dir": "12_Graph_Traversal/7",
   "samples": 6
@@ -1645,15 +1645,15 @@
   "samples": 6
  },
  "1216": {
-  "title": "เส้นทางรถเมล์จากบันทึกสามป้าย",
-  "en": "Bus Route From Triples",
+  "title": "แลกของขวัญหลังจับฉลาก",
+  "en": "Swapping Gifts After the Draw",
   "tier": 2,
   "dir": "12_Graph_Traversal/16",
   "samples": 6
  },
  "1217": {
-  "title": "กุญแจกับประตู",
-  "en": "Keys and Doors",
+  "title": "เส้นทางที่ให้ข้อความน้อยที่สุด",
+  "en": "The Smallest Path Word",
   "tier": 3,
   "dir": "12_Graph_Traversal/17",
   "samples": 6
@@ -1799,8 +1799,8 @@
   "samples": 5
  },
  "1318": {
-  "title": "ราคาน้ำมัน",
-  "en": "Fuel Prices",
+  "title": "สูบน้ำก่อนกรรมการประชุมเสร็จ",
+  "en": "Pump Before the Committee Ends",
   "tier": 3,
   "dir": "13_Shortest_Paths/18",
   "samples": 5
@@ -1883,11 +1883,11 @@
   "samples": 5
  },
  "1410": {
-  "title": "รวมบัญชีผู้ใช้",
-  "en": "Merging Accounts",
+  "title": "พรีออเดอร์การ์ดจอร้านป้าแจ่ม",
+  "en": "Pre-Orders at the Card Shop",
   "tier": 2,
   "dir": "14_DSU_and_MST/10",
-  "samples": 5
+  "samples": 6
  },
  "1411": {
   "title": "แบ่งกลุ่มรังนก",
@@ -3972,6 +3972,132 @@
   "en": "Editing Anime on Zero Budget",
   "tier": 0,
   "dir": "M08/6",
+  "samples": 5
+ },
+ "4901": {
+  "title": "ป้ายไฟชมรมต้องสมมาตร",
+  "en": "The Club's Symmetric LED Sign",
+  "tier": 0,
+  "dir": "M09/1",
+  "samples": 5
+ },
+ "4902": {
+  "title": "ถ่ายรูปกลุ่มตามเศษนำโชค",
+  "en": "Group Photos by Lucky Remainder",
+  "tier": 0,
+  "dir": "M09/2",
+  "samples": 6
+ },
+ "4903": {
+  "title": "ม็อดแยกกองบล็อก",
+  "en": "The Stack-Splitting Mod",
+  "tier": 0,
+  "dir": "M09/3",
+  "samples": 5
+ },
+ "4904": {
+  "title": "ซ้อม แข่ง หรือพัก",
+  "en": "Train, Play or Rest",
+  "tier": 0,
+  "dir": "M09/4",
+  "samples": 4
+ },
+ "4905": {
+  "title": "จัดการ์ดจอมือสองเป็นชุด",
+  "en": "Bundling the Ex-Mining Cards",
+  "tier": 0,
+  "dir": "M09/5",
+  "samples": 5
+ },
+ "4906": {
+  "title": "ย้ายพรรคพร้อมคะแนนนิยม",
+  "en": "Party Hopping with Popularity",
+  "tier": 0,
+  "dir": "M09/6",
+  "samples": 5
+ },
+ "5001": {
+  "title": "คบเพลิงเฝ้าสี่ป้อม",
+  "en": "Torches for Four Towers",
+  "tier": 0,
+  "dir": "M10/1",
+  "samples": 5
+ },
+ "5002": {
+  "title": "แชมป์เก่าไม่เคยไปไหน",
+  "en": "The Champion Always Comes Back",
+  "tier": 0,
+  "dir": "M10/2",
+  "samples": 5
+ },
+ "5003": {
+  "title": "ดูด้วยกันห้ามมีใครงอน",
+  "en": "A Watch Party Without Sulking",
+  "tier": 0,
+  "dir": "M10/3",
+  "samples": 5
+ },
+ "5004": {
+  "title": "เรนเดอร์ให้ทันก่อนตีสาม",
+  "en": "Render Everything Before 3 A.M.",
+  "tier": 0,
+  "dir": "M10/4",
+  "samples": 5
+ },
+ "5005": {
+  "title": "ได้ยินมาจากเพื่อนของเพื่อน",
+  "en": "Heard It From a Friend's Friend",
+  "tier": 0,
+  "dir": "M10/5",
+  "samples": 5
+ },
+ "5006": {
+  "title": "อันดับสดของทีมกะเพรา",
+  "en": "Team Kaprao's Live Rank",
+  "tier": 0,
+  "dir": "M10/6",
+  "samples": 5
+ },
+ "5101": {
+  "title": "บัตรห้องซ้อมจากสปอนเซอร์",
+  "en": "Sponsor Scrim Passes",
+  "tier": 0,
+  "dir": "M11/1",
+  "samples": 5
+ },
+ "5102": {
+  "title": "กองรายงานกลับหัว",
+  "en": "The Upside-Down Report Pile",
+  "tier": 0,
+  "dir": "M11/2",
+  "samples": 5
+ },
+ "5103": {
+  "title": "เกาะลอยฟ้าเก็บน้ำฝน",
+  "en": "Rain on the Sky Island",
+  "tier": 0,
+  "dir": "M11/3",
+  "samples": 5
+ },
+ "5104": {
+  "title": "จัดเรียงเหรียญในแอปเทรด",
+  "en": "Sorting the Crypto Watchlist",
+  "tier": 0,
+  "dir": "M11/4",
+  "samples": 5
+ },
+ "5105": {
+  "title": "ดันเจี้ยนที่งอกห้องเองได้",
+  "en": "The Dungeon That Grows Rooms",
+  "tier": 0,
+  "dir": "M11/5",
+  "samples": 5
+ },
+ "5106": {
+  "title": "จัดป้ายหาเสียงให้เป็นระเบียบ",
+  "en": "Tidying the Campaign Signs",
+  "tier": 0,
+  "dir": "M11/6",
   "samples": 5
  }
 }
