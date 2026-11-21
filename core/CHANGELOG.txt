@@ -1,5 +1,8 @@
 POSN Practice Judge - changes
 
+4.1.0  ปรับเนื้อเรื่องทุกข้อให้เป็นแนวเดียวกัน (โจทย์และ test ไม่เปลี่ยน)
+       - 13 problems have a new English title, so their PDF has a new name; your code files stay where they are.
+
 4.0.0  The first release for students: 33 topics and 11 Mixed sets, one folder per problem.
        - English topic folders numbered in study order, basic to advanced: 01_Brute_Force_and_Implementation ...
          33_Mo_Algorithm, in three groups: Core (01-14), Intermediate (15-25), Advanced (TOI) (26-33).

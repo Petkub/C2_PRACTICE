@@ -790,8 +790,9 @@ def make_next_release(tmp, version="4.0.1"):
     bm = os.path.join(repo2, "tools", "build_manifest.py")
     with open(bm, encoding="utf-8") as f:
         text = f.read()
-    with open(bm, "w", encoding="utf-8") as f:
-        f.write(text.replace("RENAMED = {}", "RENAMED = " + repr(renamed), 1))
+    assert text.count("\nRENAMED = {") == 1, "tools/build_manifest.py: no RENAMED = {...} line"
+    with open(bm, "w", encoding="utf-8") as f:                  # add to the real RENAMED (it may hold entries)
+        f.write(text.replace("\nRENAMED = {", "\nRENAMED = {**" + repr(renamed) + ", ", 1))
     files = os.path.join(repo2, "student", "set_files")
     shutil.copy(os.path.join(files, "Makefile"), os.path.join(files, "Makefile_21"))
     for i in range(1, 22):                                                 # the PDFs follow the titles

@@ -190,7 +190,21 @@ def bundles(pairs, files, write):
 
 
 MOVES = os.path.join(REPO, "tools", "moves")
-RENAMED = {}                        # old English title -> new title, if a problem is renamed between releases
+RENAMED = {                         # old English title -> new title, if a problem is renamed between releases
+    'Divisible Prefix Plate': 'Lucky Membership Number',         # 01_Brute_Force_and_Implementation/13 (4.1.0 story pass)
+    'Knapsack of Forty': 'Forty Items on One Plane',             # 01_Brute_Force_and_Implementation/19 (4.1.0 story pass)
+    'Sorting the Book Pile': 'Wednesday Library Duty',           # 05_Greedy/9 (4.1.0 story pass)
+    'The Slowest Sort Button': 'The Slowest Inventory Button',   # 06_Sorting_and_Sweep_Line/14 (4.1.0 story pass)
+    'Repeating Remainders': "The Random System That Isn't",      # 07_Number_Theory_and_Counting/10 (4.1.0 story pass)
+    'Quadtree Map': 'The Black and White Letter Map',            # 08_Divide_and_Conquer/5 (4.1.0 story pass)
+    'Merging Two Queues': 'Two Lines Become One',                # 11_DP_III_Faster_Transitions/5 (4.1.0 story pass)
+    'One Cycle Allowed': "The Council's Strange Rule",           # 14_DSU_and_MST/20 (4.1.0 story pass)
+    'Dividing Ancestors': 'Lucky Numbers Run in the Family',     # 15_Trees/10 (4.1.0 story pass)
+    'Bracket Queries': 'The AI Never Closes Brackets',           # 17_Fenwick_and_Segment_Tree/12 (4.1.0 story pass)
+    'Christmas Tree Lamps': 'Christmas Fair Lamps',              # 22_Euler_Tour/11 (4.1.0 story pass)
+    'Matching the Keys': 'Keys to the Sealed Scroll',            # 25_Trie/4 (4.1.0 story pass)
+    'Reinforcing the Bridges': 'Will the Trucks Make It Across', # 28_Heavy_Light_Decomposition/2 (4.1.0 story pass)
+}
 REPLACED_FILE = os.path.join(REPO, "tools", "replaced.json")   # old English title -> "NN_Name/n" (C2_PRACTICE_SRC bank/)
 
 

@@ -35,7 +35,7 @@
   "samples": 5
  },
  "106": {
-  "title": "สมการผลรวมเลขโดด",
+  "title": "สมการต้องสาปหน้าประตูมิติ",
   "en": "Digit-Sum Equation",
   "tier": 1,
   "dir": "01_Brute_Force_and_Implementation/6",
@@ -84,8 +84,8 @@
   "samples": 5
  },
  "113": {
-  "title": "เลขทะเบียนหารลงตัวทุกหลัก",
-  "en": "Divisible Prefix Plate",
+  "title": "เลขทะเบียนมงคล",
+  "en": "Lucky Membership Number",
   "tier": 2,
   "dir": "01_Brute_Force_and_Implementation/13",
   "samples": 5
@@ -112,7 +112,7 @@
   "samples": 5
  },
  "117": {
-  "title": "ปูกระดานด้วยชิ้นส่วน",
+  "title": "หอคอยชั้นที่ 47 กับพื้นที่ต้องปูให้เต็ม",
   "en": "Covering the Board with Pieces",
   "tier": 3,
   "dir": "01_Brute_Force_and_Implementation/17",
@@ -127,7 +127,7 @@
  },
  "119": {
   "title": "ขนสินค้าสี่สิบชิ้น",
-  "en": "Knapsack of Forty",
+  "en": "Forty Items on One Plane",
   "tier": 3,
   "dir": "01_Brute_Force_and_Implementation/19",
   "samples": 6
@@ -140,7 +140,7 @@
   "samples": 5
  },
  "201": {
-  "title": "เส้นทางในถ้ำ",
+  "title": "ถ้ำมิติแห่งทางลงที่ไม่มีวันย้อนกลับ",
   "en": "Cave Routes",
   "tier": 1,
   "dir": "02_Strings_and_Parsing/1",
@@ -182,7 +182,7 @@
   "samples": 5
  },
  "207": {
-  "title": "ชิ้นส่วนวงเล็บสมดุล",
+  "title": "ผนึกสี่ธาตุแห่งวงเล็บ",
   "en": "Balanced Bracket Pieces",
   "tier": 1,
   "dir": "02_Strings_and_Parsing/7",
@@ -350,7 +350,7 @@
   "samples": 5
  },
  "311": {
-  "title": "จัตุรัสสมดุล",
+  "title": "ผนึกจัตุรัสแห่งดุลยภาพ",
   "en": "Balanced Squares",
   "tier": 2,
   "dir": "03_Prefix_Sums_and_Two_Pointers/11",
@@ -399,7 +399,7 @@
   "samples": 5
  },
  "318": {
-  "title": "ตรายางกลับสี",
+  "title": "ตรายางต้องสาปแห่งขาวและดำ",
   "en": "Inverting Stamp",
   "tier": 3,
   "dir": "03_Prefix_Sums_and_Two_Pointers/18",
@@ -455,7 +455,7 @@
   "samples": 6
  },
  "406": {
-  "title": "พลังสำหรับปีนบันไดเชือก",
+  "title": "ฮันเตอร์แรงก์ E กับบันไดเชือกแห่งหุบเหว",
   "en": "Strength for the Rope Ladder",
   "tier": 1,
   "dir": "04_Binary_Search/6",
@@ -518,7 +518,7 @@
   "samples": 6
  },
  "415": {
-  "title": "ช่วงผลงานเด่น K ช่วง",
+  "title": "ผู้พิทักษ์แท่งเทียนเขียวแห่ง DogeCorn",
   "en": "K Showcase Periods",
   "tier": 2,
   "dir": "04_Binary_Search/15",
@@ -595,7 +595,7 @@
   "samples": 6
  },
  "506": {
-  "title": "กระโดดข้ามหิน",
+  "title": "เกิดใหม่ในต่างโลกเป็นกบที่ว่ายน้ำไม่เป็น",
   "en": "Hopping Stones",
   "tier": 1,
   "dir": "05_Greedy/6",
@@ -609,15 +609,15 @@
   "samples": 6
  },
  "508": {
-  "title": "ลำดับงานซ่อมตามความสำคัญ",
+  "title": "คิวซ่อมคอมเช้าวันส่งงาน",
   "en": "Weighted Waiting",
   "tier": 2,
   "dir": "05_Greedy/8",
   "samples": 6
  },
  "509": {
-  "title": "เรียงกองหนังสือ",
-  "en": "Sorting the Book Pile",
+  "title": "เวรห้องสมุดวันพุธ",
+  "en": "Wednesday Library Duty",
   "tier": 2,
   "dir": "05_Greedy/9",
   "samples": 6
@@ -644,7 +644,7 @@
   "samples": 6
  },
  "513": {
-  "title": "คู่ s-h มากที่สุด",
+  "title": "เสียงเชียร์ สู้-ฮุย",
   "en": "Most SH Pairs",
   "tier": 2,
   "dir": "05_Greedy/13",
@@ -658,7 +658,7 @@
   "samples": 6
  },
  "515": {
-  "title": "ห้ามซ้ำติดกันเกิน K ตัว",
+  "title": "จอมเวทผู้ไม่ยอมลิ้นพัน",
   "en": "No Long Runs",
   "tier": 2,
   "dir": "05_Greedy/15",
@@ -777,7 +777,7 @@
   "samples": 6
  },
  "612": {
-  "title": "เฝ้าเวรคนเดียว",
+  "title": "ผู้พิทักษ์เพียงลำพังแห่งสมาคมฮันเตอร์",
   "en": "Alone on Duty",
   "tier": 2,
   "dir": "06_Sorting_and_Sweep_Line/12",
@@ -792,7 +792,7 @@
  },
  "614": {
   "title": "ปุ่มจัดกระเป๋าที่ช้าที่สุด",
-  "en": "The Slowest Sort Button",
+  "en": "The Slowest Inventory Button",
   "tier": 2,
   "dir": "06_Sorting_and_Sweep_Line/14",
   "samples": 6
@@ -840,7 +840,7 @@
   "samples": 6
  },
  "701": {
-  "title": "จับคู่หารลงตัว",
+  "title": "คู่ที่หารลงตัว",
   "en": "Pairs That Share the Bill",
   "tier": 1,
   "dir": "07_Number_Theory_and_Counting/1",
@@ -903,8 +903,8 @@
   "samples": 5
  },
  "710": {
-  "title": "เศษที่วนซ้ำ",
-  "en": "Repeating Remainders",
+  "title": "ระบบสุ่มที่ไม่สุ่ม",
+  "en": "The Random System That Isn't",
   "tier": 2,
   "dir": "07_Number_Theory_and_Counting/10",
   "samples": 5
@@ -931,7 +931,7 @@
   "samples": 5
  },
  "714": {
-  "title": "ทำให้เท่ากันทีละจำนวนเฉพาะ",
+  "title": "Lv.1 นักแปรธาตุแห่งจำนวนเฉพาะ",
   "en": "Equal by Prime Steps",
   "tier": 2,
   "dir": "07_Number_Theory_and_Counting/14",
@@ -980,7 +980,7 @@
   "samples": 5
  },
  "801": {
-  "title": "ผลรวมหลักขวาสุดที่ไม่ใช่ศูนย์",
+  "title": "เกิดใหม่ต่างโลกแต่เควสต์แรกคืองานบัญชี",
   "en": "Rightmost Nonzero Digits",
   "tier": 1,
   "dir": "08_Divide_and_Conquer/1",
@@ -1008,8 +1008,8 @@
   "samples": 5
  },
  "805": {
-  "title": "แผนที่ quadtree",
-  "en": "Quadtree Map",
+  "title": "แผนที่ขาวดำฉบับตัวอักษร",
+  "en": "The Black and White Letter Map",
   "tier": 1,
   "dir": "08_Divide_and_Conquer/5",
   "samples": 5
@@ -1036,7 +1036,7 @@
   "samples": 5
  },
  "809": {
-  "title": "เดินตามเส้นโค้ง Hilbert",
+  "title": "เส้นทางเดียวแห่งดันเจี้ยนต้องสาป",
   "en": "Hilbert Curve Walk",
   "tier": 2,
   "dir": "08_Divide_and_Conquer/9",
@@ -1113,7 +1113,7 @@
   "samples": 5
  },
  "820": {
-  "title": "อันดับเรียงติดกัน",
+  "title": "กลุ่มอันดับติดกัน",
   "en": "Consecutive Ranks",
   "tier": 3,
   "dir": "08_Divide_and_Conquer/20",
@@ -1190,7 +1190,7 @@
   "samples": 5
  },
  "911": {
-  "title": "ซื้อขายแล้วต้องพัก",
+  "title": "ผู้ย้อนกาลแห่งตลาดหุ้น (รอบที่ 99)",
   "en": "Trading with Rest",
   "tier": 2,
   "dir": "09_DP_I_Foundations/11",
@@ -1218,7 +1218,7 @@
   "samples": 6
  },
  "915": {
-  "title": "เติมวงเล็บ",
+  "title": "คัมภีร์ต้องห้ามกับวงเล็บที่เลือนหาย",
   "en": "Filling the Brackets",
   "tier": 2,
   "dir": "09_DP_I_Foundations/15",
@@ -1274,7 +1274,7 @@
   "samples": 5
  },
  "1003": {
-  "title": "ลำดับการคูณ matrix",
+  "title": "คืนนี้คอมจะรอดไหม",
   "en": "Multiplying Tables",
   "tier": 1,
   "dir": "10_DP_II_Classic_Patterns/3",
@@ -1323,7 +1323,7 @@
   "samples": 6
  },
  "1010": {
-  "title": "ใส่วงเล็บให้ได้หลักหน่วย",
+  "title": "ตำนานจอมเวทผู้ลืมใส่วงเล็บ",
   "en": "Bracketing for the Last Digit",
   "tier": 2,
   "dir": "10_DP_II_Classic_Patterns/10",
@@ -1351,7 +1351,7 @@
   "samples": 5
  },
  "1014": {
-  "title": "ช่วงขาขึ้นที่เริ่มเร็วที่สุด",
+  "title": "ขาขึ้นที่เริ่มเร็วที่สุด",
   "en": "The Earliest Longest Climb",
   "tier": 2,
   "dir": "10_DP_II_Classic_Patterns/14",
@@ -1421,7 +1421,7 @@
   "samples": 6
  },
  "1104": {
-  "title": "กระโดดเฉียงลงขวา",
+  "title": "กระดานต้องสาปของเทพเจ้าขี้เบื่อ",
   "en": "Diagonal Leaps",
   "tier": 1,
   "dir": "11_DP_III_Faster_Transitions/4",
@@ -1429,7 +1429,7 @@
  },
  "1105": {
   "title": "รวมสองแถวเป็นแถวเดียว",
-  "en": "Merging Two Queues",
+  "en": "Two Lines Become One",
   "tier": 1,
   "dir": "11_DP_III_Faster_Transitions/5",
   "samples": 6
@@ -1519,7 +1519,7 @@
   "samples": 6
  },
  "1118": {
-  "title": "ทยอยขายลังสินค้า K วัน",
+  "title": "ราชันย์พ่อค้าผู้ย้อนเวลา",
   "en": "Selling Crates Over K Days",
   "tier": 3,
   "dir": "11_DP_III_Faster_Transitions/18",
@@ -1596,7 +1596,7 @@
   "samples": 6
  },
  "1209": {
-  "title": "กุญแจรหัสหลายวงล้อ",
+  "title": "ผนึกวงล้อแห่งประตูใต้ดิน",
   "en": "Multi-Wheel Combination Lock",
   "tier": 2,
   "dir": "12_Graph_Traversal/9",
@@ -1631,7 +1631,7 @@
   "samples": 6
  },
  "1214": {
-  "title": "กบกระโดดไปหยุดนิ่ง",
+  "title": "เกิดใหม่ต่างโลกเป็นกบที่เบรกไม่เป็น",
   "en": "Leaping to a Standstill",
   "tier": 2,
   "dir": "12_Graph_Traversal/14",
@@ -1680,7 +1680,7 @@
   "samples": 6
  },
  "1301": {
-  "title": "ทุ่งโคลน",
+  "title": "ตำนานผู้กล้าแห่งทุ่งโคลน",
   "en": "Muddy Field",
   "tier": 1,
   "dir": "13_Shortest_Paths/1",
@@ -1785,7 +1785,7 @@
   "samples": 5
  },
  "1316": {
-  "title": "ขนทุเรียนผ่านด่าน",
+  "title": "ทุเรียนต้องสาปแห่งด่านเก็บส่วย",
   "en": "Durian Past the Checkpoints",
   "tier": 2,
   "dir": "13_Shortest_Paths/16",
@@ -1848,7 +1848,7 @@
   "samples": 5
  },
  "1405": {
-  "title": "สายแรกที่เกิดวง",
+  "title": "สายเกินเส้นแรก",
   "en": "First Redundant Cable",
   "tier": 1,
   "dir": "14_DSU_and_MST/5",
@@ -1890,7 +1890,7 @@
   "samples": 6
  },
  "1411": {
-  "title": "แบ่งกลุ่มรังนก",
+  "title": "ผู้พิทักษ์รังแห่งหุบเขานกเพลิง",
   "en": "Grouping Nests",
   "tier": 2,
   "dir": "14_DSU_and_MST/11",
@@ -1932,7 +1932,7 @@
   "samples": 5
  },
  "1417": {
-  "title": "อุโมงค์ลัดระหว่างดาว",
+  "title": "จักรพรรดิขี้งกแห่งดาราจักร",
   "en": "Cheap Tunnels Between Stars",
   "tier": 3,
   "dir": "14_DSU_and_MST/17",
@@ -1953,8 +1953,8 @@
   "samples": 5
  },
  "1420": {
-  "title": "วงได้ไม่เกินหนึ่ง",
-  "en": "One Cycle Allowed",
+  "title": "กฎแปลกของเทศบาล",
+  "en": "The Council's Strange Rule",
   "tier": 3,
   "dir": "14_DSU_and_MST/20",
   "samples": 5
@@ -1974,7 +1974,7 @@
   "samples": 6
  },
  "1503": {
-  "title": "ส่งพัสดุบนเนินเขา",
+  "title": "ราชันย์แห่งเนินเขาผู้ไม่เคยได้ขึ้นกระเช้า",
   "en": "Parcels on the Hillside",
   "tier": 1,
   "dir": "15_Trees/3",
@@ -2024,8 +2024,8 @@
   "samples": 5
  },
  "1510": {
-  "title": "บรรพบุรุษที่หารลงตัว",
-  "en": "Dividing Ancestors",
+  "title": "เลขนำโชคประจำตระกูล",
+  "en": "Lucky Numbers Run in the Family",
   "tier": 2,
   "dir": "15_Trees/10",
   "samples": 5
@@ -2038,7 +2038,7 @@
   "samples": 5
  },
  "1512": {
-  "title": "ทีมขุดทองในเหมือง",
+  "title": "ขุมทรัพย์ต้องสาปหลังประตูมิติแรงก์ B",
   "en": "Mining Crews",
   "tier": 2,
   "dir": "15_Trees/12",
@@ -2120,7 +2120,7 @@
   "samples": 5
  },
  "1603": {
-  "title": "ขนน้ำแข็งล่องแม่น้ำ",
+  "title": "ตื่นมาต่างโลกพร้อมสกิลดูราคาน้ำแข็ง",
   "en": "Ice Down the River",
   "tier": 1,
   "dir": "16_Monotonic_Stack_and_Queue/3",
@@ -2176,7 +2176,7 @@
   "samples": 5
  },
  "1611": {
-  "title": "กระโดดข้ามดาดฟ้า",
+  "title": "ราชันย์แห่งดาดฟ้าผู้ไม่เคยแตะพื้นถนน",
   "en": "Rooftop Parkour",
   "tier": 3,
   "dir": "16_Monotonic_Stack_and_Queue/11",
@@ -2232,14 +2232,14 @@
   "samples": 5
  },
  "1707": {
-  "title": "ช่องบวกแต้มกับช่องตั้งแต้ม",
+  "title": "ไปเกิดใหม่ในเกมกระดาน แต่แต้มชอบรีเซ็ต",
   "en": "Add Squares and Reset Squares",
   "tier": 2,
   "dir": "17_Fenwick_and_Segment_Tree/7",
   "samples": 5
  },
  "1708": {
-  "title": "ช่วงกำไรที่ดีที่สุดเมื่อแก้บัญชี",
+  "title": "ร้านป้าแจ่มรุ่งได้แค่ไหน",
   "en": "Best Run With Updates",
   "tier": 2,
   "dir": "17_Fenwick_and_Segment_Tree/8",
@@ -2253,7 +2253,7 @@
   "samples": 5
  },
  "1710": {
-  "title": "เบิกได้ไม่เกินเพดาน",
+  "title": "ฮันเตอร์แรงก์ S ก็เบิกได้ไม่เกินเพดาน",
   "en": "Capped Claims",
   "tier": 2,
   "dir": "17_Fenwick_and_Segment_Tree/10",
@@ -2267,14 +2267,14 @@
   "samples": 5
  },
  "1712": {
-  "title": "วงเล็บที่จับคู่ได้ในช่วง",
-  "en": "Bracket Queries",
+  "title": "AI ปิดวงเล็บไม่เคยครบ",
+  "en": "The AI Never Closes Brackets",
   "tier": 2,
   "dir": "17_Fenwick_and_Segment_Tree/12",
   "samples": 5
  },
  "1713": {
-  "title": "ไม้วัดประจำช่วง",
+  "title": "ไม้วัดของป้ายหาเสียง",
   "en": "Measuring Sticks",
   "tier": 2,
   "dir": "17_Fenwick_and_Segment_Tree/13",
@@ -2323,7 +2323,7 @@
   "samples": 5
  },
  "1805": {
-  "title": "สะพานเตี้ย",
+  "title": "จ้าวแห่งไวนิลผู้แพ้ทางสะพานเตี้ย",
   "en": "Low Bridges",
   "tier": 2,
   "dir": "18_Sparse_Table/5",
@@ -2372,7 +2372,7 @@
   "samples": 5
  },
  "1812": {
-  "title": "เรียงให้ห่างเท่ากัน",
+  "title": "ผู้ถูกเลือกแห่งเซ็ตสวย (เกลือ 90 โรล)",
   "en": "Evenly Spaced Cards",
   "tier": 3,
   "dir": "18_Sparse_Table/12",
@@ -2414,7 +2414,7 @@
   "samples": 5
  },
  "1906": {
-  "title": "น้ำท่วมจากจุดรั่ว",
+  "title": "เกิดใหม่ทั้งทีได้สกิลแค่ถมดิน",
   "en": "Flood From a Breach",
   "tier": 2,
   "dir": "19_Lazy_Segment_Tree/6",
@@ -2449,7 +2449,7 @@
   "samples": 5
  },
  "1911": {
-  "title": "ปิดช่องจราจร",
+  "title": "ฮันเตอร์แรงก์ E ผู้เฝ้าถนน",
   "en": "Lane Closures",
   "tier": 3,
   "dir": "19_Lazy_Segment_Tree/11",
@@ -2512,7 +2512,7 @@
   "samples": 5
  },
  "2008": {
-  "title": "แบ่งเขตไม่ให้กว้างเกิน",
+  "title": "เกิดใหม่ในต่างโลก งานแรกคือแบ่งเขตปกครอง",
   "en": "Districts of Small Width",
   "tier": 2,
   "dir": "20_Tree_DP/8",
@@ -2533,7 +2533,7 @@
   "samples": 6
  },
  "2011": {
-  "title": "ออกเยี่ยมบ้าน",
+  "title": "ฮีลเลอร์แรงก์ E แห่งสถานีอนามัย",
   "en": "Home Visits",
   "tier": 3,
   "dir": "20_Tree_DP/11",
@@ -2554,7 +2554,7 @@
   "samples": 5
  },
  "2102": {
-  "title": "เมืองหลวงกับถนนทางเดียว",
+  "title": "จอมมารจากไป ทิ้งไว้แต่ถนนทางเดียว",
   "en": "One-Way Roads to the Capital",
   "tier": 1,
   "dir": "21_Rerooting/2",
@@ -2603,7 +2603,7 @@
   "samples": 5
  },
  "2109": {
-  "title": "ลำดับของลำน้ำ",
+  "title": "เกิดใหม่เป็นนักอุทกวิทยา แต่แผนที่ไม่มีทะเล",
   "en": "Order of the River",
   "tier": 2,
   "dir": "21_Rerooting/9",
@@ -2624,7 +2624,7 @@
   "samples": 5
  },
  "2112": {
-  "title": "หมู่บ้านรอบถนนวงแหวน",
+  "title": "ระยะทางรวมจากทุกหมู่บ้าน",
   "en": "Ring Road Villages",
   "tier": 3,
   "dir": "21_Rerooting/12",
@@ -2666,7 +2666,7 @@
   "samples": 5
  },
  "2206": {
-  "title": "ร้านที่ K ในเส้นทางตรวจ",
+  "title": "ฮันเตอร์แรงก์ S แห่งตู้ไส้กรอก",
   "en": "The Inspector's K-th Stop",
   "tier": 2,
   "dir": "22_Euler_Tour/6",
@@ -2701,8 +2701,8 @@
   "samples": 5
  },
  "2211": {
-  "title": "โคมไฟบนต้นคริสต์มาส",
-  "en": "Christmas Tree Lamps",
+  "title": "ไฟประดับงานคริสต์มาส",
+  "en": "Christmas Fair Lamps",
   "tier": 3,
   "dir": "22_Euler_Tour/11",
   "samples": 5
@@ -2729,7 +2729,7 @@
   "samples": 5
  },
  "2303": {
-  "title": "เรือล่องมาพบกัน",
+  "title": "ปาร์ตี้ล่องเรือแห่งลุ่มน้ำต้องสาป",
   "en": "Boats Down the River Network",
   "tier": 1,
   "dir": "23_LCA_and_Binary_Lifting/3",
@@ -2750,7 +2750,7 @@
   "samples": 5
  },
  "2306": {
-  "title": "เมืองถนนวงแหวน",
+  "title": "ถามทางในเมืองตุ๊กตุ๊กบุรี",
   "en": "Ring Road Town",
   "tier": 2,
   "dir": "23_LCA_and_Binary_Lifting/6",
@@ -2792,7 +2792,7 @@
   "samples": 5
  },
  "2312": {
-  "title": "ปั๊มราคาถูกปั๊มแรกบนทาง",
+  "title": "ตำนานนักซิ่งผู้ไม่ยอมเติมปั๊มแพง",
   "en": "First Cheap Station on the Way",
   "tier": 3,
   "dir": "23_LCA_and_Binary_Lifting/12",
@@ -2827,14 +2827,14 @@
   "samples": 6
  },
  "2405": {
-  "title": "เก็บสมบัติในอุโมงค์ทางเดียว",
+  "title": "ฮันเตอร์แรงก์ E ผู้ไม่เคยกลับมือเปล่า",
   "en": "Treasure in One-Way Tunnels",
   "tier": 2,
   "dir": "24_SCC_Bridges_and_Articulation_Points/5",
   "samples": 6
  },
  "2406": {
-  "title": "สร้างถนนทางเดียวเพิ่ม",
+  "title": "หลับในคาบสังคม ตื่นมาเป็นรัฐมนตรีต่างโลก",
   "en": "One-Way Roads to Add",
   "tier": 2,
   "dir": "24_SCC_Bridges_and_Articulation_Points/6",
@@ -2904,8 +2904,8 @@
   "samples": 5
  },
  "2504": {
-  "title": "จับคู่กุญแจถอดรหัส",
-  "en": "Matching the Keys",
+  "title": "กุญแจไขคัมภีร์ลับ",
+  "en": "Keys to the Sealed Scroll",
   "tier": 1,
   "dir": "25_Trie/4",
   "samples": 5
@@ -2925,7 +2925,7 @@
   "samples": 5
  },
  "2507": {
-  "title": "ช่วงสั้นที่ XOR มากที่สุด",
+  "title": "บันทึกคลื่นพลังแห่งประตูมิติแรงก์ S",
   "en": "Short Stretch with Largest XOR",
   "tier": 2,
   "dir": "25_Trie/7",
@@ -2946,21 +2946,21 @@
   "samples": 5
  },
  "2510": {
-  "title": "XOR มากที่สุดในช่วง",
+  "title": "กล่องล้นชั้นรอบพรีออเดอร์",
   "en": "Largest XOR in a Range",
   "tier": 3,
   "dir": "25_Trie/10",
   "samples": 5
  },
  "2511": {
-  "title": "จับคู่คำศัพท์",
+  "title": "คู่นั่งรถทัศนศึกษา",
   "en": "Pairing Words",
   "tier": 3,
   "dir": "25_Trie/11",
   "samples": 5
  },
  "2512": {
-  "title": "mex หลังการ XOR",
+  "title": "มหากาพย์เลขทะเบียนแห่งตุ๊กตุ๊กบุรี",
   "en": "Mex After Flips",
   "tier": 3,
   "dir": "25_Trie/12",
@@ -3044,7 +3044,7 @@
   "samples": 5
  },
  "2612": {
-  "title": "หารด้วยผลรวมเลขโดดของตัวเอง",
+  "title": "นักบัญชีต่างโลกกับเลขมงคลของจอมมาร",
   "en": "Divisible by Its Own Digit Sum",
   "tier": 3,
   "dir": "26_Bitmask_and_Digit_DP/12",
@@ -3079,14 +3079,14 @@
   "samples": 5
  },
  "2705": {
-  "title": "บ้านเลขที่เรียงติดกันยาวที่สุด",
+  "title": "บ้านเลขที่ติดกันยาวที่สุด",
   "en": "Longest Run of House Numbers",
   "tier": 2,
   "dir": "27_DSU_on_Tree/5",
   "samples": 5
  },
  "2706": {
-  "title": "ปรับระดับให้เท่ากันทั้งสาย",
+  "title": "ตื่นมาอีกทีก็เป็นจอบในต่างโลก",
   "en": "Levelling the Branch",
   "tier": 2,
   "dir": "27_DSU_on_Tree/6",
@@ -3142,8 +3142,8 @@
   "samples": 5
  },
  "2802": {
-  "title": "เสริมสะพานตามเส้นทาง",
-  "en": "Reinforcing the Bridges",
+  "title": "รถบรรทุกจะข้ามไหวไหม",
+  "en": "Will the Trucks Make It Across",
   "tier": 1,
   "dir": "28_Heavy_Light_Decomposition/2",
   "samples": 5
@@ -3205,7 +3205,7 @@
   "samples": 5
  },
  "2811": {
-  "title": "รหัสของทุกเส้นทางย่อย",
+  "title": "ภารกิจลับแห่งรหัสรูนต้องห้าม",
   "en": "Codes of All Sub-Routes",
   "tier": 3,
   "dir": "28_Heavy_Light_Decomposition/11",
@@ -3219,7 +3219,7 @@
   "samples": 5
  },
  "2901": {
-  "title": "สายบังคับบัญชา",
+  "title": "แม่ทัพย้อนเวลากับผังยศพิสดาร",
   "en": "Chain of Command",
   "tier": 1,
   "dir": "29_Centroid_Decomposition/1",
@@ -3275,7 +3275,7 @@
   "samples": 5
  },
  "2909": {
-  "title": "สัญญาณวงเล็บสมดุล",
+  "title": "ผนึกวงเล็บแห่งสถานีโบราณ",
   "en": "Balanced Signal Path",
   "tier": 2,
   "dir": "29_Centroid_Decomposition/9",
@@ -3310,7 +3310,7 @@
   "samples": 5
  },
  "3002": {
-  "title": "ราคาอันดับที่ k ในตลาด",
+  "title": "ราคาตลาดนัดวันพุธ",
   "en": "Price Rank at the Market",
   "tier": 1,
   "dir": "30_Persistent_Segment_Tree/2",
@@ -3338,7 +3338,7 @@
   "samples": 5
  },
  "3006": {
-  "title": "ดัชนีการอ้างอิงของช่วง",
+  "title": "เกิดใหม่ต่างโลกเป็นนักวิจัยที่ไม่มีใครอ้างอิง",
   "en": "Citation Index of a Stretch",
   "tier": 2,
   "dir": "30_Persistent_Segment_Tree/6",
@@ -3366,7 +3366,7 @@
   "samples": 5
  },
  "3010": {
-  "title": "แผนสร้างสะพานหลายฉบับ",
+  "title": "ตำนานสะพานแห่งหมู่เกาะลอยฟ้า",
   "en": "Bridge Plans in Drafts",
   "tier": 3,
   "dir": "30_Persistent_Segment_Tree/10",
@@ -3394,7 +3394,7 @@
   "samples": 6
  },
  "3102": {
-  "title": "หมุดในวงหนังยาง",
+  "title": "กระดานหมุดคาบบ่ายวันศุกร์",
   "en": "Pegs Inside the Rubber Band",
   "tier": 1,
   "dir": "31_Convex_Hull/2",
@@ -3422,21 +3422,21 @@
   "samples": 5
  },
  "3106": {
-  "title": "แปลงสี่หมุดที่ใหญ่ที่สุด",
+  "title": "ผู้กล้าที่ขอแค่ทำนาในต่างโลก",
   "en": "Largest Four-Stake Plot",
   "tier": 2,
   "dir": "31_Convex_Hull/6",
   "samples": 5
  },
  "3107": {
-  "title": "รั้วรอบค่ายที่ขยายตัว",
+  "title": "ลานเต็นท์ตามรอยซีรีส์",
   "en": "Fence Around a Growing Camp",
   "tier": 2,
   "dir": "31_Convex_Hull/7",
   "samples": 5
  },
  "3108": {
-  "title": "ความลึกชั้นหัวหอม",
+  "title": "ภารกิจลับแห่งทุ่งเมล็ดพันธุ์ปีศาจ",
   "en": "Onion Layer Depth",
   "tier": 2,
   "dir": "31_Convex_Hull/8",
@@ -3478,7 +3478,7 @@
   "samples": 5
  },
  "3202": {
-  "title": "จัดทีมเกี่ยวข้าว",
+  "title": "ต่างโลกไม่มีมังกร มีแต่ข้าวรอเกี่ยว",
   "en": "Harvest Crews",
   "tier": 1,
   "dir": "32_Convex_Hull_Trick_and_DP_Optimization/2",
@@ -3569,7 +3569,7 @@
   "samples": 5
  },
  "3303": {
-  "title": "โน้มน้าวทั้งซอย",
+  "title": "มหาสงครามธีมงานกลางซอย",
   "en": "Winning Over the Lane",
   "tier": 1,
   "dir": "33_Mo_Algorithm/3",
@@ -3597,7 +3597,7 @@
   "samples": 5
  },
  "3307": {
-  "title": "ช่วงย่อยที่เรียงเป็น palindrome ได้",
+  "title": "แถบป้ายที่พร้อมเป็น palindrome",
   "en": "Palindrome-Ready Segments",
   "tier": 2,
   "dir": "33_Mo_Algorithm/7",
@@ -3611,7 +3611,7 @@
   "samples": 5
  },
  "3309": {
-  "title": "เลขเรียงติดกันยาวที่สุด",
+  "title": "สติกเกอร์เลขต่อกันยาวที่สุด",
   "en": "Unbroken Number Run",
   "tier": 2,
   "dir": "33_Mo_Algorithm/9",
@@ -3625,7 +3625,7 @@
   "samples": 5
  },
  "3311": {
-  "title": "ช่วงมืดที่ยาวที่สุด",
+  "title": "รั้วแห่งรัตติกาลกับโคมที่ไม่ยอมติด",
   "en": "The Widest Gap",
   "tier": 3,
   "dir": "33_Mo_Algorithm/11",
@@ -3716,7 +3716,7 @@
   "samples": 5
  },
  "4206": {
-  "title": "ไฟนอลพัก รอเน็ตกลับมา",
+  "title": "จงแตกเถิด กระจกแห่งล็อบบี้!",
   "en": "While the Final Is Paused",
   "tier": 0,
   "dir": "M02/6",
@@ -3758,7 +3758,7 @@
   "samples": 5
  },
  "4306": {
-  "title": "เดินตามไฟลูกศร",
+  "title": "จงเดินตามแสงแห่งลูกศร!",
   "en": "Follow the Floor Arrows",
   "tier": 0,
   "dir": "M03/6",
