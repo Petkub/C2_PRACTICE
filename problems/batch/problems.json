@@ -3723,8 +3723,8 @@
   "samples": 5
  },
  "4301": {
-  "title": "สกินเริ่มต้นทั้งเซิร์ฟ",
-  "en": "Everyone Wears the Default Skin",
+  "title": "ศึกสุดท้ายของกองทัพสกินเริ่มต้น",
+  "en": "Last Stand of the Default Skin Army",
   "tier": 0,
   "dir": "M03/1",
   "samples": 5
@@ -3807,8 +3807,8 @@
   "samples": 6
  },
  "4501": {
-  "title": "AI เรียงไฟล์อย่างมั่นใจ",
-  "en": "The Confidently Sorted Files",
+  "title": "คัมภีร์ไฟล์ของ AI ผู้ไม่เคยลังเล",
+  "en": "Grimoire of the AI Who Never Hesitates",
   "tier": 0,
   "dir": "M05/1",
   "samples": 5
@@ -3849,8 +3849,8 @@
   "samples": 5
  },
  "4601": {
-  "title": "ห้องรอคิวกดบัตรคอนเสิร์ต",
-  "en": "Stuck in the Concert Ticket Queue",
+  "title": "ห้องรอนิรันดร์ของเว็บขายบัตร",
+  "en": "The Eternal Ticket Waiting Room",
   "tier": 0,
   "dir": "M06/1",
   "samples": 5
@@ -3968,8 +3968,8 @@
   "samples": 5
  },
  "4806": {
-  "title": "ตัดต่ออนิเมะตอนงบหมด",
-  "en": "Editing Anime on Zero Budget",
+  "title": "นักดาบระดับ F กับอนิเมะงบหมด",
+  "en": "The F-Rank Swordsman's Zero-Budget Anime",
   "tier": 0,
   "dir": "M08/6",
   "samples": 5
@@ -3982,18 +3982,18 @@
   "samples": 5
  },
  "4902": {
+  "title": "ม็อดต้องสาป แบ่งร่างไม่รู้จบ",
+  "en": "The Cursed Mod of Endless Splitting",
+  "tier": 0,
+  "dir": "M09/2",
+  "samples": 5
+ },
+ "4903": {
   "title": "ถ่ายรูปกลุ่มตามเศษนำโชค",
   "en": "Group Photos by Lucky Remainder",
   "tier": 0,
-  "dir": "M09/2",
-  "samples": 6
- },
- "4903": {
-  "title": "ม็อดแยกกองบล็อก",
-  "en": "The Stack-Splitting Mod",
-  "tier": 0,
   "dir": "M09/3",
-  "samples": 5
+  "samples": 6
  },
  "4904": {
   "title": "ซ้อม แข่ง หรือพัก",
@@ -4017,8 +4017,8 @@
   "samples": 5
  },
  "5001": {
-  "title": "คบเพลิงเฝ้าสี่ป้อม",
-  "en": "Torches for Four Towers",
+  "title": "สี่ป้อมไร้พ่าย (แตกทุกคืน)",
+  "en": "Four Unbreakable Towers, Broken Every Night",
   "tier": 0,
   "dir": "M10/1",
   "samples": 5
@@ -4066,29 +4066,29 @@
   "samples": 5
  },
  "5102": {
-  "title": "กองรายงานกลับหัว",
-  "en": "The Upside-Down Report Pile",
+  "title": "เกาะลอยฟ้าเก็บน้ำฝน",
+  "en": "Rain on the Sky Island",
   "tier": 0,
   "dir": "M11/2",
   "samples": 5
  },
  "5103": {
-  "title": "เกาะลอยฟ้าเก็บน้ำฝน",
-  "en": "Rain on the Sky Island",
+  "title": "กองรายงานกลับหัว",
+  "en": "The Upside-Down Report Pile",
   "tier": 0,
   "dir": "M11/3",
   "samples": 5
  },
  "5104": {
-  "title": "จัดเรียงเหรียญในแอปเทรด",
-  "en": "Sorting the Crypto Watchlist",
+  "title": "ราชาปีศาจเลือกป้อมที่จะทุบ",
+  "en": "The Demon King Picks a Camp",
   "tier": 0,
   "dir": "M11/4",
   "samples": 5
  },
  "5105": {
-  "title": "ดันเจี้ยนที่งอกห้องเองได้",
-  "en": "The Dungeon That Grows Rooms",
+  "title": "ดูโฆษณาก่อนย้ายเหรียญ",
+  "en": "Watch the Ad, Then Move the Coin",
   "tier": 0,
   "dir": "M11/5",
   "samples": 5

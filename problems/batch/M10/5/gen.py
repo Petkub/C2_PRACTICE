@@ -1,7 +1,7 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(500055)
+random.seed(500056)
 MAXN = 100000
 MAXM = 200000
 tests = []
@@ -26,7 +26,8 @@ def add(n, edges, shuffle=True):
     tests.append(f"{n} {m}\n" + "".join("%d %d\n" % e for e in edges))
 
 
-class City:
+class Town:
+
     def __init__(self):
         self.n = 0
         self.edges = []
@@ -36,34 +37,67 @@ class City:
         self.n += cnt
         return vs
 
-    def ring(self, cnt, chords=0, kind=0):
+    def cycle(self, cnt):
         vs = self.fresh(cnt)
-        have = set()
-        for i in range(cnt):
-            a, b = vs[i], vs[(i + 1) % cnt]
-            self.edges.append((a, b))
-            have.add((min(a, b), max(a, b)))
-        done, tries = 0, 0
-        while done < chords and tries < 20 * chords + 100:
-            tries += 1
-            i, j = random.randrange(cnt), random.randrange(cnt)
-            a, b = vs[i], vs[j]
-            if (j - i) % 2 == kind and a != b and (min(a, b), max(a, b)) not in have:
-                have.add((min(a, b), max(a, b)))
-                self.edges.append((a, b))
-                done += 1
+        self.edges += [(vs[i], vs[(i + 1) % cnt]) for i in range(cnt)]
+
+    def grid(self, rows, cols, wrap=False):
+        vs = self.fresh(rows * cols)
+        for r in range(rows):
+            for c in range(cols):
+                v = vs[r * cols + c]
+                if c + 1 < cols or wrap:
+                    self.edges.append((v, vs[r * cols + (c + 1) % cols]))
+                if r + 1 < rows or wrap:
+                    self.edges.append((v, vs[(r + 1) % rows * cols + c]))
 
     def hub(self, cnt, hubs=2):
         vs = self.fresh(cnt)
         self.edges += [(h, v) for h in vs[:hubs] for v in vs[hubs:]]
+
+    def web(self, cnt, extra):
+        vs = self.fresh(cnt)
+        have, deg, new = set(), [0] * cnt, []
+
+        def link(i, j):
+            if i == j or (min(i, j), max(i, j)) in have:
+                return False
+            have.add((min(i, j), max(i, j)))
+            deg[i] += 1
+            deg[j] += 1
+            new.append((vs[i], vs[j]))
+            return True
+
+        for i in range(1, cnt):
+            link(i, random.randrange(i))
+        for _ in range(extra):
+            link(random.randrange(cnt), random.randrange(cnt))
+        for i in range(cnt):
+            while deg[i] < 2:
+                link(i, random.randrange(cnt))
+        self.edges += new
+
+    def mix(self, pieces, small, big):
+        for _ in range(pieces):
+            r, k = random.random(), random.randint(small, big)
+            if r < 0.25:
+                hubs = random.randint(2, 3)
+                self.hub(max(k, hubs + 2), hubs)
+            elif r < 0.5:
+                self.cycle(k)
+            elif r < 0.75:
+                rows = random.randint(2, 5)
+                self.grid(rows, max(2, k // rows))
+            else:
+                self.web(max(k, 4), random.randint(0, k))
 
     def emit(self):
         add(self.n, self.edges)
 
 
 add(7, [(1, 2), (2, 3), (3, 1), (4, 5), (5, 6), (6, 7), (7, 4)], False)
+add(8, [(1, 2), (2, 3), (3, 4), (4, 1), (5, 6), (6, 7), (7, 8), (8, 5)], False)
 add(5, [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1), (1, 3)], False)
-add(6, [(1, 2), (2, 3), (3, 1), (4, 5), (5, 6), (6, 4)], False)
 add(3, [(1, 2), (2, 3), (3, 1)], False)
 add(8, [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1), (6, 7), (7, 8), (8, 6)], False)
 
@@ -71,107 +105,97 @@ add(8, [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1), (6, 7), (7, 8), (8, 6)], False)
 add(3, [(1, 2), (2, 3), (3, 1)])
 add(4, [(1, 2), (2, 3), (3, 4), (4, 1)])
 add(5, [(1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5)])
-add(8, [(1, 2), (2, 3), (3, 4), (4, 1), (5, 6), (6, 7), (7, 8), (8, 5)])
+add(11, [(1, 2), (2, 3), (3, 4), (4, 1), (5, 6), (6, 7), (7, 8), (8, 5), (9, 10), (10, 11), (11, 9)])
 add(9, [(1, 3), (1, 4), (1, 5), (1, 6), (2, 3), (2, 4), (2, 5), (2, 6), (7, 8), (8, 9), (9, 7)])
 add(9, [(1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 5), (6, 7), (7, 8), (8, 9), (9, 6)])
+t = Town()
+t.hub(7)
+t.cycle(8)
+t.grid(3, 3)
+t.emit()
 
-c = City()
-for _ in range(60):
-    r = random.random()
-    if r < 0.3:
-        c.hub(random.randint(4, 15))
-    elif r < 0.6:
-        c.ring(2 * random.randint(2, 8), random.randint(0, 3), 1)
-    else:
-        c.ring(random.randint(3, 15), random.randint(0, 3), 0)
-c.emit()
-c = City()
+
+t = Town()
+t.mix(60, 4, 16)
+t.emit()
+t = Town()
 for _ in range(40):
-    c.hub(random.randint(4, 30)) if random.random() < 0.5 else c.ring(2 * random.randint(2, 12), 2, 1)
-c.emit()
-c = City()
-c.ring(301, 5, 0)
-c.hub(150)
-c.hub(140)
-c.ring(200, 10, 1)
-c.emit()
-c = City()
-c.ring(2000, 300, 1)
-for _ in range(60):
-    c.ring(2 * random.randint(2, 10), 1, 1) if random.random() < 0.5 else c.hub(random.randint(4, 12))
-c.emit()
-c = City()
-c.hub(900)
-c.hub(700)
-c.ring(500, 50, 1)
-c.ring(999, 0, 0)
-c.emit()
+    t.hub(random.randint(4, 30)) if random.random() < 0.5 else t.grid(random.randint(2, 4), random.randint(2, 6))
+t.emit()
+t = Town()
+t.grid(20, 20)
+t.grid(19, 20)
+t.hub(300)
+t.cycle(101)
+t.emit()
+t = Town()
+t.grid(40, 50)
+t.mix(60, 4, 20)
+t.emit()
+t = Town()
+t.hub(900)
+t.hub(700)
+t.grid(20, 25, True)
+t.cycle(999)
+t.emit()
 
 
-c = City()
-c.hub(48000)
-c.hub(46000)
-while c.n + 3 <= MAXN:
-    c.ring(3)
-c.emit()
-c = City()
-c.ring(60000, 20000, 1)
-while c.n + 12 <= MAXN:
-    c.ring(2 * random.randint(2, 6), 1, 1)
-c.emit()
-c = City()
-c.ring(MAXN, MAXM - MAXN, 1)
-c.emit()
-c = City()
-c.ring(MAXN - 1, MAXM - MAXN, 0)
-c.emit()
-c = City()
-c.hub(40000)
-c.ring(30001, 1000, 0)
-c.hub(29999)
-c.emit()
-c = City()
-c.hub(30000, 3)
-c.hub(34000, 2)
-c.ring(36000, 5, 1)
-c.emit()
-c = City()
-c.ring(40000, 30000, 1)
-c.ring(20001, 10, 0)
-while c.n + 40 <= MAXN:
-    c.hub(random.randint(4, 40)) if random.random() < 0.5 else c.ring(random.randint(3, 30), 1, random.randint(0, 1))
-c.emit()
-c = City()
-c.hub(50000)
-c.ring(40000, 10000, 1)
-while c.n + 15 <= MAXN:
-    c.ring(random.randint(3, 15), 0, 0)
-c.emit()
-c = City()
-c.hub(45000)
-while c.n + 60 <= MAXN:
-    r = random.random()
-    if r < 0.5:
-        c.hub(random.randint(30, 60))
-    else:
-        c.ring(random.randint(3, 60), random.randint(0, 3), random.randint(0, 1))
-c.emit()
-
-c = City()
-c.ring(70000, 5000, 1)
-while c.n + 24 <= MAXN:
-    c.ring(2 * random.randint(2, 12), 2, 1) if random.random() < 0.5 else c.hub(random.randint(4, 24))
-c.emit()
-c = City()
-c.hub(60000)
-c.hub(39998)
-c.emit()
-c = City()
-c.ring(50000, 0, 0)
-c.hub(20000)
-while c.n + 12 <= MAXN:
-    c.ring(2 * random.randint(2, 6), 0, 0)
-c.emit()
+t = Town()
+t.hub(48000)
+t.hub(46000)
+while t.n + 3 <= MAXN:
+    t.cycle(3)
+t.emit()
+t = Town()
+t.grid(300, 333)
+t.emit()
+t = Town()
+t.grid(316, 316, True)
+t.emit()
+t = Town()
+t.grid(250, 300)
+t.grid(100, 240)
+t.emit()
+t = Town()
+t.grid(200, 200)
+t.grid(190, 190)
+t.hub(20000)
+while t.n + 5 <= MAXN:
+    t.cycle(5)
+t.emit()
+t = Town()
+t.web(MAXN, 85000)
+t.emit()
+t = Town()
+t.grid(200, 200)
+t.grid(180, 200)
+t.web(20000, 15000)
+t.emit()
+t = Town()
+t.grid(200, 200)
+t.grid(170, 200)
+t.hub(25000)
+t.emit()
+t = Town()
+t.grid(250, 250)
+while t.n + 30 <= MAXN:
+    t.hub(random.randint(4, 30))
+t.emit()
+t = Town()
+t.cycle(MAXN)
+t.emit()
+t = Town()
+t.hub(60000)
+t.hub(39998)
+t.emit()
+t = Town()
+t.grid(300, 333, True)
+t.emit()
+t = Town()
+t.grid(170, 200)
+t.grid(160, 200)
+t.mix(1000, 20, 40)
+t.emit()
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

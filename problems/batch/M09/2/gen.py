@@ -1,62 +1,118 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(490012)
-MAXN = 200000
+random.seed(490003)
+MAXN = 100000
+MAXK = 10 ** 9
 MAXA = 10 ** 9
+MAXQ = 50000
+CAP = 400000
 tests = []
 
 
-def add(a):
+def stacks_at_least(a, k):
+    cur = list(a)
+    while True:
+        nxt = sum(k if x % k == 0 else 1 for x in cur)
+        if nxt == len(cur) or nxt > CAP:
+            return nxt
+        new = []
+        for x in cur:
+            if x % k == 0:
+                new.extend([x // k] * k)
+            else:
+                new.append(x)
+        cur = new
+
+
+def add(k, a, qs, top=None):
     n = len(a)
-    assert 1 <= n <= MAXN
+    assert 1 <= n <= MAXN and 2 <= k <= MAXK and 1 <= len(qs) <= MAXQ
     assert all(1 <= x <= MAXA for x in a)
-    tests.append(f"{n}\n{' '.join(map(str, a))}\n")
+    if top is None:
+        top = stacks_at_least(a, k)
+    assert all(1 <= l <= r <= top for l, r in qs)
+    tests.append(f"{n} {k}\n{' '.join(map(str, a))}\n{len(qs)}\n" + "".join(f"{l} {r}\n" for l, r in qs))
 
 
-def value(r, big=False):
-    top = (MAXA - r) // 3
-    x = 3 * (random.randint(top - 1000, top) if big else random.randint(0, top)) + r
-    return x if x >= 1 else 3
+def rnd(n, lo=1, hi=MAXA):
+    return [random.randint(lo, hi) for _ in range(n)]
 
 
-def mix(x, y, z, big=False):
-    a = [value(0, big) for _ in range(x)] + [value(1, big) for _ in range(y)] + [value(2, big) for _ in range(z)]
-    random.shuffle(a)
-    return a
+def plain(n, k, lo=1, hi=MAXA):
+    out = []
+    while len(out) < n:
+        x = random.randint(lo, hi)
+        if x % k:
+            out.append(x)
+    return out
 
 
-add([3, 4, 8, 6, 7])
-add([2, 3, 4, 5, 1])
-add([3, 9, 6])
-add([1000000000, 999999999, 999999998])
-add([7])
-add([2])
+def multiples(n, k, hi=MAXA):
+    return [k * random.randint(1, hi // k) for _ in range(n)]
 
-add([5, 5, 2])
-add(mix(0, 7, 0))
-add(mix(2, 0, 7))
-add(mix(1, 9, 2))
-add(mix(3, 2, 10))
-add(mix(0, 6, 4))
-add(mix(4, 5, 7))
-add(mix(0, 1, 13))
-add([random.randint(1, 30) for _ in range(random.randint(10, 18))])
 
-add(mix(0, 150000, 50000))
-add(mix(0, 50000, 150000))
-add(mix(0, 200000, 0))
-add(mix(0, 0, 200000))
-add(mix(100000, 60000, 40000))
-add(mix(1, 199999, 0))
-add(mix(66666, 66667, 66667))
-add(mix(2, 99999, 99999))
-add(mix(0, 100001, 99999))
-add(mix(0, 133333, 66667))
-add(mix(10, 180000, 19990))
-add(mix(5, 1, 199994))
-add(mix(0, 150000, 50000, big=True))
-add(mix(3, 66667, 133330, big=True))
+def pick(n, pool):
+    return [random.choice(pool) for _ in range(n)]
+
+
+def blend(a, b):
+    return [x if random.random() < 0.5 else y for x, y in zip(a, b)]
+
+
+def queries(top, q, mode="random"):
+    out = []
+    for _ in range(q):
+        if mode == "end":
+            l = random.randint(1, max(1, top // 50))
+            r = random.randint(max(l, top - top // 50), top)
+        elif mode == "point":
+            l = r = random.randint(max(1, top - top // 3), top)
+        else:
+            l, r = sorted((random.randint(1, top), random.randint(1, top)))
+        out.append((l, r))
+    return out
+
+
+def case(k, a, q, mode="random"):
+    top = stacks_at_least(a, k)
+    add(k, a, queries(top, q, mode), top)
+
+
+ROUND = [10 ** 9, 5 * 10 ** 8, 2 * 10 ** 8, 3 * 10 ** 8, 64 * 10 ** 6, 10 ** 6, 120000, 7000, 990, 1]
+POW = [536870912, 805306368, 268435456, 999999999, 1, 3]
+SMALL = [5, 10, 25, 50, 125, 250, 625, 3, 7, 999999995]
+
+add(2, [12, 5, 8, 6], [(1, 4), (3, 6), (5, 15)])
+add(3, [18, 7, 9], [(8, 12), (10, 19)])
+add(10 ** 9, [10 ** 9], [(1, 10 ** 9), (500000000, 500000000)])
+add(5, [1, 2, 3, 4, 25], [(3, 3), (1, 29)])
+add(2, [1000000000, 999999999], [(1, 513), (512, 513)])
+
+case(2, rnd(6, 1, 480), 8)
+case(3, rnd(5, 1, 1600), 8)
+case(7, rnd(6, 1, 2400), 8, "point")
+case(1000, pick(3, [1000, 999, 2000, 999000, 1]), 6)
+case(4, rnd(4, 1, 10240), 8, "end")
+
+case(2, rnd(2000, 1, 64000), 2000)
+case(3, rnd(2000, 1, 3 ** 12), 2000, "end")
+
+N, Q = MAXN, MAXQ
+case(2, plain(70000, 2) + rnd(30000), Q)
+case(2, plain(80000, 2) + pick(20000, POW), Q, "end")
+case(3, plain(50000, 3) + rnd(50000), Q)
+case(10 ** 9, [10 ** 9] * N, Q, "end")
+a = rnd(N)
+for i in random.sample(range(N), 12):
+    a[i] = 999999937
+case(999999937, a, Q)
+case(5, plain(60000, 5) + pick(40000, SMALL), Q, "point")
+case(31622, blend(rnd(N - 5), multiples(N - 5, 31622, 9 * 10 ** 8)) + [999950884] * 5, Q, "end")
+case(10, plain(70000, 10) + pick(30000, ROUND), Q)
+case(6, plain(50000, 6) + rnd(50000), Q, "end")
+case(46341, blend(rnd(N), multiples(N, 46341)), Q)
+case(2, plain(50000, 2) + multiples(50000, 2), Q)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

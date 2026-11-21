@@ -1,124 +1,172 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(511004)
-MAXN = 150000
-MAXV = 10 ** 9
-MAXW = 10 ** 6
+random.seed(511055)
+MAXN = 200000
+MAXQ = 100000
 tests = []
 
 
-def add(a, w):
-    n = len(a)
-    assert 1 <= n <= MAXN and len(w) == n and len(set(a)) == n
-    assert all(1 <= x <= MAXV for x in a) and all(1 <= x <= MAXW for x in w)
-    tests.append(f"{n}\n{' '.join(map(str, a))}\n{' '.join(map(str, w))}\n")
+def ri(a, b):
+
+    return a + int(random.random() * (b - a + 1))
 
 
-def prices(n):
-    return sorted(random.sample(range(1, MAXV + 1), n))
+def add(n, p, ks):
+
+    assert 2 <= n <= MAXN
+    assert len(p) == n - 1
+    q = len(ks)
+    assert 1 <= q <= MAXQ
+
+    root = list(range(n + 1))
+    for u, v in zip(range(2, n + 1), p):
+        assert 1 <= v <= n and u != v
+        while root[u] != u:
+            root[u] = root[root[u]]
+            u = root[u]
+        while root[v] != v:
+            root[v] = root[root[v]]
+            v = root[v]
+        assert u != v
+        root[u] = v
+    for k in ks:
+        assert 0 <= k <= n
+    tests.append("%d %d\n" % (n, q) + " ".join(map(str, p)) + "\n" + " ".join(map(str, ks)) + "\n")
 
 
-def from_ranks(r, n):
-    p = prices(n)
-    return [p[x] for x in r]
+def relabel(par):
 
 
-def pieces(n, k):
-
-    cuts = sorted(random.sample(range(1, n), k - 1)) if k > 1 else []
-    parts, prev = [], 0
-    for c in cuts + [n]:
-        parts.append(list(range(prev, c)))
-        prev = c
-    random.shuffle(parts)
-    return [x for p in parts for x in p]
-
-
-def near_sorted(n, swaps):
-    r = list(range(n))
-    for _ in range(swaps):
-        i, j = random.randrange(n), random.randrange(n)
-        r[i], r[j] = r[j], r[i]
-    return r
+    n = len(par) - 1
+    rnd = random.random
+    r = 1 + int(rnd() * n)
+    prev, x = 0, r
+    while x != 0:
+        par[x], prev, x = prev, x, par[x]
+    perm = [0] + sorted(range(1, n + 1), key=lambda _: rnd())
+    j = perm.index(1)
+    perm[j], perm[r] = perm[r], perm[j]
+    up = [0] * (n + 1)
+    for i in range(1, n + 1):
+        if i != r:
+            up[perm[i]] = perm[par[i]]
+    return n, up[2:]
 
 
-def weights_by_value(r, hi):
+def random_tree(n, window=None):
+    rnd = random.random
+    par = [0, 0]
+    for i in range(2, n + 1):
+        lo = 1 if window is None else max(1, i - window)
+        par.append(lo + int(rnd() * (i - lo)))
+    return par
 
-    w = [0] * len(r)
-    for i, x in sorted(enumerate(r), key=lambda t: t[1]):
-        w[i] = random.randint(1, hi)
-    return w
+
+def path(n):
+    return [0, 0] + list(range(1, n))
 
 
-def spliced(n, k, at_end=False):
+def star(n):
+    return [0, 0] + [1] * (n - 1)
 
-    small = list(range(k))
-    random.shuffle(small)
-    big = list(range(k, n))
-    if at_end:
-        r = big + small
-    else:
-        slots = sorted(random.sample(range(n), k))
-        r, si, bi = [], 0, 0
-        for i in range(n):
-            if si < k and slots[si] == i:
-                r.append(small[si])
-                si += 1
+
+def legs(par, at, sizes, shape):
+
+    for s in sizes:
+        first = len(par)
+        par.append(at)
+        for j in range(1, s):
+            if shape == "path":
+                par.append(len(par) - 1)
+            elif shape == "star":
+                par.append(first)
             else:
-                r.append(big[bi])
-                bi += 1
-    w = [random.randint(MAXW // 2, MAXW) if x < k else random.randint(1, 3) for x in r]
-    return r, w
+                par.append(ri(first, len(par) - 1))
+    return par
 
 
-def rw(n, lo=1, hi=MAXW):
-    return [random.randint(lo, hi) for _ in range(n)]
+def spider(sizes, shape="path"):
+    return legs([0, 0], 1, sizes, shape)
 
 
-add([40, 70, 10, 50, 20, 60], [3, 2, 4, 1, 2, 5])
-add([8, 6, 7, 5], [1, 4, 4, 2])
-add([123], [7])
-add([5, 4, 3, 2, 1], [3, 1, 4, 1, 9])
-add([27, 3, 91, 15, 42, 64, 8, 77], [5, 9, 2, 6, 5, 3, 5, 8])
+def caterpillar(n, spine):
+    par = [0, 0] + list(range(1, spine))
+    while len(par) <= n:
+        par.append(ri(1, spine))
+    return par
 
-add([1, 2], [5, 5])
-add([2, 1], [1, 3])
-add(from_ranks(random.sample(range(7), 7), 7), rw(7, 1, 10))
-add(from_ranks(near_sorted(8, 2), 8), rw(8, 1, 20))
-add(from_ranks(pieces(8, 3), 8), rw(8, 1, 9))
-add(from_ranks(pieces(30, 5), 30), rw(30, 1, 100))
-add(from_ranks(near_sorted(40, 3), 40), rw(40))
-r, w = spliced(60, 6)
-add(from_ranks(r, 60), w)
 
-r = pieces(3000, 12)
-add(from_ranks(r, 3000), weights_by_value(r, 10))
-add(from_ranks(random.sample(range(5000), 5000), 5000), rw(5000))
+def shape_b(n, arm, branches):
 
-add(from_ranks(list(range(MAXN)), MAXN), rw(MAXN))
-add(from_ranks(pieces(MAXN, 2), MAXN), rw(MAXN))
-add(from_ranks(pieces(MAXN, 3), MAXN), [MAXW] * MAXN)
-r, w = spliced(MAXN, 2000)
-add(from_ranks(r, MAXN), w)
-r, w = spliced(MAXN, 100)
-add(from_ranks(r, MAXN), w)
-r, w = spliced(MAXN, 20000, True)
-add(from_ranks(r, MAXN), w)
-r = list(range(MAXN))
-r[0], r[-1] = r[-1], r[0]
-add(from_ranks(r, MAXN), rw(MAXN))
-r = [0] * MAXN
-r[0::2] = range(MAXN // 2)
-r[1::2] = range(MAXN // 2, MAXN)
-add(from_ranks(r, MAXN), rw(MAXN))
-add(from_ranks(list(range(MAXN)), MAXN), [MAXW] * MAXN)
-r, w = spliced(MAXN, 5000)
-add(from_ranks(r, MAXN), w)
+    par = [0, 0]
+    rest = n - 1 - arm
+    sizes = [rest // branches] * branches
+    for i in range(rest % branches):
+        sizes[i] += 1
+    legs(par, 1, sizes, "random")
+    legs(par, 1, [arm], "path")
+    assert len(par) == n + 1
+    return par
 
-for t in tests:
-    assert t.endswith("\n") and "  " not in t and " \n" not in t
+
+def queries(q, n, top):
+
+    ks = []
+    for _ in range(q):
+        r = random.random()
+        if r < 0.15:
+            ks.append(0)
+        elif r < 0.55:
+            ks.append(ri(1, min(n, 12)))
+        elif r < 0.9:
+            ks.append(ri(0, min(n, top)))
+        else:
+            ks.append(ri(0, n))
+    return ks
+
+
+def big(par, top, q=MAXQ):
+    n, p = relabel(par)
+    add(n, p, queries(q, n, top))
+
+
+add(8, [1, 2, 3, 3, 5, 5, 5], [0, 1, 2])
+add(7, [1, 4, 1, 4, 5, 3], [2, 0, 1, 5])
+add(2, [1], [0, 2])
+add(6, [4, 4, 1, 4, 4], [1, 3, 0, 4])
+add(6, [5, 1, 6, 1, 3], [0, 1])
+
+add(3, [3, 1], [0, 1, 3])
+n, e = relabel(spider([2, 2, 1, 4], "path"))
+add(n, e, [0, 1, 2, 3, 4])
+n, e = relabel(shape_b(16, 11, 2))
+add(n, e, list(range(0, 6)))
+n, e = relabel(shape_b(40, 27, 3))
+add(n, e, queries(30, n, 8))
+n, e = relabel(random_tree(60))
+add(n, e, queries(40, n, 10))
+n, e = relabel(caterpillar(120, 15))
+add(n, e, queries(80, n, 15))
+n, e = relabel(spider([3] * 30 + [40], "random"))
+add(n, e, queries(100, n, 35))
+
+big(random_tree(3000), 20, 3000)
+big(shape_b(5000, 3500, 4), 45, 5000)
+
+big(random_tree(MAXN), 15)
+big(random_tree(MAXN, 3), 5)
+big(path(MAXN), 3)
+big(star(MAXN), MAXN)
+big(caterpillar(MAXN, 400), 600)
+big(spider([700] * 285 + [MAXN - 1 - 700 * 285], "random"), 300)
+big(shape_b(MAXN, 98000, 60), 70)
+big(shape_b(MAXN, 101000, 9), 12)
+big(shape_b(MAXN, 140000, 3), 6)
+big(shape_b(MAXN, 125000, 8), 12)
+big(spider([1] * 1000 + [2] * 1000 + [99999, 97000], "path"), 2100)
+
 os.makedirs("tests", exist_ok=True)
 for i, t in enumerate(tests, 1):
-    with open(f"tests/{i:02d}.in", "w") as f:
+    with open("tests/%02d.in" % i, "w") as f:
         f.write(t)

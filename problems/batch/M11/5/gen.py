@@ -1,161 +1,120 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(511005)
-MAXQ = 200000
-MAXX = 10 ** 9
+random.seed(511004)
+MAXN = 150000
+MAXV = 10 ** 9
+MAXW = 10 ** 6
 tests = []
 
 
-def add(ops):
-    q = len(ops)
-    assert 1 <= q <= MAXQ
-    seen = set()
-    for t, x in ops:
-        assert t in (1, 2) and 1 <= x <= MAXX
-        if t == 1:
-            assert x not in seen
-            seen.add(x)
-        else:
-            assert x in seen
-    tests.append(f"{q}\n" + "".join(f"{t} {x}\n" for t, x in ops))
+def add(a, w):
+    n = len(a)
+    assert 1 <= n <= MAXN and len(w) == n and len(set(a)) == n
+    assert all(1 <= x <= MAXV for x in a) and all(1 <= x <= MAXW for x in w)
+    tests.append(f"{n}\n{' '.join(map(str, a))}\n{' '.join(map(str, w))}\n")
 
 
-class Ops:
-
-    def __init__(self, keys):
-        self.keys = keys
-        self.ins = []
-        self.ops = []
-
-    def insert(self, x=None):
-        x = self.keys.pop() if x is None else x
-        self.ins.append(x)
-        self.ops.append((1, x))
-
-    def attack_last(self, k):
-
-        for x in self.ins[-1:-k - 1:-1]:
-            self.ops.append((2, x))
-
-    def attack_random(self, k):
-        for _ in range(k):
-            self.ops.append((2, random.choice(self.ins)))
+def prices(n):
+    return sorted(random.sample(range(1, MAXV + 1), n))
 
 
-def fresh(n, lo=1, hi=MAXX):
-    return random.sample(range(lo, hi + 1), n)
+def from_ranks(r, n):
+    p = prices(n)
+    return [p[x] for x in r]
 
 
-def mixed(q, p_attack, p_last, keys):
-    o = Ops(keys)
-    while len(o.ops) < q:
-        if o.ins and random.random() < p_attack:
-            if random.random() < p_last:
-                o.attack_last(min(len(o.ins), random.randint(1, 5), q - len(o.ops)))
+def pieces(n, k):
+
+    cuts = sorted(random.sample(range(1, n), k - 1)) if k > 1 else []
+    parts, prev = [], 0
+    for c in cuts + [n]:
+        parts.append(list(range(prev, c)))
+        prev = c
+    random.shuffle(parts)
+    return [x for p in parts for x in p]
+
+
+def near_sorted(n, swaps):
+    r = list(range(n))
+    for _ in range(swaps):
+        i, j = random.randrange(n), random.randrange(n)
+        r[i], r[j] = r[j], r[i]
+    return r
+
+
+def weights_by_value(r, hi):
+
+    w = [0] * len(r)
+    for i, x in sorted(enumerate(r), key=lambda t: t[1]):
+        w[i] = random.randint(1, hi)
+    return w
+
+
+def spliced(n, k, at_end=False):
+
+    small = list(range(k))
+    random.shuffle(small)
+    big = list(range(k, n))
+    if at_end:
+        r = big + small
+    else:
+        slots = sorted(random.sample(range(n), k))
+        r, si, bi = [], 0, 0
+        for i in range(n):
+            if si < k and slots[si] == i:
+                r.append(small[si])
+                si += 1
             else:
-                o.attack_random(1)
-        else:
-            o.insert()
-    return o.ops[:q]
+                r.append(big[bi])
+                bi += 1
+    w = [random.randint(MAXW // 2, MAXW) if x < k else random.randint(1, 3) for x in r]
+    return r, w
 
 
-def ordered(q, rising, burst):
-
-    keys = sorted(fresh(q), reverse=rising)
-    o = Ops(keys)
-    while len(o.ops) < q:
-        if o.ins and random.random() < burst:
-            o.attack_last(min(len(o.ins), random.randint(1, 30), q - len(o.ops)))
-        else:
-            o.insert()
-    return o.ops[:q]
+def rw(n, lo=1, hi=MAXW):
+    return [random.randint(lo, hi) for _ in range(n)]
 
 
-def zigzag(q, burst):
+add([40, 70, 10, 50, 20, 60], [3, 2, 4, 1, 2, 5])
+add([8, 6, 7, 5], [1, 4, 4, 2])
+add([123], [7])
+add([5, 4, 3, 2, 1], [3, 1, 4, 1, 9])
+add([27, 3, 91, 15, 42, 64, 8, 77], [5, 9, 2, 6, 5, 3, 5, 8])
 
-    lo, hi = 1, MAXX
-    seq = []
-    for i in range(q):
-        if i % 2 == 0:
-            seq.append(lo)
-            lo += random.randint(1, 3000)
-        else:
-            seq.append(hi)
-            hi -= random.randint(1, 3000)
-    assert lo < hi
-    o = Ops(seq[::-1])
-    while len(o.ops) < q:
-        if o.ins and random.random() < burst:
-            o.attack_last(min(len(o.ins), random.randint(1, 4), q - len(o.ops)))
-            o.attack_random(1)
-        else:
-            o.insert()
-    return o.ops[:q]
+add([1, 2], [5, 5])
+add([2, 1], [1, 3])
+add(from_ranks(random.sample(range(7), 7), 7), rw(7, 1, 10))
+add(from_ranks(near_sorted(8, 2), 8), rw(8, 1, 20))
+add(from_ranks(pieces(8, 3), 8), rw(8, 1, 9))
+add(from_ranks(pieces(30, 5), 30), rw(30, 1, 100))
+add(from_ranks(near_sorted(40, 3), 40), rw(40))
+r, w = spliced(60, 6)
+add(from_ranks(r, 60), w)
 
+r = pieces(3000, 12)
+add(from_ranks(r, 3000), weights_by_value(r, 10))
+add(from_ranks(random.sample(range(5000), 5000), 5000), rw(5000))
 
-add([(1, 50), (1, 30), (1, 70), (1, 60), (1, 90), (2, 70), (2, 60), (2, 70)])
-add([(1, 40), (1, 20), (1, 10), (1, 30), (2, 20), (2, 30), (2, 20), (1, 25), (2, 30)])
-add([(1, 7)])
-add([(1, 1), (1, 2), (1, 3)])
-add([(1, 8), (1, 3), (1, 12), (1, 5), (2, 3), (2, 5), (1, 10)])
-
-add([(1, 5), (2, 5), (1, 3), (1, 8), (2, 3), (2, 8), (1, 6), (2, 6), (2, 5)])
-add([(1, MAXX), (1, 1), (2, MAXX), (2, 1), (1, 2)])
-add(mixed(30, 0.4, 0.5, fresh(30, 1, 100)))
-add(mixed(60, 0.5, 0.3, fresh(60, 1, 1000)))
-add(ordered(80, True, 0.2))
-add(ordered(80, False, 0.3))
-add(zigzag(70, 0.2))
-add(mixed(200, 0.45, 0.6, fresh(200, 1, 500)))
-
-add(mixed(20000, 0.4, 0.5, fresh(20000)))
-add(ordered(20000, True, 0.1))
-add(zigzag(15000, 0.15))
-
-add(ordered(MAXQ, True, 0.0))
-add(ordered(MAXQ, False, 0.01))
-add(ordered(MAXQ, True, 0.02))
-add(zigzag(MAXQ, 0.0))
-add(zigzag(MAXQ, 0.03))
-
-o = Ops(fresh(60000, 1, 2 * 10 ** 8 - 1))
-for x in sorted(fresh(140000, 2 * 10 ** 8, MAXX)):
-    o.insert(x)
-while len(o.ops) < MAXQ:
-    if random.random() < 0.2:
-        o.attack_random(1)
-    else:
-        o.insert()
-add(o.ops[:MAXQ])
-
-keys = sorted(fresh(MAXQ), reverse=True)
-o = Ops(keys)
-for _ in range(110000):
-    o.insert()
-while len(o.ops) < MAXQ:
-    o.attack_last(1)
-    if len(o.ops) < MAXQ:
-        o.insert()
-add(o.ops[:MAXQ])
-
-mid = MAXX // 2
-o = Ops([])
-o.insert(mid)
-for i in range(1, MAXQ // 2):
-    o.insert(mid - 3 * i)
-    o.insert(mid + 3 * i)
-o.attack_last(MAXQ - len(o.ops))
-add(o.ops[:MAXQ])
-add(zigzag(MAXQ, 0.01))
-add(mixed(MAXQ, 0.05, 0.3, sorted(fresh(MAXQ))))
-o = Ops(sorted(fresh(MAXQ), reverse=True))
-while len(o.ops) < MAXQ:
-    if o.ins and random.random() < 0.1:
-        o.attack_random(1)
-    else:
-        o.insert()
-add(o.ops[:MAXQ])
+add(from_ranks(list(range(MAXN)), MAXN), rw(MAXN))
+add(from_ranks(pieces(MAXN, 2), MAXN), rw(MAXN))
+add(from_ranks(pieces(MAXN, 3), MAXN), [MAXW] * MAXN)
+r, w = spliced(MAXN, 2000)
+add(from_ranks(r, MAXN), w)
+r, w = spliced(MAXN, 100)
+add(from_ranks(r, MAXN), w)
+r, w = spliced(MAXN, 20000, True)
+add(from_ranks(r, MAXN), w)
+r = list(range(MAXN))
+r[0], r[-1] = r[-1], r[0]
+add(from_ranks(r, MAXN), rw(MAXN))
+r = [0] * MAXN
+r[0::2] = range(MAXN // 2)
+r[1::2] = range(MAXN // 2, MAXN)
+add(from_ranks(r, MAXN), rw(MAXN))
+add(from_ranks(list(range(MAXN)), MAXN), [MAXW] * MAXN)
+r, w = spliced(MAXN, 5000)
+add(from_ranks(r, MAXN), w)
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t

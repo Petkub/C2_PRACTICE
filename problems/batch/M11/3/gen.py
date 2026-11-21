@@ -1,113 +1,116 @@
 # Test generator of this problem (the judge runs it to rebuild the big tests).
 import os, random
 
-random.seed(511003)
-MAXR = MAXC = 600
-MAXH = 10 ** 6
+random.seed(511002)
+MAXN = 180000
 tests = []
 
 
-def add(g):
-    r, c = len(g), len(g[0])
-    assert 1 <= r <= MAXR and 1 <= c <= MAXC and all(len(row) == c for row in g)
-    assert all(1 <= x <= MAXH for row in g for x in row)
-    tests.append(f"{r} {c}\n" + "".join(" ".join(map(str, row)) + "\n" for row in g))
+def add(n, ops):
+    assert 1 <= n <= MAXN and len(ops) == n - 1
+    alive = [True] * (n + 1)
+    for t, x, y in ops:
+        assert t in (1, 2) and 1 <= x <= n and 1 <= y <= n and x != y and alive[x] and alive[y]
+        alive[y] = False
+    tests.append(f"{n}\n" + "".join(f"{t} {x} {y}\n" for t, x, y in ops))
 
 
-def parse(s):
-    return [list(map(int, line.split())) for line in s.strip().split("\n")]
+def flips(p):
+    return 2 if random.random() < p else 1
 
 
-def rnd(r, c, lo, hi):
-    return [[random.randint(lo, hi) for _ in range(c)] for _ in range(r)]
+def rnd_ops(n, p=0.5):
+    alive = list(range(1, n + 1))
+    ops = []
+    while len(alive) > 1:
+        i, j = random.sample(range(len(alive)), 2)
+        ops.append((flips(p), alive[i], alive[j]))
+        alive[j] = alive[-1]
+        alive.pop()
+    return ops
 
 
-def frame(r, c, inner, step, base, rise=1):
+def chain(n, p=0.5, flip_roles=False):
 
-    g = [[0] * c for _ in range(r)]
-    for i in range(r):
-        for j in range(c):
-            d = min(i, j, r - 1 - i, c - 1 - j)
-            depth = max(0, inner - d)
-            g[i][j] = base + ((depth + step - 1) // step) * rise
-    return g
-
-
-def snake(r, c, low, wall, leak):
-
-    g = [[wall] * c for _ in range(r)]
-    path = []
-    rows = list(range(2, r - 2, 2))
-    for k, i in enumerate(rows):
-        cols = range(2, c - 2) if k % 2 == 0 else range(c - 3, 1, -1)
-        for j in cols:
-            path.append((i, j))
-        if k + 1 < len(rows):
-            j = c - 3 if k % 2 == 0 else 2
-            path.append((i + 1, j))
-    for i, j in path:
-        g[i][j] = low
-    if leak:
-        i, j = path[-1]
-        g[i][j] = low - 1
-    return g
+    lab = list(range(1, n + 1))
+    random.shuffle(lab)
+    ops, cur = [], lab[0]
+    for v in lab[1:]:
+        if flip_roles:
+            ops.append((flips(p), v, cur))
+            cur = v
+        else:
+            ops.append((flips(p), cur, v))
+    return ops
 
 
-def patches(r, c, count, high, big=40):
-
-    g = [[2] * c for _ in range(r)]
-    for _ in range(count):
-        h, w = random.randint(3, big), random.randint(3, big)
-        i, j = random.randint(1, r - h - 2), random.randint(1, c - w - 2)
-        for a in range(i, i + h):
-            for b in range(j, j + w):
-                g[a][b] = high if a in (i, i + h - 1) or b in (j, j + w - 1) else 1
-    return g
-
-
-def rings(r, c, width, top):
-
-    g = [[0] * c for _ in range(r)]
-    for i in range(r):
-        for j in range(c):
-            d = min(i, j, r - 1 - i, c - 1 - j)
-            g[i][j] = top - d // width
-    return g
+def balanced(n, p=0.5):
+    lab = list(range(1, n + 1))
+    random.shuffle(lab)
+    ops, level = [], lab
+    while len(level) > 1:
+        nxt = []
+        for i in range(0, len(level) - 1, 2):
+            a, b = level[i], level[i + 1]
+            if random.random() < 0.5:
+                a, b = b, a
+            ops.append((flips(p), a, b))
+            nxt.append(a)
+        if len(level) % 2:
+            nxt.append(level[-1])
+        level = nxt
+    return ops
 
 
-add(parse("5 5 5 5 5\n5 2 2 4 5\n5 5 5 1 5\n5 5 5 5 5"))
-add(parse("2 2 2 2\n2 1 1 2\n2 1 2 2\n2 2 2 2"))
-add(parse("5 5 5\n5 4 5\n5 5 5"))
-add(parse("3 3 2 2 4 4\n4 4 1 1 4 4\n3 3 3 3 1 3\n4 1 1 1 1 4\n4 3 4 4 2 2"))
-add(parse("3 4 3 4 2 2 4\n2 1 1 1 2 1 2\n2 2 5 1 4 3 3\n4 3 5 2 1 4 3\n4 5 2 2 2 5 5"))
+def mixed(n, p=0.5):
 
-add([[7]])
-add([[3, 3, 3]])
-add([[2] * 4 for _ in range(4)])
-add(rnd(6, 8, 1, 3))
-add(rnd(8, 6, 1, 2))
-add(frame(9, 9, 2, 1, 1))
-add(snake(9, 12, 2, 3, True))
-add(rnd(12, 12, 1, 4))
+    lab = list(range(1, n + 1))
+    random.shuffle(lab)
+    ops, i, cur = [], 1, lab[0]
+    while i < n:
+        k = min(n - i, random.randint(1, 6))
+        part = lab[i:i + k]
+        for v in part[1:]:
+            ops.append((flips(p), part[0], v))
+        if random.random() < 0.5:
+            ops.append((flips(p), cur, part[0]))
+        else:
+            ops.append((flips(p), part[0], cur))
+            cur = part[0]
+        i += k
+    return ops
 
-add(rnd(60, 80, 1, 3))
-add(patches(80, 80, 6, 3))
-add(rings(70, 90, 5, 30))
 
-add(frame(MAXR, MAXC, 220, 7, 1))
-add(snake(MAXR, MAXC, 5, 9, False))
-add(snake(MAXR, MAXC, 5, 9, True))
-add(patches(MAXR, MAXC, 60, 3))
-add(rings(MAXR, MAXC, 60, 50))
-add(frame(MAXR, MAXC, 40, 3, MAXH - 200))
-add([[2] * MAXC for _ in range(MAXR)])
-add(patches(MAXR, MAXC, 5, 3, 250))
-g = frame(MAXR, MAXC, 200, 5, 1)
-for i in range(MAXR):
-    for j in range(MAXC):
-        if g[i][j] == 1 and random.random() < 0.0005:
-            g[i][j] = 2
-add(g)
+add(4, [(2, 1, 2), (1, 3, 4), (2, 3, 1)])
+add(6, [(2, 2, 1), (1, 5, 6), (2, 4, 5), (2, 4, 2), (1, 3, 4)])
+add(5, [(1, 5, 4), (1, 5, 3), (1, 5, 2), (1, 5, 1)])
+add(1, [])
+add(7, [(2, 5, 4), (1, 6, 3), (2, 2, 5), (2, 2, 6), (2, 1, 7), (2, 2, 1)])
+
+add(2, [(2, 2, 1)])
+add(3, [(2, 1, 2), (2, 3, 1)])
+add(8, balanced(8, 1.0))
+add(10, rnd_ops(10))
+add(12, chain(12, 0.7, True))
+add(16, balanced(16, 0.6))
+add(15, mixed(15))
+
+add(3000, rnd_ops(3000))
+add(4096, balanced(4096, 0.5))
+add(5000, chain(5000, 0.5, True))
+add(40000, rnd_ops(40000))
+add(50000, balanced(50000, 0.5))
+add(30000, rnd_ops(30000, 0.95))
+
+add(MAXN, chain(MAXN, 0.5, False))
+add(MAXN, chain(MAXN, 0.5, True))
+add(MAXN, chain(MAXN, 1.0, True))
+add(MAXN, mixed(MAXN, 0.5))
+add(MAXN, mixed(MAXN, 0.9))
+add(MAXN, chain(MAXN, 0.0, True))
+add(MAXN - 1, chain(MAXN - 1, 0.3, False))
+add(MAXN, mixed(MAXN, 0.2))
+add(MAXN, chain(MAXN, 0.8, False))
 
 for t in tests:
     assert t.endswith("\n") and "  " not in t and " \n" not in t
