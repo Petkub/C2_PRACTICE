@@ -31,7 +31,7 @@ Windows: VS Code's Ctrl+Shift+B runs judge.cmd (uses the py launcher if installe
 Programs are compiled in Judge/.build/ (removed after the run), never in the topic or problem folder.
 Progress: every judged solution is recorded in Judge/progress.json (best score per problem).
 Reports to your teacher (report.py): the first time you judge on a computer, the judge asks for your student code
-(mona-K7Q3) and two separate consents: send your scores (problem, score, test verdicts, time) to your teacher's sheet
+(<name>-XXXX) and two separate consents: send your scores (problem, score, test verdicts, time) to your teacher's sheet
 and Discord, and keep a copy of your code with your teacher (to move to another computer). One login per computer,
 shared by C2_Practice and C2_Mock: ~/.config/stupidgrader/student.json (Windows: %APPDATA%\stupidgrader\), or
 Judge/.student for this package only. Results are sent after they are shown (at most 3 s); offline they wait in
