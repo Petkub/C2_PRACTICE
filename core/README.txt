@@ -29,6 +29,16 @@ Options: --tl SECONDS  --ml MB (default 256)  --diff N  --stop  --ascii  --no-co
 Test data: problems/batch/<topic folder>/P/*.in|out (the first 5 or 6 tests are the samples shown in the statement).
 Windows: VS Code's Ctrl+Shift+B runs judge.cmd (uses the py launcher if installed, else python).
 Programs are compiled in Judge/.build/ (removed after the run), never in the topic or problem folder.
+Progress: every judged solution is recorded in Judge/progress.json (best score per problem).
+Reports to your teacher (report.py): the first time you judge on a computer, the judge asks for your student code
+(mona-K7Q3) and two separate consents: send your scores (problem, score, test verdicts, time) to your teacher's sheet
+and Discord, and keep a copy of your code with your teacher (to move to another computer). One login per computer,
+shared by C2_Practice and C2_Mock: ~/.config/stupidgrader/student.json (Windows: %APPDATA%\stupidgrader\), or
+Judge/.student for this package only. Results are sent after they are shown (at most 3 s); offline they wait in
+Judge/.outbox.jsonl. Judging always works, with reports on or off.
+  --report on|off|status   --sync on|off   --login [CODE]   --logout
+  --pull                   copy the code your teacher keeps into this package (never over code you wrote: <topic>/old/)
+  --backup / --restore ZIP the same with a zip file and no internet
 Updates: the judge updates itself from GitHub when online (checked at most once every 10 minutes; your .cpp files
 are never changed or deleted). When an update moves a problem, your written file moves with it; when it replaces a
 problem, your file goes to <topic>/old/<n>_<OldTitle>.cpp; the judge prints every move.

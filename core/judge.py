@@ -32,9 +32,17 @@ Options
   --update         check for a new judge version now (otherwise checked at most once every 10 minutes)
   --no-update      do not check for a new version this time
 
+Reports to your teacher (Judge/report.py; asked once per computer, the first time you judge)
+  --login [CODE]   log in with the student code from your teacher (mona-K7Q3); --logout to stop
+  --report on|off  send your scores to your teacher (--report status: login, server, results waiting)
+  --sync on|off    keep a copy of your code with your teacher (to move to another computer)
+  --pull           copy the code your teacher keeps into this package (never over code you wrote)
+  --backup         save every .cpp you wrote in a zip; --restore ZIP puts them back (no internet needed)
+
 Requirements: Python 3.7+ and g++ in PATH (Linux / macOS / Windows).
 Output comparison: line by line, ignoring trailing spaces and trailing empty lines.
 Score: share of tests passed (with subtasks: each subtask's points x share of its tests passed).
+Progress: every judged solution is recorded in Judge/progress.json (best score per problem).
 Compiled programs go to Judge/.build/ (removed after the run), never into a topic or problem folder.
 """
 import glob
@@ -52,6 +60,7 @@ import tempfile
 import threading
 import time
 import unicodedata
+from datetime import datetime
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.dont_write_bytecode = True      # no __pycache__ in Judge/ (updater.py is imported from there)
@@ -59,6 +68,10 @@ try:
     import updater                  # Judge/updater.py: self-update from the GitHub repo
 except Exception:                   # missing or broken: the judge works without it
     updater = None
+try:
+    import report                   # Judge/report.py: results to the teacher, copies of the code
+except Exception:                   # missing or broken: the judge works without it
+    report = None
 WIDTH = 64
 PY = "python" if os.name == "nt" else "python3"
 OUTPUT_LIMIT = 64 * 1024 * 1024     # bytes of stdout kept per test; more than this = Wrong Answer
@@ -552,6 +565,135 @@ def fmt_points(frac):
 
 def is_sample(name):
     return name.isdecimal() and int(name) <= SAMPLE_COUNT[0]
+
+
+# ----------------------------------------------------------------------------- progress
+PROGRESS_FILE = os.path.join(ROOT, "progress.json")
+
+
+def load_progress():
+    try:
+        with open(PROGRESS_FILE, encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict) and isinstance(data.get("problems"), dict):
+            return data
+    except (OSError, ValueError):
+        pass
+    return {"version": 1, "problems": {}}
+
+
+def save_progress(data):
+    tmp = PROGRESS_FILE + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+    os.replace(tmp, PROGRESS_FILE)
+
+
+def record_progress(st, num, score, src):
+    """Remember the result of one judged solution (like C2_Mock). Returns (runs of this problem on this computer or
+    None when not recorded, True when this was its first 100). Never breaks judging if something goes wrong."""
+    if num is None or not student_layout() or is_template(src):
+        return None, False
+    try:
+        data = load_progress()
+        e = data["problems"].setdefault(str(num), {"best": 0, "attempts": 0})
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        first_full = score == 100 and not e.get("solved_at")
+        e["attempts"] = e.get("attempts", 0) + 1
+        e["last"], e["last_score"] = now, score
+        if score > e.get("best", 0):
+            e["best"], e["best_at"] = score, now
+        if first_full:
+            e["solved_at"] = now
+        e["history"] = (e.get("history", []) + [[now, score]])[-30:]
+        save_progress(data)
+        if first_full:
+            print("  " + st.green(st.bold("First 100 on this problem!")) + st.dim("  recorded in your progress"))
+        return e["attempts"], first_full
+    except Exception as ex:          # e.g. read-only folder
+        print("  " + st.dim(f"(progress not saved: {ex})"))
+        return None, True
+
+
+# ----------------------------------------------------------------------------- reports (Judge/report.py)
+REPORT = [None]                 # the report.Package of this judge, made on first use
+
+
+def report_ready():
+    """Reports work in an installed package only (Judge/manifest.json, like the updater), never in the repo."""
+    return report is not None and os.path.isfile(os.path.join(ROOT, "manifest.json"))
+
+
+def report_package():
+    """report.Package for this package: every problem's code path, title and set (for the teacher's sheet)."""
+    if REPORT[0] is None:
+        meta = load_meta()
+        problems = {}
+        for s in load_sets():
+            kind = "mixed" if is_mixed(s) else "topic"
+            for i, n in enumerate(s["problems"], 1):
+                problems[n] = {"problem": f"{set_prefix(s)}-{slot_name(s, i)}",
+                               "slot_path": f"{set_folder(s)}/{slot_name(s, i)}/{code_name(s, i)}",
+                               "title": meta.get(n, {}).get("en", ""), "set": set_prefix(s), "set_kind": kind,
+                               "set_pids": list(s["problems"])}
+        REPORT[0] = report.Package("practice", installed_version(), ROOT, problems, is_template, f"{PY} {prog_name()}",
+                                   "C2_Practice")
+    return REPORT[0]
+
+
+def report_login(st):
+    """First judged run on this computer: ask for the student code (only in a terminal that can type)."""
+    if not report_ready():
+        return
+    try:
+        report.ensure_login(report_package(), st)
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except Exception:
+        pass
+
+
+def report_record(num, score, results, src, attempt):
+    """Queue the event of one judged solution (nothing when not logged in or reports are off)."""
+    if num is None or not report_ready():
+        return
+    try:
+        report.record(report_package(), num, score, [r[1] for r in results], attempt, src)
+    except Exception:
+        pass
+
+
+def report_flush(st):
+    """Send the queued events (at most a few seconds, after the result is shown). True if a line was printed."""
+    if not report_ready():
+        return False
+    try:
+        return report.flush(report_package(), st)
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except Exception:
+        return False
+
+
+REPORT_COMMANDS = {"--login": "login", "--logout": "logout", "--report": "report", "--sync": "sync",
+                   "--pull": "pull", "--backup": "backup", "--restore": "restore"}
+
+
+def cmd_report(st, name, value):
+    """--login, --logout, --report, --sync, --pull, --backup, --restore."""
+    if report is None:
+        print(st.red("report.py is missing next to judge.py; run --update or download the package again."))
+        return 1
+    if not report_ready():
+        print(st.red("These commands work in the student package (Judge/ next to the topic folders)."))
+        return 1
+    try:
+        return report.command(report_package(), st, name, value)
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except Exception as ex:             # e.g. a damaged zip or a full disk: one line, no traceback
+        print(st.red(f"--{name} failed: {ex}"))
+        return 1
 
 
 # ----------------------------------------------------------------------------- core
@@ -1220,6 +1362,7 @@ def judge_one(src, pdir, num, meta, st, tl, show_diff, stop):
     if st.ascii:                       # measure what will really be printed
         name, srcname = to_ascii(name), to_ascii(srcname)
     name = clip(name, WIDTH - 4 - 9 - visible_len(label) - 2 - (5 if tier else 2))
+    report_login(st)
     head = [title(st, "POSN Camp 2 · Practice Judge"),
             f"Problem  {st.bold(label)}  {name}  " + (stars(st, tier) if tier else ""),
             f"Source   {clip(srcname, WIDTH - 4 - 9)}",
@@ -1256,7 +1399,13 @@ def judge_one(src, pdir, num, meta, st, tl, show_diff, stop):
         show_failure(st, first_fail, show_diff)
         print()
     summary(st, passed, total, results, tl)
-    return compute_score(results, total)[0]
+    score = compute_score(results, total)[0]
+    if not stop:                      # with --stop some tests are skipped: neither recorded nor reported
+        attempt, printed = record_progress(st, num, score, src)
+        report_record(num, score, results, src, attempt)
+        if report_flush(st) or printed:       # lines under the result: close them with a rule like the result
+            rule(st)
+    return score
 
 
 def summary(st, passed, total, results, tl):
@@ -1354,6 +1503,8 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
         return 1
     s = set_of(k, sets)
     probs = s["problems"]
+    if folder is not None:
+        report_login(st)
     head = [title(st, f"POSN Camp 2 · Practice {set_label(s)}"),
             f"{s.get('level_en', '')}",
             f"{len(probs)} problems · {100 * len(probs)} points · easy to hard"]
@@ -1415,6 +1566,8 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
             shutil.rmtree(tmp, ignore_errors=True)
         sc = compute_score(results, total)[0]
         scores.append(sc)
+        attempt, _ = record_progress(st, n, sc, src)
+        report_record(n, sc, results, src, attempt)
         print(f"  {bar(st, sc / 100)}  {st.bold(str(sc))} / 100")
     print()
     rule(st, "Scoreboard")
@@ -1426,6 +1579,7 @@ def cmd_set(k, folder, meta, sets, st, tl, show_diff):
     print()
     full = 100 * len(probs)
     print(f"  Total   {bar(st, total / full)}  {st.bold(str(total))} / {full}")
+    report_flush(st)
     rule(st)
     return 0
 
@@ -1491,7 +1645,8 @@ def on_stop_signal(signum, frame):
     raise KeyboardInterrupt
 
 
-KNOWN_FLAGS = {"--stop", "--ascii", "--no-color", "--color", "--list", "--help", "--update", "--no-update"}
+KNOWN_FLAGS = {"--stop", "--ascii", "--no-color", "--color", "--list", "--help", "--update", "--no-update",
+               "--logout", "--pull", "--backup"}
 
 
 def cmd_update(st):
@@ -1567,14 +1722,19 @@ def main():
     i = 0
     while i < len(argv):
         a = argv[i]
-        if "=" in a and a.split("=", 1)[0] in ("--tl", "--diff", "--set", "--ml"):
+        if "=" in a and a.split("=", 1)[0] in ("--tl", "--diff", "--set", "--ml", "--report", "--sync", "--restore",
+                                               "--login"):
             a, val = a.split("=", 1)
             argv[i:i + 1] = [a, val]
-        if a in ("--tl", "--diff", "--set", "--ml"):
+        if a in ("--tl", "--diff", "--set", "--ml", "--report", "--sync", "--restore"):
             if i + 1 >= len(argv):
                 return usage(f"{a} needs a value")
             opts[a] = argv[i + 1]
             i += 2
+        elif a == "--login":            # --login [CODE]
+            take = i + 1 < len(argv) and not argv[i + 1].startswith("-")
+            opts[a] = argv[i + 1] if take else None
+            i += 2 if take else 1
         elif a in ("-h", "/?"):
             flags.add("--help")
             i += 1
@@ -1613,6 +1773,11 @@ def main():
 
     if "--help" in flags:
         return usage()
+    asked = [a for a in REPORT_COMMANDS if a in opts or a in flags]
+    if len(asked) > 1:
+        return usage(f"use one of {', '.join(asked)} at a time")
+    if asked:
+        return cmd_report(st, REPORT_COMMANDS[asked[0]], opts.get(asked[0]))
     # explicit checks, not assert (assert is skipped under python -O / PYTHONOPTIMIZE)
     try:
         tl = float(opts["--tl"])

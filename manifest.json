@@ -2521,10 +2521,11 @@
 },
 "files": {
 "CHANGELOG.txt": "8c44f6938b8cb129c9cc77dfbddef8141937c2c05c5a258d70d6b5671f6cee48",
-"README.txt": "8c3bafc6ec002a6c202498855b92f833ea0a20199976c819d0465629fb88dfaa",
+"README.txt": "5b384e58a77eca609cd23ea1f0cd3bebe074495bee980e2c9e3293209274a8b1",
+"config.json": "582ea509b0288138ebe407509ec487bb3ebf9c9541151abf4917c030c34bf69b",
 "include/bits/stdc++.h": "1545f1f4b55b3acb866effca73203f3a9131773f147331cbf4e983ebf36d6cc9",
 "judge.cmd": "84038f11038804a85edc6df3e3c64f10a72891fad6b98ac7a7ae08e358ed7f44",
-"judge.py": "f3108fad3644850569e86b9abb1572aa88168f02d19a4341df607c28af5bace5",
+"judge.py": "36a7b668689e4440e87ae5c37206e1dfc9298000854c936037213fcc4feb292c",
 "problems/batch/01_Brute_Force_and_Implementation/1/01.in": "76b37cc965f7642a384db409f0488b3bbdb206623f778241267c40077449f1ff",
 "problems/batch/01_Brute_Force_and_Implementation/1/01.out": "3f217ac65c309a4ab4b9f5b3a4b4e636408e9d21f98a12f3c60f53c5870f154d",
 "problems/batch/01_Brute_Force_and_Implementation/1/02.in": "dad1ff401e596d5076123e82bc66868360c50f9d71b19cc217d13dc09487b0df",
@@ -24909,6 +24910,7 @@
 "problems/batch/M11/6/manifest.json": "b5e79b794c7944ff743afc672f93eec751b1ec00f7106064dd2500265615e233",
 "problems/batch/problems.json": "2a8663354b85561b0cf37b4f189f68a6c751b087af23e2df19195c345c02c43e",
 "problems/batch/sets.json": "e8096494681c1303a7c06997d9934bc4745e82ec8b26cdfd9cf1d2803192149d",
+"report.py": "89e78828e8698f4c7349a691a058f26c7a4506e34cd25e1b7afc6b0f065982ea",
 "updater.py": "ced9cc5f9b4c52457742f97f7faf899e2f914c285150838d7e7fc4bdb04ea997"
 },
 "managed": {
@@ -27793,7 +27795,7 @@
 "student/set_files/judge.bat"
 ],
 "README.txt": [
-"0b09d8cee80785e2a5271ae2061e95470ab78e08fbe66163be716e8ababd0fb4",
+"1b92ae80903838c8f1d233ce4fb5f9ba597801ae22ca09021b34d8e6d39db684",
 "student/README.txt"
 ]
 },

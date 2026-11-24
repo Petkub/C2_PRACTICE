@@ -14,7 +14,9 @@ Regression tests for the POSN Practice Judge.
    (hashes, backups, restart, create-only code files), and must refuse bad hashes, bad paths and no network.
 5. A later release (a fake 4.0.1 made here) over local HTTP: a re-titled, a replaced and a moved problem, a clash,
    files the updater did not ship, a new Mixed set 00_Mixed/M<last + 1> and a re-titled Mixed problem, and a quiet second run.
-6. manifest.json is up to date.
+6. Reports to the teacher (tests/report_tests.py, the same file in C2_MOCK): login, outbox, pull, backup / restore,
+   speed, against tools/fake_report_server.py on this computer.
+7. manifest.json is up to date.
 """
 import contextlib
 import functools
@@ -55,6 +57,8 @@ def problems_json():
     with open(os.path.join(REPO, "problems", "batch", "problems.json"), encoding="utf-8") as f:
         return json.load(f)
 os.environ["JUDGE_NO_UPDATE"] = "1"       # the judge never contacts GitHub during the tests
+os.environ["JUDGE_REPORT_URL"] = "off"    # ... nor the teacher's report server (report_tests uses a fake one)
+os.environ["STUPIDGRADER_HOME"] = tempfile.mkdtemp(prefix="judge_login_")   # never the real login file
 
 
 def check(ok, name, detail=""):
@@ -440,6 +444,21 @@ def test_mixed_sets(root):
           "judge.py --list shows the Mixed sets by name (00_Mixed/M01/1 ... 6), first, then the topics",
           f"exit {code}\n{out[:900]}")
     open(src, "w").close()
+
+
+# ----------------------------------------------------------------------------- reports to the teacher
+def test_reports():
+    import report_tests
+    tmp = tempfile.mkdtemp(prefix="judge_report_")
+    try:
+        subprocess.run([sys.executable, os.path.join(REPO, "tools", "build_dist.py"), "--out", tmp, "--no-zip"],
+                       check=True, stdout=subprocess.DEVNULL)
+        pid = judge.set_of(3)["problems"][0]          # problem 3-1, solved by grid_ok.cpp
+        report_tests.run(check, os.path.join(tmp, "C2_Practice"), f"{TOPIC3}/01", "03-01.cpp", pid,
+                         os.path.join(SAMPLES, "batch", "grid_ok.cpp"), "practice",
+                         sibling=os.path.join(os.path.dirname(REPO), "C2_MOCK"))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 # ----------------------------------------------------------------------------- 4. self-update
@@ -1083,6 +1102,7 @@ def main():
         judge, JUDGE = repo_judge, os.path.join(CORE, "judge.py")
         shutil.rmtree(pkg, ignore_errors=True)
     test_student_package()
+    test_reports()
     test_updater()
     test_fast_update()
     test_future_update()
