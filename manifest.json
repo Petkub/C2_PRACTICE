@@ -24909,7 +24909,7 @@
 "problems/batch/M11/6/manifest.json": "b5e79b794c7944ff743afc672f93eec751b1ec00f7106064dd2500265615e233",
 "problems/batch/problems.json": "2a8663354b85561b0cf37b4f189f68a6c751b087af23e2df19195c345c02c43e",
 "problems/batch/sets.json": "e8096494681c1303a7c06997d9934bc4745e82ec8b26cdfd9cf1d2803192149d",
-"updater.py": "ced9cc5f9b4c52457742f97f7faf899e2f914c285150838d7e7fc4bdb04ea997"
+"updater.py": "d201721e13c693431bb3fbf79aaa62f072e10f4fa5ccee86a17c2978355ce18e"
 },
 "managed": {
 ".vscode/settings.json": [
