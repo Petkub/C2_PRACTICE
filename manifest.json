@@ -2520,9 +2520,9 @@
 ]
 },
 "files": {
-"CHANGELOG.txt": "8c44f6938b8cb129c9cc77dfbddef8141937c2c05c5a258d70d6b5671f6cee48",
+"CHANGELOG.txt": "20e28188d8b59faaf6c7eaaccb4fff1837aaa07363d192fa60746def969844f6",
 "README.txt": "57528d28238c80ee226c0b7e4f0049c8d6ccd72cbaf7d7619a7f8387ce193a46",
-"config.json": "75cfa4a161739f255d53a9575030e618a6530b4d72edce725350907e749d30b3",
+"config.json": "ab65287d2a9fe234cb3c1e8055186604d02a5760a219e54c52de2bd250c48c40",
 "include/bits/stdc++.h": "1545f1f4b55b3acb866effca73203f3a9131773f147331cbf4e983ebf36d6cc9",
 "judge.cmd": "84038f11038804a85edc6df3e3c64f10a72891fad6b98ac7a7ae08e358ed7f44",
 "judge.py": "454ab471bf6419d6bdc69e622972e06602c8a59ee55d8ad7540078ad0e556dca",
@@ -27806,5 +27806,5 @@
 "": "core/",
 "problems/": "problems/"
 },
-"version": "4.1.0"
+"version": "4.2.0"
 }
